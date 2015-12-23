@@ -32,8 +32,8 @@ file %>%
   geom_errorbar(aes(ymin=PercentageofColddamagedPlants_mean-PercentageofColddamagedPlants_sd/2,
                     ymax=PercentageofColddamagedPlants_mean+PercentageofColddamagedPlants_sd/2),
                     width=0.25)   +
-  scale_fill_manual(values=cbPalette)
-
-
+  scale_fill_manual(values=cbPalette) + 
+  theme_grey(base_size = 16)+
+  theme(axis.text.x=element_text(angle = +90, hjust = 0))
 
 
