@@ -17,7 +17,7 @@ anova<-aov(file$PercentageofColddamagedPlants~file$Cultivar+file$Block)
 summary(anova)
 TukeyHSD(anova)
 
-HSD.test(amod, "tx", group=TRUE)
+
 
 #barplot 
 # The palette with grey:
