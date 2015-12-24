@@ -25,9 +25,9 @@ cbPalette <- c("#999999", "#E69F00", "#56B4E9", "#009E73", "#D55E00", "#0072B2")
 
 file %>%
   #filter(Cultivar == "Antas") %>%
-  group_by(Cultivar) %>%
+  group_by(Subspecies) %>%
   summarise_each(funs(mean, sd)) %>%
-  ggplot(aes(x=Cultivar, y=PercentageofColddamagedPlants_mean, fill=Cultivar)) +
+  ggplot(aes(x=Subspecies, y=PercentageofColddamagedPlants_mean, fill=Subspecies)) +
   geom_bar(position = position_dodge(), stat="identity") +
   geom_errorbar(aes(ymin=PercentageofColddamagedPlants_mean-PercentageofColddamagedPlants_sd/2,
                     ymax=PercentageofColddamagedPlants_mean+PercentageofColddamagedPlants_sd/2),
