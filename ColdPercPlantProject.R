@@ -23,11 +23,12 @@ TukeyHSD(anova)
 # The palette with grey:
 cbPalette <- c("#999999", "#E69F00", "#56B4E9", "#009E73", "#D55E00", "#0072B2")
 
+#Here is analysis of Origin
 file %>%
   #filter(Cultivar == "Antas") %>%
-  group_by(Subspecies) %>%
+  group_by(Origin) %>%
   summarise_each(funs(mean, sd)) %>%
-  ggplot(aes(x=Subspecies, y=PercentageofColddamagedPlants_mean, fill=Subspecies)) +
+  ggplot(aes(x=Origin, y=PercentageofColddamagedPlants_mean, fill=Origin)) +
   geom_bar(position = position_dodge(), stat="identity") +
   geom_errorbar(aes(ymin=PercentageofColddamagedPlants_mean-PercentageofColddamagedPlants_sd/2,
                     ymax=PercentageofColddamagedPlants_mean+PercentageofColddamagedPlants_sd/2),
@@ -36,4 +37,37 @@ file %>%
   theme_grey(base_size = 16)+
   theme(axis.text.x=element_text(angle = +90, hjust = 0))
 
+  ggsave(file="PercentagePlants1.tiff", dpi=300)
+  
+#Here is analysing Subspecies 
+file %>%
+  #filter(Cultivar == "Antas") %>%
+  group_by(Subspecies) %>%
+  summarise_each(funs(mean, sd)) %>%
+  ggplot(aes(x=Subspecies, y=PercentageofColddamagedPlants_mean, fill=Subspecies)) +
+  geom_bar(position = position_dodge(), stat="identity") +
+  geom_errorbar(aes(ymin=PercentageofColddamagedPlants_mean-PercentageofColddamagedPlants_sd/2,
+                    ymax=PercentageofColddamagedPlants_mean+PercentageofColddamagedPlants_sd/2),
+                width=0.25)   +
+  scale_fill_manual(values=cbPalette) + 
+  theme_grey(base_size = 16)+
+  theme(axis.text.x=element_text(angle = +90, hjust = 0))
+
+ggsave(file="PercentagePlants2.tiff", dpi=300)
+
+#Here is analysing Cultivar 
+file %>%
+  #filter(Cultivar == "Antas") %>%
+  group_by(Cultivar) %>%
+  summarise_each(funs(mean, sd)) %>%
+  ggplot(aes(x=Cultivar, y=PercentageofColddamagedPlants_mean, fill=Cultivar)) +
+  geom_bar(position = position_dodge(), stat="identity") +
+  geom_errorbar(aes(ymin=PercentageofColddamagedPlants_mean-PercentageofColddamagedPlants_sd/2,
+                    ymax=PercentageofColddamagedPlants_mean+PercentageofColddamagedPlants_sd/2),
+                width=0.25)   +
+  scale_fill_manual(values=cbPalette) + 
+  theme_grey(base_size = 16)+
+  theme(axis.text.x=element_text(angle = +90, hjust = 0))
+
+ggsave(file="PercentagePlants3.tiff", dpi=300)
 
