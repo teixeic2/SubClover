@@ -71,3 +71,31 @@ file %>%
 
 ggsave(file="PercentagePlants3.tiff", dpi=300)
 
+#histogram
+ggplot(data=file, aes(PercentageofColddamagedPlants)) + 
+  geom_histogram()
+
+#normality test
+shapiro.test(file$PercentageofColddamagedPlants)
+
+#QQplot
+var<-file$PercentageofColddamagedPlants
+qqnorm(var)
+qqline(var, col = 2)
+qqplot(var, rt(300, df = 5))
+
+ggplot(file, aes(sample = var)) + stat_qq()
+
+
+#transform SQR
+file$sQR <- sqrt(file$PercentageofColddamagedPlants)
+ggplot(data=file, aes(file$sQR)) + 
+  geom_histogram()
+
+#transform log
+file$log <- log (file$PercentageofColddamagedPlants)
+ggplot(data=file, aes(file$log)) + 
+  geom_histogram()
+
+
+head(file)
