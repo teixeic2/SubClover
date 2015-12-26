@@ -13,9 +13,9 @@ summary (file)
 
 #Anova
 file$Block <- as.factor(file$Block )
-anova<-aov(file$PercentageofColddamagedPlants~file$Cultivar+file$Block)
-summary(anova)
-TukeyHSD(anova)
+anovaOut<-aov(file$PercentageofColddamagedPlants~file$Cultivar+file$Block)
+summary(anovaOut)
+TukeyHSD(anovaOut)
 
 
 
@@ -99,3 +99,19 @@ ggplot(data=file, aes(file$log)) +
 
 
 head(file)
+
+#Anova log
+file$Block <- as.factor(file$Block )
+anova<-aov(file$log~file$Cultivar+file$Block)
+summary(anova)
+TukeyHSD(anova)
+
+#Means of log transformed data
+model<-lm(file$log~file$Cultivar+file$Block)
+anova(model)
+a<-(LSD.test(model, "Cultivar", alpha= 0.05, p.adj="none"))             
+summary (a)
+(HSD.test(model, "Cultivar"))
+
+
+
