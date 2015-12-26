@@ -5,13 +5,14 @@ library(agricolae)
 setwd("C:\\Users\\Ed\\Documents\\Subclover\\ColdSens")
 getwd()
 
-#create file
+#Analysis of Experiment 3 - Field Iversen 2 - 6 cultivars 
+#create file 
 file <- read.table("ColdPercPlant.txt",header=TRUE)
 file
 head(file)
 summary (file)
 
-#Anova
+#AnovaOut pure numbers
 file$Block <- as.factor(file$Block )
 anovaOut<-aov(file$PercentageofColddamagedPlants~file$Cultivar+file$Block)
 summary(anovaOut)
@@ -100,18 +101,44 @@ ggplot(data=file, aes(file$log)) +
 
 head(file)
 
-#Anova log
+#AnovaLog analysis of transformed log
 file$Block <- as.factor(file$Block )
-anova<-aov(file$log~file$Cultivar+file$Block)
-summary(anova)
-TukeyHSD(anova)
+anovaLog<-aov(file$log~file$Cultivar+file$Block)
+summary(anovaLog)
+TukeyHSD(anovaLog)
 
-#Means of log transformed data
+#Alternative way of doing ANoVA with agricolae 
 model<-lm(file$log~file$Cultivar+file$Block)
 anova(model)
-a<-(LSD.test(model, "Cultivar", alpha= 0.05, p.adj="none"))             
-summary (a)
-(HSD.test(model, "Cultivar"))
+
+#Means separation of log transformed data by Cultivar
+(LSD.test(anovaLog, "file$Cultivar", alpha= 0.05, p.adj="none"))             
+summary (anovaLog)
+
+#Anova and Means separation of log transformed data by Subspecies
+file$Block <- as.factor(file$Block )
+anovaLogsub<-aov(file$log~file$Subspecies+file$Block)
+summary(anovaLogsub)
+
+TukeyHSD(anovaLogsub)
+(LSD.test(anovaLogsub, "file$Subspecies", alpha= 0.05, p.adj="none"))             
+summary (anovaLogsub)
+
+
+#Anova and Means separation of log transformed data by Origin 
+file$Block <- as.factor(file$Block )
+anovaLogOrigin<-aov(file$log~file$Origin+file$Block)
+summary(anovaLogOrigin)
+
+TukeyHSD(anovaLogOrigin)
+(LSD.test(anovaLogOrigin, "file$Origin", alpha= 0.05, p.adj="none"))             
+summary (anovaLogOrigin)
+
+
+#Means separation of log transformed data
+(HSD.test(anovaLogOrigin, "file$Cultivar"))             
+summary (anovaLogOrigin)
+
 
 
 
