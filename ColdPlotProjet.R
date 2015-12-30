@@ -5,7 +5,7 @@ library (ggplot2)
 library(agricolae)
 setwd("C:\\Users\\Ed\\Documents\\Subclover\\ColdSens")
 getwd()
-
+dev.off()
 #analysis of Experiment 1 - 14 cultivars Iversen 2 - plot scoring 
 file <- read.table("ColdPercPlots.txt",header=TRUE)
 file
@@ -19,7 +19,6 @@ cbPalette <- c("#999999", "#E69F00", "#56B4E9", "#009E73", "#D55E00", "#0072B2",
 
 #Here is analysing Subspecies 
 file %>%
-  #filter(Cultivar == "Antas") %>%
   group_by(Subspecies) %>%
   summarise_each(funs(mean, sd)) %>%
   ggplot(aes(x=Subspecies, y=PercentageRedPlants50DAS_mean, fill=Subspecies)) +
@@ -38,6 +37,8 @@ file %>%
   #filter(Cultivar == "Antas") %>%
 group_by(Cultivar) %>%
   summarise_each(funs(mean, sd)) %>%
+  mutate(Cultivar = factor(Cultivar,levels = 
+                             Cultivar[order(PercentageRedPlants50DAS_mean)])) %>%
   ggplot(aes(x=Cultivar, y=PercentageRedPlants50DAS_mean, fill=Cultivar)) +
   geom_bar(position = position_dodge(), stat="identity") +
   geom_errorbar(aes(ymin=PercentageRedPlants50DAS_mean-PercentageRedPlants50DAS_sd/2,
@@ -46,6 +47,10 @@ group_by(Cultivar) %>%
   scale_fill_manual(values=cbPalette) + 
   theme_grey(base_size = 22)+
   theme(axis.text.x=element_text(angle = +90, hjust = 0))
+  xlab("Cultivar")+
+  ylab("% Damage")
+
+
 
 
 ggsave(file="PlotsPercentage_Cultivar3.tiff", dpi=300)
