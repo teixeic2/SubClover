@@ -1,4 +1,4 @@
-Date	Plot	Variable	S1	S2	S3	S4	S5	Percent	Cultivar	SowingDate	SowingD	DAS
+﻿Date	Plot	Variable	S1	S2	S3	S4	S5	Percent	Cultivar	SowingDate	SowingD	DAS
 12/10/2015	1	Bud	0	0	0	0	0	0	Antas 	S1	24/06/2015	110
 12/10/2015	2	Bud	0	0	0	0	0	0	Monti	S1	24/06/2015	110
 12/10/2015	3	Bud	0	0	0	0	0	0	Denmark	S1	24/06/2015	110
@@ -4696,443 +4696,435 @@ Date	Plot	Variable	S1	S2	S3	S4	S5	Percent	Cultivar	SowingDate	SowingD	DAS
 29/12/2015	18	B2	1	1	1	1	1	100	Leura	S1	24/06/2015	188
 29/12/2015	18	B3	1	1	1	0	1	80	Leura	S1	24/06/2015	188
 29/12/2015	18	B4	0	0	0	0	0	0	Leura	S1	24/06/2015	188
-29/12/2015	19	Bud	0	0	0	0	0		Narrikup	S2	28/07/2015	154
-29/12/2015	19	Early	0	0	0	0	0		Narrikup	S2	28/07/2015	154
-29/12/2015	19	Open	1	0	0	0	0		Narrikup	S2	28/07/2015	154
-29/12/2015	19	Petal	1	0	0	0	1		Narrikup	S2	28/07/2015	154
-29/12/2015	19	B1	1	1	0	0	0		Narrikup	S2	28/07/2015	154
-29/12/2015	19	B2	1	1	0	1	1		Narrikup	S2	28/07/2015	154
-29/12/2015	19	B3	0	1	1	1	1		Narrikup	S2	28/07/2015	154
-29/12/2015	19	B4	0	0	1	1	0		Narrikup	S2	28/07/2015	154
-29/12/2015	20	Bud	0	0	0	0	0		Monti	S2	28/07/2015	154
-29/12/2015	20	Early	0	0	0	0	0		Monti	S2	28/07/2015	154
-29/12/2015	20	Open	0	0	0	0	0		Monti	S2	28/07/2015	154
-29/12/2015	20	Petal	0	0	0	0	0		Monti	S2	28/07/2015	154
-29/12/2015	20	B1	0	1	0	0	0		Monti	S2	28/07/2015	154
-29/12/2015	20	B2	0	1	0	0	1		Monti	S2	28/07/2015	154
-29/12/2015	20	B3	1	1	1	1	1		Monti	S2	28/07/2015	154
-29/12/2015	20	B4	1	1	1	1	1		Monti	S2	28/07/2015	154
-29/12/2015	21	Bud	0	0	0	0	0		Woogenellup	S2	28/07/2015	154
-29/12/2015	21	Early	0	0	0	0	0		Woogenellup	S2	28/07/2015	154
-29/12/2015	21	Open	0	0	0	0	0		Woogenellup	S2	28/07/2015	154
-29/12/2015	21	Petal	0	0	0	0	1		Woogenellup	S2	28/07/2015	154
-29/12/2015	21	B1	0	0	0	0	1		Woogenellup	S2	28/07/2015	154
-29/12/2015	21	B2	0	0	0	1	1		Woogenellup	S2	28/07/2015	154
-29/12/2015	21	B3	1	1	1	1	1		Woogenellup	S2	28/07/2015	154
-29/12/2015	21	B4	1	1	0	0	0		Woogenellup	S2	28/07/2015	154
-29/12/2015	22	Bud	0	0	0	0	0		Leura	S2	28/07/2015	154
-29/12/2015	22	Early	0	0	0	0	0		Leura	S2	28/07/2015	154
-29/12/2015	22	Open	0	0	0	0	0		Leura	S2	28/07/2015	154
-29/12/2015	22	Petal	1	0	1	0	0		Leura	S2	28/07/2015	154
-29/12/2015	22	B1	0	0	0	0	0		Leura	S2	28/07/2015	154
-29/12/2015	22	B2	1	1	1	1	1		Leura	S2	28/07/2015	154
-29/12/2015	22	B3	1	1	1	1	1		Leura	S2	28/07/2015	154
-29/12/2015	22	B4	0	0	0	0	0		Leura	S2	28/07/2015	154
-29/12/2015	23	Bud	0	0	0	0	0		Denmark	S2	28/07/2015	154
-29/12/2015	23	Early	0	0	0	0	0		Denmark	S2	28/07/2015	154
-29/12/2015	23	Open	0	0	0	0	0		Denmark	S2	28/07/2015	154
-29/12/2015	23	Petal	1	0	0	0	0		Denmark	S2	28/07/2015	154
-29/12/2015	23	B1	1	1	1	0	0		Denmark	S2	28/07/2015	154
-29/12/2015	23	B2	1	1	1	1	1		Denmark	S2	28/07/2015	154
-29/12/2015	23	B3	0	1	1	1	1		Denmark	S2	28/07/2015	154
-29/12/2015	23	B4	0	0	0	0	1		Denmark	S2	28/07/2015	154
-29/12/2015	24	Bud	0	0	0	0	0		Antas 	S2	28/07/2015	154
-29/12/2015	24	Early	0	0	0	0	0		Antas 	S2	28/07/2015	154
-29/12/2015	24	Open	0	0	0	0	0		Antas 	S2	28/07/2015	154
-29/12/2015	24	Petal	0	1	0	0	0		Antas 	S2	28/07/2015	154
-29/12/2015	24	B1	0	1	0	0	0		Antas 	S2	28/07/2015	154
-29/12/2015	24	B2	1	1	1	1	1		Antas 	S2	28/07/2015	154
-29/12/2015	24	B3	1	0	1	1	1		Antas 	S2	28/07/2015	154
-29/12/2015	24	B4	0	0	0	0	0		Antas 	S2	28/07/2015	154
-29/12/2015	25	Bud	0	0	0	0	0		Leura	S2	28/07/2015	154
-29/12/2015	25	Early	1	0	0	1	0		Leura	S2	28/07/2015	154
-29/12/2015	25	Open	0	0	0	0	0		Leura	S2	28/07/2015	154
-29/12/2015	25	Petal	1	0	0	1	1		Leura	S2	28/07/2015	154
-29/12/2015	25	B1	1	1	0	0	1		Leura	S2	28/07/2015	154
-29/12/2015	25	B2	0	1	1	1	1		Leura	S2	28/07/2015	154
-29/12/2015	25	B3	0	1	1	1	1		Leura	S2	28/07/2015	154
-29/12/2015	25	B4	0	0	0	0	0		Leura	S2	28/07/2015	154
-29/12/2015	26	Bud	0	0	0	0	0		Woogenellup	S2	28/07/2015	154
-29/12/2015	26	Early	0	0	0	0	1		Woogenellup	S2	28/07/2015	154
-29/12/2015	26	Open	0	0	0	1	0		Woogenellup	S2	28/07/2015	154
-29/12/2015	26	Petal	1	0	0	1	1		Woogenellup	S2	28/07/2015	154
-29/12/2015	26	B1	1	1	0	1	1		Woogenellup	S2	28/07/2015	154
-29/12/2015	26	B2	1	1	1	1	1		Woogenellup	S2	28/07/2015	154
-29/12/2015	26	B3	0	1	1	1	0		Woogenellup	S2	28/07/2015	154
-29/12/2015	26	B4	0	0	0	0	0		Woogenellup	S2	28/07/2015	154
-29/12/2015	27	Bud	0	0	0	0	0		Denmark	S2	28/07/2015	154
-29/12/2015	27	Early	0	1	0	0	0		Denmark	S2	28/07/2015	154
-29/12/2015	27	Open	1	0	1	0	0		Denmark	S2	28/07/2015	154
-29/12/2015	27	Petal	1	1	0	1	1		Denmark	S2	28/07/2015	154
-29/12/2015	27	B1	1	1	0	1	1		Denmark	S2	28/07/2015	154
-29/12/2015	27	B2	1	1	1	1	1		Denmark	S2	28/07/2015	154
-29/12/2015	27	B3	0	0	1	0	1		Denmark	S2	28/07/2015	154
-29/12/2015	27	B4	0	0	0	0	0		Denmark	S2	28/07/2015	154
-29/12/2015	28	Bud	0	0	0	0	0		Narrikup	S2	28/07/2015	154
-29/12/2015	28	Early	0	0	0	0	0		Narrikup	S2	28/07/2015	154
-29/12/2015	28	Open	0	0	0	0	0		Narrikup	S2	28/07/2015	154
-29/12/2015	28	Petal	0	0	0	0	0		Narrikup	S2	28/07/2015	154
-29/12/2015	28	B1	1	0	0	0	0		Narrikup	S2	28/07/2015	154
-29/12/2015	28	B2	1	0	0	1	1		Narrikup	S2	28/07/2015	154
-29/12/2015	28	B3	1	1	1	1	1		Narrikup	S2	28/07/2015	154
-29/12/2015	28	B4	0	0	0	0	0		Narrikup	S2	28/07/2015	154
-29/12/2015	29	Bud	0	0	0	0	0		Antas 	S2	28/07/2015	154
-29/12/2015	29	Early	0	0	0	0	0		Antas 	S2	28/07/2015	154
-29/12/2015	29	Open	0	0	0	0	0		Antas 	S2	28/07/2015	154
-29/12/2015	29	Petal	1	0	0	0	1		Antas 	S2	28/07/2015	154
-29/12/2015	29	B1	0	0	1	0	1		Antas 	S2	28/07/2015	154
-29/12/2015	29	B2	1	0	1	1	1		Antas 	S2	28/07/2015	154
-29/12/2015	29	B3	1	1	0	1	0		Antas 	S2	28/07/2015	154
-29/12/2015	29	B4	0	0	0	0	0		Antas 	S2	28/07/2015	154
-29/12/2015	30	Bud	0	0	0	0	0		Monti	S2	28/07/2015	154
-29/12/2015	30	Early	0	0	0	0	0		Monti	S2	28/07/2015	154
-29/12/2015	30	Open	0	0	0	0	0		Monti	S2	28/07/2015	154
-29/12/2015	30	Petal	0	0	0	0	0		Monti	S2	28/07/2015	154
-29/12/2015	30	B1	0	1	0	0	0		Monti	S2	28/07/2015	154
-29/12/2015	30	B2	1	1	1	0	0		Monti	S2	28/07/2015	154
-29/12/2015	30	B3	1	1	1	1	1		Monti	S2	28/07/2015	154
-29/12/2015	30	B4	0	0	0	0	0		Monti	S2	28/07/2015	154
-29/12/2015	31	Bud	0	0	0	0	0		Denmark	S2	28/07/2015	154
-29/12/2015	31	Early	0	0	0	0	0		Denmark	S2	28/07/2015	154
-29/12/2015	31	Open	0	1	0	0	1		Denmark	S2	28/07/2015	154
-29/12/2015	31	Petal	0	1	0	0	1		Denmark	S2	28/07/2015	154
-29/12/2015	31	B1	0	1	1	1	0		Denmark	S2	28/07/2015	154
-29/12/2015	31	B2	1	1	1	1	1		Denmark	S2	28/07/2015	154
-29/12/2015	31	B3	1	1	1	1	1		Denmark	S2	28/07/2015	154
-29/12/2015	31	B4	0	0	0	0	0		Denmark	S2	28/07/2015	154
-29/12/2015	32	Bud	0	0	0	0	0		Antas 	S2	28/07/2015	154
-29/12/2015	32	Early	0	0	0	0	0		Antas 	S2	28/07/2015	154
-29/12/2015	32	Open	0	0	0	0	0		Antas 	S2	28/07/2015	154
-29/12/2015	32	Petal	0	1	0	0	0		Antas 	S2	28/07/2015	154
-29/12/2015	32	B1	0	0	0	0	0		Antas 	S2	28/07/2015	154
-29/12/2015	32	B2	1	1	0	0	0		Antas 	S2	28/07/2015	154
-29/12/2015	32	B3	1	1	1	1	1		Antas 	S2	28/07/2015	154
-29/12/2015	32	B4	0	0	1	0	1		Antas 	S2	28/07/2015	154
-29/12/2015	33	Bud	0	0	0	0	0		Monti	S2	28/07/2015	154
-29/12/2015	33	Early	0	0	0	0	0		Monti	S2	28/07/2015	154
-29/12/2015	33	Open	0	0	0	0	0		Monti	S2	28/07/2015	154
-29/12/2015	33	Petal	0	0	0	1	0		Monti	S2	28/07/2015	154
-29/12/2015	33	B1	1	0	0	1	0		Monti	S2	28/07/2015	154
-29/12/2015	33	B2	1	1	0	1	0		Monti	S2	28/07/2015	154
-29/12/2015	33	B3	1	1	1	0	1		Monti	S2	28/07/2015	154
-29/12/2015	33	B4	0	0	0	0	0		Monti	S2	28/07/2015	154
-29/12/2015	34	Bud	0	0	0	0	0		Woogenellup	S2	28/07/2015	154
-29/12/2015	34	Early	0	0	0	0	0		Woogenellup	S2	28/07/2015	154
-29/12/2015	34	Open	0	0	0	0	1		Woogenellup	S2	28/07/2015	154
-29/12/2015	34	Petal	0	1	0	0	1		Woogenellup	S2	28/07/2015	154
-29/12/2015	34	B1	0	1	0	1	1		Woogenellup	S2	28/07/2015	154
-29/12/2015	34	B2	1	1	1	1	1		Woogenellup	S2	28/07/2015	154
-29/12/2015	34	B3	0	0	1	0	0		Woogenellup	S2	28/07/2015	154
-29/12/2015	34	B4	0	0	0	0	0		Woogenellup	S2	28/07/2015	154
-29/12/2015	35	Bud	0	0	0	0	0		Leura	S2	28/07/2015	154
-29/12/2015	35	Early	0	0	0	0	0		Leura	S2	28/07/2015	154
-29/12/2015	35	Open	0	0	0	0	0		Leura	S2	28/07/2015	154
-29/12/2015	35	Petal	1	1	1	0	0		Leura	S2	28/07/2015	154
-29/12/2015	35	B1	1	1	1	0	0		Leura	S2	28/07/2015	154
-29/12/2015	35	B2	1	1	1	1	1		Leura	S2	28/07/2015	154
-29/12/2015	35	B3	1	0	1	1	1		Leura	S2	28/07/2015	154
-29/12/2015	35	B4	0	0	0	0	0		Leura	S2	28/07/2015	154
-29/12/2015	36	Bud	0	0	0	0	0		Narrikup	S2	28/07/2015	154
-29/12/2015	36	Early	0	0	0	0	0		Narrikup	S2	28/07/2015	154
-29/12/2015	36	Open	0	0	0	0	0		Narrikup	S2	28/07/2015	154
-29/12/2015	36	Petal	1	0	0	0	0		Narrikup	S2	28/07/2015	154
-29/12/2015	36	B1	1	0	0	0	0		Narrikup	S2	28/07/2015	154
-29/12/2015	36	B2	1	0	0	0	0		Narrikup	S2	28/07/2015	154
-29/12/2015	36	B3	1	1	1	1	1		Narrikup	S2	28/07/2015	154
-29/12/2015	36	B4	0	1	1	0	1		Narrikup	S2	28/07/2015	154
-next measurement 	37	Bud	0	0	0	0	0		Denmark	S3	15/09/2015	#VALUE!
-next measurement 	37	Early	0	0	0	0	0		Denmark	S3	15/09/2015	#VALUE!
-next measurement 	37	Open	0	0	0	0	0		Denmark	S3	15/09/2015	#VALUE!
-next measurement 	37	Petal	0	0	0	0	0		Denmark	S3	15/09/2015	#VALUE!
-next measurement 	37	B1	0	0	0	0	0		Denmark	S3	15/09/2015	#VALUE!
-next measurement 	37	B2	0	0	0	0	0		Denmark	S3	15/09/2015	#VALUE!
-next measurement 	37	B3	0	0	0	0	0		Denmark	S3	15/09/2015	#VALUE!
-next measurement 	37	B4	0	0	0	0	0		Denmark	S3	15/09/2015	#VALUE!
-next measurement 	38	Bud	0	0	0	0	0		Antas 	S3	15/09/2015	#VALUE!
-next measurement 	38	Early	0	0	0	0	0		Antas 	S3	15/09/2015	#VALUE!
-next measurement 	38	Open	0	0	0	0	0		Antas 	S3	15/09/2015	#VALUE!
-next measurement 	38	Petal	0	0	0	0	0		Antas 	S3	15/09/2015	#VALUE!
-next measurement 	38	B1	0	0	0	0	0		Antas 	S3	15/09/2015	#VALUE!
-next measurement 	38	B2	0	0	0	0	0		Antas 	S3	15/09/2015	#VALUE!
-next measurement 	38	B3	0	0	0	0	0		Antas 	S3	15/09/2015	#VALUE!
-next measurement 	38	B4	0	0	0	0	0		Antas 	S3	15/09/2015	#VALUE!
-next measurement 	39	Bud	0	0	0	0	0		Woogenellup	S3	15/09/2015	#VALUE!
-next measurement 	39	Early	0	0	0	0	0		Woogenellup	S3	15/09/2015	#VALUE!
-next measurement 	39	Open	0	0	0	0	0		Woogenellup	S3	15/09/2015	#VALUE!
-next measurement 	39	Petal	0	0	0	0	0		Woogenellup	S3	15/09/2015	#VALUE!
-next measurement 	39	B1	0	0	0	0	0		Woogenellup	S3	15/09/2015	#VALUE!
-next measurement 	39	B2	0	0	0	0	0		Woogenellup	S3	15/09/2015	#VALUE!
-next measurement 	39	B3	0	0	0	0	0		Woogenellup	S3	15/09/2015	#VALUE!
-next measurement 	39	B4	0	0	0	0	0		Woogenellup	S3	15/09/2015	#VALUE!
-next measurement 	40	Bud	0	0	0	0	0		Leura	S3	15/09/2015	#VALUE!
-next measurement 	40	Early	0	0	0	0	0		Leura	S3	15/09/2015	#VALUE!
-next measurement 	40	Open	0	0	0	0	0		Leura	S3	15/09/2015	#VALUE!
-next measurement 	40	Petal	0	0	0	0	0		Leura	S3	15/09/2015	#VALUE!
-next measurement 	40	B1	0	0	0	0	0		Leura	S3	15/09/2015	#VALUE!
-next measurement 	40	B2	0	0	0	0	0		Leura	S3	15/09/2015	#VALUE!
-next measurement 	40	B3	0	0	0	0	0		Leura	S3	15/09/2015	#VALUE!
-next measurement 	40	B4	0	0	0	0	0		Leura	S3	15/09/2015	#VALUE!
-next measurement 	41	Bud	0	0	0	0	0		Narrikup	S3	15/09/2015	#VALUE!
-next measurement 	41	Early	0	0	0	0	0		Narrikup	S3	15/09/2015	#VALUE!
-next measurement 	41	Open	0	0	0	0	0		Narrikup	S3	15/09/2015	#VALUE!
-next measurement 	41	Petal	0	0	0	0	0		Narrikup	S3	15/09/2015	#VALUE!
-next measurement 	41	B1	0	0	0	0	0		Narrikup	S3	15/09/2015	#VALUE!
-next measurement 	41	B2	0	0	0	0	0		Narrikup	S3	15/09/2015	#VALUE!
-next measurement 	41	B3	0	0	0	0	0		Narrikup	S3	15/09/2015	#VALUE!
-next measurement 	41	B4	0	0	0	0	0		Narrikup	S3	15/09/2015	#VALUE!
-next measurement 	42	Bud	0	0	0	0	0		Monti	S3	15/09/2015	#VALUE!
-next measurement 	42	Early	0	0	0	0	0		Monti	S3	15/09/2015	#VALUE!
-next measurement 	42	Open	0	0	0	0	0		Monti	S3	15/09/2015	#VALUE!
-next measurement 	42	Petal	0	0	0	0	0		Monti	S3	15/09/2015	#VALUE!
-next measurement 	42	B1	0	0	0	0	0		Monti	S3	15/09/2015	#VALUE!
-next measurement 	42	B2	0	0	0	0	0		Monti	S3	15/09/2015	#VALUE!
-next measurement 	42	B3	0	0	0	0	0		Monti	S3	15/09/2015	#VALUE!
-next measurement 	42	B4	0	0	0	0	0		Monti	S3	15/09/2015	#VALUE!
-next measurement 	43	Bud	0	0	0	0	0		Woogenellup	S3	15/09/2015	#VALUE!
-next measurement 	43	Early	0	0	0	0	0		Woogenellup	S3	15/09/2015	#VALUE!
-next measurement 	43	Open	0	0	0	0	0		Woogenellup	S3	15/09/2015	#VALUE!
-next measurement 	43	Petal	0	0	0	0	0		Woogenellup	S3	15/09/2015	#VALUE!
-next measurement 	43	B1	0	0	0	0	0		Woogenellup	S3	15/09/2015	#VALUE!
-next measurement 	43	B2	0	0	0	0	0		Woogenellup	S3	15/09/2015	#VALUE!
-next measurement 	43	B3	0	0	0	0	0		Woogenellup	S3	15/09/2015	#VALUE!
-next measurement 	43	B4	0	0	0	0	0		Woogenellup	S3	15/09/2015	#VALUE!
-next measurement 	44	Bud	0	0	0	0	0		Leura	S3	15/09/2015	#VALUE!
-next measurement 	44	Early	0	0	0	0	0		Leura	S3	15/09/2015	#VALUE!
-next measurement 	44	Open	0	0	0	0	0		Leura	S3	15/09/2015	#VALUE!
-next measurement 	44	Petal	0	0	0	0	0		Leura	S3	15/09/2015	#VALUE!
-next measurement 	44	B1	0	0	0	0	0		Leura	S3	15/09/2015	#VALUE!
-next measurement 	44	B2	0	0	0	0	0		Leura	S3	15/09/2015	#VALUE!
-next measurement 	44	B3	0	0	0	0	0		Leura	S3	15/09/2015	#VALUE!
-next measurement 	44	B4	0	0	0	0	0		Leura	S3	15/09/2015	#VALUE!
-next measurement 	45	Bud	0	0	0	0	0		Narrikup	S3	15/09/2015	#VALUE!
-next measurement 	45	Early	0	0	0	0	0		Narrikup	S3	15/09/2015	#VALUE!
-next measurement 	45	Open	0	0	0	0	0		Narrikup	S3	15/09/2015	#VALUE!
-next measurement 	45	Petal	0	0	0	0	0		Narrikup	S3	15/09/2015	#VALUE!
-next measurement 	45	B1	0	0	0	0	0		Narrikup	S3	15/09/2015	#VALUE!
-next measurement 	45	B2	0	0	0	0	0		Narrikup	S3	15/09/2015	#VALUE!
-next measurement 	45	B3	0	0	0	0	0		Narrikup	S3	15/09/2015	#VALUE!
-next measurement 	45	B4	0	0	0	0	0		Narrikup	S3	15/09/2015	#VALUE!
-next measurement 	46	Bud	0	0	0	0	0		Antas 	S3	15/09/2015	#VALUE!
-next measurement 	46	Early	0	0	0	0	0		Antas 	S3	15/09/2015	#VALUE!
-next measurement 	46	Open	0	0	0	0	0		Antas 	S3	15/09/2015	#VALUE!
-next measurement 	46	Petal	0	0	0	0	0		Antas 	S3	15/09/2015	#VALUE!
-next measurement 	46	B1	0	0	0	0	0		Antas 	S3	15/09/2015	#VALUE!
-next measurement 	46	B2	0	0	0	0	0		Antas 	S3	15/09/2015	#VALUE!
-next measurement 	46	B3	0	0	0	0	0		Antas 	S3	15/09/2015	#VALUE!
-next measurement 	46	B4	0	0	0	0	0		Antas 	S3	15/09/2015	#VALUE!
-next measurement 	47	Bud	0	0	0	0	0		Denmark	S3	15/09/2015	#VALUE!
-next measurement 	47	Early	0	0	0	0	0		Denmark	S3	15/09/2015	#VALUE!
-next measurement 	47	Open	0	0	0	0	0		Denmark	S3	15/09/2015	#VALUE!
-next measurement 	47	Petal	0	0	0	0	0		Denmark	S3	15/09/2015	#VALUE!
-next measurement 	47	B1	0	0	0	0	0					
-next measurement 	47	B2	0	0	0	0	0					
-next measurement 	47	B3	0	0	0	0	0					
-next measurement 	47	B4	0	0	0	0	0					
-next measurement 	48	Bud	0	0	0	0	0					
-next measurement 	48	Early	0	0	0	0	0					
-next measurement 	48	Open	0	0	0	0	0					
-next measurement 	48	Petal	0	0	0	0	0					
-next measurement 	48	B1	0	0	0	0	0					
-next measurement 	48	B2	0	0	0	0	0					
-next measurement 	48	B3	0	0	0	0	0					
-next measurement 	48	B4	0	0	0	0	0					
-next measurement 	49	Bud	0	0	0	0	0					
-next measurement 	49	Early	0	0	0	0	0					
-next measurement 	49	Open	0	0	0	0	0					
-next measurement 	49	Petal	0	0	0	0	0					
-next measurement 	49	B1	0	0	0	0	0					
-next measurement 	49	B2	0	0	0	0	0					
-next measurement 	49	B3	0	0	0	0	0					
-next measurement 	49	B4	0	0	0	0	0					
-next measurement 	50	Bud	0	0	0	0	0					
-next measurement 	50	Early	0	0	0	0	0					
-next measurement 	50	Open	0	0	0	0	0					
-next measurement 	50	Petal	0	0	0	0	0					
-next measurement 	50	B1	0	0	0	0	0					
-next measurement 	50	B2	0	0	0	0	0					
-next measurement 	50	B3	0	0	0	0	0					
-next measurement 	50	B4	0	0	0	0	0					
-next measurement 	51	Bud	0	0	0	0	0					
-next measurement 	51	Early	0	0	0	0	0					
-next measurement 	51	Open	0	0	0	0	0					
-next measurement 	51	Petal	0	0	0	0	0					
-next measurement 	51	B1	0	0	0	0	0					
-next measurement 	51	B2	0	0	0	0	0					
-next measurement 	51	B3	0	0	0	0	0					
-next measurement 	51	B4	0	0	0	0	0					
-next measurement 	52	Bud	0	0	0	0	0					
-next measurement 	52	Early	0	0	0	0	0					
-next measurement 	52	Open	0	0	0	0	0					
-next measurement 	52	Petal	0	0	0	0	0					
-next measurement 	52	B1	0	0	0	0	0					
-next measurement 	52	B2	0	0	0	0	0					
-next measurement 	52	B3	0	0	0	0	0					
-next measurement 	52	B4	0	0	0	0	0					
-next measurement 	53	Bud	0	0	0	0	0					
-next measurement 	53	Early	0	0	0	0	0					
-next measurement 	53	Open	0	0	0	0	0					
-next measurement 	53	Petal	0	0	0	0	0					
-next measurement 	53	B1	0	0	0	0	0					
-next measurement 	53	B2	0	0	0	0	0					
-next measurement 	53	B3	0	0	0	0	0					
-next measurement 	53	B4	0	0	0	0	0					
-next measurement 	54	Bud	0	0	0	0	0					
-next measurement 	54	Early	0	0	0	0	0					
-next measurement 	54	Open	0	0	0	0	0					
-next measurement 	54	Petal	0	0	0	0	0					
-next measurement 	54	B1	0	0	0	0	0					
-next measurement 	54	B2	0	0	0	0	0					
-next measurement 	54	B3	0	0	0	0	0					
-next measurement 	54	B4	0	0	0	0	0					
-next measurement 	55	Bud	0	0	0	0	0					
-next measurement 	55	Early	0	0	0	0	0					
-next measurement 	55	Open	0	0	0	0	0					
-next measurement 	55	Petal	0	0	0	0	0					
-next measurement 	55	B1	0	0	0	0	0					
-next measurement 	55	B2	0	0	0	0	0					
-next measurement 	55	B3	0	0	0	0	0					
-next measurement 	55	B4	0	0	0	0	0					
-next measurement 	56	Bud	0	0	0	0	0					
-next measurement 	56	Early	0	0	0	0	0					
-next measurement 	56	Open	0	0	0	0	0					
-next measurement 	56	Petal	0	0	0	0	0					
-next measurement 	56	B1	0	0	0	0	0					
-next measurement 	56	B2	0	0	0	0	0					
-next measurement 	56	B3	0	0	0	0	0					
-next measurement 	56	B4	0	0	0	0	0					
-next measurement 	57	Bud	0	0	0	0	0					
-next measurement 	57	Early	0	0	0	0	0					
-next measurement 	57	Open	0	0	0	0	0					
-next measurement 	57	Petal	0	0	0	0	0					
-next measurement 	57	B1	0	0	0	0	0					
-next measurement 	57	B2	0	0	0	0	0					
-next measurement 	57	B3	0	0	0	0	0					
-next measurement 	57	B4	0	0	0	0	0					
-next measurement 	58	Bud	0	0	0	0	0					
-next measurement 	58	Early	0	0	0	0	0					
-next measurement 	58	Open	0	0	0	0	0					
-next measurement 	58	Petal	0	0	0	0	0					
-next measurement 	58	B1	0	0	0	0	0					
-next measurement 	58	B2	0	0	0	0	0					
-next measurement 	58	B3	0	0	0	0	0					
-next measurement 	58	B4	0	0	0	0	0					
-next measurement 	59	Bud	0	0	0	0	0					
-next measurement 	59	Early	0	0	0	0	0					
-next measurement 	59	Open	0	0	0	0	0					
-next measurement 	59	Petal	0	0	0	0	0					
-next measurement 	59	B1	0	0	0	0	0					
-next measurement 	59	B2	0	0	0	0	0					
-next measurement 	59	B3	0	0	0	0	0					
-next measurement 	59	B4	0	0	0	0	0					
-next measurement 	60	Bud	0	0	0	0	0					
-next measurement 	60	Early	0	0	0	0	0					
-next measurement 	60	Open	0	0	0	0	0					
-next measurement 	60	Petal	0	0	0	0	0					
-next measurement 	60	B1	0	0	0	0	0					
-next measurement 	60	B2	0	0	0	0	0					
-next measurement 	60	B3	0	0	0	0	0					
-next measurement 	60	B4	0	0	0	0	0					
-next measurement 	61	Bud	0	0	0	0	0					
-next measurement 	61	Early	0	0	0	0	0					
-next measurement 	61	Open	0	0	0	0	0					
-next measurement 	61	Petal	0	0	0	0	0					
-next measurement 	61	B1	0	0	0	0	0					
-next measurement 	61	B2	0	0	0	0	0					
-next measurement 	61	B3	0	0	0	0	0					
-next measurement 	61	B4	0	0	0	0	0					
-next measurement 	62	Bud	0	0	0	0	0					
-next measurement 	62	Early	0	0	0	0	0					
-next measurement 	62	Open	0	0	0	0	0					
-next measurement 	62	Petal	0	0	0	0	0					
-next measurement 	62	B1	0	0	0	0	0					
-next measurement 	62	B2	0	0	0	0	0					
-next measurement 	62	B3	0	0	0	0	0					
-next measurement 	62	B4	0	0	0	0	0					
-next measurement 	63	Bud	0	0	0	0	0					
-next measurement 	63	Early	0	0	0	0	0					
-next measurement 	63	Open	0	0	0	0	0					
-next measurement 	63	Petal	0	0	0	0	0					
-next measurement 	63	B1	0	0	0	0	0					
-next measurement 	63	B2	0	0	0	0	0					
-next measurement 	63	B3	0	0	0	0	0					
-next measurement 	63	B4	0	0	0	0	0					
-next measurement 	64	Bud	0	0	0	0	0					
-next measurement 	64	Early	0	0	0	0	0					
-next measurement 	64	Open	0	0	0	0	0					
-next measurement 	64	Petal	0	0	0	0	0					
-next measurement 	64	B1	0	0	0	0	0					
-next measurement 	64	B2	0	0	0	0	0					
-next measurement 	64	B3	0	0	0	0	0					
-next measurement 	64	B4	0	0	0	0	0					
-next measurement 	65	Bud	0	0	0	0	0					
-next measurement 	65	Early	0	0	0	0	0					
-next measurement 	65	Open	0	0	0	0	0					
-next measurement 	65	Petal	0	0	0	0	0					
-next measurement 	65	B1	0	0	0	0	0					
-next measurement 	65	B2	0	0	0	0	0					
-next measurement 	65	B3	0	0	0	0	0					
-next measurement 	65	B4	0	0	0	0	0					
-next measurement 	66	Bud	0	0	0	0	0					
-next measurement 	66	Early	0	0	0	0	0					
-next measurement 	66	Open	0	0	0	0	0					
-next measurement 	66	Petal	0	0	0	0	0					
-next measurement 	66	B1	0	0	0	0	0					
-next measurement 	66	B2	0	0	0	0	0					
-next measurement 	66	B3	0	0	0	0	0					
-next measurement 	66	B4	0	0	0	0	0					
-next measurement 	67	Bud	0	0	0	0	0					
-next measurement 	67	Early	0	0	0	0	0					
-next measurement 	67	Open	0	0	0	0	0					
-next measurement 	67	Petal	0	0	0	0	0					
-next measurement 	67	B1	0	0	0	0	0					
-next measurement 	67	B2	0	0	0	0	0					
-next measurement 	67	B3	0	0	0	0	0					
-next measurement 	67	B4	0	0	0	0	0					
-next measurement 	68	Bud	0	0	0	0	0					
-next measurement 	68	Early	0	0	0	0	0					
-next measurement 	68	Open	0	0	0	0	0					
-next measurement 	68	Petal	0	0	0	0	0					
-next measurement 	68	B1	0	0	0	0	0					
-next measurement 	68	B2	0	0	0	0	0					
-next measurement 	68	B3	0	0	0	0	0					
-next measurement 	68	B4	0	0	0	0	0					
-next measurement 	69	Bud	0	0	0	0	0					
-next measurement 	69	Early	0	0	0	0	0					
-next measurement 	69	Open	0	0	0	0	0					
-next measurement 	69	Petal	0	0	0	0	0					
-next measurement 	69	B1	0	0	0	0	0					
-next measurement 	69	B2	0	0	0	0	0					
-next measurement 	69	B3	0	0	0	0	0					
-next measurement 	69	B4	0	0	0	0	0					
-next measurement 	70	Bud	0	0	0	0	0					
-next measurement 	70	Early	0	0	0	0	0					
-next measurement 	70	Open	0	0	0	0	0					
-next measurement 	70	Petal	0	0	0	0	0					
-next measurement 	70	B1	0	0	0	0	0					
-next measurement 	70	B2	0	0	0	0	0					
-next measurement 	70	B3	0	0	0	0	0					
-next measurement 	70	B4	0	0	0	0	0					
-next measurement 	71	Bud	0	0	0	0	0					
-next measurement 	71	Early	0	0	0	0	0					
-next measurement 	71	Open	0	0	0	0	0					
-next measurement 	71	Petal	0	0	0	0	0					
-next measurement 	71	B1	0	0	0	0	0					
-next measurement 	71	B2	0	0	0	0	0					
-next measurement 	71	B3	0	0	0	0	0					
-next measurement 	71	B4	0	0	0	0	0					
-next measurement 	72	Bud	0	0	0	0	0					
-next measurement 	72	Early	0	0	0	0	0					
-next measurement 	72	Open	0	0	0	0	0					
-next measurement 	72	Petal	0	0	0	0	0					
-next measurement 	72	B1	0	0	0	0	0					
-next measurement 	72	B2	0	0	0	0	0					
-next measurement 	72	B3	0	0	0	0	0					
-next measurement 	72	B4	0	0	0	0	0					
-next measurement 	73	Bud	0	0	0	0	0					
-next measurement 	73	Early	0	0	0	0	0					
-next measurement 	73	Open	0	0	0	0	0					
-next measurement 	73	Petal	0	0	0	0	0					
-next measurement 	73	B1	0	0	0	0	0					
-next measurement 	73	B2	0	0	0	0	0					
-next measurement 	73	B3	0	0	0	0	0					
-next measurement 	73	B4	0	0	0	0	0					
+29/12/2015	19	Bud	0	0	0	0	0	0	Narrikup	S2	28/07/2015	154
+29/12/2015	19	Early	0	0	0	0	0	0	Narrikup	S2	28/07/2015	154
+29/12/2015	19	Open	1	0	0	0	0	20	Narrikup	S2	28/07/2015	154
+29/12/2015	19	Petal	1	0	0	0	1	40	Narrikup	S2	28/07/2015	154
+29/12/2015	19	B1	1	1	0	0	0	40	Narrikup	S2	28/07/2015	154
+29/12/2015	19	B2	1	1	0	1	1	80	Narrikup	S2	28/07/2015	154
+29/12/2015	19	B3	0	1	1	1	1	80	Narrikup	S2	28/07/2015	154
+29/12/2015	19	B4	0	0	1	1	0	40	Narrikup	S2	28/07/2015	154
+29/12/2015	20	Bud	0	0	0	0	0	0	Monti	S2	28/07/2015	154
+29/12/2015	20	Early	0	0	0	0	0	0	Monti	S2	28/07/2015	154
+29/12/2015	20	Open	0	0	0	0	0	0	Monti	S2	28/07/2015	154
+29/12/2015	20	Petal	0	0	0	0	0	0	Monti	S2	28/07/2015	154
+29/12/2015	20	B1	0	1	0	0	0	20	Monti	S2	28/07/2015	154
+29/12/2015	20	B2	0	1	0	0	1	40	Monti	S2	28/07/2015	154
+29/12/2015	20	B3	1	1	1	1	1	100	Monti	S2	28/07/2015	154
+29/12/2015	20	B4	1	1	1	1	1	100	Monti	S2	28/07/2015	154
+29/12/2015	21	Bud	0	0	0	0	0	0	Woogenellup	S2	28/07/2015	154
+29/12/2015	21	Early	0	0	0	0	0	0	Woogenellup	S2	28/07/2015	154
+29/12/2015	21	Open	0	0	0	0	0	0	Woogenellup	S2	28/07/2015	154
+29/12/2015	21	Petal	0	0	0	0	1	20	Woogenellup	S2	28/07/2015	154
+29/12/2015	21	B1	0	0	0	0	1	20	Woogenellup	S2	28/07/2015	154
+29/12/2015	21	B2	0	0	0	1	1	40	Woogenellup	S2	28/07/2015	154
+29/12/2015	21	B3	1	1	1	1	1	100	Woogenellup	S2	28/07/2015	154
+29/12/2015	21	B4	1	1	0	0	0	40	Woogenellup	S2	28/07/2015	154
+29/12/2015	22	Bud	0	0	0	0	0	0	Leura	S2	28/07/2015	154
+29/12/2015	22	Early	0	0	0	0	0	0	Leura	S2	28/07/2015	154
+29/12/2015	22	Open	0	0	0	0	0	0	Leura	S2	28/07/2015	154
+29/12/2015	22	Petal	1	0	1	0	0	40	Leura	S2	28/07/2015	154
+29/12/2015	22	B1	0	0	0	0	0	0	Leura	S2	28/07/2015	154
+29/12/2015	22	B2	1	1	1	1	1	100	Leura	S2	28/07/2015	154
+29/12/2015	22	B3	1	1	1	1	1	100	Leura	S2	28/07/2015	154
+29/12/2015	22	B4	0	0	0	0	0	0	Leura	S2	28/07/2015	154
+29/12/2015	23	Bud	0	0	0	0	0	0	Denmark	S2	28/07/2015	154
+29/12/2015	23	Early	0	0	0	0	0	0	Denmark	S2	28/07/2015	154
+29/12/2015	23	Open	0	0	0	0	0	0	Denmark	S2	28/07/2015	154
+29/12/2015	23	Petal	1	0	0	0	0	20	Denmark	S2	28/07/2015	154
+29/12/2015	23	B1	1	1	1	0	0	60	Denmark	S2	28/07/2015	154
+29/12/2015	23	B2	1	1	1	1	1	100	Denmark	S2	28/07/2015	154
+29/12/2015	23	B3	0	1	1	1	1	80	Denmark	S2	28/07/2015	154
+29/12/2015	23	B4	0	0	0	0	1	20	Denmark	S2	28/07/2015	154
+29/12/2015	24	Bud	0	0	0	0	0	0	Antas 	S2	28/07/2015	154
+29/12/2015	24	Early	0	0	0	0	0	0	Antas 	S2	28/07/2015	154
+29/12/2015	24	Open	0	0	0	0	0	0	Antas 	S2	28/07/2015	154
+29/12/2015	24	Petal	0	1	0	0	0	20	Antas 	S2	28/07/2015	154
+29/12/2015	24	B1	0	1	0	0	0	20	Antas 	S2	28/07/2015	154
+29/12/2015	24	B2	1	1	1	1	1	100	Antas 	S2	28/07/2015	154
+29/12/2015	24	B3	1	0	1	1	1	80	Antas 	S2	28/07/2015	154
+29/12/2015	24	B4	0	0	0	0	0	0	Antas 	S2	28/07/2015	154
+29/12/2015	25	Bud	0	0	0	0	0	0	Leura	S2	28/07/2015	154
+29/12/2015	25	Early	1	0	0	1	0	40	Leura	S2	28/07/2015	154
+29/12/2015	25	Open	0	0	0	0	0	0	Leura	S2	28/07/2015	154
+29/12/2015	25	Petal	1	0	0	1	1	60	Leura	S2	28/07/2015	154
+29/12/2015	25	B1	1	1	0	0	1	60	Leura	S2	28/07/2015	154
+29/12/2015	25	B2	0	1	1	1	1	80	Leura	S2	28/07/2015	154
+29/12/2015	25	B3	0	1	1	1	1	80	Leura	S2	28/07/2015	154
+29/12/2015	25	B4	0	0	0	0	0	0	Leura	S2	28/07/2015	154
+29/12/2015	26	Bud	0	0	0	0	0	0	Woogenellup	S2	28/07/2015	154
+29/12/2015	26	Early	0	0	0	0	1	20	Woogenellup	S2	28/07/2015	154
+29/12/2015	26	Open	0	0	0	1	0	20	Woogenellup	S2	28/07/2015	154
+29/12/2015	26	Petal	1	0	0	1	1	60	Woogenellup	S2	28/07/2015	154
+29/12/2015	26	B1	1	1	0	1	1	80	Woogenellup	S2	28/07/2015	154
+29/12/2015	26	B2	1	1	1	1	1	100	Woogenellup	S2	28/07/2015	154
+29/12/2015	26	B3	0	1	1	1	0	60	Woogenellup	S2	28/07/2015	154
+29/12/2015	26	B4	0	0	0	0	0	0	Woogenellup	S2	28/07/2015	154
+29/12/2015	27	Bud	0	0	0	0	0	0	Denmark	S2	28/07/2015	154
+29/12/2015	27	Early	0	1	0	0	0	20	Denmark	S2	28/07/2015	154
+29/12/2015	27	Open	1	0	1	0	0	40	Denmark	S2	28/07/2015	154
+29/12/2015	27	Petal	1	1	0	1	1	80	Denmark	S2	28/07/2015	154
+29/12/2015	27	B1	1	1	0	1	1	80	Denmark	S2	28/07/2015	154
+29/12/2015	27	B2	1	1	1	1	1	100	Denmark	S2	28/07/2015	154
+29/12/2015	27	B3	0	0	1	0	1	40	Denmark	S2	28/07/2015	154
+29/12/2015	27	B4	0	0	0	0	0	0	Denmark	S2	28/07/2015	154
+29/12/2015	28	Bud	0	0	0	0	0	0	Narrikup	S2	28/07/2015	154
+29/12/2015	28	Early	0	0	0	0	0	0	Narrikup	S2	28/07/2015	154
+29/12/2015	28	Open	0	0	0	0	0	0	Narrikup	S2	28/07/2015	154
+29/12/2015	28	Petal	0	0	0	0	0	0	Narrikup	S2	28/07/2015	154
+29/12/2015	28	B1	1	0	0	0	0	20	Narrikup	S2	28/07/2015	154
+29/12/2015	28	B2	1	0	0	1	1	60	Narrikup	S2	28/07/2015	154
+29/12/2015	28	B3	1	1	1	1	1	100	Narrikup	S2	28/07/2015	154
+29/12/2015	28	B4	0	0	0	0	0	0	Narrikup	S2	28/07/2015	154
+29/12/2015	29	Bud	0	0	0	0	0	0	Antas 	S2	28/07/2015	154
+29/12/2015	29	Early	0	0	0	0	0	0	Antas 	S2	28/07/2015	154
+29/12/2015	29	Open	0	0	0	0	0	0	Antas 	S2	28/07/2015	154
+29/12/2015	29	Petal	1	0	0	0	1	40	Antas 	S2	28/07/2015	154
+29/12/2015	29	B1	0	0	1	0	1	40	Antas 	S2	28/07/2015	154
+29/12/2015	29	B2	1	0	1	1	1	80	Antas 	S2	28/07/2015	154
+29/12/2015	29	B3	1	1	0	1	0	60	Antas 	S2	28/07/2015	154
+29/12/2015	29	B4	0	0	0	0	0	0	Antas 	S2	28/07/2015	154
+29/12/2015	30	Bud	0	0	0	0	0	0	Monti	S2	28/07/2015	154
+29/12/2015	30	Early	0	0	0	0	0	0	Monti	S2	28/07/2015	154
+29/12/2015	30	Open	0	0	0	0	0	0	Monti	S2	28/07/2015	154
+29/12/2015	30	Petal	0	0	0	0	0	0	Monti	S2	28/07/2015	154
+29/12/2015	30	B1	0	1	0	0	0	20	Monti	S2	28/07/2015	154
+29/12/2015	30	B2	1	1	1	0	0	60	Monti	S2	28/07/2015	154
+29/12/2015	30	B3	1	1	1	1	1	100	Monti	S2	28/07/2015	154
+29/12/2015	30	B4	0	0	0	0	0	0	Monti	S2	28/07/2015	154
+29/12/2015	31	Bud	0	0	0	0	0	0	Denmark	S2	28/07/2015	154
+29/12/2015	31	Early	0	0	0	0	0	0	Denmark	S2	28/07/2015	154
+29/12/2015	31	Open	0	1	0	0	1	40	Denmark	S2	28/07/2015	154
+29/12/2015	31	Petal	0	1	0	0	1	40	Denmark	S2	28/07/2015	154
+29/12/2015	31	B1	0	1	1	1	0	60	Denmark	S2	28/07/2015	154
+29/12/2015	31	B2	1	1	1	1	1	100	Denmark	S2	28/07/2015	154
+29/12/2015	31	B3	1	1	1	1	1	100	Denmark	S2	28/07/2015	154
+29/12/2015	31	B4	0	0	0	0	0	0	Denmark	S2	28/07/2015	154
+29/12/2015	32	Bud	0	0	0	0	0	0	Antas 	S2	28/07/2015	154
+29/12/2015	32	Early	0	0	0	0	0	0	Antas 	S2	28/07/2015	154
+29/12/2015	32	Open	0	0	0	0	0	0	Antas 	S2	28/07/2015	154
+29/12/2015	32	Petal	0	1	0	0	0	20	Antas 	S2	28/07/2015	154
+29/12/2015	32	B1	0	0	0	0	0	0	Antas 	S2	28/07/2015	154
+29/12/2015	32	B2	1	1	0	0	0	40	Antas 	S2	28/07/2015	154
+29/12/2015	32	B3	1	1	1	1	1	100	Antas 	S2	28/07/2015	154
+29/12/2015	32	B4	0	0	1	0	1	40	Antas 	S2	28/07/2015	154
+29/12/2015	33	Bud	0	0	0	0	0	0	Monti	S2	28/07/2015	154
+29/12/2015	33	Early	0	0	0	0	0	0	Monti	S2	28/07/2015	154
+29/12/2015	33	Open	0	0	0	0	0	0	Monti	S2	28/07/2015	154
+29/12/2015	33	Petal	0	0	0	1	0	20	Monti	S2	28/07/2015	154
+29/12/2015	33	B1	1	0	0	1	0	40	Monti	S2	28/07/2015	154
+29/12/2015	33	B2	1	1	0	1	0	60	Monti	S2	28/07/2015	154
+29/12/2015	33	B3	1	1	1	0	1	80	Monti	S2	28/07/2015	154
+29/12/2015	33	B4	0	0	0	0	0	0	Monti	S2	28/07/2015	154
+29/12/2015	34	Bud	0	0	0	0	0	0	Woogenellup	S2	28/07/2015	154
+29/12/2015	34	Early	0	0	0	0	0	0	Woogenellup	S2	28/07/2015	154
+29/12/2015	34	Open	0	0	0	0	1	20	Woogenellup	S2	28/07/2015	154
+29/12/2015	34	Petal	0	1	0	0	1	40	Woogenellup	S2	28/07/2015	154
+29/12/2015	34	B1	0	1	0	1	1	60	Woogenellup	S2	28/07/2015	154
+29/12/2015	34	B2	1	1	1	1	1	100	Woogenellup	S2	28/07/2015	154
+29/12/2015	34	B3	0	0	1	0	0	20	Woogenellup	S2	28/07/2015	154
+29/12/2015	34	B4	0	0	0	0	0	0	Woogenellup	S2	28/07/2015	154
+29/12/2015	35	Bud	0	0	0	0	0	0	Leura	S2	28/07/2015	154
+29/12/2015	35	Early	0	0	0	0	0	0	Leura	S2	28/07/2015	154
+29/12/2015	35	Open	0	0	0	0	0	0	Leura	S2	28/07/2015	154
+29/12/2015	35	Petal	1	1	1	0	0	60	Leura	S2	28/07/2015	154
+29/12/2015	35	B1	1	1	1	0	0	60	Leura	S2	28/07/2015	154
+29/12/2015	35	B2	1	1	1	1	1	100	Leura	S2	28/07/2015	154
+29/12/2015	35	B3	1	0	1	1	1	80	Leura	S2	28/07/2015	154
+29/12/2015	35	B4	0	0	0	0	0	0	Leura	S2	28/07/2015	154
+29/12/2015	36	Bud	0	0	0	0	0	0	Narrikup	S2	28/07/2015	154
+29/12/2015	36	Early	0	0	0	0	0	0	Narrikup	S2	28/07/2015	154
+29/12/2015	36	Open	0	0	0	0	0	0	Narrikup	S2	28/07/2015	154
+29/12/2015	36	Petal	1	0	0	0	0	20	Narrikup	S2	28/07/2015	154
+29/12/2015	36	B1	1	0	0	0	0	20	Narrikup	S2	28/07/2015	154
+29/12/2015	36	B2	1	0	0	0	0	20	Narrikup	S2	28/07/2015	154
+29/12/2015	36	B3	1	1	1	1	1	100	Narrikup	S2	28/07/2015	154
+29/12/2015	36	B4	0	1	1	0	1	60	Narrikup	S2	28/07/2015	154
+31/12/2015	37	Bud	1	1	1	1	1	100	Denmark	S3	15/09/2015	107
+31/12/2015	37	Early	0	0	0	0	0	0	Denmark	S3	15/09/2015	107
+31/12/2015	37	Open	1	1	1	1	1	100	Denmark	S3	15/09/2015	107
+31/12/2015	37	Petal	0	1	1	1	1	80	Denmark	S3	15/09/2015	107
+31/12/2015	37	B1	1	0	1	1	1	80	Denmark	S3	15/09/2015	107
+31/12/2015	37	B2	0	0	1	1	0	40	Denmark	S3	15/09/2015	107
+31/12/2015	37	B3	0	0	0	1	0	20	Denmark	S3	15/09/2015	107
+31/12/2015	37	B4	0	0	0	0	0	0	Denmark	S3	15/09/2015	107
+31/12/2015	38	Bud	1	1	1	1	1	100	Antas 	S3	15/09/2015	107
+31/12/2015	38	Early	0	0	1	0	0	20	Antas 	S3	15/09/2015	107
+31/12/2015	38	Open	1	1	0	1	1	80	Antas 	S3	15/09/2015	107
+31/12/2015	38	Petal	1	1	1	1	1	100	Antas 	S3	15/09/2015	107
+31/12/2015	38	B1	1	0	1	1	1	80	Antas 	S3	15/09/2015	107
+31/12/2015	38	B2	0	0	1	1	1	60	Antas 	S3	15/09/2015	107
+31/12/2015	38	B3	0	0	0	1	1	40	Antas 	S3	15/09/2015	107
+31/12/2015	38	B4	0	0	0	0	0	0	Antas 	S3	15/09/2015	107
+31/12/2015	39	Bud	1	1	1	1	0	80	Woogenellup	S3	15/09/2015	107
+31/12/2015	39	Early	0	0	0	1	1	40	Woogenellup	S3	15/09/2015	107
+31/12/2015	39	Open	1	1	0	0	1	60	Woogenellup	S3	15/09/2015	107
+31/12/2015	39	Petal	1	1	1	1	1	100	Woogenellup	S3	15/09/2015	107
+31/12/2015	39	B1	1	0	0	0	0	20	Woogenellup	S3	15/09/2015	107
+31/12/2015	39	B2	0	0	0	0	0	0	Woogenellup	S3	15/09/2015	107
+31/12/2015	39	B3	0	0	0	0	0	0	Woogenellup	S3	15/09/2015	107
+31/12/2015	39	B4	0	0	0	0	0	0	Woogenellup	S3	15/09/2015	107
+31/12/2015	40	Bud	1	1	1	1	0	80	Leura	S3	15/09/2015	107
+31/12/2015	40	Early	0	0	0	0	1	20	Leura	S3	15/09/2015	107
+31/12/2015	40	Open	1	1	1	1	0	80	Leura	S3	15/09/2015	107
+31/12/2015	40	Petal	1	1	1	1	1	100	Leura	S3	15/09/2015	107
+31/12/2015	40	B1	1	1	1	1	1	100	Leura	S3	15/09/2015	107
+31/12/2015	40	B2	0	0	1	0	0	20	Leura	S3	15/09/2015	107
+31/12/2015	40	B3	0	0	0	0	0	0	Leura	S3	15/09/2015	107
+31/12/2015	40	B4	0	0	0	0	0	0	Leura	S3	15/09/2015	107
+31/12/2015	41	Bud	1	0	1	1	1	80	Narrikup	S3	15/09/2015	107
+31/12/2015	41	Early	0	1	0	0	0	20	Narrikup	S3	15/09/2015	107
+31/12/2015	41	Open	1	1	1	1	0	80	Narrikup	S3	15/09/2015	107
+31/12/2015	41	Petal	0	1	1	1	1	80	Narrikup	S3	15/09/2015	107
+31/12/2015	41	B1	1	1	1	1	1	100	Narrikup	S3	15/09/2015	107
+31/12/2015	41	B2	1	1	1	0	1	80	Narrikup	S3	15/09/2015	107
+31/12/2015	41	B3	1	1	1	0	1	80	Narrikup	S3	15/09/2015	107
+31/12/2015	41	B4	0	0	0	0	0	0	Narrikup	S3	15/09/2015	107
+31/12/2015	42	Bud	0	0	0	0	0	0	Monti	S3	15/09/2015	107
+31/12/2015	42	Early	0	0	1	0	1	40	Monti	S3	15/09/2015	107
+31/12/2015	42	Open	1	1	0	1	0	60	Monti	S3	15/09/2015	107
+31/12/2015	42	Petal	1	1	1	1	1	100	Monti	S3	15/09/2015	107
+31/12/2015	42	B1	1	1	1	1	1	100	Monti	S3	15/09/2015	107
+31/12/2015	42	B2	1	1	1	1	1	100	Monti	S3	15/09/2015	107
+31/12/2015	42	B3	1	1	1	1	0	80	Monti	S3	15/09/2015	107
+31/12/2015	42	B4	0	0	0	0	0	0	Monti	S3	15/09/2015	107
+31/12/2015	43	Bud	1	1	1	1	0	80	Woogenellup	S3	15/09/2015	107
+31/12/2015	43	Early	0	0	0	0	0	0	Woogenellup	S3	15/09/2015	107
+31/12/2015	43	Open	1	1	0	1	1	80	Woogenellup	S3	15/09/2015	107
+31/12/2015	43	Petal	1	1	1	1	1	100	Woogenellup	S3	15/09/2015	107
+31/12/2015	43	B1	0	0	1	1	1	60	Woogenellup	S3	15/09/2015	107
+31/12/2015	43	B2	0	0	0	0	1	20	Woogenellup	S3	15/09/2015	107
+31/12/2015	43	B3	0	0	0	0	0	0	Woogenellup	S3	15/09/2015	107
+31/12/2015	43	B4	0	0	0	0	0	0	Woogenellup	S3	15/09/2015	107
+31/12/2015	44	Bud	1	1	1	0	1	80	Leura	S3	15/09/2015	107
+31/12/2015	44	Early	0	0	0	1	0	20	Leura	S3	15/09/2015	107
+31/12/2015	44	Open	1	1	1	0	1	80	Leura	S3	15/09/2015	107
+31/12/2015	44	Petal	1	1	1	1	1	100	Leura	S3	15/09/2015	107
+31/12/2015	44	B1	1	1	0	1	1	80	Leura	S3	15/09/2015	107
+31/12/2015	44	B2	0	0	0	0	0	0	Leura	S3	15/09/2015	107
+31/12/2015	44	B3	0	0	0	0	0	0	Leura	S3	15/09/2015	107
+31/12/2015	44	B4	0	0	0	0	0	0	Leura	S3	15/09/2015	107
+31/12/2015	45	Bud	0	1	0	0	1	40	Narrikup	S3	15/09/2015	107
+31/12/2015	45	Early	1	0	1	1	1	80	Narrikup	S3	15/09/2015	107
+31/12/2015	45	Open	1	1	1	1	0	80	Narrikup	S3	15/09/2015	107
+31/12/2015	45	Petal	1	1	1	1	1	100	Narrikup	S3	15/09/2015	107
+31/12/2015	45	B1	0	1	1	1	1	80	Narrikup	S3	15/09/2015	107
+31/12/2015	45	B2	0	0	1	0	0	20	Narrikup	S3	15/09/2015	107
+31/12/2015	45	B3	0	0	1	0	0	20	Narrikup	S3	15/09/2015	107
+31/12/2015	45	B4	0	0	0	0	0	0	Narrikup	S3	15/09/2015	107
+31/12/2015	46	Bud	1	1	1	1	0	80	Antas 	S3	15/09/2015	107
+31/12/2015	46	Early	0	0	0	0	1	20	Antas 	S3	15/09/2015	107
+31/12/2015	46	Open	1	1	1	1	0	80	Antas 	S3	15/09/2015	107
+31/12/2015	46	Petal	1	1	1	1	1	100	Antas 	S3	15/09/2015	107
+31/12/2015	46	B1	1	1	1	1	1	100	Antas 	S3	15/09/2015	107
+31/12/2015	46	B2	0	0	1	0	1	40	Antas 	S3	15/09/2015	107
+31/12/2015	46	B3	0	0	1	0	0	20	Antas 	S3	15/09/2015	107
+31/12/2015	46	B4	0	0	0	0	0	0	Antas 	S3	15/09/2015	107
+31/12/2015	47	Bud	0	0	1	0	1	40	Denmark	S3	15/09/2015	107
+31/12/2015	47	Early	1	0	0	1	0	40	Denmark	S3	15/09/2015	107
+31/12/2015	47	Open	0	1	1	0	0	40	Denmark	S3	15/09/2015	107
+31/12/2015	47	Petal	1	1	1	1	1	100	Denmark	S3	15/09/2015	107
+31/12/2015	47	B1	1	1	0	1	1	80	Denmark	S3	15/09/2015	107
+31/12/2015	47	B2	1	0	0	0	1	40	Denmark	S3	15/09/2015	107
+31/12/2015	47	B3	0	0	0	0	1	20	Denmark	S3	15/09/2015	107
+31/12/2015	47	B4	0	0	0	0	0	0	Denmark	S3	15/09/2015	107
+31/12/2015	48	Bud	0	1	0	0	0	20	Monti	S3	15/09/2015	107
+31/12/2015	48	Early	0	0	0	0	0	0	Monti	S3	15/09/2015	107
+31/12/2015	48	Open	0	0	0	0	1	20	Monti	S3	15/09/2015	107
+31/12/2015	48	Petal	1	1	1	1	1	100	Monti	S3	15/09/2015	107
+31/12/2015	48	B1	1	1	0	1	1	80	Monti	S3	15/09/2015	107
+31/12/2015	48	B2	1	1	1	1	1	100	Monti	S3	15/09/2015	107
+31/12/2015	48	B3	1	1	1	1	0	80	Monti	S3	15/09/2015	107
+31/12/2015	48	B4	0	0	0	0	0	0	Monti	S3	15/09/2015	107
+31/12/2015	49	Bud	0	1	1	0	1	60	Leura	S3	15/09/2015	107
+31/12/2015	49	Early	1	0	0	1	0	40	Leura	S3	15/09/2015	107
+31/12/2015	49	Open	1	1	1	1	1	100	Leura	S3	15/09/2015	107
+31/12/2015	49	Petal	1	1	1	1	1	100	Leura	S3	15/09/2015	107
+31/12/2015	49	B1	0	1	1	1	1	80	Leura	S3	15/09/2015	107
+31/12/2015	49	B2	0	0	0	0	1	20	Leura	S3	15/09/2015	107
+31/12/2015	49	B3	0	0	0	0	0	0	Leura	S3	15/09/2015	107
+31/12/2015	49	B4	0	0	0	0	0	0	Leura	S3	15/09/2015	107
+31/12/2015	50	Bud	1	1	1	1	1	100	Woogenellup	S3	15/09/2015	107
+31/12/2015	50	Early	1	0	0	0	0	20	Woogenellup	S3	15/09/2015	107
+31/12/2015	50	Open	0	1	1	1	1	80	Woogenellup	S3	15/09/2015	107
+31/12/2015	50	Petal	1	1	1	1	1	100	Woogenellup	S3	15/09/2015	107
+31/12/2015	50	B1	1	0	1	0	1	60	Woogenellup	S3	15/09/2015	107
+31/12/2015	50	B2	0	0	0	0	0	0	Woogenellup	S3	15/09/2015	107
+31/12/2015	50	B3	0	0	0	0	0	0	Woogenellup	S3	15/09/2015	107
+31/12/2015	50	B4	0	0	0	0	0	0	Woogenellup	S3	15/09/2015	107
+31/12/2015	51	Bud	1	1	0	1	1	80	Antas 	S3	15/09/2015	107
+31/12/2015	51	Early	0	0	1	0	0	20	Antas 	S3	15/09/2015	107
+31/12/2015	51	Open	1	1	0	1	0	60	Antas 	S3	15/09/2015	107
+31/12/2015	51	Petal	1	1	1	1	1	100	Antas 	S3	15/09/2015	107
+31/12/2015	51	B1	0	1	1	1	0	60	Antas 	S3	15/09/2015	107
+31/12/2015	51	B2	0	1	1	1	1	80	Antas 	S3	15/09/2015	107
+31/12/2015	51	B3	0	1	1	0	1	60	Antas 	S3	15/09/2015	107
+31/12/2015	51	B4	0	0	0	0	0	0	Antas 	S3	15/09/2015	107
+31/12/2015	52	Bud	0	0	0	0	0	0	Monti	S3	15/09/2015	107
+31/12/2015	52	Early	0	0	0	0	0	0	Monti	S3	15/09/2015	107
+31/12/2015	52	Open	1	0	0	0	0	20	Monti	S3	15/09/2015	107
+31/12/2015	52	Petal	0	0	0	0	0	0	Monti	S3	15/09/2015	107
+31/12/2015	52	B1	1	0	0	0	0	20	Monti	S3	15/09/2015	107
+31/12/2015	52	B2	1	1	1	1	1	100	Monti	S3	15/09/2015	107
+31/12/2015	52	B3	0	1	1	1	0	60	Monti	S3	15/09/2015	107
+31/12/2015	52	B4	0	0	0	0	0	0	Monti	S3	15/09/2015	107
+31/12/2015	53	Bud	1	0	0	0	1	40	Narrikup	S3	15/09/2015	107
+31/12/2015	53	Early	0	1	1	1	0	60	Narrikup	S3	15/09/2015	107
+31/12/2015	53	Open	1	0	0	0	1	40	Narrikup	S3	15/09/2015	107
+31/12/2015	53	Petal	1	1	1	1	1	100	Narrikup	S3	15/09/2015	107
+31/12/2015	53	B1	1	1	1	1	1	100	Narrikup	S3	15/09/2015	107
+31/12/2015	53	B2	1	1	1	1	0	80	Narrikup	S3	15/09/2015	107
+31/12/2015	53	B3	0	0	1	0	0	20	Narrikup	S3	15/09/2015	107
+31/12/2015	53	B4	0	0	0	0	0	0	Narrikup	S3	15/09/2015	107
+31/12/2015	54	Bud	0	0	0	1	0	20	Denmark	S3	15/09/2015	107
+31/12/2015	54	Early	0	0	0	0	0	0	Denmark	S3	15/09/2015	107
+31/12/2015	54	Open	1	1	0	1	1	80	Denmark	S3	15/09/2015	107
+31/12/2015	54	Petal	1	1	1	1	1	100	Denmark	S3	15/09/2015	107
+31/12/2015	54	B1	1	1	1	1	1	100	Denmark	S3	15/09/2015	107
+31/12/2015	54	B2	0	1	1	1	1	80	Denmark	S3	15/09/2015	107
+31/12/2015	54	B3	0	0	1	0	0	20	Denmark	S3	15/09/2015	107
+31/12/2015	54	B4	0	0	0	0	0	0	Denmark	S3	15/09/2015	107
+31/12/2015	55	Bud	0	0	0	0	0	0	Narrikup	S4	5/11/2015	56
+31/12/2015	55	Early	0	0	0	0	0	0	Narrikup	S4	5/11/2015	56
+31/12/2015	55	Open	0	0	0	0	0	0	Narrikup	S4	5/11/2015	56
+31/12/2015	55	Petal	0	0	0	0	0	0	Narrikup	S4	5/11/2015	56
+31/12/2015	55	B1	0	0	0	0	0	0	Narrikup	S4	5/11/2015	56
+31/12/2015	55	B2	0	0	0	0	0	0	Narrikup	S4	5/11/2015	56
+31/12/2015	55	B3	0	0	0	0	0	0	Narrikup	S4	5/11/2015	56
+31/12/2015	55	B4	0	0	0	0	0	0	Narrikup	S4	5/11/2015	56
+31/12/2015	56	Bud	0	0	0	0	0	0	Antas 	S4	5/11/2015	56
+31/12/2015	56	Early	0	0	0	0	0	0	Antas 	S4	5/11/2015	56
+31/12/2015	56	Open	0	0	0	0	0	0	Antas 	S4	5/11/2015	56
+31/12/2015	56	Petal	0	0	0	0	0	0	Antas 	S4	5/11/2015	56
+31/12/2015	56	B1	0	0	0	0	0	0	Antas 	S4	5/11/2015	56
+31/12/2015	56	B2	0	0	0	0	0	0	Antas 	S4	5/11/2015	56
+31/12/2015	56	B3	0	0	0	0	0	0	Antas 	S4	5/11/2015	56
+31/12/2015	56	B4	0	0	0	0	0	0	Antas 	S4	5/11/2015	56
+31/12/2015	57	Bud	0	0	0	0	0	0	Denmark	S4	5/11/2015	56
+31/12/2015	57	Early	0	0	0	0	0	0	Denmark	S4	5/11/2015	56
+31/12/2015	57	Open	0	0	0	0	0	0	Denmark	S4	5/11/2015	56
+31/12/2015	57	Petal	0	0	0	0	0	0	Denmark	S4	5/11/2015	56
+31/12/2015	57	B1	0	0	0	0	0	0	Denmark	S4	5/11/2015	56
+31/12/2015	57	B2	0	0	0	0	0	0	Denmark	S4	5/11/2015	56
+31/12/2015	57	B3	0	0	0	0	0	0	Denmark	S4	5/11/2015	56
+31/12/2015	57	B4	0	0	0	0	0	0	Denmark	S4	5/11/2015	56
+31/12/2015	58	Bud	0	0	0	0	0	0	Leura	S4	5/11/2015	56
+31/12/2015	58	Early	0	0	0	0	0	0	Leura	S4	5/11/2015	56
+31/12/2015	58	Open	0	0	0	0	0	0	Leura	S4	5/11/2015	56
+31/12/2015	58	Petal	0	0	0	0	0	0	Leura	S4	5/11/2015	56
+31/12/2015	58	B1	0	0	0	0	0	0	Leura	S4	5/11/2015	56
+31/12/2015	58	B2	0	0	0	0	0	0	Leura	S4	5/11/2015	56
+31/12/2015	58	B3	0	0	0	0	0	0	Leura	S4	5/11/2015	56
+31/12/2015	58	B4	0	0	0	0	0	0	Leura	S4	5/11/2015	56
+31/12/2015	59	Bud	1	0	1	1	0	60	Monti	S4	5/11/2015	56
+31/12/2015	59	Early	0	0	0	0	0	0	Monti	S4	5/11/2015	56
+31/12/2015	59	Open	0	0	0	0	0	0	Monti	S4	5/11/2015	56
+31/12/2015	59	Petal	0	0	0	0	0	0	Monti	S4	5/11/2015	56
+31/12/2015	59	B1	0	0	0	0	0	0	Monti	S4	5/11/2015	56
+31/12/2015	59	B2	0	0	0	0	0	0	Monti	S4	5/11/2015	56
+31/12/2015	59	B3	0	0	0	0	0	0	Monti	S4	5/11/2015	56
+31/12/2015	59	B4	0	0	0	0	0	0	Monti	S4	5/11/2015	56
+31/12/2015	60	Bud	0	0	0	0	0	0	Woogenellup	S4	5/11/2015	56
+31/12/2015	60	Early	0	0	0	0	0	0	Woogenellup	S4	5/11/2015	56
+31/12/2015	60	Open	0	0	0	0	0	0	Woogenellup	S4	5/11/2015	56
+31/12/2015	60	Petal	0	0	0	0	0	0	Woogenellup	S4	5/11/2015	56
+31/12/2015	60	B1	0	0	0	0	0	0	Woogenellup	S4	5/11/2015	56
+31/12/2015	60	B2	0	0	0	0	0	0	Woogenellup	S4	5/11/2015	56
+31/12/2015	60	B3	0	0	0	0	0	0	Woogenellup	S4	5/11/2015	56
+31/12/2015	60	B4	0	0	0	0	0	0	Woogenellup	S4	5/11/2015	56
+31/12/2015	61	Bud	0	0	0	0	0	0	Antas 	S4	5/11/2015	56
+31/12/2015	61	Early	0	0	0	0	0	0	Antas 	S4	5/11/2015	56
+31/12/2015	61	Open	0	0	0	0	0	0	Antas 	S4	5/11/2015	56
+31/12/2015	61	Petal	0	0	0	0	0	0	Antas 	S4	5/11/2015	56
+31/12/2015	61	B1	0	0	0	0	0	0	Antas 	S4	5/11/2015	56
+31/12/2015	61	B2	0	0	0	0	0	0	Antas 	S4	5/11/2015	56
+31/12/2015	61	B3	0	0	0	0	0	0	Antas 	S4	5/11/2015	56
+31/12/2015	61	B4	0	0	0	0	0	0	Antas 	S4	5/11/2015	56
+31/12/2015	62	Bud	0	0	0	0	0	0	Woogenellup	S4	5/11/2015	56
+31/12/2015	62	Early	0	0	0	0	0	0	Woogenellup	S4	5/11/2015	56
+31/12/2015	62	Open	0	0	0	0	0	0	Woogenellup	S4	5/11/2015	56
+31/12/2015	62	Petal	0	0	0	0	0	0	Woogenellup	S4	5/11/2015	56
+31/12/2015	62	B1	0	0	0	0	0	0	Woogenellup	S4	5/11/2015	56
+31/12/2015	62	B2	0	0	0	0	0	0	Woogenellup	S4	5/11/2015	56
+31/12/2015	62	B3	0	0	0	0	0	0	Woogenellup	S4	5/11/2015	56
+31/12/2015	62	B4	0	0	0	0	0	0	Woogenellup	S4	5/11/2015	56
+31/12/2015	63	Bud	0	0	0	0	1	20	Narrikup	S4	5/11/2015	56
+31/12/2015	63	Early	0	0	0	0	0	0	Narrikup	S4	5/11/2015	56
+31/12/2015	63	Open	0	0	0	0	0	0	Narrikup	S4	5/11/2015	56
+31/12/2015	63	Petal	0	0	0	0	0	0	Narrikup	S4	5/11/2015	56
+31/12/2015	63	B1	0	0	0	0	0	0	Narrikup	S4	5/11/2015	56
+31/12/2015	63	B2	0	0	0	0	0	0	Narrikup	S4	5/11/2015	56
+31/12/2015	63	B3	0	0	0	0	0	0	Narrikup	S4	5/11/2015	56
+31/12/2015	63	B4	0	0	0	0	0	0	Narrikup	S4	5/11/2015	56
+31/12/2015	64	Bud	0	0	0	0	0	0	Leura	S4	5/11/2015	56
+31/12/2015	64	Early	0	0	0	0	0	0	Leura	S4	5/11/2015	56
+31/12/2015	64	Open	0	0	0	0	0	0	Leura	S4	5/11/2015	56
+31/12/2015	64	Petal	0	0	0	0	0	0	Leura	S4	5/11/2015	56
+31/12/2015	64	B1	0	0	0	0	0	0	Leura	S4	5/11/2015	56
+31/12/2015	64	B2	0	0	0	0	0	0	Leura	S4	5/11/2015	56
+31/12/2015	64	B3	0	0	0	0	0	0	Leura	S4	5/11/2015	56
+31/12/2015	64	B4	0	0	0	0	0	0	Leura	S4	5/11/2015	56
+31/12/2015	65	Bud	0	0	0	0	0	0	Denmark	S4	5/11/2015	56
+31/12/2015	65	Early	0	0	0	0	0	0	Denmark	S4	5/11/2015	56
+31/12/2015	65	Open	0	0	0	0	0	0	Denmark	S4	5/11/2015	56
+31/12/2015	65	Petal	0	0	0	0	0	0	Denmark	S4	5/11/2015	56
+31/12/2015	65	B1	0	0	0	0	0	0	Denmark	S4	5/11/2015	56
+31/12/2015	65	B2	0	0	0	0	0	0	Denmark	S4	5/11/2015	56
+31/12/2015	65	B3	0	0	0	0	0	0	Denmark	S4	5/11/2015	56
+31/12/2015	65	B4	0	0	0	0	0	0	Denmark	S4	5/11/2015	56
+31/12/2015	66	Bud	0	1	1	0	0	40	Monti	S4	5/11/2015	56
+31/12/2015	66	Early	0	0	0	0	0	0	Monti	S4	5/11/2015	56
+31/12/2015	66	Open	0	0	0	0	0	0	Monti	S4	5/11/2015	56
+31/12/2015	66	Petal	0	0	0	0	0	0	Monti	S4	5/11/2015	56
+31/12/2015	66	B1	0	0	0	0	0	0	Monti	S4	5/11/2015	56
+31/12/2015	66	B2	0	0	0	0	0	0	Monti	S4	5/11/2015	56
+31/12/2015	66	B3	0	0	0	0	0	0	Monti	S4	5/11/2015	56
+31/12/2015	66	B4	0	0	0	0	0	0	Monti	S4	5/11/2015	56
+31/12/2015	67	Bud	0	0	0	0	0	0	Leura	S4	5/11/2015	56
+31/12/2015	67	Early	0	0	0	0	0	0	Leura	S4	5/11/2015	56
+31/12/2015	67	Open	0	0	0	0	0	0	Leura	S4	5/11/2015	56
+31/12/2015	67	Petal	0	0	0	0	0	0	Leura	S4	5/11/2015	56
+31/12/2015	67	B1	0	0	0	0	0	0	Leura	S4	5/11/2015	56
+31/12/2015	67	B2	0	0	0	0	0	0	Leura	S4	5/11/2015	56
+31/12/2015	67	B3	0	0	0	0	0	0	Leura	S4	5/11/2015	56
+31/12/2015	67	B4	0	0	0	0	0	0	Leura	S4	5/11/2015	56
+31/12/2015	68	Bud	1	1	1	1	1	100	Monti	S4	5/11/2015	56
+31/12/2015	68	Early	0	0	0	0	0	0	Monti	S4	5/11/2015	56
+31/12/2015	68	Open	0	0	0	1	0	20	Monti	S4	5/11/2015	56
+31/12/2015	68	Petal	0	0	0	0	0	0	Monti	S4	5/11/2015	56
+31/12/2015	68	B1	0	0	0	0	0	0	Monti	S4	5/11/2015	56
+31/12/2015	68	B2	0	0	0	0	0	0	Monti	S4	5/11/2015	56
+31/12/2015	68	B3	0	0	0	0	0	0	Monti	S4	5/11/2015	56
+31/12/2015	68	B4	0	0	0	0	0	0	Monti	S4	5/11/2015	56
+31/12/2015	69	Bud	0	0	0	0	0	0	Narrikup	S4	5/11/2015	56
+31/12/2015	69	Early	0	0	0	0	0	0	Narrikup	S4	5/11/2015	56
+31/12/2015	69	Open	0	0	0	0	0	0	Narrikup	S4	5/11/2015	56
+31/12/2015	69	Petal	0	0	0	0	0	0	Narrikup	S4	5/11/2015	56
+31/12/2015	69	B1	0	0	0	0	0	0	Narrikup	S4	5/11/2015	56
+31/12/2015	69	B2	0	0	0	0	0	0	Narrikup	S4	5/11/2015	56
+31/12/2015	69	B3	0	0	0	0	0	0	Narrikup	S4	5/11/2015	56
+31/12/2015	69	B4	0	0	0	0	0	0	Narrikup	S4	5/11/2015	56
+31/12/2015	70	Bud	0	0	0	0	0	0	Antas 	S4	5/11/2015	56
+31/12/2015	70	Early	0	0	0	0	0	0	Antas 	S4	5/11/2015	56
+31/12/2015	70	Open	0	0	0	0	0	0	Antas 	S4	5/11/2015	56
+31/12/2015	70	Petal	0	0	0	0	0	0	Antas 	S4	5/11/2015	56
+31/12/2015	70	B1	0	0	0	0	0	0	Antas 	S4	5/11/2015	56
+31/12/2015	70	B2	0	0	0	0	0	0	Antas 	S4	5/11/2015	56
+31/12/2015	70	B3	0	0	0	0	0	0	Antas 	S4	5/11/2015	56
+31/12/2015	70	B4	0	0	0	0	0	0	Antas 	S4	5/11/2015	56
+31/12/2015	71	Bud	0	0	0	0	0	0	Woogenellup	S4	5/11/2015	56
+31/12/2015	71	Early	0	0	0	0	0	0	Woogenellup	S4	5/11/2015	56
+31/12/2015	71	Open	0	0	0	0	0	0	Woogenellup	S4	5/11/2015	56
+31/12/2015	71	Petal	0	0	0	0	0	0	Woogenellup	S4	5/11/2015	56
+31/12/2015	71	B1	0	0	0	0	0	0	Woogenellup	S4	5/11/2015	56
+31/12/2015	71	B2	0	0	0	0	0	0	Woogenellup	S4	5/11/2015	56
+31/12/2015	71	B3	0	0	0	0	0	0	Woogenellup	S4	5/11/2015	56
+31/12/2015	71	B4	0	0	0	0	0	0	Woogenellup	S4	5/11/2015	56
+31/12/2015	72	Bud	0	0	0	0	0	0	Denmark	S4	5/11/2015	56
+31/12/2015	72	Early	0	0	0	0	0	0	Denmark	S4	5/11/2015	56
+31/12/2015	72	Open	0	0	0	0	0	0	Denmark	S4	5/11/2015	56
+31/12/2015	72	Petal	0	0	0	0	0	0	Denmark	S4	5/11/2015	56
+31/12/2015	72	B1	0	0	0	0	0	0	Denmark	S4	5/11/2015	56
+31/12/2015	72	B2	0	0	0	0	0	0	Denmark	S4	5/11/2015	56
+31/12/2015	72	B3	0	0	0	0	0	0	Denmark	S4	5/11/2015	56
+31/12/2015	72	B4	0	0	0	0	0	0	Denmark	S4	5/11/2015	56
