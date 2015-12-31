@@ -1,0 +1,20 @@
+Origin	Subspecies	Cultivar	Block 	PercDamag
+Italy	B	Antas 	1	10
+Australia	Y	Monti	1	30
+Italy	S	Denmark	1	10
+Italy	S	Leura	1	40
+Australia	S	Narrikup	1	40
+Australia	S	Woogenellup	1	10
+Italy	B	Antas 	2	10
+Australia	S	Woogenellup	2	30
+Italy	S	Denmark	2	20
+Australia	Y	Monti	2	40
+Australia	S	Narrikup	2	50
+Italy	S	Leura	2	50
+Australia	S	Woogenellup	3	50
+Italy	B	Antas 	3	30
+Australia	Y	Monti	3	40
+Australia	S	Narrikup	3	40
+Italy	S	Denmark	3	20
+Italy	S	Leura	3	30
+
