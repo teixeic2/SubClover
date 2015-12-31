@@ -3,9 +3,9 @@ library(tidyr)
 library (dplyr)
 library (ggplot2)
 library(agricolae)
-setwd("C:\\Users\\Ed\\Documents\\Subclover\\ColdSens")
+setwd("C:\\Users\\Ed\\Documents\\Subclovergit")
 getwd()
-dev.off()
+#dev.off()
 #analysis of Experiment 1 - 14 cultivars Iversen 2 - plot scoring 
 file <- read.table("ColdPercPlots.txt",header=TRUE)
 file
@@ -80,7 +80,7 @@ summary (anovaLog)
 
 #Anova and Means separation of log transformed data by Subspecies
 file$Block <- as.factor(file$Block )
-anovaLogsub<-aov(file$log~file$Subspecies+file$Block)
+anovaLogsub <- aov(file$NaturalLog ~file$Subspecies+file$Block)
 summary(anovaLogsub)
 
 TukeyHSD(anovaLogsub)
