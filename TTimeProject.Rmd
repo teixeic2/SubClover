@@ -1,0 +1,61 @@
+---
+title: "ThermalTime"
+author: "CT"
+date: "Friday, January 01, 2016"
+output: html_document
+---
+
+
+```{r}
+library(tidyr)
+library (dplyr)
+library (ggplot2)
+
+```
+
+REad table Notepad file: AirTemp
+
+```{r, loadFile}
+
+setwd("C:\\Users\\Ed\\Documents\\Subclovergit")
+getwd()
+
+#create file
+df_TT <- read.table("AirTemp.txt",header=TRUE)
+df_TT
+head(df_TT)
+summary (df_TT)
+```
+
+Create Graph : convert date into dmy
+
+
+
+```{r graph}
+
+
+df_TT$Date <- dmy(df_TT$Date)
+
+
+df_TT %>% 
+ggplot(aes(x=Date, y= MeanAirT)) +
+    geom_line()
+
+# calculate thermal time sum
+
+df_TT$TT <- 0
+
+df_TT$MeanAirT[1]
+
+for(i in 1:length(df_TT$Date)) { 
+  if(i==1) {df_TT$TT[i] <- df_TT$MeanAirT[i] } 
+  else {
+     df_TT$TT[i] <- df_TT$TT[i-1] + df_TT$MeanAirT[i] 
+  }
+}
+
+head(df_TT)
+
+```
+
+
