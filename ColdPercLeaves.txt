@@ -1,4 +1,4 @@
-Block	PotNumber 	Cv	%RdLeaves	Origin	Subspecie	RedIntensity
+Block	PotNumber 	Cv	%RdLeaves	Subspecie	Origin	RedIntensity
 1	1	Napier	95.24	Y	Australia	8
 2	2	Napier	100.00	Y	Australia	9
 3	3	Napier	100.00	Y	Australia	8
