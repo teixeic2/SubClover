@@ -5,10 +5,6 @@ date: "Thursday, December 31, 2015"
 output: html_document
 ---
 
-This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
-
-When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
-
 ```{r loadLibraries}
 library(tidyr)
 library (dplyr)
@@ -24,11 +20,12 @@ library (lubridate)
 setwd("C:\\Users\\Ed\\Documents\\Subclovergit")
 getwd()
 
-
-
 #create file
 df_flower <- read.table("F_Flower_SB_PhenologyData.txt",header=TRUE)
 colnames(df_flower)[1] <- "Date" # fix bug of extra characters in name
+# convert to date format
+df_flower <- df_flower %>%
+ mutate(Date=dmy(Date))
 
 df_flower 
 head(df_flower )
@@ -45,8 +42,6 @@ Analysis of sowing date and cultivars for Bud considering Date
  # df_flower$Date <- dmy(df_flower$Date) 
 head(df_flower)
  df_flower %>%
-  mutate(Date=dmy(Date))%>%
-
   group_by(DAS,Date, Cultivar,SowingDate,Variable)%>%
   summarise_each(funs(mean)) %>%
   select(Variable,Percent, Cultivar,Date,SowingDate)%>%
@@ -84,7 +79,42 @@ df_flower %>%
 
 ```
 
-Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
+Join Thermal Sum data.
 
 
+```{r join ThermalSum data}
+
+
+#create file
+df_TTSum <- read.table("ThermalSum.txt",header=TRUE)
+#df_TTSum$Date <- ymd(df_TTSum$Date)
+
+df_TTSum 
+head(df_TTSum)
+summary(df_TTSum  )
+names(df_TTSum)
+str(df_TTSum$Date)
+tail(df_TTSum)
+tail(df_flower)
+
+# convert to date format
+df_TTSum <- df_TTSum %>%
+ mutate(Date=ymd(Date))
+
+```
+
+Merge two df : TTSum and Date 
+```{r MergeTTSumDate}
+
+ #merge two data frames by ID
+df_merged <- merge(df_flower,df_TTSum,by="Date")
+head(df_merged)
+summary(df_merged )
+
+```
+
+
+```{rInsert TTAtSowing}
+#df_calib$LW <- df_calib$LengthCm*df_calib$WidthCm
+```
 
