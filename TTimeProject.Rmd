@@ -10,7 +10,7 @@ output: html_document
 library(tidyr)
 library (dplyr)
 library (ggplot2)
-
+library (lubridate)
 ```
 
 REad table Notepad file: AirTemp
@@ -25,6 +25,7 @@ df_TT <- read.table("AirTemp.txt",header=TRUE)
 df_TT
 head(df_TT)
 summary (df_TT)
+tail(df_TT)
 ```
 
 Create Graph : convert date into dmy
@@ -55,6 +56,8 @@ for(i in 1:length(df_TT$Date)) {
 }
 
 head(df_TT)
+write.csv(df_TT,"ThermalSum.csv")
+write.table(df_TT,"ThermalSum.txt")
 
 ```
 
