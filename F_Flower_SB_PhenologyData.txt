@@ -1,4 +1,4 @@
-﻿Date	Plot	Variable	S1	S2	S3	S4	S5	Percent	Cultivar	SowingDate	SowingD	DAS
+﻿Date	Plot	Variable	S1	S2	S3	S4	S5	Percent	Cultivar	SowTreat	SowingD	DAS
 12/10/2015	1	Bud	0	0	0	0	0	0	Antas 	S1	24/06/2015	110
 12/10/2015	2	Bud	0	0	0	0	0	0	Monti	S1	24/06/2015	110
 12/10/2015	3	Bud	0	0	0	0	0	0	Denmark	S1	24/06/2015	110
