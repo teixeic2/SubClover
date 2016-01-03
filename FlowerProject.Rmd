@@ -12,6 +12,7 @@ library (ggplot2)
 library(agricolae)
 library(knitr)
 library (lubridate)
+
 ```
 
 
@@ -42,15 +43,15 @@ Analysis of sowing date and cultivars for Bud considering Date
  # df_flower$Date <- dmy(df_flower$Date) 
 head(df_flower)
  df_flower %>%
-  group_by(DAS,Date, Cultivar,SowingDate,Variable)%>%
+  group_by(DAS,Date, Cultivar,SowTreat,Variable)%>%
   summarise_each(funs(mean)) %>%
-  select(Variable,Percent, Cultivar,Date,SowingDate)%>%
+  select(Variable,Percent, Cultivar,Date,SowTreat)%>%
   filter(Variable == "Bud") %>%
   
   ggplot(aes(x=Date, y=Percent)) + 
   #geom_bar(shape=1, stat="identity")
   geom_line(aes(colour=Cultivar)) +
-  facet_grid(SowingDate~Cultivar, scales = "free")+
+  facet_grid(SowTreat~Cultivar, scales = "free")+
   geom_abline(intercept = 50, slope = 0)+
   theme(axis.text.x = element_text(angle = 90, hjust = 1))
   #scale_x_continuous(breaks=c(2,3,4,5,6,7,8,9,10,11), labels=c("Fe","Mr","Ap","Ma","Ju","Jul","Au","Se","Oc","No"))
@@ -64,15 +65,15 @@ df_flower %>%
   mutate(Variable = 
   factor(Variable,levels = c("Bud","Early","Open",
           "Petal","Bur1","Bur2","Bur3","Bur4" ))) %>%
-  group_by(DAS,Cultivar,SowingDate,Variable) %>%
+  group_by(DAS,Cultivar,SowTreat,Variable) %>%
   summarise_each(funs(mean)) %>%
   
-  select(Variable,Percent, Cultivar,DAS,SowingDate) %>%
+  select(Variable,Percent, Cultivar,DAS,SowTreat) %>%
   filter(Cultivar == "Leura") %>%
   ggplot(aes(x=DAS, y=Percent)) + 
   #geom_bar(shape=1, stat="identity")
   geom_line(aes(colour=Cultivar)) +
-  facet_grid(SowingDate~Variable, scales = "free") +
+  facet_grid(SowTreat~Variable, scales = "free") +
   geom_abline(intercept = 50, slope = 0)
 
 
@@ -103,18 +104,63 @@ df_TTSum <- df_TTSum %>%
 
 ```
 
-Merge two df : TTSum and Date 
+Merge two df : TTSum and Flowering 
 ```{r MergeTTSumDate}
 
  #merge two data frames by ID
-df_merged <- merge(df_flower,df_TTSum,by="Date")
-head(df_merged)
-summary(df_merged )
+df_flower <- merge(df_flower,df_TTSum,by="Date")
+head(df_flower)
+summary(df_flower )
+
+#tidy up dataframe
+
+names(df_flower)[1] <- "DateMeasure"
+names(df_flower)[15] <- "TTMeasure"
+```
+
+
+
+```{r mergeTTSowDate,include=FALSE}
+
+df_TTSow <-read.table("TTSowDate.txt", header=TRUE)
+df_TTSow$MeanAirT<-NULL
+names(df_TTSow)[3]
+df_flower <- merge(df_flower,df_TTSow, by="SowTreat" )
+head(df_flower)
+
+#tidy up names
+names(df_flower)[17] <- "TTSow"
 
 ```
 
 
-```{rInsert TTAtSowing}
-#df_calib$LW <- df_calib$LengthCm*df_calib$WidthCm
+```{r Calc_TT_afterSow}
+
+df_flower$TTAS <- df_flower$TTMeasure-df_flower$TTSow
+
+df_flower %>%
+  mutate(Variable = 
+  factor(Variable,levels = c("Bud","Early","Open",
+          "Petal","Bur1","Bur2","Bur3","Bur4" ))) %>%
+  group_by(TTAS,Cultivar,SowTreat,Variable) %>%
+  summarise_each(funs(mean)) %>%
+  select(Variable,Percent, Cultivar,TTAS,SowTreat) %>%
+  #filter(Cultivar == "Monti") %>%
+  filter(Variable == "Early") %>%
+  ggplot(aes(x=TTAS, y=Percent)) + 
+  geom_line(aes(colour=Cultivar)) +
+  facet_grid(SowTreat~Cultivar, scales = "free") +
+  geom_abline(intercept = 50, slope = 0)
+
 ```
+
+
+next step: join early_open and petal categories to create "open flower" 
+
+```{r}
+
+```
+
+
+
 
