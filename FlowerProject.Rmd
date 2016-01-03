@@ -74,7 +74,8 @@ df_flower %>%
   #geom_bar(shape=1, stat="identity")
   geom_line(aes(colour=Cultivar)) +
   facet_grid(SowTreat~Variable, scales = "free") +
-  geom_abline(intercept = 50, slope = 0)
+  geom_abline(intercept = 50, slope = 0)+
+theme(axis.text.x = element_text(angle = 90, hjust = 1))
 
 
 
@@ -146,12 +147,29 @@ df_flower %>%
   summarise_each(funs(mean)) %>%
   select(Variable,Percent, Cultivar,TTAS,SowTreat) %>%
   #filter(Cultivar == "Monti") %>%
-  filter(Variable == "Early") %>%
+  filter(Variable == "Bud") %>%
   ggplot(aes(x=TTAS, y=Percent)) + 
   geom_line(aes(colour=Cultivar)) +
   facet_grid(SowTreat~Cultivar, scales = "free") +
-  geom_abline(intercept = 50, slope = 0)
+  geom_abline(intercept = 50, slope = 0)+
+theme(axis.text.x = element_text(angle = 60, hjust = 1))
 
+
+#by variable 
+df_flower %>%
+  mutate(Variable = 
+  factor(Variable,levels = c("Bud","Early","Open",
+          "Petal","Bur1","Bur2","Bur3","Bur4" ))) %>%
+  group_by(TTAS,Cultivar,SowTreat,Variable) %>%
+  summarise_each(funs(mean)) %>%
+  select(Variable,Percent, Cultivar,TTAS,SowTreat) %>%
+  filter(Cultivar == "Monti" | Cultivar == "Leura" ) %>%
+  #filter(Variable == "Bud") %>%
+  ggplot(aes(x=TTAS, y=Percent)) + 
+  geom_line(aes(colour=Cultivar)) +
+  facet_grid(SowTreat~Variable, scales = "free") +
+  geom_abline(intercept = 50, slope = 0)+
+theme(axis.text.x = element_text(angle = 60, hjust = 1))
 ```
 
 
