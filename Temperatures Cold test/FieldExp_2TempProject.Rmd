@@ -5,7 +5,7 @@ date: "Wednesday, January 06, 2016"
 output: html_document
 ---
 
-Graphing Max, Min and Average temperatures 
+Graphing Max, Min and Average temperatures field experiment with 6 cvs.  
 
 ```{r LoadLibraries }
 
@@ -16,7 +16,7 @@ library (lubridate)
 library (reshape2)
 ```
 
-REad table Notepad file: Temperatures Cold Test FieldExp_1
+REad table Notepad file: Temperatures Cold Test FieldExp_2
 
 ```{r, readFile}
 
@@ -24,11 +24,11 @@ setwd("C:\\Users\\Ed\\Documents\\Subclovergit\\Temperatures Cold test")
 getwd()
 
 #create file
-df_Tone <- read.table("FieldExp_1.txt",header=TRUE)
-df_Tone
-head(df_Tone)
-summary (df_Tone)
-tail(df_Tone)
+df_Ttwo <- read.table("FieldExp_2.txt",header=TRUE)
+df_Ttwo
+head(df_Ttwo)
+summary (df_Ttwo)
+tail(df_Ttwo)
 ```
 
 Create Graph : convert date into dmy
@@ -36,16 +36,16 @@ Create Graph : convert date into dmy
 
 ```{r createFileExpOne}
 
-df_Tone$Date <- dmy(df_Tone$Date)
+df_Ttwo$Date <- dmy(df_Ttwo$Date)
 #df_Tone_long <- melt(df_Tone, id="Date")
 
-df_Tone %>%
+df_Ttwo %>%
 ggplot(aes(x=Date)) +
-    geom_line(aes(y= AverageofMeanTt, colour = "MeanT"))+
-    geom_line(aes(y = AverageofTm, colour = "MinT"))+
-    geom_line(aes(y = AverageofTx, colour = "MaxT"))+
+    geom_line(aes(y= Taverage, colour = "MeanT"))+
+    geom_line(aes(y = Tmin, colour = "MinT"))+
+    geom_line(aes(y = Tmax, colour = "MaxT"))+
     ylab("Temperature")+
-    ggtitle("Experiment1 Daily Temperature (oC) ")
+    ggtitle("Field Experiment3 Daily Temperature (oC) ")
 
 ```
 Calculate TT
@@ -54,9 +54,9 @@ Calculate TT
 
 Tb <-0 #base temperature oC 
 
-df_Tone <- df_Tone %>%
-  mutate(TT=AverageofMeanTt-Tb)
-head(df_Tone)
+df_Ttwo <- df_Ttwo %>%
+  mutate(TT=Taverage-Tb)
+head(df_Ttwo)
 ```
 
 

@@ -1,4 +1,4 @@
-date	Tmax	Tmin	Taverage 
+Date	Tmax	Tmin	Taverage 
 24/08/2015	15.3	1.8	8.55
 25/08/2015	15.7	1.5	8.6
 26/08/2015	8.6	-0.7	3.95

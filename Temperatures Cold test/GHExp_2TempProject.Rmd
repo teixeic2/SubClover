@@ -16,7 +16,7 @@ library (lubridate)
 library (reshape2)
 ```
 
-REad table Notepad file: Temperatures Cold Test FieldExp_1
+REad table Notepad file: Temperatures Cold Test GH outdoor
 
 ```{r, readFile}
 
@@ -24,11 +24,11 @@ setwd("C:\\Users\\Ed\\Documents\\Subclovergit\\Temperatures Cold test")
 getwd()
 
 #create file
-df_Tone <- read.table("FieldExp_1.txt",header=TRUE)
-df_Tone
-head(df_Tone)
-summary (df_Tone)
-tail(df_Tone)
+df_Three <- read.table("Exp2_pots.txt",header=TRUE)
+df_Three
+head(df_Three)
+summary (df_Three)
+tail(df_Three)
 ```
 
 Create Graph : convert date into dmy
@@ -36,16 +36,16 @@ Create Graph : convert date into dmy
 
 ```{r createFileExpOne}
 
-df_Tone$Date <- dmy(df_Tone$Date)
+df_Three$Date <- dmy(df_Three$Date)
 #df_Tone_long <- melt(df_Tone, id="Date")
 
-df_Tone %>%
+df_Three %>%
 ggplot(aes(x=Date)) +
-    geom_line(aes(y= AverageofMeanTt, colour = "MeanT"))+
-    geom_line(aes(y = AverageofTm, colour = "MinT"))+
-    geom_line(aes(y = AverageofTx, colour = "MaxT"))+
+    geom_line(aes(y= Taverage, colour = "MeanT"))+
+    geom_line(aes(y = Tmin, colour = "MinT"))+
+    geom_line(aes(y = Tmax, colour = "MaxT"))+
     ylab("Temperature")+
-    ggtitle("Experiment1 Daily Temperature (oC) ")
+    ggtitle("GH Experiment outdoor Daily Temperature (oC) ")
 
 ```
 Calculate TT
@@ -54,9 +54,12 @@ Calculate TT
 
 Tb <-0 #base temperature oC 
 
-df_Tone <- df_Tone %>%
-  mutate(TT=AverageofMeanTt-Tb)
-head(df_Tone)
+df_Three <- df_Three %>%
+  mutate(TT=Taverage-Tb)
+head(df_Three)
+
+df_Three %>%
+ mutate(cs = cumsum(TT))
 ```
 
 
