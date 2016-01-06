@@ -1,0 +1,61 @@
+---
+title: "MinMaxTemp"
+author: "CT"
+date: "Wednesday, January 06, 2016"
+output: html_document
+---
+
+Graphing Max, Min and Average temperatures 
+
+```{r LoadLibraries }
+
+library(tidyr)
+library (dplyr)
+library (ggplot2)
+library (lubridate)
+library (reshape2)
+```
+
+REad table Notepad file: Temperatures Cold Test FieldExp_1
+
+```{r, readFile}
+
+setwd("C:\\Users\\Ed\\Documents\\Subclovergit\\Temperatures Cold test")
+getwd()
+
+#create file
+df_Tone <- read.table("FieldExp_1.txt",header=TRUE)
+df_Tone
+head(df_Tone)
+summary (df_Tone)
+tail(df_Tone)
+```
+
+Create Graph : convert date into dmy
+
+
+```{r createFileExpOne}
+
+df_Tone$Date <- dmy(df_Tone$Date)
+#df_Tone_long <- melt(df_Tone, id="Date")
+
+df_Tone %>%
+ggplot(aes(x=Date)) +
+    geom_line(aes(y= AverageofMeanTt, colour = "MeanT"))+
+    geom_line(aes(y = AverageofTm, colour = "MinT"))+
+    geom_line(aes(y = AverageofTx, colour = "MaxT"))+
+    ylab("Temperature")+
+    ggtitle("Experiment1 Daily Temperature (oC) ")
+
+```
+Calculate TT
+
+```{r calculateTT}
+
+Tb <-0 #base temperature oC 
+
+df_Tone <- df_Tone %>%
+  mutate(TT=AverageofMeanTt-Tb)
+head(df_Tone)
+```
+
