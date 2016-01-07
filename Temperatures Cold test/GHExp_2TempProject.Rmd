@@ -58,8 +58,12 @@ df_Three <- df_Three %>%
   mutate(TT=Taverage-Tb)
 head(df_Three)
 
-df_Three %>%
- mutate(cs = cumsum(TT))
+
+df_Three <- df_Three %>%
+mutate(cs = cumsum(TT))
+head(df_Three)
+ 
+
 ```
 
 
