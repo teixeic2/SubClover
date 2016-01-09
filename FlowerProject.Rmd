@@ -26,7 +26,8 @@ df_flower <- read.table("F_Flower_SB_PhenologyData.txt",header=TRUE)
 colnames(df_flower)[1] <- "Date" # fix bug of extra characters in name
 # convert to date format
 df_flower <- df_flower %>%
- mutate(Date=dmy(Date))
+mutate(Date=dmy(Date))
+str(df_flower)
 
 df_flower 
 head(df_flower )
@@ -176,7 +177,47 @@ next step: join early_open and petal categories to create "open flower"
 
 ```{r joinEarlyOpenFlower}
 
-# remainder: use tydyr::gather
+# create df with flowering only (merged)
+df_flower_simple <- df_flower %>%
+filter(Variable == "Early" | Variable == "Open" | Variable == "Petal") %>%
+group_by(DateMeasure, Plot) %>%
+  mutate(Variable = "Flowering", 
+         S1=max(S1), 
+         S2=max(S2),
+         S3=max(S3), 
+         S4=max(S4),
+         S5=max(S5),
+         Percent=((S1+S2+S3+S4+S5)/5)*100)
+
+# merge both dfs
+df_flower_simple <- rbind(df_flower,df_flower_simple)
+
+# graph it
+df_flower_simple %>%
+  filter(Variable == "Bud" |
+           Variable =="Flowering"| 
+           Variable =="Bur1"| 
+           Variable =="Bur2"| 
+           Variable =="Bur3"| 
+           Variable =="Bur4")  %>%
+  mutate(Variable = 
+  factor(Variable,levels = c("Bud","Flowering",
+                             "Bur1", "Bur2", "Bur3","Bur4"))) %>%
+  group_by(TTAS,Cultivar,SowTreat,Variable) %>%
+  summarise_each(funs(mean)) %>%
+  select(Variable,Percent, Cultivar,TTAS,SowTreat) %>%
+  filter(Cultivar == "Monti" | Cultivar == "Leura" ) %>%
+  #filter(Variable == "Bud") %>%
+  ggplot(aes(x=TTAS, y=Percent)) + 
+  geom_line(aes(colour=Cultivar)) +
+  facet_grid(SowTreat~Variable, scales = "free") +
+  geom_abline(intercept = 50, slope = 0)+
+theme(axis.text.x = element_text(angle = 60, hjust = 1))
+
+unique(df_flower_simple$Variable)
+
+
+
 
 
 ```
