@@ -223,5 +223,45 @@ unique(df_flower_simple$Variable)
 ```
 
 
+```{r}
+
+# create df with bur only (merged bur1,2,3 and 4)
+df_bur_simple <- df_flower %>%
+filter(Variable == "Bur1" | Variable == "Bur2" | Variable == "Bur3"| Variable == "Bur4" ) %>%
+group_by(DateMeasure, Plot) %>%
+  mutate(Variable = "Bur", 
+         S1=max(S1), 
+         S2=max(S2),
+         S3=max(S3), 
+         S4=max(S4),
+         S5=max(S5),
+         Percent=((S1+S2+S3+S4+S5)/5)*100)
+
+# merge both dfs
+df_bur_simple <- rbind(df_flower,df_flower_simple, df_bur_simple)
+
+# graph it
+df_bur_simple %>%
+  filter(Variable == "Bud" |
+           Variable =="Flowering"| 
+           Variable =="Bur")  %>%
+  mutate(Variable = 
+  factor(Variable,levels = c("Bud","Flowering",
+                             "Bur"))) %>%
+  group_by(TTAS,Cultivar,SowTreat,Variable) %>%
+  summarise_each(funs(mean)) %>%
+  select(Variable,Percent, Cultivar,TTAS,SowTreat) %>%
+  #filter(Cultivar == "Monti" | Cultivar == "Leura" ) %>%
+  #filter(Variable == "Bud") %>%
+  ggplot(aes(x=TTAS, y=Percent)) + 
+  geom_line(aes(colour=Cultivar)) +
+  geom_point(aes(shape=Cultivar,colour=Cultivar))+
+  facet_grid(SowTreat~Variable, scales = "free") +
+  geom_abline(intercept = 50, slope = 0)+
+theme(axis.text.x = element_text(angle = 60, hjust = 1))
+
+unique(df_bur_simple$Variable)
+```
+
 
 
