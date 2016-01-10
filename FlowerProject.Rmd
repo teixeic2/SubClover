@@ -180,8 +180,32 @@ df_flower50 <- df_flower %>%
   filter(Variable=="Bud", Cultivar=="Leura",SowTreat=="S1" )
 
 #interpolate 
-  tutu = approx(w$avP,w$avTT , xout = 50)
- tutu
+tutu <- approx(w$avP,w$avTT , xout = 50)
+tutu
+
+
+
+# create loop to calculate all
+cv <- unique(df_flower50$Cultivar)
+var <- unique(df_flower50$Variable)
+sow <- unique(df_flower50$SowTreat)
+
+for(i in 1:length(cv)) {
+  for(j in 1:length(var)){
+    for(k in 1:length(sow)){
+      
+      print(paste0(cv[i],var[j], sow[k]))
+      # filter for each combination
+      
+    }
+    
+  }
+  
+}
+
+
+
+
 ```
 
 
