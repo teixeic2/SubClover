@@ -44,7 +44,8 @@ ggplot(aes(x=Date)) +
     geom_line(aes(y= Taverage, colour = "MeanT"))+
     geom_line(aes(y = Tmin, colour = "MinT"))+
     geom_line(aes(y = Tmax, colour = "MaxT"))+
-    ylab("Temperature")+
+    ylab("Temperature")+ 
+    theme_bw()+
     ggtitle("GH Experiment outdoor Daily Temperature (oC) ")
 
 ```

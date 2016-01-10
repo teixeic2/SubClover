@@ -45,6 +45,7 @@ ggplot(aes(x=Date)) +
     geom_line(aes(y = AverageofTm, colour = "MinT"))+
     geom_line(aes(y = AverageofTx, colour = "MaxT"))+
     ylab("Temperature")+
+    theme_bw()+
     ggtitle("Experiment1 Daily Temperature (oC) ")
 
 ```

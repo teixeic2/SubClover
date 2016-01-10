@@ -173,7 +173,7 @@ theme(axis.text.x = element_text(angle = 60, hjust = 1))
 ```
 
 
-next step: join early_open and petal categories to create "open flower" 
+next step: join early_open and petal categories to create " flower" 
 
 ```{r joinEarlyOpenFlower}
 

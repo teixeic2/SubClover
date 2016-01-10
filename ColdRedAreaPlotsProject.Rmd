@@ -1,0 +1,108 @@
+---
+title: "Image analysis"
+author: "CT"
+date: "Wednesday, January 06, 2016"
+output: html_document
+---
+
+Graphing Red area of plots Field Exp 1 
+
+```{r LoadLibraries }
+
+library(tidyr)
+library (dplyr)
+library (ggplot2)
+library (lubridate)
+library (reshape2)
+library(agricolae)
+```
+
+REad table Notepad file:ImageAnalysis .txt 
+
+```{r, readFile}
+setwd("C:\\Users\\Ed\\Documents\\Subclovergit")
+getwd()
+dev.off()
+```
+
+
+
+
+```{r readfile}
+df_Red <- read.table("ImageAnalysis.txt",header=TRUE)
+summary(df_Red)
+head(df_Red)
+
+
+```
+
+
+
+```{r}
+
+#barplot 
+#The palette with grey:
+cbPalette <- c("#999999", "#E69F00", "#56B4E9", "#009E73", "#D55E00", "#0072B2","#999999", "#E69F00", "#56B4E9", "#009E73", "#D55E00", "#0072B2","#56B4E9", "#009E73")
+
+
+df_Red %>%
+  group_by(Cultivar) %>%
+  summarise_each(funs(mean, sd)) %>%
+  mutate(Cultivar = factor(Cultivar,levels = 
+                             Cultivar[order(RedCm2_mean)])) %>%
+  ggplot(aes(x=Cultivar, y=RedCm2_mean, fill=Cultivar)) +
+  geom_bar(position = position_dodge(), stat="identity") +
+  geom_errorbar(aes(ymin=RedCm2_mean-RedCm2_sd/2,
+                    ymax=RedCm2_mean+RedCm2_sd/2),
+                width=0.25)   +
+  scale_fill_manual(values=cbPalette) + 
+  theme_bw(base_size = 22)+
+  theme(axis.text.x=element_text(angle = +90, hjust = 0))
+  xlab("Cultivar")+
+  ylab("RedArea")
+  
+ 
+
+```
+Calculate Percentage red on the foliage 
+
+```{r calculateRedPercent}
+
+
+
+df_Red <- df_Red %>%
+  mutate(RedPercent=(RedCm2/FoliageCm2)*100)
+
+head(df_Red)
+
+
+```
+
+Graph Red Percent 
+
+```{rgraphRedPercent}
+#barplot 
+#The palette with grey:
+cbPalette <- c("#999999", "#E69F00", "#56B4E9", "#009E73", "#D55E00", "#0072B2","#999999", "#E69F00", "#56B4E9", "#009E73", "#D55E00", "#0072B2","#56B4E9", "#009E73")
+
+
+df_Red %>%
+  group_by(Cultivar) %>%
+  summarise_each(funs(mean, sd)) %>%
+  mutate(Cultivar = factor(Cultivar,levels = 
+                             Cultivar[order(RedPercent_mean)])) %>%
+  ggplot(aes(x=Cultivar, y=RedPercent_mean, fill=Cultivar)) +
+  geom_bar(position = position_dodge(), stat="identity") +
+  geom_errorbar(aes(ymin=RedPercent_mean-RedPercent_sd/2,
+                    ymax=RedPercent_mean+RedPercent_sd/2),
+                width=0.25)   +
+  scale_fill_manual(values=cbPalette) + 
+  theme_bw(base_size = 22)+
+  theme(axis.text.x=element_text(angle = +90, hjust = 0))
+  xlab("Cultivar")+
+  ylab("RedPercent")
+
+```
+
+
+

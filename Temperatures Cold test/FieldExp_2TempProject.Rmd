@@ -45,6 +45,7 @@ ggplot(aes(x=Date)) +
     geom_line(aes(y = Tmin, colour = "MinT"))+
     geom_line(aes(y = Tmax, colour = "MaxT"))+
     ylab("Temperature")+
+    theme_bw()+
     ggtitle("Field Experiment3 Daily Temperature (oC) ")
 
 ```
