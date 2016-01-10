@@ -29,10 +29,7 @@ df_flower <- df_flower %>%
 mutate(Date=dmy(Date))
 str(df_flower)
 
-df_flower 
-head(df_flower )
-summary(df_flower )
-names(df_flower)
+  
 
 
 ```
@@ -171,6 +168,23 @@ df_flower %>%
   geom_abline(intercept = 50, slope = 0)+
 theme(axis.text.x = element_text(angle = 60, hjust = 1))
 ```
+
+Interpolate 50 Percent of a Variable Bud , cultivar and sowtreat.
+
+```{r proxie50}
+df_flower50 <- df_flower %>%
+  group_by(Cultivar,SowTreat,Variable, DateMeasure) %>%
+  summarise(avP= mean(Percent),avTT= mean(TTAS))
+
+ w <- df_flower50 %>%
+  filter(Variable=="Bud", Cultivar=="Leura",SowTreat=="S1" )
+
+#interpolate 
+  tutu = approx(w$avP,w$avTT , xout = 50)
+ tutu
+```
+
+
 
 
 next step: join early_open and petal categories to create " flower" 
