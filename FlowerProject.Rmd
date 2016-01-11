@@ -172,23 +172,30 @@ theme(axis.text.x = element_text(angle = 60, hjust = 1))
 Interpolate 50 Percent of a Variable Bud , cultivar and sowtreat.
 
 ```{r proxie50}
+
 df_flower50 <- df_flower %>%
   group_by(Cultivar,SowTreat,Variable, DateMeasure) %>%
   summarise(avP= mean(Percent),avTT= mean(TTAS))
 
+# segment df and apply linear interpolation (example)
  w <- df_flower50 %>%
   filter(Variable=="Bud", Cultivar=="Leura",SowTreat=="S1" )
-
-#interpolate 
-tutu <- approx(w$avP,w$avTT , xout = 50)
-tutu
-
+#interpolate to get tt at 50% flow
+tt_50p_flow <- approx(w$avP,w$avTT , xout = 50)
+tt_50p_flow
 
 
-# create loop to calculate all
+
+#  loop to calculate tt_50p_flow for each var x sd x cv
 cv <- unique(df_flower50$Cultivar)
 var <- unique(df_flower50$Variable)
 sow <- unique(df_flower50$SowTreat)
+
+df_tt_50p_flow <- data.frame(Cultivar = 0, 
+                             Variable = 0, 
+                             SowTreat = 0, 
+                             TT50F = 0)
+
 
 for(i in 1:length(cv)) {
   for(j in 1:length(var)){
@@ -197,13 +204,39 @@ for(i in 1:length(cv)) {
       print(paste0(cv[i],var[j], sow[k]))
       # filter for each combination
       
-    }
-    
-  }
+  w <- df_flower50[ which(df_flower50$Cultivar == cv[i], 
+                     df_flower50$Variable == var[j], 
+                     df_flower50$SowTreat== sow[k]),]
   
+  #interpolate to get tt at 50% flow
+  tt_50p_flow <- NULL
+  tt_50p_flow <- approx(w$avP,w$avTT , xout = 50)$y
+  
+  df1<- NULL
+  df1 <- data.frame(Cultivar = cv[i], 
+                             Variable = var[j], 
+                             SowTreat = sow[k], 
+                             TT50F = tt_50p_flow)
+  
+   # FixMe Variable values not changing    
+  df_tt_50p_flow <- rbind(df_tt_50p_flow,df1)
+      
+    } 
+  }
 }
 
+summary(df_tt_50p_flow)
+write.table(df_tt_50p_flow,"df_tt_50p_flow.txt")
 
+# FIXME
+df_tt_50p_flow <- df_tt_50p_flow[-1,]
+
+# graph
+df_tt_50p_flow %>%
+ # filter(Variable == "Bud") %>%
+  ggplot(aes(x=Cultivar, y=TT50F)) +
+  geom_boxplot() +
+  facet_grid(SowTreat~Variable)
 
 
 ```
