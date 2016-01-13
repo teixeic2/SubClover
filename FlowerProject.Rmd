@@ -177,14 +177,7 @@ df_flower50 <- df_flower %>%
   group_by(Cultivar,SowTreat,Variable, DateMeasure) %>%
   summarise(avP= mean(Percent),avTT= mean(TTAS))
 
-# segment df and apply linear interpolation (example)
- w <- df_flower50 %>%
-  filter(Variable=="Bud", Cultivar=="Leura",SowTreat=="S1" )
-#interpolate to get tt at 50% flow
-tt_50p_flow <- approx(w$avP,w$avTT , xout = 50)
-tt_50p_flow
-
-
+write.table(df_flower50, "df_flower50.txt")
 
 #  loop to calculate tt_50p_flow for each var x sd x cv
 cv <- unique(df_flower50$Cultivar)
@@ -196,21 +189,29 @@ df_tt_50p_flow <- data.frame(Cultivar = 0,
                              SowTreat = 0, 
                              TT50F = 0)
 
-
 for(i in 1:length(cv)) {
   for(j in 1:length(var)){
     for(k in 1:length(sow)){
       
       print(paste0(cv[i],var[j], sow[k]))
       # filter for each combination
-      
-  w <- df_flower50[ which(df_flower50$Cultivar == cv[i], 
-                     df_flower50$Variable == var[j], 
-                     df_flower50$SowTreat== sow[k]),]
-  
+
+  w <- df_flower50 %>%
+    subset(Cultivar == as.character(cv[i]) &
+    Variable == as.character (var[j]) &
+    SowTreat == as.character (sow[k]) )        
+            
   #interpolate to get tt at 50% flow
-  tt_50p_flow <- NULL
-  tt_50p_flow <- approx(w$avP,w$avTT , xout = 50)$y
+ # tt_50p_flow <- NULL
+#  tt_50p_flow <- approx(w$avP,w$avTT , xout = 50)$y
+  
+  tryCatch(
+  tt_50p_flow <- approx(w$avP,w$avTT , xout = 50)$y,
+  error = function(e) 
+  {
+  tt_50p_flow <- NA
+  }
+)
   
   df1<- NULL
   df1 <- data.frame(Cultivar = cv[i], 
@@ -218,7 +219,6 @@ for(i in 1:length(cv)) {
                              SowTreat = sow[k], 
                              TT50F = tt_50p_flow)
   
-   # FixMe Variable values not changing    
   df_tt_50p_flow <- rbind(df_tt_50p_flow,df1)
       
     } 
