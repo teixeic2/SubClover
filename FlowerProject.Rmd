@@ -117,6 +117,27 @@ names(df_flower)[15] <- "TTMeasure"
 ```
 
 
+Include Photoperiod dataframe 
+
+```{rmergePhotoperiod}
+
+#create file
+df_Photo <- read.table("Photoperiod.txt",header=TRUE)
+head(df_Photo)
+
+# convert to date format
+df_Photo <- df_Photo %>%
+mutate(DateMeasure=dmy(DateMeasure))
+str(df_Photo)
+
+#merge two data frames by ID
+df_flower <- merge(df_flower,df_Photo,by="DateMeasure")
+head(df_flower)
+summary(df_flower )
+```
+
+
+
 
 ```{r mergeTTSowDate,include=FALSE}
 
@@ -184,10 +205,10 @@ cv <- unique(df_flower50$Cultivar)
 var <- unique(df_flower50$Variable)
 sow <- unique(df_flower50$SowTreat)
 
-df_tt_50p_flow <- data.frame(Cultivar = 0, 
-                             Variable = 0, 
-                             SowTreat = 0, 
-                             TT50F = 0)
+df_tt_50p_flow <- data.frame(Cultivar = NULL, 
+                             Variable = NULL, 
+                             SowTreat = NULL, 
+                             TT50F = NULL)
 
 for(i in 1:length(cv)) {
   for(j in 1:length(var)){
@@ -201,10 +222,6 @@ for(i in 1:length(cv)) {
     Variable == as.character (var[j]) &
     SowTreat == as.character (sow[k]) )        
             
-  #interpolate to get tt at 50% flow
- # tt_50p_flow <- NULL
-#  tt_50p_flow <- approx(w$avP,w$avTT , xout = 50)$y
-  
   tryCatch(
   tt_50p_flow <- approx(w$avP,w$avTT , xout = 50)$y,
   error = function(e) 
@@ -212,12 +229,22 @@ for(i in 1:length(cv)) {
   tt_50p_flow <- NA
   }
 )
-  
+
+#Interpolation date output in strange format 
+tryCatch(
+  date_50p_flow <- approx(w$avP,w$DateMeasure, xout = 50)$y,
+  error = function(e) 
+  {
+  date_50p_flow <- NA
+  }
+)
+
   df1<- NULL
   df1 <- data.frame(Cultivar = cv[i], 
                              Variable = var[j], 
                              SowTreat = sow[k], 
-                             TT50F = tt_50p_flow)
+                             TT50F = tt_50p_flow,
+                             Date50F = date_50p_flow)
   
   df_tt_50p_flow <- rbind(df_tt_50p_flow,df1)
       
@@ -225,18 +252,22 @@ for(i in 1:length(cv)) {
   }
 }
 
+
 summary(df_tt_50p_flow)
+head(df_tt_50p_flow)
+
+
 write.table(df_tt_50p_flow,"df_tt_50p_flow.txt")
 
 # FIXME
-df_tt_50p_flow <- df_tt_50p_flow[-1,]
+#df_tt_50p_flow <- df_tt_50p_flow[-1,]
 
 # graph
-df_tt_50p_flow %>%
+#df_tt_50p_flow %>%
  # filter(Variable == "Bud") %>%
-  ggplot(aes(x=Cultivar, y=TT50F)) +
-  geom_boxplot() +
-  facet_grid(SowTreat~Variable)
+#  ggplot(aes(x=Cultivar, y=TT50F)) +
+ # geom_boxplot() +
+ # facet_grid(SowTreat~Variable)
 
 
 ```
@@ -333,6 +364,37 @@ theme(axis.text.x = element_text(angle = 60, hjust = 1))
 
 unique(df_bur_simple$Variable)
 ```
+
+Graph TTAS and Photoperiod 
+
+```{rGraphPhoto}
+
+# graph it
+df_bur_simple %>%
+  filter(Variable == "Bud" |
+           Variable =="Flowering"| 
+           Variable =="Bur")  %>%
+  mutate(Variable = 
+  factor(Variable,levels = c("Bud","Flowering",
+                             "Bur"))) %>%
+  group_by(TT50F,Cultivar,SowTreat,Variable,Pp) %>%
+  summarise_each(funs(mean)) %>%
+  select(Variable,Percent, Cultivar,TT50F,SowTreat,Pp) %>%
+  #filter(Cultivar == "Monti" | Cultivar == "Leura" ) %>%
+  #filter(Variable == "Bud") %>%
+  ggplot(aes(x=TT50F, y=Percent)) + 
+  geom_line(aes(colour=Cultivar)) +
+  geom_point(aes(shape=Cultivar,colour=Cultivar))+
+  facet_grid(Pp~Variable, scales = "free") +
+  geom_abline(intercept = 50, slope = 0)+
+theme(axis.text.x = element_text(angle = 60, hjust = 1))
+
+unique(df_bur_simple$Variable)
+
+
+```
+
+
 
 
 

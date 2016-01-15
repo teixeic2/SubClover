@@ -1,218 +1,193 @@
-"Cultivar" "Variable" "SowTreat" "TT50F"
-"1" "0" "0" "0" 0
-"2" "Antas" "Bud" "S1" 1590.090901946
-"3" "Antas" "Bud" "S2" 1203.14979264883
-"4" "Antas" "Bud" "S3" 906.836770835333
-"5" "Antas" "Bud" "S4" 906.836770835333
-"6" "Antas" "Bur1" "S1" 1706.73093866475
-"7" "Antas" "Bur1" "S2" 1239.56674490578
-"8" "Antas" "Bur1" "S3" 1284.129828127
-"9" "Antas" "Bur1" "S4" 1284.129828127
-"10" "Antas" "Bur2" "S1" 1536.56421210225
-"11" "Antas" "Bur2" "S2" 1394.094217128
-"12" "Antas" "Bur2" "S3" 1434.07302232343
-"13" "Antas" "Bur2" "S4" 1434.07302232343
-"14" "Antas" "Bur3" "S1" 1755.54266801743
-"15" "Antas" "Bur3" "S2" 1626.977904628
-"16" "Antas" "Bur3" "S3" NA
-"17" "Antas" "Bur3" "S4" NA
-"18" "Antas" "Bur4" "S1" NA
-"19" "Antas" "Bur4" "S2" NA
-"20" "Antas" "Bur4" "S3" NA
-"21" "Antas" "Bur4" "S4" NA
-"22" "Antas" "Early" "S1" NA
-"23" "Antas" "Early" "S2" 1039.969404628
-"24" "Antas" "Early" "S3" NA
-"25" "Antas" "Early" "S4" NA
-"26" "Antas" "Open" "S1" 1634.959176946
-"27" "Antas" "Open" "S2" 1312.24107129467
-"28" "Antas" "Open" "S3" 1065.514937502
-"29" "Antas" "Open" "S4" 1065.514937502
-"30" "Antas" "Petal" "S1" 1941.661989446
-"31" "Antas" "Petal" "S2" 1563.151979628
-"32" "Antas" "Petal" "S3" 1149.294843752
-"33" "Antas" "Petal" "S4" 1149.294843752
-"34" "Antas" "Bur5" "S1" 1149.294843752
-"35" "Antas" "Bur5" "S2" 1149.294843752
-"36" "Antas" "Bur5" "S3" 1149.294843752
-"37" "Antas" "Bur5" "S4" 1149.294843752
-"38" "Denmark" "Bud" "S1" 1399.360301946
-"39" "Denmark" "Bud" "S2" 1386.417092128
-"40" "Denmark" "Bud" "S3" 1415.82208691606
-"41" "Denmark" "Bud" "S4" 1415.82208691606
-"42" "Denmark" "Bur1" "S1" 1412.61781236267
-"43" "Denmark" "Bur1" "S2" 1209.75123155108
-"44" "Denmark" "Bur1" "S3" 1317.877359377
-"45" "Denmark" "Bur1" "S4" 1317.877359377
-"46" "Denmark" "Bur2" "S1" 1854.2525441335
-"47" "Denmark" "Bur2" "S2" 1459.769367128
-"48" "Denmark" "Bur2" "S3" 1452.8856953145
-"49" "Denmark" "Bur2" "S4" 1452.8856953145
-"50" "Denmark" "Bur3" "S1" 1591.367114446
-"51" "Denmark" "Bur3" "S2" 1733.54200228425
-"52" "Denmark" "Bur3" "S3" NA
-"53" "Denmark" "Bur3" "S4" NA
-"54" "Denmark" "Bur4" "S1" 1977.7708410085
-"55" "Denmark" "Bur4" "S2" NA
-"56" "Denmark" "Bur4" "S3" NA
-"57" "Denmark" "Bur4" "S4" NA
-"58" "Denmark" "Early" "S1" 1173.8442472585
-"59" "Denmark" "Early" "S2" 1082.745326503
-"60" "Denmark" "Early" "S3" NA
-"61" "Denmark" "Early" "S4" NA
-"62" "Denmark" "Open" "S1" 1406.848411321
-"63" "Denmark" "Open" "S2" 1210.00895819943
-"64" "Denmark" "Open" "S3" 1182.36336458533
-"65" "Denmark" "Open" "S4" 1182.36336458533
-"66" "Denmark" "Petal" "S1" 1481.561208196
-"67" "Denmark" "Petal" "S2" 1629.906295253
-"68" "Denmark" "Petal" "S3" 1083.093734377
-"69" "Denmark" "Petal" "S4" 1083.093734377
-"70" "Denmark" "Bur5" "S1" 1083.093734377
-"71" "Denmark" "Bur5" "S2" 1083.093734377
-"72" "Denmark" "Bur5" "S3" 1083.093734377
-"73" "Denmark" "Bur5" "S4" 1083.093734377
-"74" "Leura" "Bud" "S1" 1644.244739446
-"75" "Leura" "Bud" "S2" 1169.3398186905
-"76" "Leura" "Bud" "S3" 971.353531252
-"77" "Leura" "Bud" "S4" 971.353531252
-"78" "Leura" "Bur1" "S1" 1866.4707628835
-"79" "Leura" "Bur1" "S2" 1519.734779628
-"80" "Leura" "Bur1" "S3" 1400.47661979367
-"81" "Leura" "Bur1" "S4" 1400.47661979367
-"82" "Leura" "Bur2" "S1" 1407.288426946
-"83" "Leura" "Bur2" "S2" 1519.82955046133
-"84" "Leura" "Bur2" "S3" NA
-"85" "Leura" "Bur2" "S4" NA
-"86" "Leura" "Bur3" "S1" 1857.493942571
-"87" "Leura" "Bur3" "S2" 1725.018060878
-"88" "Leura" "Bur3" "S3" 1725.018060878
-"89" "Leura" "Bur3" "S4" 1725.018060878
-"90" "Leura" "Bur4" "S1" NA
-"91" "Leura" "Bur4" "S2" NA
-"92" "Leura" "Bur4" "S3" NA
-"93" "Leura" "Bur4" "S4" NA
-"94" "Leura" "Early" "S1" 1167.040176946
-"95" "Leura" "Early" "S2" NA
-"96" "Leura" "Early" "S3" 1230.164453127
-"97" "Leura" "Early" "S4" 1230.164453127
-"98" "Leura" "Open" "S1" 1574.460676946
-"99" "Leura" "Open" "S2" NA
-"100" "Leura" "Open" "S3" 1190.96682291867
-"101" "Leura" "Open" "S4" 1190.96682291867
-"102" "Leura" "Petal" "S1" 1476.459755071
-"103" "Leura" "Petal" "S2" 1316.255154628
-"104" "Leura" "Petal" "S3" 1215.770368752
-"105" "Leura" "Petal" "S4" 1215.770368752
-"106" "Leura" "Bur5" "S1" 1215.770368752
-"107" "Leura" "Bur5" "S2" 1215.770368752
-"108" "Leura" "Bur5" "S3" 1215.770368752
-"109" "Leura" "Bur5" "S4" 1215.770368752
-"110" "Monti" "Bud" "S1" 1428.928301946
-"111" "Monti" "Bud" "S2" 1211.52601921133
-"112" "Monti" "Bud" "S3" 989.4222265645
-"113" "Monti" "Bud" "S4" 867.72564453125
-"114" "Monti" "Bur1" "S1" 1495.417442571
-"115" "Monti" "Bur1" "S2" 1060.76320671133
-"116" "Monti" "Bur1" "S3" 1232.284093752
-"117" "Monti" "Bur1" "S4" 1232.284093752
-"118" "Monti" "Bur2" "S1" 1299.333364446
-"119" "Monti" "Bur2" "S2" 1574.459092128
-"120" "Monti" "Bur2" "S3" 1197.83993945512
-"121" "Monti" "Bur2" "S4" 1197.83993945512
-"122" "Monti" "Bur3" "S1" 1727.263145696
-"123" "Monti" "Bur3" "S2" 1694.71071365578
-"124" "Monti" "Bur3" "S3" 1388.939000002
-"125" "Monti" "Bur3" "S4" 1388.939000002
-"126" "Monti" "Bur4" "S1" 1631.23858035509
-"127" "Monti" "Bur4" "S2" NA
-"128" "Monti" "Bur4" "S3" NA
-"129" "Monti" "Bur4" "S4" NA
-"130" "Monti" "Early" "S1" 1242.79306930696
-"131" "Monti" "Early" "S2" 1086.744560878
-"132" "Monti" "Early" "S3" NA
-"133" "Monti" "Early" "S4" NA
-"134" "Monti" "Open" "S1" 1112.798218609
-"135" "Monti" "Open" "S2" NA
-"136" "Monti" "Open" "S3" NA
-"137" "Monti" "Open" "S4" NA
-"138" "Monti" "Petal" "S1" 1716.462442571
-"139" "Monti" "Petal" "S2" 1390.373154628
-"140" "Monti" "Petal" "S3" 1255.101953127
-"141" "Monti" "Petal" "S4" 1255.101953127
-"142" "Monti" "Bur5" "S1" 1255.101953127
-"143" "Monti" "Bur5" "S2" 1255.101953127
-"144" "Monti" "Bur5" "S3" 1255.101953127
-"145" "Monti" "Bur5" "S4" 1255.101953127
-"146" "Narrikup" "Bud" "S1" 1428.928301946
-"147" "Narrikup" "Bud" "S2" 1210.386435878
-"148" "Narrikup" "Bud" "S3" 1259.07855208533
-"149" "Narrikup" "Bud" "S4" NA
-"150" "Narrikup" "Bur1" "S1" 1289.379317571
-"151" "Narrikup" "Bur1" "S2" 1125.682779628
-"152" "Narrikup" "Bur1" "S3" 1071.080640627
-"153" "Narrikup" "Bur1" "S4" 1071.080640627
-"154" "Narrikup" "Bur2" "S1" 1433.6689191335
-"155" "Narrikup" "Bur2" "S2" 1735.502679628
-"156" "Narrikup" "Bur2" "S3" 1394.001846877
-"157" "Narrikup" "Bur2" "S4" 1394.001846877
-"158" "Narrikup" "Bur3" "S1" 1340.608739446
-"159" "Narrikup" "Bur3" "S2" 1694.71071365578
-"160" "Narrikup" "Bur3" "S3" NA
-"161" "Narrikup" "Bur3" "S4" NA
-"162" "Narrikup" "Bur4" "S1" 1660.301564446
-"163" "Narrikup" "Bur4" "S2" NA
-"164" "Narrikup" "Bur4" "S3" NA
-"165" "Narrikup" "Bur4" "S4" NA
-"166" "Narrikup" "Early" "S1" 1359.08840089925
-"167" "Narrikup" "Early" "S2" 1041.57432823911
-"168" "Narrikup" "Early" "S3" 1332.606015627
-"169" "Narrikup" "Early" "S4" 1332.606015627
-"170" "Narrikup" "Open" "S1" 1385.23100611267
-"171" "Narrikup" "Open" "S2" 1185.971373378
-"172" "Narrikup" "Open" "S3" 1075.557625002
-"173" "Narrikup" "Open" "S4" 1075.557625002
-"174" "Narrikup" "Petal" "S1" 1426.940551946
-"175" "Narrikup" "Petal" "S2" 1089.46419629467
-"176" "Narrikup" "Petal" "S3" 971.353531252
-"177" "Narrikup" "Petal" "S4" 971.353531252
-"178" "Narrikup" "Bur5" "S1" 971.353531252
-"179" "Narrikup" "Bur5" "S2" 971.353531252
-"180" "Narrikup" "Bur5" "S3" 971.353531252
-"181" "Narrikup" "Bur5" "S4" 971.353531252
-"182" "Woogenellup" "Bud" "S1" 1526.920583196
-"183" "Woogenellup" "Bud" "S2" 1188.453779628
-"184" "Woogenellup" "Bud" "S3" 1221.529325002
-"185" "Woogenellup" "Bud" "S4" 1221.529325002
-"186" "Woogenellup" "Bur1" "S1" 1356.931114446
-"187" "Woogenellup" "Bur1" "S2" 1726.01450185022
-"188" "Woogenellup" "Bur1" "S3" NA
-"189" "Woogenellup" "Bur1" "S4" NA
-"190" "Woogenellup" "Bur2" "S1" 2001.84106561788
-"191" "Woogenellup" "Bur2" "S2" 1412.00750879467
-"192" "Woogenellup" "Bur2" "S3" NA
-"193" "Woogenellup" "Bur2" "S4" NA
-"194" "Woogenellup" "Bur3" "S1" 1787.97078827412
-"195" "Woogenellup" "Bur3" "S2" 1759.113826503
-"196" "Woogenellup" "Bur3" "S3" 1759.113826503
-"197" "Woogenellup" "Bur3" "S4" 1759.113826503
-"198" "Woogenellup" "Bur4" "S1" 2002.192973821
-"199" "Woogenellup" "Bur4" "S2" NA
-"200" "Woogenellup" "Bur4" "S3" NA
-"201" "Woogenellup" "Bur4" "S4" NA
-"202" "Woogenellup" "Early" "S1" 1363.456270696
-"203" "Woogenellup" "Early" "S2" 1015.0461936905
-"204" "Woogenellup" "Early" "S3" 1298.526843752
-"205" "Woogenellup" "Early" "S4" 1298.526843752
-"206" "Woogenellup" "Open" "S1" 1233.02947772725
-"207" "Woogenellup" "Open" "S2" 1125.149467128
-"208" "Woogenellup" "Open" "S3" 1253.003343752
-"209" "Woogenellup" "Open" "S4" 1253.003343752
-"210" "Woogenellup" "Petal" "S1" 1583.451458196
-"211" "Woogenellup" "Petal" "S2" 1375.864998378
-"212" "Woogenellup" "Petal" "S3" 1266.6852734395
-"213" "Woogenellup" "Petal" "S4" 1266.6852734395
-"214" "Woogenellup" "Bur5" "S1" 1266.6852734395
-"215" "Woogenellup" "Bur5" "S2" 1266.6852734395
-"216" "Woogenellup" "Bur5" "S3" 1266.6852734395
-"217" "Woogenellup" "Bur5" "S4" 1266.6852734395
+"Cultivar" "Variable" "SowTreat" "TT50F" "Date50F"
+"1" "Antas" "Bud" "S1" 1264.246276946 1449264960
+"2" "Antas" "Bud" "S2" 1144.40781496683 1448463600
+"3" "Antas" "Bud" "S3" 1206.659239446 1448978400
+"4" "Antas" "Bud" "S4" 1206.659239446 1448978400
+"5" "Antas" "Bur1" "S1" 1376.53631366475 1449640800
+"6" "Antas" "Bur1" "S2" 1177.50532277933 1448750400
+"7" "Antas" "Bur1" "S3" 1563.785630071 1450720800
+"8" "Antas" "Bur1" "S4" 1563.785630071 1450720800
+"9" "Antas" "Bur2" "S1" 1215.18208710225 1448879400
+"10" "Antas" "Bur2" "S2" 1322.102239446 1449608400
+"11" "Antas" "Bur2" "S3" 1705.97882426743 1451390400
+"12" "Antas" "Bur2" "S4" 1705.97882426743 1451390400
+"13" "Antas" "Bur3" "S1" 1420.526614446 1450057371.42857
+"14" "Antas" "Bur3" "S2" 1543.360926946 1450612800
+"15" "Antas" "Bur3" "S3" NA NA
+"16" "Antas" "Bur3" "S4" NA NA
+"17" "Antas" "Bur4" "S1" NA NA
+"18" "Antas" "Bur4" "S2" NA NA
+"19" "Antas" "Bur4" "S3" NA NA
+"20" "Antas" "Bur4" "S4" NA NA
+"21" "Antas" "Early" "S1" NA NA
+"22" "Antas" "Early" "S2" 992.852426946 1447459200
+"23" "Antas" "Early" "S3" NA NA
+"24" "Antas" "Early" "S4" NA NA
+"25" "Antas" "Open" "S1" 1308.514551946 1449316800
+"26" "Antas" "Open" "S2" 1245.12409361267 1449187200
+"27" "Antas" "Open" "S3" 1356.420739446 1449748800
+"28" "Antas" "Open" "S4" 1356.420739446 1449748800
+"29" "Antas" "Petal" "S1" 1597.217364446 1450872000
+"30" "Antas" "Petal" "S2" 1483.635001946 1450258560
+"31" "Antas" "Petal" "S3" 1435.950645696 1450116000
+"32" "Antas" "Petal" "S4" 1435.950645696 1450116000
+"33" "Denmark" "Bud" "S1" 1087.915676946 1448020800
+"34" "Denmark" "Bud" "S2" 1314.800114446 1449576000
+"35" "Denmark" "Bud" "S3" 1688.86851386006 1451291850
+"36" "Denmark" "Bud" "S4" 1688.86851386006 1451291850
+"37" "Denmark" "Bur1" "S1" 1101.006520696 1448035200
+"38" "Denmark" "Bur1" "S2" 1150.32656156138 1448522584.61538
+"39" "Denmark" "Bur1" "S3" 1596.033161321 1450850400
+"40" "Denmark" "Bur1" "S4" 1596.033161321 1450850400
+"41" "Denmark" "Bur2" "S1" 1516.3079191335 1450310400
+"42" "Denmark" "Bur2" "S2" 1384.752389446 1449869760
+"43" "Denmark" "Bur2" "S3" 1723.7914972585 1451476800
+"44" "Denmark" "Bur2" "S4" 1723.7914972585 1451476800
+"45" "Denmark" "Bur3" "S1" 1265.922489446 1449230400
+"46" "Denmark" "Bur3" "S2" 1644.48752460225 1451082600
+"47" "Denmark" "Bur3" "S3" NA NA
+"48" "Denmark" "Bur3" "S4" NA NA
+"49" "Denmark" "Bur4" "S1" 1631.5762160085 1451023200
+"50" "Denmark" "Bur4" "S2" NA NA
+"51" "Denmark" "Bur4" "S3" NA NA
+"52" "Denmark" "Bur4" "S4" NA NA
+"53" "Denmark" "Early" "S1" 880.1496222585 1446487200
+"54" "Denmark" "Early" "S2" 1032.128348821 1447761600
+"55" "Denmark" "Early" "S3" NA NA
+"56" "Denmark" "Early" "S4" NA NA
+"57" "Denmark" "Open" "S1" 1094.153786321 1448128800
+"58" "Denmark" "Open" "S2" 1151.17769480314 1448471314.28571
+"59" "Denmark" "Open" "S3" 1467.60249986267 1450238400
+"60" "Denmark" "Open" "S4" 1467.60249986267 1450238400
+"61" "Denmark" "Petal" "S1" 1165.741583196 1448398800
+"62" "Denmark" "Petal" "S2" 1546.289317571 1450612800
+"63" "Denmark" "Petal" "S3" 1373.124536321 1449824400
+"64" "Denmark" "Petal" "S4" 1373.124536321 1449824400
+"65" "Leura" "Bud" "S1" 1314.800114446 1449576000
+"66" "Leura" "Bud" "S2" 1113.8478410085 1448182800
+"67" "Leura" "Bud" "S3" 1267.009333196 1449338400
+"68" "Leura" "Bud" "S4" 1267.009333196 1449338400
+"69" "Leura" "Bur1" "S1" 1527.4011378835 1450407600
+"70" "Leura" "Bur1" "S2" 1442.367801946 1450072800
+"71" "Leura" "Bur1" "S3" 1674.54908840433 1451203200
+"72" "Leura" "Bur1" "S4" 1674.54908840433 1451203200
+"73" "Leura" "Bur2" "S1" 1093.843801946 1448193600
+"74" "Leura" "Bur2" "S2" 1441.71257277933 1450137600
+"75" "Leura" "Bur2" "S3" NA NA
+"76" "Leura" "Bur2" "S4" NA NA
+"77" "Leura" "Bur3" "S1" 1517.424317571 1450494000
+"78" "Leura" "Bur3" "S2" 1636.401083196 1451044800
+"79" "Leura" "Bur3" "S3" 1636.401083196 1451044800
+"80" "Leura" "Bur3" "S4" 1636.401083196 1451044800
+"81" "Leura" "Bur4" "S1" NA NA
+"82" "Leura" "Bur4" "S2" NA NA
+"83" "Leura" "Bur4" "S3" NA NA
+"84" "Leura" "Bur4" "S4" NA NA
+"85" "Leura" "Early" "S1" 874.095551946 1446422400
+"86" "Leura" "Early" "S2" NA NA
+"87" "Leura" "Early" "S3" 1512.570255071 1450483200
+"88" "Leura" "Early" "S4" 1512.570255071 1450483200
+"89" "Leura" "Open" "S1" 1250.016051946 1449144000
+"90" "Leura" "Open" "S2" NA NA
+"91" "Leura" "Open" "S3" 1475.705958196 1450281600
+"92" "Leura" "Open" "S4" 1475.705958196 1450281600
+"93" "Leura" "Petal" "S1" 1161.015130071 1448366400
+"94" "Leura" "Petal" "S2" 1251.638176946 1448971200
+"95" "Leura" "Petal" "S3" 1499.226170696 1450392480
+"96" "Leura" "Petal" "S4" 1499.226170696 1450392480
+"97" "Monti" "Bud" "S1" 1114.983676946 1448236800
+"98" "Monti" "Bud" "S2" 1151.90904152933 1448539200
+"99" "Monti" "Bud" "S3" 1286.4530285085 1449219600
+"100" "Monti" "Bud" "S4" 1712.12882147725 1451412000
+"101" "Monti" "Bur1" "S1" 1179.847817571 1448377200
+"102" "Monti" "Bur1" "S2" 1011.97956236267 1447603200
+"103" "Monti" "Bur1" "S3" 1514.77322902933 1450476000
+"104" "Monti" "Bur1" "S4" 1514.77322902933 1450476000
+"105" "Monti" "Bur2" "S1" 994.388739446 1447459200
+"106" "Monti" "Bur2" "S2" 1493.342114446 1450396800
+"107" "Monti" "Bur2" "S3" 1482.15199139913 1450318500
+"108" "Monti" "Bur2" "S4" 1482.15199139913 1450318500
+"109" "Monti" "Bur3" "S1" 1393.818520696 1449921600
+"110" "Monti" "Bur3" "S2" 1607.64929152933 1450910400
+"111" "Monti" "Bur3" "S3" 1663.644801946 1451148480
+"112" "Monti" "Bur3" "S4" 1663.644801946 1451148480
+"113" "Monti" "Bur4" "S1" 1305.52122808236 1449253963.63636
+"114" "Monti" "Bur4" "S2" NA NA
+"115" "Monti" "Bur4" "S3" NA NA
+"116" "Monti" "Bur4" "S4" NA NA
+"117" "Monti" "Early" "S1" 943.015110973625 1447012800
+"118" "Monti" "Early" "S2" 1037.127583196 1447675200
+"119" "Monti" "Early" "S3" NA NA
+"120" "Monti" "Early" "S4" NA NA
+"121" "Monti" "Open" "S1" 825.853593609 1445904000
+"122" "Monti" "Open" "S2" NA NA
+"123" "Monti" "Open" "S3" NA NA
+"124" "Monti" "Open" "S4" NA NA
+"125" "Monti" "Petal" "S1" 1383.517817571 1449878400
+"126" "Monti" "Petal" "S2" 1319.256176946 1449532800
+"127" "Monti" "Petal" "S3" 1536.257755071 1450591200
+"128" "Monti" "Petal" "S4" 1536.257755071 1450591200
+"129" "Narrikup" "Bud" "S1" 1114.983676946 1448236800
+"130" "Narrikup" "Bud" "S2" 1150.519458196 1448560800
+"131" "Narrikup" "Bud" "S3" 1540.98435402933 1450526400
+"132" "Narrikup" "Bud" "S4" NA NA
+"133" "Narrikup" "Bur1" "S1" 985.934692571 1447329600
+"134" "Narrikup" "Bur1" "S2" 1072.065801946 1448020800
+"135" "Narrikup" "Bur1" "S3" 1361.611442571 1449781200
+"136" "Narrikup" "Bur1" "S4" 1361.611442571 1449781200
+"137" "Narrikup" "Bur2" "S1" 1118.5992941335 1448334000
+"138" "Narrikup" "Bur2" "S2" 1646.585701946 1451070720
+"139" "Narrikup" "Bur2" "S3" 1668.007648821 1451208960
+"140" "Narrikup" "Bur2" "S4" 1668.007648821 1451208960
+"141" "Narrikup" "Bur3" "S1" 1031.664114446 1447804800
+"142" "Narrikup" "Bur3" "S2" 1607.64929152933 1450910400
+"143" "Narrikup" "Bur3" "S3" NA NA
+"144" "Narrikup" "Bur3" "S4" NA NA
+"145" "Narrikup" "Bur4" "S1" 1175.11307873171 1448563885.71429
+"146" "Narrikup" "Bur4" "S2" NA NA
+"147" "Narrikup" "Bur4" "S3" NA NA
+"148" "Narrikup" "Bur4" "S4" NA NA
+"149" "Narrikup" "Early" "S1" 1050.89377589925 1447740000
+"150" "Narrikup" "Early" "S2" 995.012906112667 1447411200
+"151" "Narrikup" "Early" "S3" 1609.761817571 1450936800
+"152" "Narrikup" "Early" "S4" 1609.761817571 1450936800
+"153" "Narrikup" "Open" "S1" 1073.85304777933 1448015040
+"154" "Narrikup" "Open" "S2" 1127.854395696 1448409600
+"155" "Narrikup" "Open" "S3" 1365.713426946 1449813600
+"156" "Narrikup" "Open" "S4" 1365.713426946 1449813600
+"157" "Narrikup" "Petal" "S1" 1113.03759361267 1448233200
+"158" "Narrikup" "Petal" "S2" 1039.01388527933 1447747200
+"159" "Narrikup" "Petal" "S3" 1267.009333196 1449338400
+"160" "Narrikup" "Petal" "S4" 1267.009333196 1449338400
+"161" "Woogenellup" "Bud" "S1" 1206.350958196 1448809200
+"162" "Woogenellup" "Bud" "S2" 1131.336801946 1448323200
+"163" "Woogenellup" "Bud" "S3" 1504.535126946 1450431360
+"164" "Woogenellup" "Bud" "S4" 1504.535126946 1450431360
+"165" "Woogenellup" "Bur1" "S1" 1047.986489446 1447804800
+"166" "Woogenellup" "Bur1" "S2" 1637.78641305711 1451011200
+"167" "Woogenellup" "Bur1" "S3" NA NA
+"168" "Woogenellup" "Bur1" "S4" NA NA
+"169" "Woogenellup" "Bur2" "S1" 1654.89644061787 1451088000
+"170" "Woogenellup" "Bur2" "S2" 1339.14053111267 1449684000
+"171" "Woogenellup" "Bur2" "S3" NA NA
+"172" "Woogenellup" "Bur2" "S4" NA NA
+"173" "Woogenellup" "Bur3" "S1" 1451.43241327412 1450188900
+"174" "Woogenellup" "Bur3" "S2" 1668.746848821 1451196000
+"175" "Woogenellup" "Bur3" "S3" 1668.746848821 1451196000
+"176" "Woogenellup" "Bur3" "S4" 1668.746848821 1451196000
+"177" "Woogenellup" "Bur4" "S1" 1654.748348821 1451131200
+"178" "Woogenellup" "Bur4" "S2" NA NA
+"179" "Woogenellup" "Bur4" "S3" NA NA
+"180" "Woogenellup" "Bur4" "S4" NA NA
+"181" "Woogenellup" "Early" "S1" 1054.761645696 1447783200
+"182" "Woogenellup" "Early" "S2" 970.1167160085 1447270200
+"183" "Woogenellup" "Early" "S3" 1577.59931236267 1450771200
+"184" "Woogenellup" "Early" "S4" 1577.59931236267 1450771200
+"185" "Woogenellup" "Open" "S1" 933.77235272725 1446967800
+"186" "Woogenellup" "Open" "S2" 1070.86582277933 1448078400
+"187" "Woogenellup" "Open" "S3" 1534.159145696 1450591200
+"188" "Woogenellup" "Open" "S4" 1534.159145696 1450591200
+"189" "Woogenellup" "Petal" "S1" 1260.131833196 1449046800
+"190" "Woogenellup" "Petal" "S2" 1307.248020696 1449316800
+"191" "Woogenellup" "Petal" "S3" 1547.4660753835 1450623600
+"192" "Woogenellup" "Petal" "S4" 1547.4660753835 1450623600
