@@ -213,7 +213,7 @@ group_by(Date, Plot) %>%
          Percent=((S1+S2+S3+S4+S5)/5)*100)
 
 # merge both dfs
-df_flower_simple <- rbind(df_flower, df_flower_simple)
+#df_flower_simple <- rbind(df_flower, df_flower_simple)
 
 # check
 df_flower_simple %>%
@@ -242,11 +242,19 @@ group_by(Date, Plot) %>%
          S5=max(S5),
          Percent=((S1+S2+S3+S4+S5)/5)*100)
 
+# df with bud only
+df_bud_simple <- df_flower %>%
+  filter(Variable == "Bud")
+
 # merge both dfs
-df_bur_simple <- rbind(df_flower,df_flower_simple, df_bur_simple)
+df_bud_flow_bur_simple <- 
+  rbind(df_bud_simple, df_flower_simple, df_bur_simple)
+
+#check
+summary(df_bud_flow_bur_simple)
 
 # graph it
-df_bur_simple %>%
+df_bud_flow_bur_simple %>%
   filter(Variable == "Bud" |
            Variable =="Flowering"| 
            Variable =="Bur")  %>%
@@ -272,50 +280,59 @@ Find 50 Percent of each variable for cultivar and sowtreat.
 
 ```{r Calc50PercFlower}
 
-df_flower50 <- df_flower %>%
-  group_by(Cultivar,SowTreat,Variable, DateMeasure,SowingD) %>%
-  summarise(avP= mean(Percent),avTT= mean(TTAS))
+# Average by plots
+df_50_Perc <- df_bud_flow_bur_simple %>%
+  group_by(Cultivar,SowTreat, Variable, Date, SowingD) %>%
+ # mutate(SowingD = SowingD) %>% # keep it in df
+  summarise(av_Perc = mean(Percent), av_TT= mean(TTAS))
 
-head(df_flower50)
-write.table(df_flower50, "df_flower50.txt")
+summary(df_50_Perc)
+
+write.table(df_50_Perc, "df_50_Perc.txt")
 
 #  loop to calculate tt_50p_flow for each var x sd x cv
-cv <- unique(df_flower50$Cultivar)
-var <- unique(df_flower50$Variable)
-sow <- unique(df_flower50$SowTreat)
-sowd <- unique(df_flower50$SowingD)
-df_tt_50p_flow <- data.frame(Cultivar = NULL, 
+cv <- unique(df_50_Perc$Cultivar)
+var <- unique(df_50_Perc$Variable)
+sow <- unique(df_50_Perc$SowTreat)
+sowd <- unique(df_50_Perc$SowingD)
+
+# create empty df
+df_tt_50p_flow <- data.frame(SowingD = NULL,
+                             Cultivar = NULL, 
+                             SowTreat = NULL,
                              Variable = NULL, 
-                             SowTreat = NULL, 
-                             SowingD = NULL,
                              TT50F = NULL)
 
 for(i in 1:length(cv)) {
   for(j in 1:length(var)){
     for(k in 1:length(sow)){
     
-      print(paste0(cv[i],var[j], sow[k]))
+      print(paste0(cv[i]," ",var[j]," ", sow[k]))
       # filter for each combination
 
-  df_sub <- df_flower50 %>%
+  df_sub <- df_50_Perc %>%
     subset(Cultivar == as.character(cv[i]) &
-    Variable == as.character (var[j]) &
-    SowTreat == as.character (sow[k]))
+    Variable == as.character(var[j]) &
+    SowTreat == as.character(sow[k]))
+  df_sub
   
+  #FIX ME approx not picking the first 50
   tryCatch(
-  tt_50p_flow <- approx(df_sub$avP,df_sub$avTT , xout = 50)$y,
+  tt_50p_flow <- approx(df_sub$av_Perc, df_sub$av_TT , xout = 50)$y,
   error = function(e) 
   {
   tt_50p_flow <- NA
   }
 )
 
+# FIXME: Broken in this level
+
   df_temp <- NULL
   df_temp <- data.frame(Cultivar = df_sub$Cultivar,
                              Variable = df_sub$Variable, 
                              SowTreat = df_sub$SowTreat,
                              SowingD = df_sub$SowingD,                   
-                             TT50F = df_sub$tt_50p_flow)
+                             TT50F = tt_50p_flow)
                         
   
   df_tt_50p_flow <- rbind(df_tt_50p_flow,df_temp)
