@@ -26,36 +26,34 @@ df_flower <- read.table("F_Flower_SB_PhenologyData.txt",header=TRUE)
 colnames(df_flower)[1] <- "Date" # fix bug of extra characters in name
 # convert to date format
 df_flower <- df_flower %>%
-mutate(Date=dmy(Date),SowingD=dmy(SowingD) )
+mutate(Date=dmy(Date),SowingD=dmy(SowingD))
 str(df_flower)
 head(df_flower)
 ```
 
 Analysis of sowing date and cultivars for Bud considering Date 
 
-```{rGraphBoxPlotBud}
+```{r GraphBoxPlotBud}
 
- # df_flower$Date <- dmy(df_flower$Date) 
 head(df_flower)
  df_flower %>%
   group_by(DAS,Date, Cultivar,SowTreat,Variable)%>%
   summarise_each(funs(mean)) %>%
   select(Variable,Percent, Cultivar,Date,SowTreat)%>%
   filter(Variable == "Bud") %>%
-  
   ggplot(aes(x=Date, y=Percent)) + 
-  #geom_bar(shape=1, stat="identity")
   geom_line(aes(colour=Cultivar)) +
   facet_grid(SowTreat~Cultivar, scales = "free")+
-  geom_abline(intercept = 50, slope = 0)+
+  geom_abline(intercept = 50, slope = 0) +
   theme(axis.text.x = element_text(angle = 90, hjust = 1))
-  #scale_x_continuous(breaks=c(2,3,4,5,6,7,8,9,10,11), labels=c("Fe","Mr","Ap","Ma","Ju","Jul","Au","Se","Oc","No"))
+
 ```
 
 
 Analysis of Sowing dates and variables (from bud to bur4) considering DAS 
 
 ```{r GraphSowingDateAndVariable}
+
 df_flower %>%
   mutate(Variable = 
   factor(Variable,levels = c("Bud","Early","Open",
@@ -73,84 +71,96 @@ theme(axis.text.x = element_text(angle = 90, hjust = 1))
 
 ```
 
-Join Thermal Sum data.
+Read Thermal Sum data.
 
-
-```{r join ThermalSum data}
-
-
-#create file
+```{r ReadThermalSumData}
+# read raw data
 df_TTSum <- read.table("ThermalSum.txt",header=TRUE)
-#df_TTSum$Date <- ymd(df_TTSum$Date)
-
-df_TTSum 
-head(df_TTSum)
-summary(df_TTSum  )
-names(df_TTSum)
-str(df_TTSum$Date)
-tail(df_TTSum)
-tail(df_flower)
 
 # convert to date format
 df_TTSum <- df_TTSum %>%
  mutate(Date=ymd(Date))
 
+# remove extra columns
+df_TTSum <- df_TTSum %>%
+  dplyr::select(-MeanAirT)
+
+# check
+head(df_TTSum)
+summary(df_TTSum  )
+names(df_TTSum)
+str(df_TTSum$Date)
+tail(df_TTSum)
+
 ```
 
-Merge two df : TTSum and Flowering 
+Merge dfs TTSum at Measurement and Sowing Date into Flowering df
+
 ```{r MergeTTSumDate}
- #merge two data frames by ID
+
+# Add Tt at measurement date
 df_flower <- merge(df_flower,df_TTSum,by="Date")
+
+# change name TT to TT at measurement
+df_flower <- df_flower %>%
+rename(TT_meas = TT)
+head(df_flower)
+
+# Add Tt at sowing date
+df_TTSum_mod <- df_TTSum %>%
+  mutate (SowingD = Date) %>%
+  dplyr::select (-Date)
+
+df_flower <- merge(df_flower,df_TTSum_mod, by = "SowingD")
+
+# change name TT to TT at measurement
+df_flower <- df_flower %>%
+rename(TT_sow = TT)
+head(df_flower)
+
+#check
 head(df_flower)
 summary(df_flower )
 
-#tidy up dataframe
-
-names(df_flower)[1] <- "DateMeasure"
-names(df_flower)[15] <- "TTMeasure"
 ```
 
+Include Photoperiod at sowing date in main df 
 
-Include Photoperiod dataframe 
-
-```{rmergePhotoperiod}
+```{r mergePhotoperiod}
 
 #create file
 df_Photo <- read.table("Photoperiod.txt",header=TRUE)
-head(df_Photo)
 
 # convert to date format
 df_Photo <- df_Photo %>%
-mutate(DateMeasure=dmy(DateMeasure))
-str(df_Photo)
+mutate(Date=dmy(Date))
+head(df_Photo)
 
-#merge two data frames by ID
-df_flower <- merge(df_flower,df_Photo,by="DateMeasure")
+# rename date column for merge
+df_Photo <- df_Photo %>%
+rename(SowingD = Date)
+head(df_Photo)
+
+#Add Pp to df_flower (merge by SowinD)
+df_flower <- merge(df_flower,df_Photo,by="SowingD")
 head(df_flower)
-summary(df_flower )
-```
+summary(df_flower)
 
-
-
-
-```{r mergeTTSowDate,include=FALSE}
-
-df_TTSow <-read.table("TTSowDate.txt", header=TRUE)
-df_TTSow$MeanAirT<-NULL
-names(df_TTSow)[3]
-df_flower <- merge(df_flower,df_TTSow, by="SowTreat" )
+# change name PP to PP at sowing date
+df_flower <- df_flower %>%
+rename(Pp_sow = Pp)
 head(df_flower)
-
-#tidy up names
-names(df_flower)[17] <- "TTSow"
 
 ```
 
+calculate TT after sowing 
 
 ```{r Calc_TT_afterSow}
 
-df_flower$TTAS <- df_flower$TTMeasure-df_flower$TTSow
+df_flower$TTAS <- df_flower$TT_meas-df_flower$TT_sow
+head(df_flower)
 
+# graph
 df_flower %>%
   mutate(Variable = 
   factor(Variable,levels = c("Bud","Early","Open",
@@ -158,7 +168,6 @@ df_flower %>%
   group_by(TTAS,Cultivar,SowTreat,Variable) %>%
   summarise_each(funs(mean)) %>%
   select(Variable,Percent, Cultivar,TTAS,SowTreat,SowingD) %>%
-  #filter(Cultivar == "Monti") %>%
   filter(Variable == "Bud") %>%
   ggplot(aes(x=TTAS, y=Percent)) + 
   geom_line(aes(colour=Cultivar)) +
@@ -182,11 +191,86 @@ df_flower %>%
   facet_grid(SowTreat~Variable, scales = "free") +
   geom_abline(intercept = 50, slope = 0)+
 theme(axis.text.x = element_text(angle = 60, hjust = 1))
+
 ```
 
-Interpolate 50 Percent of a Variable Bud , cultivar and sowtreat.
+Merge phenological stages into "bud, flower and burr"
 
-```{r calc5oPercentFlower}
+```{r joinEarlyOpenFlower}
+
+# create df with flowering stages only (merged)
+df_flower_simple <- df_flower %>%
+filter(Variable == "Early" | 
+         Variable == "Open" | 
+         Variable == "Petal") %>%
+group_by(Date, Plot) %>%
+  mutate(Variable = "Flowering", 
+         S1=max(S1), 
+         S2=max(S2),
+         S3=max(S3), 
+         S4=max(S4),
+         S5=max(S5),
+         Percent=((S1+S2+S3+S4+S5)/5)*100)
+
+# merge both dfs
+df_flower_simple <- rbind(df_flower, df_flower_simple)
+
+# check
+df_flower_simple %>%
+  filter(Variable=="Flowering")  %>%
+  head()
+
+
+```
+
+Do the same joining for Burr
+
+```{r joinBurrStages}
+
+# create df with bur only (merged bur1,2,3 and 4)
+df_bur_simple <- df_flower %>%
+filter(Variable == "Bur1" | 
+         Variable == "Bur2" | 
+         Variable == "Bur3"| 
+         Variable == "Bur4" ) %>%
+group_by(Date, Plot) %>%
+  mutate(Variable = "Bur", 
+         S1=max(S1), 
+         S2=max(S2),
+         S3=max(S3), 
+         S4=max(S4),
+         S5=max(S5),
+         Percent=((S1+S2+S3+S4+S5)/5)*100)
+
+# merge both dfs
+df_bur_simple <- rbind(df_flower,df_flower_simple, df_bur_simple)
+
+# graph it
+df_bur_simple %>%
+  filter(Variable == "Bud" |
+           Variable =="Flowering"| 
+           Variable =="Bur")  %>%
+  mutate(Variable = 
+  factor(Variable,levels = c("Bud","Flowering",
+                             "Bur"))) %>%
+  group_by(TTAS,Cultivar,SowTreat,Variable) %>%
+  summarise_each(funs(mean)) %>%
+  select(Variable,Percent, Cultivar,TTAS,SowTreat) %>%
+  #filter(Cultivar == "Monti" | Cultivar == "Leura" ) %>%
+  #filter(Variable == "Bud") %>%
+  ggplot(aes(x=TTAS, y=Percent)) + 
+  geom_line(aes(colour=Cultivar)) +
+  geom_point(aes(shape=Cultivar,colour=Cultivar))+
+  facet_grid(SowTreat~Variable, scales = "free") +
+  geom_abline(intercept = 50, slope = 0)+
+theme(axis.text.x = element_text(angle = 60, hjust = 1))
+
+unique(df_bur_simple$Variable)
+```
+
+Find 50 Percent of each variable for cultivar and sowtreat.
+
+```{r Calc50PercFlower}
 
 df_flower50 <- df_flower %>%
   group_by(Cultivar,SowTreat,Variable, DateMeasure,SowingD) %>%
@@ -231,7 +315,7 @@ for(i in 1:length(cv)) {
                              Variable = df_sub$Variable, 
                              SowTreat = df_sub$SowTreat,
                              SowingD = df_sub$SowingD,                   
-                             TT50F = tt_50p_flow)
+                             TT50F = df_sub$tt_50p_flow)
                         
   
   df_tt_50p_flow <- rbind(df_tt_50p_flow,df_temp)
@@ -252,98 +336,24 @@ head(df_tt_50p_flow)
 
 ```
 
+Now take the dataframe with 50 to flower and combine with photoperiod 
+
+```{r}
+
+#merge two data frames by ID
+df_photoTT <- merge(df_tt_50p_flow,df_Photo,by="SowingD")
+head(df_photoTT)
+summary(df_photoTT )
+
+
+
+```
+
+
 
 
 
 next step: join early_open and petal categories to create " flower" 
-
-```{r joinEarlyOpenFlower}
-
-# create df with flowering only (merged)
-df_flower_simple <- df_flower %>%
-filter(Variable == "Early" | Variable == "Open" | Variable == "Petal") %>%
-group_by(DateMeasure, Plot) %>%
-  mutate(Variable = "Flowering", 
-         S1=max(S1), 
-         S2=max(S2),
-         S3=max(S3), 
-         S4=max(S4),
-         S5=max(S5),
-         Percent=((S1+S2+S3+S4+S5)/5)*100)
-
-# merge both dfs
-df_flower_simple <- rbind(df_flower,df_flower_simple)
-
-# graph it
-df_flower_simple %>%
-  filter(Variable == "Bud" |
-           Variable =="Flowering"| 
-           Variable =="Bur1"| 
-           Variable =="Bur2"| 
-           Variable =="Bur3"| 
-           Variable =="Bur4")  %>%
-  mutate(Variable = 
-  factor(Variable,levels = c("Bud","Flowering",
-                             "Bur1", "Bur2", "Bur3","Bur4"))) %>%
-  group_by(TTAS,Cultivar,SowTreat,Variable) %>%
-  summarise_each(funs(mean)) %>%
-  select(Variable,Percent, Cultivar,TTAS,SowTreat) %>%
-  filter(Cultivar == "Monti" | Cultivar == "Leura" ) %>%
-  #filter(Variable == "Bud") %>%
-  ggplot(aes(x=TTAS, y=Percent)) + 
-  geom_line(aes(colour=Cultivar)) +
-  facet_grid(SowTreat~Variable, scales = "free") +
-  geom_abline(intercept = 50, slope = 0)+
-theme(axis.text.x = element_text(angle = 60, hjust = 1))
-
-unique(df_flower_simple$Variable)
-
-
-
-
-
-```
-
-
-```{r}
-
-# create df with bur only (merged bur1,2,3 and 4)
-df_bur_simple <- df_flower %>%
-filter(Variable == "Bur1" | Variable == "Bur2" | Variable == "Bur3"| Variable == "Bur4" ) %>%
-group_by(DateMeasure, Plot) %>%
-  mutate(Variable = "Bur", 
-         S1=max(S1), 
-         S2=max(S2),
-         S3=max(S3), 
-         S4=max(S4),
-         S5=max(S5),
-         Percent=((S1+S2+S3+S4+S5)/5)*100)
-
-# merge both dfs
-df_bur_simple <- rbind(df_flower,df_flower_simple, df_bur_simple)
-
-# graph it
-df_bur_simple %>%
-  filter(Variable == "Bud" |
-           Variable =="Flowering"| 
-           Variable =="Bur")  %>%
-  mutate(Variable = 
-  factor(Variable,levels = c("Bud","Flowering",
-                             "Bur"))) %>%
-  group_by(TTAS,Cultivar,SowTreat,Variable) %>%
-  summarise_each(funs(mean)) %>%
-  select(Variable,Percent, Cultivar,TTAS,SowTreat) %>%
-  #filter(Cultivar == "Monti" | Cultivar == "Leura" ) %>%
-  #filter(Variable == "Bud") %>%
-  ggplot(aes(x=TTAS, y=Percent)) + 
-  geom_line(aes(colour=Cultivar)) +
-  geom_point(aes(shape=Cultivar,colour=Cultivar))+
-  facet_grid(SowTreat~Variable, scales = "free") +
-  geom_abline(intercept = 50, slope = 0)+
-theme(axis.text.x = element_text(angle = 60, hjust = 1))
-
-unique(df_bur_simple$Variable)
-```
 
 Graph TTAS and Photoperiod 
 
