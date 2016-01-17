@@ -5,7 +5,7 @@ library (ggplot2)
 library(agricolae)
 setwd("C:\\Users\\Ed\\Documents\\Subclovergit")
 getwd()
-#dev.off()
+dev.off()
 #analysis of Experiment 1 - 14 cultivars Iversen 2 - plot scoring 
 file <- read.table("ColdPercPlots.txt",header=TRUE)
 file
@@ -28,7 +28,8 @@ file %>%
                 width=0.25)   +
   scale_fill_manual(values=cbPalette) + 
   theme_grey(base_size = 16)+
-  theme(axis.text.x=element_text(angle = +90, hjust = 0))
+  theme(axis.text.x=element_text(angle = +90, hjust = 0))+
+  
 
 ggsave(file="PlotsPercentagePlants2.tiff", dpi=300)
 
@@ -36,7 +37,7 @@ ggsave(file="PlotsPercentagePlants2.tiff", dpi=300)
 file %>%
   #filter(Cultivar == "Antas") %>%
 group_by(Cultivar) %>%
-  summarise_each(funs(mean, sd)) %>%
+  summarise_each(funs(mean, sd) %>%
   mutate(Cultivar = factor(Cultivar,levels = 
                              Cultivar[order(PercentageRedPlants50DAS_mean)])) %>%
   ggplot(aes(x=Cultivar, y=PercentageRedPlants50DAS_mean, fill=Cultivar)) +
@@ -46,9 +47,10 @@ group_by(Cultivar) %>%
                 width=0.25)   +
   scale_fill_manual(values=cbPalette) + 
   theme_grey(base_size = 22)+
-  theme(axis.text.x=element_text(angle = +90, hjust = 0))
+  theme(axis.text.x=element_text(angle = +60, hjust = 0)) +
+  theme(axis.text.y = element_text(face="bold", colour="#990000", size=12)+
   xlab("Cultivar")+
-  ylab("% Damage")
+  ylab("PercentDamage")
 
 
 
