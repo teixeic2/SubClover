@@ -1,0 +1,162 @@
+---
+title: "Flowering 6CV"
+author: "CT"
+date: "Thursday, December 31, 2015"
+output: html_document
+---
+
+```{r loadLibraries}
+library(tidyr)
+library (dplyr)
+library (ggplot2)
+library(agricolae)
+library(knitr)
+library (lubridate)
+
+
+
+
+```
+
+
+```{r loadFile}
+setwd("C:\\Users\\Ed\\Documents\\Subclovergit")
+getwd()
+
+#create file
+df_bud_flow_bur_simple <- read.table("df_bud_flow_bur_simple.txt",header=TRUE)
+head(df_bud_flow_bur_simple)
+tail(df_bud_flow_bur_simple)
+```
+
+
+
+Find 50 Percent of each variable for cultivar and sowtreat.
+
+```{r Calc50PercFlower}
+
+# Average by plots
+df_50_Perc <- df_bud_flow_bur_simple %>%
+  group_by(Cultivar,SowTreat, Variable, Date, SowingD) %>%
+ # mutate(SowingD = SowingD) %>% # keep it in df
+  summarise(av_Perc = mean(Percent), av_TT= mean(TTAS))
+
+summary(df_50_Perc)
+
+write.table(df_50_Perc, "df_50_Perc.txt")
+
+#  loop to calculate tt_50p_flow for each var x sd x cv
+cv <- unique(df_50_Perc$Cultivar)
+var <- unique(df_50_Perc$Variable)
+sow <- unique(df_50_Perc$SowTreat)
+sowd <- unique(df_50_Perc$SowingD)
+
+# create empty df
+df_tt_50p_flow <- data.frame(SowingD = NULL,
+                             Cultivar = NULL, 
+                             SowTreat = NULL,
+                             Variable = NULL, 
+                             TT50F = NULL)
+
+for(i in 1:length(cv)) {
+  for(j in 1:length(var)){
+    for(k in 1:length(sow)){
+    
+      print(paste0(cv[i]," ",var[j]," ", sow[k]))
+      # filter for each combination
+
+  df_sub <- df_50_Perc %>%
+    subset(Cultivar == as.character(cv[i]) &
+    Variable == as.character(var[j]) &
+    SowTreat == as.character(sow[k]))
+  df_sub
+  
+  #FIX ME approx not picking the first 50
+  tryCatch(
+  tt_50p_flow <- approx(df_sub$av_Perc, df_sub$av_TT , xout = 50)$y,
+  error = function(e) 
+  {
+  tt_50p_flow <- NA
+  }
+)
+
+# FIXME: Broken in this level
+
+  df_temp <- NULL
+  df_temp <- data.frame(Cultivar = df_sub$Cultivar,
+                             Variable = df_sub$Variable, 
+                             SowTreat = df_sub$SowTreat,
+                             SowingD = df_sub$SowingD,                   
+                             TT50F = tt_50p_flow)
+                        
+  
+  df_tt_50p_flow <- rbind(df_tt_50p_flow,df_temp)
+      
+    } 
+  }
+}
+
+
+summary(df_tt_50p_flow)
+
+
+
+write.table(df_tt_50p_flow,"df_tt_50p_flow.txt")
+
+head(df_tt_50p_flow)
+
+
+```
+
+Now take the dataframe with 50 to flower and combine with photoperiod 
+
+```{r}
+
+#merge two data frames by ID
+df_photoTT <- merge(df_tt_50p_flow,df_Photo,by="SowingD")
+head(df_photoTT)
+summary(df_photoTT )
+
+
+
+```
+
+
+
+
+
+next step: join early_open and petal categories to create " flower" 
+
+Graph TTAS and Photoperiod 
+
+```{rGraphPhoto}
+
+# graph it
+df_bur_simple %>%
+  filter(Variable == "Bud" |
+           Variable =="Flowering"| 
+           Variable =="Bur")  %>%
+  mutate(Variable = 
+  factor(Variable,levels = c("Bud","Flowering",
+                             "Bur"))) %>%
+  group_by(TT50F,Cultivar,SowTreat,Variable,Pp) %>%
+  summarise_each(funs(mean)) %>%
+  select(Variable,Percent, Cultivar,TT50F,SowTreat,Pp) %>%
+  #filter(Cultivar == "Monti" | Cultivar == "Leura" ) %>%
+  #filter(Variable == "Bud") %>%
+  ggplot(aes(x=TT50F, y=Percent)) + 
+  geom_line(aes(colour=Cultivar)) +
+  geom_point(aes(shape=Cultivar,colour=Cultivar))+
+  facet_grid(Pp~Variable, scales = "free") +
+  geom_abline(intercept = 50, slope = 0)+
+theme(axis.text.x = element_text(angle = 60, hjust = 1))
+
+unique(df_bur_simple$Variable)
+
+
+```
+
+
+
+
+
