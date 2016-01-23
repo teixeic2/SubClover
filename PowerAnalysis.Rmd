@@ -1,0 +1,38 @@
+---
+title: "Poweranalysis"
+author: "CT"
+date: "Saturday, January 16, 2016"
+output: html_document
+---
+
+Power analysis 
+
+```{rloadlibraries}
+library(tidyr)
+library (dplyr)
+library (ggplot2)
+library(agricolae)
+setwd("C:\\Users\\Ed\\Documents\\Subclovergit")
+getwd()
+dev.off()
+#Analysis of Experiment 3 - Field Iversen 2 - 6 cultivars 
+#create file 
+file <- read.table("ColdPercPlant.txt",header=TRUE)
+file
+head(file)
+summary (file)
+
+```
+
+The following four quantities have an intimate relationship:
+sample size
+effect size
+significance level = P(Type I error) = probability of finding an effect that is not there
+power = 1 - P(Type II error) = probability of finding an effect that is there
+Given any three, we can determine the fourth.
+```{r, powerscript}
+power.t.test(n=15, 
+             delta=1.6,
+             sd=1.4,
+             )
+```

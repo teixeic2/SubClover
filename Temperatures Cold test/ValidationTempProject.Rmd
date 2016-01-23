@@ -1,0 +1,47 @@
+---
+title: "TempColdValid"
+author: "CT"
+date: "Friday, January 22, 2016"
+output: html_document
+---
+
+This is an R Markdown document. To construct the graph for the cold sensitivity validation. 
+
+```{r LoadLibraries }
+
+library(tidyr)
+library (dplyr)
+library (ggplot2)
+library (lubridate)
+library (reshape2)
+```
+
+
+
+```{r, readFile}
+
+setwd("C:\\Users\\Ed\\Documents\\Subclovergit\\Temperatures Cold test")
+getwd()
+
+#create file
+df_T <- read.table("ValidationTemp.txt",header=TRUE)
+df_T
+head(df_T)
+summary (df_T)
+tail(df_T)
+```
+
+Build graph 
+```{r Build graph }
+
+df_T$date <- dmy(df_T$date)
+df_T <- melt(df_T, id="date")
+
+df_T %>% 
+  ggplot( aes(x=date, y=Temp, )) +
+    geom_line() +
+    geom_point()+
+    theme_bw()+
+    ggtitle("Validation Daily Temperature (oC) ")
+```
+

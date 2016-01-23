@@ -61,7 +61,7 @@ df_flower %>%
   group_by(DAS,Cultivar,SowTreat,Variable) %>%
   summarise_each(funs(mean)) %>%
   select(Variable,Percent, Cultivar,DAS,SowTreat) %>%
-  filter(Cultivar == "Narrikup" | Cultivar =="Denmark" |  Cultivar =="Antas") %>%
+  filter(Cultivar == "Leura" | Cultivar =="Monti") %>%
   ggplot(aes(x=DAS, y=Percent)) + 
   #geom_bar(shape=1, stat="identity")
   geom_line(aes(colour=Cultivar)) +
@@ -79,7 +79,7 @@ df_TTSum <- read.table("ThermalSum.txt",header=TRUE)
 
 # convert to date format
 df_TTSum <- df_TTSum %>%
- mutate(Date=dmy(Date))
+ mutate(Date=ymd(Date))
 
 # remove extra columns
 df_TTSum <- df_TTSum %>%
@@ -185,7 +185,7 @@ df_flower %>%
   group_by(TTAS,Cultivar,SowTreat,Variable) %>%
   summarise_each(funs(mean)) %>%
   select(Variable,Percent, Cultivar,TTAS,SowTreat) %>%
-  filter(Cultivar == "Monti" | Cultivar == "Narrikup" ) %>%
+  filter(Cultivar == "Monti" | Cultivar == "Leura" ) %>%
   #filter(Variable == "Bud") %>%
   ggplot(aes(x=TTAS, y=Percent)) + 
   geom_line(aes(colour=Cultivar)) +

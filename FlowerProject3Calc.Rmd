@@ -73,7 +73,8 @@ for(i in 1:length(cv)) {
   
   #FIX ME approx not picking the first 50
   tryCatch(
-  tt_50p_flow <- approx(df_sub$av_Perc, df_sub$av_TT , xout = 50)$y,
+  tt_50p_flow <- approx(df_sub$av_Perc, 
+  df_sub$av_TT , xout = 50)$y,
   error = function(e) 
   {
   tt_50p_flow <- NA
@@ -83,10 +84,10 @@ for(i in 1:length(cv)) {
 # FIXME: Broken in this level
 
   df_temp <- NULL
-  df_temp <- data.frame(Cultivar = df_sub$Cultivar,
-                             Variable = df_sub$Variable, 
-                             SowTreat = df_sub$SowTreat,
-                             SowingD = df_sub$SowingD,                   
+  df_temp <- data.frame(Cultivar = df_sub$Cultivar[1],
+                             Variable = df_sub$Variable[1], 
+                             SowTreat = df_sub$SowTreat[1],
+                             SowingD = df_sub$SowingD[1],                   
                              TT50F = tt_50p_flow)
                         
   
