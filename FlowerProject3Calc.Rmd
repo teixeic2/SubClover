@@ -82,18 +82,34 @@ for(i in 1:length(cv)) {
                                  df_sub$av_Perc_max[z-1])
     
   }
+  df_sub
   
+  # FIX ME : interpolation is less than 50 !!! 
+
   
-  #FIX ME approx not picking the first 50
-  tryCatch(
+  # Interpolate 
+  y_ref <- 50 # y value where we want to find x by interpolation
+  
+#  if(max(df_sub$av_Perc_max) < y_ref ) {
+    
+  #  tt_50p_flow <- "NA"
+    
+#  } else {
+  
+  # interpolate
+  tryCatch(  
   tt_50p_flow <- approx(df_sub$av_Perc_max, 
-  df_sub$av_TT , xout = 50)$y,
+  df_sub$av_TT , xout = y_ref, rule = 1)$y,
   error = function(e) 
   {
   tt_50p_flow <- NA
   }
 )
 
+    
+#  }
+  
+ 
 # FIXME: Broken in this level
 
   df_temp <- NULL
@@ -118,6 +134,27 @@ summary(df_tt_50p_flow)
 write.table(df_tt_50p_flow,"df_tt_50p_flow.txt")
 
 head(df_tt_50p_flow)
+
+
+# Graph check
+df_tt_50p_flow %>%
+  group_by (Cultivar, Variable, SowTreat,SowingD,TT50F) %>%
+  ggplot(aes(x=Cultivar, y=TT50F, fill=Cultivar)) +
+  geom_bar(position = position_dodge(), stat="identity") +
+  #scale_fill_manual(values=cbPalette) + 
+  theme_grey(base_size = 16)+
+  facet_grid(SowTreat~Variable, scales = "free") +
+  theme(axis.text.x=element_text(angle = +90, hjust = 0))
+  
+df_tt_50p_flow %>%
+  group_by (Cultivar, Variable, SowTreat,SowingD,TT50F) %>%
+  ggplot(aes(x=SowTreat, y=TT50F, fill=SowTreat)) +
+  geom_bar(position = position_dodge(), stat="identity") +
+  #scale_fill_manual(values=cbPalette) + 
+  theme_grey(base_size = 16)+
+  facet_grid(Cultivar~Variable, scales = "free") +
+  theme(axis.text.x=element_text(angle = +90, hjust = 0))
+  
 
 
 ```
