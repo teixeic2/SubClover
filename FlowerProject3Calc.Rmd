@@ -71,9 +71,22 @@ for(i in 1:length(cv)) {
     SowTreat == as.character(sow[k]))
   df_sub
   
+  # create percentage with maximum value recorded 
+  # to avoid crossing the 50% line twice
+  
+  df_sub$av_Perc_max <- 0 # create new col
+  
+  for(z in 1:nrow(df_sub)) {
+    
+    df_sub$av_Perc_max[z] <- max(df_sub$av_Perc[z],
+                                 df_sub$av_Perc_max[z-1])
+    
+  }
+  
+  
   #FIX ME approx not picking the first 50
   tryCatch(
-  tt_50p_flow <- approx(df_sub$av_Perc, 
+  tt_50p_flow <- approx(df_sub$av_Perc_max, 
   df_sub$av_TT , xout = 50)$y,
   error = function(e) 
   {
