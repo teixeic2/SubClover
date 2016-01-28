@@ -6,13 +6,13 @@ library(agricolae)
 setwd("C:\\Users\\Ed\\Documents\\Subclovergit")
 getwd()
 
-dev.off()
+#dev.off()
 #analysis of Experiment 1 - 14 cultivars GH - Number Leaves 
 
 file <- read.table("ColdPercLeaves.txt",header=TRUE)
 file
 head(file)
-summary (file)
+summary(file)
 
 #barplot 
 #The palette with grey:
@@ -23,10 +23,10 @@ cbPalette <- c("#999999", "#666666", "#56B4E9", "#009E73", "#D55E00", "#0072B2",
 file %>%
   group_by(Subspecie) %>%
   summarise_each(funs(mean, sd)) %>%
-  ggplot(aes(x=Subspecie, y=X.RdLeaves_mean, fill=Subspecie)) +
+  ggplot(aes(x=Subspecie, y=Red_mean, fill=Subspecie)) +
   geom_bar(position = position_dodge(), stat="identity") +
-  geom_errorbar(aes(ymin=X.RdLeaves_mean-X.RdLeaves_sd/2,
-                    ymax=X.RdLeaves_mean+X.RdLeaves_sd/2),
+  geom_errorbar(aes(ymin=Red_mean-Red_sd/2,
+                    ymax=Red_mean+Red_sd/2),
                 width=0.25)   +
   scale_fill_manual(values=cbPalette) + 
   theme_grey(base_size = 16)+
@@ -40,11 +40,11 @@ file %>%
 group_by(Cv) %>%
   summarise_each(funs(mean, sd)) %>%
   mutate(Cv = factor(Cv,levels = 
-                             Cv[order(X.RdLeaves_mean)])) %>%
-  ggplot(aes(x=Cv, y=X.RdLeaves_mean, fill=Cv)) +
+                             Cv[order(Red_mean)])) %>%
+  ggplot(aes(x=Cv, y=Red_mean, fill=Cv)) +
   geom_bar(position = position_dodge(), stat="identity") +
-  geom_errorbar(aes(ymin=X.RdLeaves_mean-X.RdLeaves_sd/2,
-                    ymax=X.RdLeaves_mean+X.RdLeaves_sd/2),
+  geom_errorbar(aes(ymin=Red_mean-Red_sd/2,
+                    ymax=Red_mean+Red_sd/2),
                 width=0.25)   +
   scale_fill_manual(values=cbPalette) + 
   theme_grey(base_size = 22)+
@@ -58,7 +58,7 @@ ggsave(file="PlotsPercentage_Cultivar3.tiff", dpi=300)
 
 
 
-file$SQR<- sqrt(file$X.RdLeaves)
+file$SQR<- sqrt(file$Red)
 head(file)
 
 #histogram
@@ -103,16 +103,16 @@ file %>%
   group_by(Cv) %>%
   summarise_each(funs(mean, sd)) %>%
   mutate(Cv = factor(Cv,levels = 
-                       Cv[order(RedIntensity_mean)])) %>%
-  ggplot(aes(x=Cv, y=RedIntensity_mean, fill=Cv)) +
+                       Cv[order(Intensity_mean)])) %>%
+  ggplot(aes(x=Cv, y=Intensity_mean, fill=Cv)) +
   geom_bar(position = position_dodge(), stat="identity") +
-  geom_errorbar(aes(ymin=RedIntensity_mean-RedIntensity_sd/2,
-                    ymax=RedIntensity_mean+RedIntensity_sd/2),
+  geom_errorbar(aes(ymin=Intensity_mean-Intensity_sd/2,
+                    ymax=Intensity_mean+Intensity_sd/2),
                 width=0.25)   +
   scale_fill_manual(values=cbPalette) + 
   theme_grey(base_size = 22)+
   theme(axis.text.x=element_text(angle = +90, hjust = 0))+
-  ylab("RedIntensity")
+  ylab("Intensity")
 head(file)
 
 
