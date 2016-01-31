@@ -13,51 +13,42 @@ library (ggplot2)
 library (lubridate)
 ```
 
-REad table Notepad file: AirTemp
 
-```{r, loadFile}
+
+```{r}
+
+#Calculculate Mean Air temp 
 
 setwd("C:\\Users\\Ed\\Documents\\Subclovergit")
 getwd()
+df_file <- read.table("LoggerTemp.txt",header=TRUE)
+head(df_file)
 
-#create file
-df_TT <- read.table("AirTemp.txt",header=TRUE)
-df_TT
-head(df_TT)
-summary (df_TT)
-tail(df_TT)
+df_file$date <- dmy(df_file$date)
+
+df_file <- df_file%>%
+group_by(date)%>%
+summarise_each(funs(mean)) %>%
+  mutate(TT = cumsum(Air))
+
+
+
+write.table(df_file, "ThermalSum.txt")
+
 ```
 
-Create Graph : convert date into dmy
+
+Graph it 
 
 
 
 ```{r graph}
 
-
-df_TT$Date <- dmy(df_TT$Date)
-
-
-df_TT %>% 
-ggplot(aes(x=Date, y= MeanAirT)) +
+df_file %>% 
+ggplot(aes(x=date, y= Air)) +
     geom_line()
 
-# calculate thermal time sum
 
-df_TT$TT <- 0
-
-df_TT$MeanAirT[1]
-
-for(i in 1:length(df_TT$Date)) { 
-  if(i==1) {df_TT$TT[i] <- df_TT$MeanAirT[i] } 
-  else {
-     df_TT$TT[i] <- df_TT$TT[i-1] + df_TT$MeanAirT[i] 
-  }
-}
-
-head(df_TT)
-write.csv(df_TT,"ThermalSum.csv")
-write.table(df_TT,"ThermalSum.txt")
 
 ```
 
