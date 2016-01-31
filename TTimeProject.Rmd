@@ -15,23 +15,46 @@ library (lubridate)
 
 
 
-```{r}
-
-#Calculculate Mean Air temp 
-
+```{rload file}
 setwd("C:\\Users\\Ed\\Documents\\Subclovergit")
 getwd()
 df_file <- read.table("LoggerTemp.txt",header=TRUE)
 head(df_file)
 
-df_file$date <- dmy(df_file$date)
+```
+
+
+
+```{r airtempmean}
+#Calculculate Mean Air temp 
+
+
+
+df_file$Date <- dmy(df_file$Date)
 
 df_file <- df_file%>%
-group_by(date)%>%
-summarise_each(funs(mean)) %>%
-  mutate(TT = cumsum(Air))
+group_by(Date)%>%
+summarise_each(funs(mean))
 
 
+#graph meanAir Temp
+
+df_file %>% 
+ggplot(aes(x=Date, y= Air)) +
+    geom_line()
+
+```
+
+
+Calculate accumulated TT
+
+```{r}
+
+df_file <- df_file%>%
+group_by(Date)%>%
+summarise_each(funs(mean))%>%
+  mutate(TT = cumsum(Air))%>%
+  dplyr::select(-hour,-Air)
 
 write.table(df_file, "ThermalSum.txt")
 
@@ -45,10 +68,8 @@ Graph it
 ```{r graph}
 
 df_file %>% 
-ggplot(aes(x=date, y= Air)) +
+ggplot(aes(x=Date, y= TT)) +
     geom_line()
-
-
 
 ```
 
