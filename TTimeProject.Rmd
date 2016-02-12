@@ -1,3 +1,4 @@
+
 ---
 title: "ThermalTime"
 author: "CT"
@@ -18,8 +19,23 @@ library (lubridate)
 ```{rload file}
 setwd("C:\\Users\\Ed\\Documents\\Subclovergit")
 getwd()
-df_file <- read.table("LoggerTemp.txt",header=TRUE)
+
+
+df_file <- read.table("HistoricMeanTemp.txt", header=TRUE)
+
 head(df_file)
+
+#keep this scirpt for the real weather data
+
+#df_Airjune <- read.table("MeanAirTMidJune.txt",header=TRUE)
+#head(df_Airjune)
+#df_file <- read.table("LoggerTemp.txt",header=TRUE)
+#head(df_file)
+
+#df_file <- rbind(df_Airjune,df_file)
+#head(df_file,20)
+
+
 
 ```
 
@@ -28,14 +44,12 @@ head(df_file)
 ```{r airtempmean}
 #Calculculate Mean Air temp 
 
-
-
 df_file$Date <- dmy(df_file$Date)
 
 df_file <- df_file%>%
 group_by(Date)%>%
 summarise_each(funs(mean))
-
+head(df_file)
 
 #graph meanAir Temp
 
@@ -54,7 +68,8 @@ df_file <- df_file%>%
 group_by(Date)%>%
 summarise_each(funs(mean))%>%
   mutate(TT = cumsum(Air))%>%
-  dplyr::select(-hour,-Air)
+ # dplyr::select(-hour,-Air)
+  dplyr::select(-Air) # using historical input
 
 write.table(df_file, "ThermalSum.txt")
 

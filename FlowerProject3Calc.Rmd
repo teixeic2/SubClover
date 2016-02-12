@@ -12,10 +12,6 @@ library (ggplot2)
 library(agricolae)
 library(knitr)
 library (lubridate)
-
-
-
-
 ```
 
 
@@ -163,17 +159,21 @@ Now take the dataframe with 50 to flower and combine with photoperiod
 
 ```{r}
 
+df_Photo <- read.table("Photoperiod.txt",header=T)
+df_Photo$Date <- dmy(df_Photo$Date)
+df_Photo$SowingD <- df_Photo$Date
+head(df_Photo)
+head(df_tt_50p_flow)
+df_tt_50p_flow$SowingD <- ymd(df_tt_50p_flow$SowingD)
+
 #merge two data frames by ID
-df_photoTT <- merge(df_tt_50p_flow,df_Photo,by="SowingD")
+df_photoTT <- merge(df_tt_50p_flow,df_Photo, by="SowingD")
 head(df_photoTT)
 summary(df_photoTT )
 
 
 
 ```
-
-
-
 
 
 next step: join early_open and petal categories to create " flower" 
@@ -208,6 +208,6 @@ unique(df_bur_simple$Variable)
 ```
 
 
-
+Parei aqui !!! 
 
 
