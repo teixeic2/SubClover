@@ -92,6 +92,7 @@ Read Thermal Sum data. Need to include these values before 30 06 :
  
 df_TTSum <- read.table("ThermalSum.txt",header=TRUE)
 summary(df_TTSum)
+tail(df_TTSum)
 
 # convert to date format
 df_TTSum <- df_TTSum %>%

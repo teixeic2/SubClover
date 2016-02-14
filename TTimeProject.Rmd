@@ -65,7 +65,7 @@ Calculate accumulated TT
 ```{r}
 
 df_file <- df_file%>%
-group_by(Date)%>%
+group_by(Date) %>%
 summarise_each(funs(mean))%>%
   mutate(TT = cumsum(Air))%>%
  # dplyr::select(-hour,-Air)

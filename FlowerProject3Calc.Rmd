@@ -82,7 +82,6 @@ for(i in 1:length(cv)) {
   
   # FIX ME : interpolation is less than 50 !!! 
 
-  
   # Interpolate 
   y_ref <- 50 # y value where we want to find x by interpolation
   
@@ -169,8 +168,14 @@ df_tt_50p_flow$SowingD <- ymd(df_tt_50p_flow$SowingD)
 #merge two data frames by ID
 df_photoTT <- merge(df_tt_50p_flow,df_Photo, by="SowingD")
 head(df_photoTT)
-summary(df_photoTT )
+summary(df_photoTT)
 
+#graph
+df_photoTT %>%
+  ggplot(aes(x=Pp, y=TT50F))  +
+  geom_point()+
+  geom_smooth(aes(color=Cultivar))+
+  facet_grid(.~Variable, scales = "free")
 
 
 ```
