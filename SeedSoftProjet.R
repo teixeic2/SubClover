@@ -47,12 +47,9 @@ file %>%
 
 ggsave(file="seedhard1.tiff", dpi=300)
 
-
-
 #data transformation
-
-
-file$SQR<- sqrt(file$Red)
+file$SQR <- file$percentageHard
+#file$SQR <- sqrt(file$percentageHard)
 head(file)
 
 #histogram
@@ -71,20 +68,20 @@ qqplot(var, rt(300, df = 5))
 
 #AnovaLog analysis of transformed sqr
 file$Block <- as.factor(file$Block )
-anovaSQR<-aov(file$SQR~file$Cv+file$Block)
+anovaSQR<-aov(file$SQR ~ file$Cultivar*file$depth+file$Block)
 summary(anovaSQR)
 TukeyHSD(anovaSQR)
 
 #Means separation of SQR transformed data by Cultivar
-(LSD.test(anovaSQR, "file$Cv", alpha= 0.05, p.adj="none"))             
+(LSD.test(anovaSQR, "file$Cultivar", alpha= 0.05, p.adj="none"))             
 
 #Anova and Means separation of log transformed data by Subspecies
 file$Block <- as.factor(file$Block )
-anovaSQR <- aov(file$SQR ~file$Subspecie+file$Block)
+anovaSQR<-aov(file$SQR ~ file$Cultivar*file$depth+file$Block)
 summary(anovaSQR)
 
 TukeyHSD(anovaSQR)
-(LSD.test(anovaSQR, "file$Subspecie", alpha= 0.05, p.adj="none"))             
+(LSD.test(anovaSQR, "file$depth", alpha= 0.05, p.adj="none"))             
 summary (anovaSQR)
 
 #Analysing variable Red Colour intensity 
@@ -93,20 +90,21 @@ summary (anovaSQR)
 cbPalette <- c("#999999", "#E69F00", "#56B4E9", "#009E73", "#D55E00", "#0072B2","#999999", "#E69F00", "#56B4E9", "#009E73", "#D55E00", "#0072B2","#56B4E9", "#009E73")
 #Here Analysis of cultivar 
 file %>%
-  #filter(Cultivar == "Antas") %>%
-  group_by(Cv) %>%
+  filter(depth == "S") %>%
+  group_by(Cultivar) %>%
   summarise_each(funs(mean, sd)) %>%
-  mutate(Cv = factor(Cv,levels = 
-                       Cv[order(Intensity_mean)])) %>%
-  ggplot(aes(x=Cv, y=Intensity_mean, fill=Cv)) +
-  geom_bar(position = position_dodge(), stat="identity") +
-  geom_errorbar(aes(ymin=Intensity_mean-Intensity_sd/2,
-                    ymax=Intensity_mean+Intensity_sd/2),
-                width=0.25)   +
+  mutate(Cultivar = factor(Cultivar,levels = 
+                       Cultivar[order(percentageHard_mean)])) %>%
+  ggplot(aes(x=Cultivar, y=percentageHard_mean, fill=Cultivar)) +
+  geom_bar(position = dodge_x, stat="identity") +
+  geom_errorbar(aes(ymin=percentageHard_mean-percentageHard_sd/2,
+                    ymax=percentageHard_mean+percentageHard_sd/2),
+                width=0.25,position = dodge_x)   +
   scale_fill_manual(values=cbPalette) + 
-  theme_grey(base_size = 22)+
-  theme(axis.text.x=element_text(angle = +90, hjust = 0))+
-  ylab("Intensity")
+  theme_grey(base_size = 22) +
+  #facet_grid(depth~.) +
+  theme(axis.text.x=element_text(angle = +45,hjust = 1 ))+
+  ylab("Seed hardness")
 head(file)
 
 
