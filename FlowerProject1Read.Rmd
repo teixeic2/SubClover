@@ -22,7 +22,10 @@ getwd()
 
 #create file
 df_flower <- read.table("F_Flower_SB_PhenologyData.txt",header=TRUE)
-colnames(df_flower)[1] <- "Date" # fix bug of extra characters in name
+
+head(df_flower)
+
+colnames(df_flower)[1] <- "Cultivar" # fix bug of extra characters in name
 # convert to date format
 df_flower <- df_flower %>%
 mutate(Date=dmy(Date),SowingD=dmy(SowingD), 
@@ -30,6 +33,7 @@ mutate(Date=dmy(Date),SowingD=dmy(SowingD),
 str(df_flower)
 head(df_flower)
 summary(df_flower)
+tail(df_flower)
 ```
 
 Analysis of sowing date and cultivars for Bud considering Date 
@@ -45,6 +49,7 @@ head(df_flower)
   ggplot(aes(x=Date, y=Percent)) + 
   geom_line(aes(colour=Cultivar)) +
   facet_grid(SowTreat~Cultivar, scales = "free")+
+  #facet_grid(Cultivar~., scales = "free")+
   geom_abline(intercept = 50, slope = 0) +
   theme(axis.text.x = element_text(angle = 90, hjust = 1))
 
@@ -213,6 +218,33 @@ theme(axis.text.x = element_text(angle = 60, hjust = 1))
 
 # save final DF
 write.table(df_flower, "df_flower.txt")
+
+
+```
+
+
+Derriocks graph
+
+```{r GraphDerrick}
+
+
+#by variable 
+df_flower %>%
+  mutate(Variable = 
+  factor(Variable,levels = c("Bud","Early","Open",
+          "Petal","Bur1","Bur2","Bur3","Bur4" ))) %>%
+  
+  group_by(TTAS,Cultivar,SowTreat,Variable) %>%
+  summarise_each(funs(mean)) %>%
+  select(Variable,Percent, Cultivar,TTAS,SowTreat) %>%
+  filter(Cultivar == "Monti" | Cultivar == "Leura" ) %>%
+  filter(Variable == "Bud") %>%
+  ggplot(aes(x=TTAS, y=Percent)) + 
+  geom_line(aes(colour=Cultivar)) +
+  facet_grid(SowTreat~Variable, scales = "free") +
+  geom_abline(intercept = 50, slope = 0)+
+theme(axis.text.x = element_text(angle = 60, hjust = 1))
+
 
 
 ```
