@@ -4,7 +4,7 @@ library (ggplot2)
 library(agricolae)
 setwd("C:\\Users\\Ed\\Documents\\Subclovergit")
 getwd()
-dev.off()
+dev.off() ####
 #Analysis of Experiment 3 - Field Iversen 2 - 6 cultivars 
 #create file 
 file <- read.table("ColdPercPlant.txt",header=TRUE)
