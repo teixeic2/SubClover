@@ -17,7 +17,7 @@ library (lubridate)
 
 
 ```{r loadFile}
-setwd("C:\\Users\\EdCarmen\\Documents\\CarmenProjects2016\\Subclovergit")
+setwd("C:\\Users\\EdCarmen\\Documents\\CarmenProjects2016\\Gitsubclover")
 getwd()
 
 #create file
@@ -28,8 +28,9 @@ df_seed$Date <- dmy(df_seed$Date)
 
 # jeito 2 de trocar formato (usando dplyr)
 df_seed <- df_seed %>%
-  mutate(Plot = as.factor(Plot), Block = as.factor (Block))%>%
-  mutate (PropSoft=(Soft/SeedNumber))
+  mutate(Plot = as.factor(Plot), Block = as.factor(Block))%>%
+#  mutate(PropSoft =round((Soft/SeedNumber)*100),2)
+  mutate(PropSoft = round(Soft/SeedNumber*100,digits=2))
 
 summary(df_seed) # explore values
 str(df_seed) # check formats
@@ -38,9 +39,44 @@ tail(df_seed)
 
 ```
 
+
+```{rCreate Percent Soft}
+
+g1 <- df_seed %>%
+  dplyr::select(-Date) %>%
+  group_by(SowTreat,Cultivar,Depth, Plot) %>% # need to keep level in which cumulation occurs
+  arrange(Round) %>% # need to tell which factor to accumulate within
+  mutate(Soft_cum = cumsum(Soft)) %>%
+  mutate(PercSoftCum=Soft_cum/max(SeedNumber))%>%
+  group_by(SowTreat,Cultivar,Depth, Round) %>%
+  summarise_each(funs(mean)) 
+
+# per round
+g1 %>%
+  ggplot(aes(x=Round,y=1-PercSoftCum,colour=factor(Cultivar)))+
+  geom_point() +
+  geom_line() +
+  facet_grid(SowTreat~Depth)
+
+
+# xy up down comparison
+g1 %>%
+  dplyr::select(Plot,PercSoftCum,Depth,Round) %>%
+  tidyr::spread(Depth, PercSoftCum)%>%
+  ggplot(aes(x=down,y=up,colour=factor(Cultivar)))+
+  geom_point() +
+  facet_grid(SowTreat~.)
+
+
+```
+
+
+
 Graph date Propsoft  
 
 ```{r Graph}
+
+
 
 df_seed %>%
   select(SowTreat, Date,Block, Cultivar,PropSoft)%>%

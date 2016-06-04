@@ -17,7 +17,7 @@ library (lubridate)
 
 
 ```{r loadFile}
-setwd("C:\\Users\\EdCarmen\\Documents\\CarmenProjects2016\\Subclovergit")
+setwd("C:\\Users\\EdCarmen\\Documents\\CarmenProjects2016\\GitSubclover")
 getwd()
 
 #create file
@@ -65,10 +65,11 @@ Analysis of Sowing dates and variables (from bud to bur4) considering DAS
 ```{r GraphSowingDateAndVariable}
 
 df_flower %>%
+  filter(SowTreat != "S5" & SowTreat != "S6" & SowTreat != "S7")%>%
   mutate(Variable = 
   factor(Variable,levels = c("Bud","Early","Open",
           "Petal","Bur1","Bur2","Bur3","Bur4" ))) %>%
-  group_by(DAS,Cultivar,SowTreat,Variable) %   >%
+  group_by(DAS,Cultivar,SowTreat,Variable) %>%
   summarise_each(funs(mean)) %>%
   select(Variable,Percent, Cultivar,DAS,SowTreat) %>%
   filter(Cultivar == "Monti" | Cultivar =="Leura") %>%
@@ -77,6 +78,7 @@ df_flower %>%
   geom_line(aes(colour=Cultivar)) +
   facet_grid(SowTreat~Variable, scales = "free") +
   geom_abline(intercept = 50, slope = 0)+
+  
 theme(axis.text.x = element_text(angle = 90, hjust = 1))
 
 ```
