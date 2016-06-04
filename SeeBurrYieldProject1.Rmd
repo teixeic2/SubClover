@@ -1,0 +1,162 @@
+---
+title: "BurrBurialAnalysis"
+author: "CT"
+date: "Friday, March 18, 2016"
+output: html_document
+---
+
+
+
+```{r}
+#Load libraries 
+library(tidyr)
+library (dplyr)
+library (ggplot2)
+library(agricolae)
+library(lubridate)
+```
+
+Read File 
+
+```{r, echo=FALSE}
+
+setwd("C:\\Users\\Ed\\Documents\\Subclovergit")
+getwd()
+file <- read.table("SeedBurrYield.txt",header=TRUE)
+head(file)
+summary(file)
+```
+
+Calculations 
+
+```{r}
+
+# define factors and formats
+file <- file %>%
+  mutate(
+    Plot = as.factor(Plot),
+    Block = as.factor(Block),
+    Cultivar = as.factor(Cultivar),
+    Date = dmy(Date),
+    SowingD = dmy(SowingD)
+  )
+
+str(file)
+summary(file)
+
+```
+
+
+```{r}
+
+df <- file %>%
+  dplyr::select(Cultivar,SowTreat,sampleArea_m2,Block,
+                Layer,burTotal_weight_g,
+                bur_no_subSample,
+                bur_weight_subSample_g) %>%
+  mutate(IndBurrW = bur_weight_subSample_g/
+           bur_no_subSample,
+         BurrNumber = burTotal_weight_g/IndBurrW) %>%  
+  group_by(Cultivar, SowTreat,Layer,Block) %>%
+  summarise_each(funs(mean)) %>%
+  dplyr::select(Cultivar,SowTreat,
+                Layer,BurrNumber,Block)
+
+  df <- as.data.frame(df)
+head(df)
+
+```
+
+Re start
+
+```{r}
+
+#barplot 
+#The palette with grey:
+cbPalette <- c("#999999", "#666666", "#56B4E9", "#009E73", "#D55E00", "#0072B2","#999999", "#E69F00", "#56B4E9", "#009E73", "#D55E00", "#0072B2","#56B4E9", "#009E73")
+
+
+# define position of bar and errorbar
+dodge_x <- position_dodge(width = 0.9)
+
+# splitting and df due bug in tidyr (https://github.com/hadley/tidyr/issues/32)
+  df_bur <- df %>%
+  tidyr::spread(Layer,BurrNumber) %>%
+  mutate(PropBurrBuried= Down/(Down+Up)*100)
+
+
+  df_bur %>%
+  group_by(Cultivar, SowTreat) %>%
+  summarise_each(funs(mean,sd)) %>%
+  ggplot(aes(x=Cultivar, y=(PropBurrBuried_mean))) +
+  geom_bar(stat="identity",position = dodge_x) +
+  geom_errorbar(aes(ymin=PropBurrBuried_mean-PropBurrBuried_sd/2,
+                    ymax=PropBurrBuried_mean+PropBurrBuried_sd/2),
+                width=0.25, size=0.3,position=dodge_x)   +
+  theme_grey(base_size = 16) +
+  facet_grid(SowTreat~.) +
+theme(axis.text.x=element_text(angle = +90, hjust = 0))
+head(df_bur)
+
+```
+
+
+```{r}
+
+
+#data transformation
+
+df_bur$transf_sqr <- sqrt(df_bur$PropBurrBuried)
+df_bur$transf_log <- log(df_bur$PropBurrBuried)
+df_bur$transf_acos <- acos(df_bur$PropBurrBuried/100)
+
+head(df_bur)
+
+file <- df_bur
+
+x <- c("transf_sqr", "transf_log", "transf_acos")
+colsSelec <- match(x,colnames(file))
+
+file %>%
+  tidyr::gather("transformation","value",colsSelec) %>%
+  ggplot(aes(value)) + 
+  geom_histogram() +
+  facet_grid(.~transformation, scales="free")
+
+head(file)
+
+#normality test
+shapiro.test(file$transf_acos)
+
+#QQplot
+var<-file$transf_acos
+qqnorm(var)
+qqline(var, col = 2)
+qqplot(var, rt(300))
+
+#-------------------------------------------------
+# ANOVA (selecing by hand FIXME: do loop)
+# file.subset <- file %>% subset(SowTreat == "S2" & round==1)
+file.subset <- file 
+
+head(file.subset, 50)
+summary(file.subset)
+my.anova <- aov(transf_acos ~ Cultivar*SowTreat + Block, data = file.subset)
+
+summary(my.anova)
+TukeyHSD(my.anova)
+
+#Means separation 
+(LSD.test(my.anova, "SowTreat", alpha= 0.05, p.adj="none")) 
+
+```
+
+
+
+
+
+
+
+
+
+

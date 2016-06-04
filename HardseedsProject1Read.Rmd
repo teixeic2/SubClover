@@ -17,39 +17,61 @@ library (lubridate)
 
 
 ```{r loadFile}
-setwd("C:\\Users\\Ed\\Documents\\Subclovergit")
+setwd("C:\\Users\\EdCarmen\\Documents\\CarmenProjects2016\\Subclovergit")
 getwd()
 
 #create file
 df_seed <- read.table("HardseedsData.txt",header=TRUE)
-
+head(df_seed)
 # Jeito 1 de trocar formato (usando base R)
 df_seed$Date <- dmy(df_seed$Date)
 
 # jeito 2 de trocar formato (usando dplyr)
 df_seed <- df_seed %>%
-  mutate(Plot = as.factor(Plot), Block = as.factor (Block))
+  mutate(Plot = as.factor(Plot), Block = as.factor (Block))%>%
+  mutate (PropSoft=(Soft/SeedNumber))
 
 summary(df_seed) # explore values
 str(df_seed) # check formats
 head(df_seed) # see to rows
-
+tail(df_seed)
 
 ```
 
-Graph date non embebed  
+Graph date Propsoft  
 
 ```{r Graph}
 
 df_seed %>%
-  select(Date, Block, Cultivar,non.embebed)%>%
-  ggplot (aes(x=Date,y=non.embebed)) +
+  select(SowTreat, Date,Block, Cultivar,PropSoft)%>%
+  ggplot (aes(x=SowTreat,y=PropSoft)) +
   geom_point(aes(colour = Block)) +
   facet_grid(Block ~ Cultivar)
   
+#Graph seedsoft for S1, rounds 1 2 and 3
+head(df_seed)
+  df_seed %>%
+  select(SowTreat, Date,Block, Cultivar,Round, PropSoft)%>%
+  ggplot (aes(x=Round,y=PropSoft)) +
+  geom_point(aes(colour = SowTreat)) +
+  facet_grid(Block ~ Cultivar)
   
   
 ```
+
+
+```{r}
+#Sum up the PropSoft starting form Round 1 (minimum soft) then round 2 and 3 
+#Fix here 
+
+head(df_seed)
+  df_seed %>%
+  mutate(SumPropSoft = cumsum(PropSoft))
+  
+```
+
+
+
 
 Calculate the mean and error bars for each cultivar 
 
@@ -57,11 +79,13 @@ Calculate the mean and error bars for each cultivar
 df_seed %>%
   group_by(Date,Cultivar,SowTreat) %>%
   summarise_each(funs(mean,sd)) %>%
-  ggplot(aes(x=Date, y=non.embebed_mean)) +
+  ggplot(aes(x=SowTreat, y=Propsoft_mean)) +
   geom_point() +
   facet_grid(SowTreat ~ Cultivar)+
-  geom_errorbar(aes(ymin=non.embebed_mean-non.embebed_sd/2,
-                    ymax=non.embebed_mean+non.embebed_sd/2))   
+  geom_errorbar(aes(ymin=Propsoft_mean-Propsoft_sd/2,
+                    ymax=Propsoft_mean+Propsoft_sd/2))   
 
 ```
+
+
 

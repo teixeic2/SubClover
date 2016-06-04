@@ -1,0 +1,103 @@
+---
+title: "BurrBurialAnalysis"
+author: "CT"
+date: "Friday, March 18, 2016"
+output: html_document
+---
+
+
+
+```{r}
+#Load libraries 
+library(tidyr)
+library (dplyr)
+library (ggplot2)
+library(agricolae)
+library(lubridate)
+```
+
+Read File 
+
+```{r, echo=FALSE}
+
+setwd("C:\\Users\\Ed\\Documents\\Subclovergit")
+getwd()
+file <- read.table("SeedBurrYield.txt",header=TRUE)
+head(file)
+summary(file)
+```
+
+Calculations 
+
+```{r}
+
+# define factors and formats
+file <- file %>%
+  mutate(
+    Plot = as.factor(Plot),
+    Block = as.factor(Block),
+    Cultivar = as.factor(Cultivar),
+    Date = dmy(Date),
+    SowingD = dmy(SowingD)
+  )
+
+str(file)
+summary(file)
+head(file)
+
+```
+
+
+```{r}
+
+df<- file %>%
+  dplyr::select(Cultivar,SowTreat,sampleArea_m2,Block,
+                Layer,burTotal_weight_g,
+                bur_no_subSample,
+                bur_weight_subSample_g,seedNo) %>%
+  mutate(SeedsNo_m2 = ((seedNo/bur_weight_subSample_g)*
+           burTotal_weight_g)/sampleArea_m2) %>%
+  dplyr::select(Cultivar,SowTreat,
+                Layer,Block,SeedsNo_m2)
+
+  df <- as.data.frame(df)
+head(df)
+
+```
+Re start
+
+```{r}
+
+#barplot 
+#The palette with grey:
+cbPalette <- c("#999999", "#666666", "#56B4E9", "#009E73", "#D55E00", "#0072B2","#999999", "#E69F00", "#56B4E9", "#009E73", "#D55E00", "#0072B2","#56B4E9", "#009E73")
+
+
+# define position of bar and errorbar
+dodge_x <- position_dodge(width = 0.9)
+
+# splitting and df due bug in tidyr (https://github.com/hadley/tidyr/issues/32)
+  df %>%
+  #tidyr::spread(Layer,SeedsNo_m2) %>%
+  #mutate(SeedsNo_m2= Down/(Down+Up)*100) %>%
+  group_by(Cultivar, SowTreat) %>%
+  summarise_each(funs(mean,sd)) %>%
+  ggplot(aes(x=Cultivar, y=(SeedsNo_m2_mean))) +
+  geom_bar(stat="identity",position = dodge_x) +
+  geom_errorbar(aes(ymin=SeedsNo_m2_mean-SeedsNo_m2_sd/2,
+                    ymax=SeedsNo_m2_mean+SeedsNo_m2_sd/2),
+                width=0.25, size=0.3,position=dodge_x)   +
+  theme_grey(base_size = 16) +
+  facet_grid(SowTreat~., scales="free") +
+theme(axis.text.x=element_text(angle = +90, hjust = 0))
+
+
+```
+
+
+
+
+
+
+
+

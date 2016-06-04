@@ -107,6 +107,7 @@ ggplot(data=file, aes(transf)) +
 
 #normality test
 shapiro.test(file$SQR)
+shapiro.test(file$transf_log)
 
 #QQplot
 var<-file$SQR
@@ -114,6 +115,10 @@ qqnorm(var)
 qqline(var, col = 2)
 qqplot(var, rt(300, df = 5))
 
+var<-file$transf_log
+qqnorm(var)
+qqline(var, col = 2)
+qqplot(var, rt(300, df = 5))
 
 #AnovaLog analysis of transformed sqr
 file$Block <- as.factor(file$Block )
@@ -121,13 +126,29 @@ anovaSQR<-aov(file$SQR ~ file$Cultivar*file$depth+file$Block)
 summary(anovaSQR)
 TukeyHSD(anovaSQR)
 
+#AnovaLog analysis of transformed log
+file$Block <- as.factor(file$Block )
+anovatransf_log<-aov(file$transf_log ~ file$Cultivar*file$depth+file$Block)
+summary(anovatransf_log)
+TukeyHSD(anovatransf_log)
+
 #Means separation of SQR transformed data by Cultivar
-(LSD.test(anovaSQR, "file$Cultivar", alpha= 0.05, p.adj="none"))             
+(LSD.test(anovaSQR, "file$Cultivar", alpha= 0.05, p.adj="none"))
+
+#Means separation of log transformed data by Cultivar
+(LSD.test(anovatransf_log, "file$Cultivar", alpha= 0.05, p.adj="none"))
 
 #Anova and Means separation of log transformed data by Subspecies
 file$Block <- as.factor(file$Block )
 anovaSQR<-aov(file$SQR ~ file$Cultivar*file$depth+file$Block)
 summary(anovaSQR)
+
+#log transformed 
+
+file$Block <- as.factor(file$Block )
+anovaSQR<-aov(file$transf_log ~ file$Cultivar*file$depth+file$Block)
+summary(anovatransf_log)
+
 
 TukeyHSD(anovaSQR)
 (LSD.test(anovaSQR, "file$depth", alpha= 0.05, p.adj="none"))             

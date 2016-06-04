@@ -17,13 +17,15 @@ library (lubridate)
 
 
 ```{r loadFile}
-setwd("C:\\Users\\Ed\\Documents\\Subclovergit")
+setwd("C:\\Users\\EdCarmen\\Documents\\CarmenProjects2016\\Subclovergit")
 getwd()
 
 #create file
 df_flower <- read.table("F_Flower_SB_PhenologyData.txt",header=TRUE)
 
 head(df_flower)
+
+summary(df_flower)
 
 colnames(df_flower)[1] <- "Cultivar" # fix bug of extra characters in name
 # convert to date format
@@ -56,6 +58,8 @@ head(df_flower)
 ```
 
 
+
+
 Analysis of Sowing dates and variables (from bud to bur4) considering DAS 
 
 ```{r GraphSowingDateAndVariable}
@@ -64,7 +68,7 @@ df_flower %>%
   mutate(Variable = 
   factor(Variable,levels = c("Bud","Early","Open",
           "Petal","Bur1","Bur2","Bur3","Bur4" ))) %>%
-  group_by(DAS,Cultivar,SowTreat,Variable) %>%
+  group_by(DAS,Cultivar,SowTreat,Variable) %   >%
   summarise_each(funs(mean)) %>%
   select(Variable,Percent, Cultivar,DAS,SowTreat) %>%
   filter(Cultivar == "Monti" | Cultivar =="Leura") %>%
@@ -223,7 +227,7 @@ write.table(df_flower, "df_flower.txt")
 ```
 
 
-Derriocks graph
+Derrick's graph
 
 ```{r GraphDerrick}
 

@@ -18,7 +18,7 @@ library (lubridate)
 
 
 ```{r loadFile}
-setwd("C:\\Users\\Ed\\Documents\\Subclovergit")
+setwd("C:\\Users\\EdCarmen\\Documents\\CarmenProjects2016\\Subclovergit")
 getwd()
 
 #create file
