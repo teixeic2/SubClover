@@ -53,3 +53,30 @@ Calculate Mean Seedling Population in 0.01 m2
 
 ```
 
+
+```{rCacluate Percentage emergence }
+df_emerg <-df_emerg %>%
+  group_by(SowTreat,Cultivar) %>%
+#  mutate
+  mutate(PercEmerg = round(PlantPop/max(PlantPop)*100,digits=2))
+head(df_emerg)
+tail(df_emerg)
+```
+
+
+```{rGRaph Percent Emerged }
+
+ #Graph         
+  df_emerg %>%
+  group_by(DAS, Cultivar,SowTreat) %>%
+    dplyr::select(-SowingDate, - ReadingDate) %>%
+  summarise_each(funs(mean)) %>%
+  ggplot(aes(x=DAS, y=PercEmerg)) + 
+  geom_point(aes(colour=Cultivar)) +
+    geom_line(aes(colour=Cultivar)) +
+  facet_grid(SowTreat~., scales = "free")+
+  geom_abline(intercept = 50, slope = 0) +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1))
+
+```
+
