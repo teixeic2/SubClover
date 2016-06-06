@@ -47,7 +47,7 @@ Calculate Mean Seedling Population in 0.01 m2
   ggplot(aes(x=DAS, y=PlantPop)) + 
   geom_point(aes(colour=Cultivar)) +
     geom_line(aes(colour=Cultivar)) +
-  #facet_grid(SowTreat~Cultivar, scales = "free")+
+  facet_grid(SowTreat~., scales = "free")+
   geom_abline(intercept = 50, slope = 0) +
   theme(axis.text.x = element_text(angle = 90, hjust = 1))
 
