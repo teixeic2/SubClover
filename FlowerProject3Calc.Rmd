@@ -196,6 +196,8 @@ ggplot(aes(x=SowingD, y=DAS50Bud2Bur)) +
   #xlab("Thermal-time from sowing (oCd)")+
 theme(axis.text.x = element_text(angle = 60, hjust = 1))
 
+# save final DF
+write.table(df_tt_50p_flow, "df_tt_50p_flow.txt")
 
 df_tt_50p_flow %>%
   dplyr::select(-DAS50F)  %>%

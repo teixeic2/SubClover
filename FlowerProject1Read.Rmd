@@ -82,17 +82,6 @@ df_flower %>%
 theme(axis.text.x = element_text(angle = 90, hjust = 1))
 
 
-#Calculate DAys from Bud to Bur4
-head(df_flower)
-tail(df_flower)
-filter(Variable = "Bud" & Variable = "Bur4")
-#data_wide <- spread(olddata_long, condition, measurement)
-df_flowersprd <- spread(df_flower, Variable, Bud, EArly,Open, Petal, Bur1, Bur2, Bur3, Bur4)
-#tidyr::spread(Variable, Bud, EArly,Open, Petal, Bur1, Bur2, Bur3, Bur4) 
-df_flower %>%
-  mutate(DAYSBBR3=)
-
-
 
 ```
 

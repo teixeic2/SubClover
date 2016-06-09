@@ -153,7 +153,7 @@ df_emerg_perc_TT %>%
   df_emerg_perc_TT %>%
   ggplot(aes(x=TT_FromSow, y=PercEmerg, colour=factor(Cultivar))) + 
   geom_point() +
-  geom_line() +
+  #geom_line() +
   facet_grid(SowTreat~., scales = "free")+
   geom_abline(intercept = 50, slope = 0)
 
