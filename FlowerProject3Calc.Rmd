@@ -179,12 +179,40 @@ summary(df_tt_50p_flow)
 
 
 
-```{r}
+```{r Calculate DAys from bud to bur phases }
 
 df_tt_50p_flow %>%
   dplyr::select(-TT50F)  %>%
   tidyr::spread(Variable,DAS50F) %>%
-  mutate(DAS50Bud2Bur = Bur - Bud)
+  mutate(DAS50Bud2Bur = Bur - Bud) %>%
+  #graph it
+ggplot(aes(x=SowingD, y=DAS50Bud2Bur)) + 
+  geom_line(aes(colour=Cultivar)) +
+  geom_point(aes(shape=Cultivar,colour=Cultivar))+
+  #facet_grid(Cultivar~SowTreat, scales = "free") +
+  facet_grid(SowTreat~Cultivar, scales = "free") +
+  geom_abline(intercept = 50, slope = 0) +
+  #ylab("Percent of Flowering (%)") +
+  #xlab("Thermal-time from sowing (oCd)")+
+theme(axis.text.x = element_text(angle = 60, hjust = 1))
+
+
+df_tt_50p_flow %>%
+  dplyr::select(-DAS50F)  %>%
+  tidyr::spread(Variable,TT50F) %>%
+  mutate(TT50Bud2Bur = Bur - Bud) %>%
+  #graph it
+ggplot(aes(x=SowingD, y=TT50Bud2Bur)) + 
+  geom_line(aes(colour=Cultivar)) +
+  geom_point(aes(shape=Cultivar,colour=Cultivar))+
+  #facet_grid(Cultivar~SowTreat, scales = "free") +
+  facet_grid(SowTreat~Cultivar, scales = "free") +
+  geom_abline(intercept = 50, slope = 0) +
+  #ylab("Percent of Flowering (%)") +
+  #xlab("Thermal-time from sowing (oCd)")+
+theme(axis.text.x = element_text(angle = 60, hjust = 1))
+
+
 
 
 ```
