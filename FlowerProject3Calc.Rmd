@@ -73,8 +73,8 @@ for(i in 1:length(cv)) {
     for(k in 1:length(sow)){
       
       # clean value holders
-      DAS_50p_flow <- NULL
-      tt_50p_flow <- NULL
+      DAS_50p_flow <- 0
+      tt_50p_flow <- 0
       
     
       print(paste0(cv[i]," ",var[j]," ", sow[k]))
@@ -173,8 +173,21 @@ df_tt_50p_flow %>%
 
 summary(df_tt_50p_flow)
 
+
+
 ```
 
+
+
+```{r}
+
+df_tt_50p_flow %>%
+  dplyr::select(-TT50F)  %>%
+  tidyr::spread(Variable,DAS50F) %>%
+  mutate(DAS50Bud2Bur = Bur - Bud)
+
+
+```
 
 
 
@@ -197,10 +210,11 @@ summary(df_photoTT)
 
 #graph
 df_photoTT %>%
-  ggplot(aes(x=Pp, y=TT50F))  +
+  ggplot(aes(x=Pp, y=TT50F,color=factor(Cultivar)))  +
   geom_point()+
-  geom_smooth(aes(color=Cultivar))+
-  facet_grid(.~Variable, scales = "free")
+  geom_line() +
+ # geom_smooth(aes(color=Cultivar))+
+  facet_grid(Variable~., scales = "free")
 
 
 ```
@@ -210,7 +224,7 @@ next step: join early_open and petal categories to create " flower"
 
 Graph TTAS and Photoperiod 
 
-```{rGraphPhoto}
+```{r GraphPhoto}
 
 # graph it
 df_bur_simple %>%
