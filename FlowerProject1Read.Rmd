@@ -81,6 +81,19 @@ df_flower %>%
   
 theme(axis.text.x = element_text(angle = 90, hjust = 1))
 
+
+#Calculate DAys from Bud to Bur4
+head(df_flower)
+tail(df_flower)
+filter(Variable = "Bud" & Variable = "Bur4")
+#data_wide <- spread(olddata_long, condition, measurement)
+df_flowersprd <- spread(df_flower, Variable, Bud, EArly,Open, Petal, Bur1, Bur2, Bur3, Bur4)
+#tidyr::spread(Variable, Bud, EArly,Open, Petal, Bur1, Bur2, Bur3, Bur4) 
+df_flower %>%
+  mutate(DAYSBBR3=)
+
+
+
 ```
 
 Read Thermal Sum data. Need to include these values before 30 06 : 
@@ -107,7 +120,7 @@ tail(df_TTSum)
 
 # convert to date format
 df_TTSum <- df_TTSum %>%
- mutate(Date=dmy(Date))
+ mutate(Date=ymd(Date))
 
 # remove extra columns
 #df_TTSum <- df_TTSum %>%
@@ -254,4 +267,8 @@ theme(axis.text.x = element_text(angle = 60, hjust = 1))
 
 
 ```
+
+
+
+
 
