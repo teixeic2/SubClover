@@ -71,6 +71,11 @@ df_tt_50p_flow <- data.frame(SowingD = NULL,
 for(i in 1:length(cv)) {
   for(j in 1:length(var)){
     for(k in 1:length(sow)){
+      
+      # clean value holders
+      DAS_50p_flow <- NULL
+      tt_50p_flow <- NULL
+      
     
       print(paste0(cv[i]," ",var[j]," ", sow[k]))
       # filter for each combination
@@ -97,16 +102,13 @@ for(i in 1:length(cv)) {
   df_sub
   head(df_sub)
   tail(df_sub)
-  
-  # FIX ME : interpolation is less than 50 !!! 
 
   # Interpolate 
   y_ref <- 50 # y value where we want to find x by interpolation
   
-  
   # interpolate
   #find DAS at 50 Pecent Flower 
-  
+
   tryCatch(  
   DAS_50p_flow <- approx(df_sub$av_Perc_max, 
   df_sub$av_DAS , xout = y_ref, rule = 1)$y,
@@ -124,9 +126,6 @@ for(i in 1:length(cv)) {
   tt_50p_flow <- NA
   }
 )
-
-    
-# FIXME: Broken in this level
 
   df_temp <- NULL
   df_temp <- data.frame(Cultivar = df_sub$Cultivar[1],
@@ -150,7 +149,7 @@ summary(df_tt_50p_flow)
 
 write.table(df_tt_50p_flow,"df_tt_50p_flow.txt")
 
-head(df_tt_50p_flow)
+summary(df_tt_50p_flow)
 
 
 ```
@@ -159,14 +158,14 @@ head(df_tt_50p_flow)
 ```{r GraphResults}
 
 df_tt_50p_flow %>%
-  filter(SowTreat != "S5" & SowTreat != "S6" & SowTreat != "S7")%>%
+  filter( SowTreat != "S6" & SowTreat != "S7")%>%
   ggplot(aes(x=SowingD,y=DAS50F,colour=Cultivar))+
   geom_point()+
   facet_grid(Variable~.)+
   geom_line()
 
 df_tt_50p_flow %>%
-    filter(SowTreat != "S5"& SowTreat != "S6" & SowTreat != "S7")%>%
+    filter( SowTreat != "S6" & SowTreat != "S7")%>%
   ggplot(aes(x=SowingD,y=TT50F,colour=Cultivar))+
   geom_point()+
   facet_grid(Variable~.)+
@@ -237,8 +236,5 @@ unique(df_bur_simple$Variable)
 
 
 ```
-
-
-Parei aqui !!! 
 
 

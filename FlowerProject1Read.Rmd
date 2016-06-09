@@ -96,7 +96,7 @@ Read Thermal Sum data. Need to include these values before 30 06 :
 ```{r ReadThermalSumData}
 # read raw data
 
-#Fix me include air  temperature of dates that logger was not working 
+#Temperatures from 24 June to 29 June included from Broadfield Niwa in excel Datalogger folder  Thermal Sum is created  in the the Thermal time project (R file) 
 
 
 
@@ -107,7 +107,7 @@ tail(df_TTSum)
 
 # convert to date format
 df_TTSum <- df_TTSum %>%
- mutate(Date=ymd(Date))
+ mutate(Date=dmy(Date))
 
 # remove extra columns
 #df_TTSum <- df_TTSum %>%

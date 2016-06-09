@@ -14,10 +14,10 @@ library (ggplot2)
 library (lubridate)
 ```
 
-
+Note: the file is called HistoricMeanTemp but actually contains the hobologger data Iversen 2
 
 ```{rload file}
-setwd("C:\\Users\\Ed\\Documents\\Subclovergit")
+setwd("C:\\Users\\EdCarmen\\Documents\\CarmenProjects2016\\GitSubclover")
 getwd()
 
 
