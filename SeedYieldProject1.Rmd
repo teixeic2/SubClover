@@ -20,7 +20,7 @@ Read File
 
 ```{r, echo=FALSE}
 
-setwd("C:\\Users\\Ed\\Documents\\Subclovergit")
+setwd("C:\\Users\\EdCarmen\\Documents\\CarmenProjects2016\\Gitsubclover")
 getwd()
 file <- read.table("SeedBurrYield.txt",header=TRUE)
 head(file)
