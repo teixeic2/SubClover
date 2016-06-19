@@ -1,0 +1,151 @@
+---
+title: "Hardseeds method check_rub and unrub seeds "
+author: "CT"
+date: "16 June, 2016"
+output: html_document
+---
+
+```{r loadLibraries}
+library(tidyr)
+library (dplyr)
+library (ggplot2)
+library(agricolae)
+library(knitr)
+library (lubridate)
+
+```
+
+
+```{r loadFile}
+setwd("C:\\Users\\EdCarmen\\Documents\\CarmenProjects2016\\Gitsubclover")
+getwd()
+
+#create file
+df_rub <- read.table("RubTest.txt",header=TRUE)
+head(df_rub)
+
+
+# jeito 2 de trocar formato (usando dplyr)
+df_rub <- df_rub %>%
+  mutate(CV = as.factor(CV), Treat = as.factor(Treat))%>%
+#  mutate(PropSoft =round((Soft/Seeds)*100),2)
+  mutate(PropSoft = round(Softseeds/Seeds*100,digits=2))
+
+summary(df_rub) # explore values
+str(df_rub) # check formats
+head(df_rub) # see to rows
+tail(df_rub)
+
+```
+
+
+```{r TransformPercentSoft}
+
+
+
+#data transformation
+
+df_rub$transf_sqr <- sqrt(df_rub$PropSoft)
+df_rub$transf_log <- log(df_rub$PropSoft)
+df_rub$transf_acos <- acos(df_rub$PropSoft/100)
+
+head(df_rub)
+
+file <- df_rub
+
+x <- c("transf_sqr", "transf_log", "transf_acos")
+colsSelec <- match(x,colnames(file))
+
+file %>%
+  tidyr::gather("transformation","value",colsSelec) %>%
+  ggplot(aes(value)) + 
+  geom_histogram() +
+  facet_grid(.~transformation, scales="free")
+
+head(file)
+
+#normality test
+shapiro.test(file$transf_acos)
+
+#QQplot
+var<-file$transf_acos
+qqnorm(var)
+qqline(var, col = 2)
+qqplot(var, rt(300))
+
+#-------------------------------------------------
+# ANOVA (selecing by hand FIXME: do loop)
+# file.subset <- file %>% subset(SowTreat == "S2" & round==1)
+file.subset <- file 
+
+head(file.subset, 50)
+summary(file.subset)
+my.anova <- aov(transf_acos ~ CV*Treat + Rep, data = file.subset)
+
+summary(my.anova)
+TukeyHSD(my.anova)
+
+#Means separation 
+(LSD.test(my.anova, "SowTreat", alpha= 0.05, p.adj="none")) 
+
+```
+
+
+
+
+g1 <- df_rub %>%
+  group_by(CV,Treat,Rep) %>%
+  summarise_each(funs(mean)) 
+head(g1)
+# create graph 
+g1 %>%
+  ggplot(aes(x=Treat,y=PropSoft,colour=factor(CV)))+
+  geom_point() 
+  #geom_line() +
+  #facet_grid(SowTreat~Depth)
+
+
+
+```
+
+
+
+Graph date Propsoft  
+
+```{r Graph}
+df_rub %>%
+  group_by(CV,Treat,Rep) %>%
+  summarise_each(funs(mean,sd)) %>%
+  ggplot(aes(x=CV, y=(PropSoft_mean))) +
+  geom_bar(stat="identity",position = dodge_x) +
+  geom_errorbar(aes(ymin=PropSoft_mean-PropSoft_mean_sd/2,
+                    ymax=PropSoft_mean+PropSoft_sd/2),
+                width=0.25, size=0.3,position=dodge_x)   +
+  theme_grey(base_size = 16) +
+  facet_grid(CV~.) +
+theme(axis.text.x=element_text(angle = +90, hjust = 0))
+head(df_rub)
+
+
+
+  
+  
+```
+
+
+```{r}
+
+```
+
+
+
+
+Calculate the mean and error bars for each cultivar 
+
+```{r}
+  
+
+```
+
+
+

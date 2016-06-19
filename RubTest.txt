@@ -1,0 +1,13 @@
+CV	Rep	depth	Treat	Seeds	Softseeds
+A	1	S	Rub	50	18
+A	2	S	Rub	50	29
+A	3	S	Rub	50	20
+A	1	S	Unrub	50	20
+A	2	S	Unrub	50	19
+A	3	S	Unrub	50	23
+W	1	S	Rub	50	15
+W	2	S	Rub	50	18
+W	3	S	Rub	50	18
+W	1	S	Unrub	50	24
+W	2	S	Unrub	50	20
+W	3	S	Unrub	50	21

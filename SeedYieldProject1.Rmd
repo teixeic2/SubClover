@@ -51,12 +51,12 @@ head(file)
 ```{r}
 
 df<- file %>%
-  dplyr::select(Cultivar,SowTreat,sampleArea_m2,Block,
-                Layer,burTotal_weight_g,
+  dplyr::select(Cultivar,SowTreat,sample_area_m2,Block,
+                Layer,bur_total_weight_g,
                 bur_no_subSample,
                 bur_weight_subSample_g,seedNo) %>%
   mutate(SeedsNo_m2 = ((seedNo/bur_weight_subSample_g)*
-           burTotal_weight_g)/sampleArea_m2) %>%
+           bur_total_weight_g)/sample_area_m2) %>%
   dplyr::select(Cultivar,SowTreat,
                 Layer,Block,SeedsNo_m2)
 
