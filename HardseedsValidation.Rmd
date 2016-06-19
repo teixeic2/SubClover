@@ -25,9 +25,9 @@ df_rub <- read.table("RubTest.txt",header=TRUE)
 head(df_rub)
 
 
-# jeito 2 de trocar formato (usando dplyr)
+# second way to change format  (with dplyr)
 df_rub <- df_rub %>%
-  mutate(CV = as.factor(CV), Treat = as.factor(Treat))%>%
+  mutate(CV = as.factor(CV), Rep = as.factor(Rep), Treat = as.factor(Treat))%>%
 #  mutate(PropSoft =round((Soft/Seeds)*100),2)
   mutate(PropSoft = round(Softseeds/Seeds*100,digits=2))
 
@@ -36,7 +36,41 @@ str(df_rub) # check formats
 head(df_rub) # see to rows
 tail(df_rub)
 
+
 ```
+
+
+```{r Graph it }
+
+#barplot 
+#The palette with grey:
+cbPalette <- c("#999999", "#666666", "#56B4E9", "#009E73", "#D55E00", "#0072B2","#999999", "#E69F00", "#56B4E9", "#009E73", "#D55E00", "#0072B2","#56B4E9", "#009E73")
+
+
+# define position of bar and errorbar
+dodge_x <- position_dodge(width = 0.9)
+
+df_rub %>%
+  group_by(CV, Treat) %>%
+  summarise_each(funs(mean,sd)) %>%
+  ggplot(aes(x=CV, y=(PropSoft_mean))) +
+  geom_bar(stat="identity",position = dodge_x) +
+  geom_errorbar(aes(ymin=PropSoft_mean-PropSoft_sd/2,
+                    ymax=PropSoft_mean+PropSoft_sd/2),
+                width=0.25, size=0.3,position=dodge_x)   +
+  theme_grey(base_size = 16) +
+  facet_grid(Treat~.) +
+  xlab("Cultivar")
+theme(axis.text.x=element_text(angle = +90, hjust = 0))
+head(df_rub)
+
+
+
+```
+
+
+
+
 
 
 ```{r TransformPercentSoft}
@@ -44,7 +78,7 @@ tail(df_rub)
 
 
 #data transformation
-
+df_rub$transf_no <- 1*(df_rub$PropSoft)
 df_rub$transf_sqr <- sqrt(df_rub$PropSoft)
 df_rub$transf_log <- log(df_rub$PropSoft)
 df_rub$transf_acos <- acos(df_rub$PropSoft/100)
@@ -53,7 +87,7 @@ head(df_rub)
 
 file <- df_rub
 
-x <- c("transf_sqr", "transf_log", "transf_acos")
+x <- c( "transf_no",  "transf_sqr", "transf_log", "transf_acos")
 colsSelec <- match(x,colnames(file))
 
 file %>%
@@ -65,22 +99,23 @@ file %>%
 head(file)
 
 #normality test
-shapiro.test(file$transf_acos)
+#tranform log was the best histogram so continue with it 
+shapiro.test(file$transf_log)
 
 #QQplot
-var<-file$transf_acos
+var<-file$transf_log
 qqnorm(var)
 qqline(var, col = 2)
 qqplot(var, rt(300))
 
 #-------------------------------------------------
-# ANOVA (selecing by hand FIXME: do loop)
-# file.subset <- file %>% subset(SowTreat == "S2" & round==1)
+
+# Chosen transform log to do anova 
 file.subset <- file 
 
 head(file.subset, 50)
 summary(file.subset)
-my.anova <- aov(transf_acos ~ CV*Treat + Rep, data = file.subset)
+my.anova <- aov(transf_log ~ CV*Treat + Rep, data = file.subset)
 
 summary(my.anova)
 TukeyHSD(my.anova)
@@ -91,42 +126,12 @@ TukeyHSD(my.anova)
 ```
 
 
-
-
-g1 <- df_rub %>%
-  group_by(CV,Treat,Rep) %>%
-  summarise_each(funs(mean)) 
-head(g1)
-# create graph 
-g1 %>%
-  ggplot(aes(x=Treat,y=PropSoft,colour=factor(CV)))+
-  geom_point() 
-  #geom_line() +
-  #facet_grid(SowTreat~Depth)
-
-
-
 ```
-
 
 
 Graph date Propsoft  
 
 ```{r Graph}
-df_rub %>%
-  group_by(CV,Treat,Rep) %>%
-  summarise_each(funs(mean,sd)) %>%
-  ggplot(aes(x=CV, y=(PropSoft_mean))) +
-  geom_bar(stat="identity",position = dodge_x) +
-  geom_errorbar(aes(ymin=PropSoft_mean-PropSoft_mean_sd/2,
-                    ymax=PropSoft_mean+PropSoft_sd/2),
-                width=0.25, size=0.3,position=dodge_x)   +
-  theme_grey(base_size = 16) +
-  facet_grid(CV~.) +
-theme(axis.text.x=element_text(angle = +90, hjust = 0))
-head(df_rub)
-
-
 
   
   
