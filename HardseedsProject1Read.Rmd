@@ -53,9 +53,11 @@ g1 <- df_seed %>%
 
 # per round
 g1 %>%
+ # filter(SowTreat == "S1") %>%
   ggplot(aes(x=Round,y=1-PercSoftCum,colour=factor(Cultivar)))+
   geom_point() +
   geom_line() +
+  labs(x="Hardseed Assessment",y="Cummulative Proportion Hardseeds") +
   facet_grid(SowTreat~Depth)
 
 
@@ -67,6 +69,13 @@ g1 %>%
   geom_point() +
   facet_grid(SowTreat~.)
 
+#Check for outliers _Boxplot 
+df_seed %>%
+  ggplot(aes(x=Cultivar, y=Soft, colour=factor(SowTreat)))+
+  geom_boxplot() +
+  geom_jitter() +
+  theme(axis.text.x=element_text(angle = +90, hjust = 0))+
+  facet_grid(Depth~Round+SowTreat)
 
 ```
 
@@ -113,13 +122,19 @@ Calculate the mean and error bars for each cultivar
 
 ```{r}
 df_seed %>%
-  group_by(Date,Cultivar,SowTreat) %>%
+  mutate(hardSeed = 100-PropSoft) %>%
+  mutate(SowingD = dmy(SowingD)) %>%
+  filter(Round == 1) %>%
+  group_by(Cultivar,SowingD) %>%
+  dplyr::select(hardSeed) %>%
   summarise_each(funs(mean,sd)) %>%
-  ggplot(aes(x=SowTreat, y=Propsoft_mean)) +
+  ggplot(aes(x=SowingD, y=mean, colour=factor(Cultivar), shape=factor(Cultivar))) +
   geom_point() +
-  facet_grid(SowTreat ~ Cultivar)+
-  geom_errorbar(aes(ymin=Propsoft_mean-Propsoft_sd/2,
-                    ymax=Propsoft_mean+Propsoft_sd/2))   
+  geom_line() +
+ facet_grid(.~Cultivar) +
+  labs(x="Sowing Date",y="Maximum Percentage of Hardseeds") +
+  geom_errorbar(aes(ymin=mean-sd/2,
+                    ymax=mean+sd/2))   
 
 ```
 
