@@ -13,6 +13,7 @@ library(agricolae)
 library(knitr)
 library (lubridate)
 
+
 ```
 
 
@@ -75,7 +76,7 @@ tail(df_emerg_perc)
   ggplot(aes(x=DAS, y=PercEmerg)) + 
   geom_point(aes(colour=Cultivar)) +
   geom_line(aes(colour=Cultivar)) +
-  facet_grid(SowTreat~., scales = "free")+
+  facet_wrap (~SowTreat,ncol=4, scales = "free")+
   geom_abline(intercept = 50, slope = 0) +
   theme(axis.text.x = element_text(angle = 90, hjust = 1))
 
@@ -147,6 +148,19 @@ summary(df_emerg_perc_TT)
 df_emerg_perc_TT %>%
   ggplot(aes(x=DAS, y=TT_FromSow, colour=factor(SowTreat))) +
   geom_point()
+head(df_emerg_perc_TT)
+
+
+df_emerg_perc_TT %>%
+  group_by(Cultivar, SowTreat, TT_FromSow) %>%
+  #dplyr::select(-SowingDate, - ReadingDate) %>%
+  summarise_each(funs(mean)) %>%
+  ggplot(aes(x=TT_FromSow, y=PercEmerg)) + 
+  geom_point(aes(colour=Cultivar)) +
+  geom_line(aes(colour=Cultivar)) +
+  facet_wrap (~SowTreat,ncol=4, scales = "free")+
+  geom_abline(intercept = 50, slope = 0) +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1))
 
 
 # graph
@@ -157,5 +171,10 @@ df_emerg_perc_TT %>%
   facet_grid(SowTreat~., scales = "free")+
   geom_abline(intercept = 50, slope = 0)
 
+```
+
+
+```{r}
+#
 ```
 
