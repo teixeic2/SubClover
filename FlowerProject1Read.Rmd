@@ -83,6 +83,7 @@ theme(axis.text.x = element_text(angle = 90, hjust = 1))
 
 
 
+
 ```
 
 Read Thermal Sum data. Need to include these values before 30 06 : 
@@ -152,6 +153,26 @@ head(df_flower)
 head(df_flower)
 summary(df_flower )
 
+#aqi
+# TT from Bud to Bur 3 
+
+df_flower %>%
+  filter(SowTreat != "S6" & SowTreat != "S7")%>%
+  mutate(Variable = 
+  factor(Variable,levels = c("Bud","Bur3"))) %>%
+  group_by(DAS,Cultivar,SowTreat,Variable,TTAS) %>%
+  summarise_each(funs(mean)) %>%
+  select(Variable,Percent, Cultivar,TTAS,SowTreat) %>%
+  filter(Cultivar == "Monti" | Cultivar =="Woogenellup") %>%
+  ggplot(aes(x=TTAS, y=Percent)) + 
+  #geom_bar(shape=1, stat="identity")
+  geom_line(aes(colour=Cultivar)) +
+  facet_grid(SowTreat~Variable, scales = "free") +
+  geom_abline(intercept = 50, slope = 0)+
+  
+theme(axis.text.x = element_text(angle = 90, hjust = 1))
+
+
 ```
 
 Include Photoperiod at sowing date in main df 
@@ -207,6 +228,9 @@ df_flower %>%
 theme(axis.text.x = element_text(angle = 60, hjust = 1))
 
 
+
+
+
 #by variable 
 df_flower %>%
   mutate(Variable = 
@@ -226,6 +250,24 @@ theme(axis.text.x = element_text(angle = 60, hjust = 1))
 
 # save final DF
 write.table(df_flower, "df_flower.txt")
+
+#Graph only Bud and Bur 4 
+
+df_flower %>%
+  mutate(Variable = 
+  factor(Variable,levels = c("Bud","Early","Open",
+          "Petal","Bur1","Bur2","Bur3","Bur4"  ))) %>%
+  group_by(DAS,TTAS,Cultivar,SowTreat,Variable) %>%
+  summarise_each(funs(mean)) %>%
+  select(DAS,Variable,Percent, Cultivar,TTAS,SowTreat) %>%
+  filter(Cultivar == "Narrikup" | Cultivar == "Denmark" ) %>%
+  filter(Variable == "Bud"| Variable =="Bur4") %>%
+  ggplot(aes(x=DAS, y=Percent)) + 
+  geom_line(aes(colour=Cultivar)) +
+  facet_grid(SowTreat~Variable, scales = "free") +
+  geom_abline(intercept = 50, slope = 0)+
+theme(axis.text.x = element_text(angle = 60, hjust = 1))
+
 
 
 ```
@@ -256,6 +298,8 @@ theme(axis.text.x = element_text(angle = 60, hjust = 1))
 
 
 ```
+
+
 
 
 

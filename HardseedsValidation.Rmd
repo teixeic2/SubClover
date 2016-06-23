@@ -48,19 +48,19 @@ cbPalette <- c("#999999", "#666666", "#56B4E9", "#009E73", "#D55E00", "#0072B2",
 
 
 # define position of bar and errorbar
-dodge_x <- position_dodge(width = 0.9)
+dodge_x <- position_dodge(width = 0.5)
 
 df_rub %>%
   group_by(CV, Treat) %>%
   summarise_each(funs(mean,sd)) %>%
   ggplot(aes(x=CV, y=(PropSoft_mean))) +
-  geom_bar(stat="identity",position = dodge_x) +
+  geom_bar(width=0.4, stat="identity",fill= "#009E73", position = dodge_x) +
   geom_errorbar(aes(ymin=PropSoft_mean-PropSoft_sd/2,
                     ymax=PropSoft_mean+PropSoft_sd/2),
-                width=0.25, size=0.3,position=dodge_x)   +
+                width=0.15, size=0.3,position=dodge_x)   +
   theme_grey(base_size = 16) +
-  facet_grid(Treat~.) +
-  xlab("Cultivar")
+  facet_grid(.~Treat) +
+  labs(x="Cultivar", y= "Percentage of Soft Seeds")
 theme(axis.text.x=element_text(angle = +90, hjust = 0))
 head(df_rub)
 
@@ -121,7 +121,7 @@ summary(my.anova)
 TukeyHSD(my.anova)
 
 #Means separation 
-(LSD.test(my.anova, "SowTreat", alpha= 0.05, p.adj="none")) 
+(LSD.test(my.anova, "Treat", alpha= 0.05, p.adj="none")) 
 
 ```
 

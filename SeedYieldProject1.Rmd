@@ -88,11 +88,13 @@ dodge_x <- position_dodge(width = 0.9)
                     ymax=SeedsNo_m2_mean+SeedsNo_m2_sd/2),
                 width=0.25, size=0.3,position=dodge_x)   +
   theme_grey(base_size = 16) +
-  facet_grid(SowTreat~., scales="free") +
+  facet_grid(.~SowTreat, scales="free") +
 theme(axis.text.x=element_text(angle = +90, hjust = 0))
 
 
 ```
+
+
 
 
 
