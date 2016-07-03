@@ -12,7 +12,7 @@ library (ggplot2)
 library(agricolae)
 library(knitr)
 library (lubridate)
-
+library(mosaic)
 
 ```
 
@@ -61,12 +61,13 @@ df_emerg %>%
   df_emerg %>%
   group_by(DAS, Cultivar,SowTreat) %>%
   summarise_each(funs(mean)) %>%
-  ggplot(aes(x=ReadingDate, y=PlantPop, 
+  ggplot(aes(x=DAS, y=PlantPop, 
              shape = factor(Cultivar),
              colour=factor(SowTreat))) + 
   geom_point() +
+    facet_wrap(~SowTreat, scales = "free", ncol=4)+
     labs(y="Number of Seedlings per m2",
-         x="Date")
+         x="Days after sowing")
   
 
 ```
@@ -166,6 +167,13 @@ df_emerg_perc_TT %>%
   geom_point()
 head(df_emerg_perc_TT)
 
+#Fit a linear function TT vs DAS
+f <- fitModel(TT_FromSow~A*DAS+B, data=df_emerg_perc_TT)
+coef(f)
+plotFun(f(DAS)~DAS,DAS.lim=range(0,70),add=TRUE, col="red")
+        
+       
+
 # graph emerg x tt
 df_emerg_perc_TT %>%
   group_by(Cultivar, SowTreat, TT_FromSow) %>%
@@ -180,4 +188,8 @@ df_emerg_perc_TT %>%
   ylab("Percentage emergence")
 
 ```
+
+
+
+
 
