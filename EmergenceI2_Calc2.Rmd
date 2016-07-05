@@ -141,19 +141,13 @@ summary(df_emerg_perc_TT)
 #save as table 
 write.table(df_emerg_perc_TT, "df_emerg_perc_TT.txt")
 
-
-# test
-df_emerg_perc_TT %>%
-  ggplot(aes(x=DAS, y=TT_FromSow, colour=factor(SowTreat))) +
-  geom_point()
-head(df_emerg_perc_TT)
-        
        
 
 # graph emerg x tt
 df_emerg_perc_TT %>%
   group_by(Cultivar, SowTreat, TT_FromSow) %>%
   #dplyr::select(-SowingDate, - ReadingDate) %>%
+  filter(Cultivar =="Antas") %>%
   summarise_each(funs(mean)) %>%
   ggplot(aes(x=TT_FromSow, y=PercEmerg)) + 
   geom_point(aes(colour=Cultivar)) +
@@ -166,124 +160,14 @@ df_emerg_perc_TT %>%
 ```
 
 ```{r}
-#Average by plots
-#dplyr used
-head(df_emerg_perc_TT)
-df_50_PercEmerg <- df_emerg_perc_TT %>%
-  group_by(Cultivar,SowTreat,DAS) %>%
-  summarise(av_Perc = mean(PercEmerg), 
-            av_TT = mean(TT_FromSow),
-            av_DAS=mean(DAS))
+#Attempt to fit a curve 
+df_emerg_perc_TT %>%
+filter(Cultivar =="Antas") %>%
+  summarise_each(funs(mean))%>%
 
-#functions use
-str(df_50_PercEmerg)
-summary(df_50_PercEmerg)
-head(df_50_PercEmerg)
+f <- fitModel(TT_FromSow~A^(+B*DAS, data=df_emerg_perc_TT)
 
-write.table(df_50_PercEmerg, "df_50_PercEmerg.txt")
-
-#  loop to calculate tt_50p_emergence for each var x sd x cv
-cv <- unique(df_50_Perc$Cultivar)
-#var <- unique(df_50_Perc$Variable)
-sow <- unique(df_50_Perc$SowTreat)
-#sowd <- unique(df_50_Perc$SowingD)
-
-# create empty df
-df_tt_50p_flow <- data.frame(
-                             Cultivar = NULL, 
-                             SowTreat = NULL,
-                             #Variable = NULL, 
-                             DAS= NULL,
-                             TT50F = NULL)
-
-#loop trough each combination of factor levels
-
-for(i in 1:length(cv)) {
-  for(j in 1:length(var)){
-    for(k in 1:length(sow)){
-      
-      # clean value holders
-      DAS_50p_flow <- 0
-      tt_50p_flow <- 0
-      
-    
-      print(paste0(cv[i]," ",var[j]," ", sow[k]))
-      # filter for each combination
-
-  df_sub <- df_50_Perc %>%
-    subset(Cultivar == as.character(cv[i]) &
-    Variable == as.character(var[j]) &
-    SowTreat == as.character(sow[k]))
-  
-  df_sub
-  
-  # create percentage with maximum value recorded 
-  # to avoid crossing the 50% line twice
-  
-  df_sub$av_Perc_max <- 0 # create new col
-  
-  for(z in 1:nrow(df_sub)) {
-    
-    df_sub$av_Perc_max[z] <- max(df_sub$av_Perc[z],
-                                 df_sub$av_Perc_max[z-1])
-    
-  }
-  
-  df_sub
-  head(df_sub)
-  tail(df_sub)
-
-  # Interpolate 
-  y_ref <- 50 # y value where we want to find x by interpolation
-  
-  # interpolate
-  #find DAS at 50 Pecent Flower 
-
-  tryCatch(  
-  DAS_50p_flow <- approx(df_sub$av_Perc_max, 
-  df_sub$av_DAS , xout = y_ref, rule = 1)$y,
-  error = function(e) 
-  {
-  DAS_50p_flow <- NA
-  }
-)
-  #find TT at 50 Pecent Flower
-  tryCatch(  
-  tt_50p_flow <- approx(df_sub$av_Perc_max, 
-  df_sub$av_TT , xout = y_ref, rule = 1)$y,
-  error = function(e) 
-  {
-  tt_50p_flow <- NA
-  }
-)
-
-  df_temp <- NULL
-  df_temp <- data.frame(Cultivar = df_sub$Cultivar[1],
-                             Variable = df_sub$Variable[1], 
-                             SowTreat = df_sub$SowTreat[1],
-                             SowingD = df_sub$SowingD[1], 
-                             DAS50F = DAS_50p_flow,
-                             TT50F = tt_50p_flow)
-                        
-  
-  df_tt_50p_flow <- rbind(df_tt_50p_flow,df_temp)
-      
-    } 
-  }
-}
-
-
-summary(df_tt_50p_flow)
-
-
-
-write.table(df_tt_50p_flow,"df_tt_50p_flow.txt")
-
-summary(df_tt_50p_flow)
-
-
-```
-
-
-
-
+ y¼a×exp{-exp[-(x - x0)/b]}
+coef(f)
+summary (f)
+summary(f)$r.squared
