@@ -129,23 +129,17 @@ TukeyHSD(my.anova)
 ```
 
 
-Graph date Propsoft  
-
-```{r Graph}
-
-  
-  
-```
-
-
 ```{r}
 
+
+# do a cluster analysis 
+
 ```
 
 
 
 
-Calculate the mean and error bars for each cultivar 
+
 
 ```{r}
   
