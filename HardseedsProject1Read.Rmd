@@ -135,7 +135,8 @@ df_seed %>%
   labs(x="Sowing Date",y="Maximum Percentage of Hardseeds") +
   theme(axis.text.x = element_text(angle = 90, hjust = 1))+
   geom_errorbar(aes(ymin=mean-sd/2,
-                    ymax=mean+sd/2))
+                    ymax=mean+sd/2))+
+  ylim(0,100)
 
 head(df_seed)
 

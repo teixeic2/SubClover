@@ -43,24 +43,27 @@ tail(df_Hvst)
 
 
 
-```
-
-Analysis of sowing date and cultivars for Bud considering Date 
 
 ```{r GraphBoxPlotBud}
 
 head(df_Hvst)
+
  df_Hvst %>%
   group_by(DAS, Cultivar,SowTreat, SowingD)%>%
   summarise_each(funs(mean)) %>%
   select(DAS, Cultivar,SowingD, SowTreat)%>%
   #filter(Variable == "Bud") %>%
   ggplot(aes(x=SowingD, y=DAS)) + 
-  geom_point(aes(colour=Cultivar)) +
+  geom_point(aes(shape=Cultivar)) +
+  geom_line(aes(colour=Cultivar))+
   #facet_grid(SowTreat~., scales = "free")+
-  facet_grid(Cultivar~., scales = "free")+
+  #facet_grid(Cultivar~., scales = "free")+
   #geom_abline(intercept = 50, slope = 0) +
+  #ylim(0,210)+
   theme(axis.text.x = element_text(angle = 90, hjust = 1))
+
+
+
 
 ```
 
