@@ -1,0 +1,158 @@
+---
+title: "First Trifo 6CV"
+author: "CT"
+date: "Thursday, December 31, 2015"
+output: html_document
+---
+
+```{r loadLibraries}
+library(tidyr)
+library (dplyr)
+library (ggplot2)
+library(agricolae)
+library(knitr)
+library (lubridate)
+
+```
+
+
+```{r loadFile}
+setwd("C:\\Users\\EdCarmen\\Documents\\CarmenProjects2016\\GitSubclover")
+getwd()
+
+#create file
+df_Trifo <- read.table("DataFirstTrifo.txt",header=TRUE)
+
+head(df_Trifo)
+
+summary(df_Trifo)
+
+colnames(df_Trifo)[1] <- "Cultivar" # fix bug of extra characters in name
+# convert to date format
+df_Trifo <- df_Trifo %>%
+mutate(SowingD=dmy(SowingD),ReadingDate=dmy(ReadingDate),  
+       Percent=(NumberPlantsFirstTrifoliate)*10)
+
+str(df_Trifo)
+head(df_Trifo)
+summary(df_Trifo)
+tail(df_Trifo)
+colnames(df_Trifo)[6] <- "Date" # change column name to merge with TT sum 
+
+summary(df_Trifo)
+
+```
+
+Analysis of sowing date and cultivars for Trifo considering Date 
+
+```{r GraphBoxPlotBud}
+
+head(df_Trifo)
+ df_Trifo %>%
+  group_by(DAS, Cultivar,SowTreat,Percent)%>%
+  summarise_each(funs(mean)) %>%
+  select(Percent, Cultivar,DAS,SowTreat)%>%
+  #filter(Cultivar == "Antas") %>%
+  ggplot(aes(x=DAS, y=Percent)) + 
+  geom_line(aes(colour=Cultivar)) +
+  facet_grid(SowTreat~Cultivar, scales = "free")+
+  #facet_grid(Cultivar~., scales = "free")+
+  geom_abline(intercept = 50, slope = 0) +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1))
+
+```
+
+
+
+
+Read Thermal Sum data. Need to include these values before 30 06 : 
+
+"1",2015-06-24,13.055375,13.055375
+"2",2015-06-25,12.44417391,25.49954891
+"3",2015-06-26,10.65429167,36.15384058
+"4",2015-06-27,10.04670833,46.20054891
+"5",2015-06-28,6.950333333,53.150882243
+"6",2015-06-29,9.378291667,62.52917391
+"
+
+```{r ReadThermalSumData}
+# read raw data
+
+#Temperatures from 24 June to 29 June included from Broadfield Niwa in excel Datalogger folder  Thermal Sum is created  in the the Thermal time project (R file) 
+
+
+
+ 
+df_TTSum <- read.table("ThermalSum.txt",header=TRUE)
+summary(df_TTSum)
+tail(df_TTSum)
+
+# convert to date format
+df_TTSum <- df_TTSum %>%
+ mutate(Date=ymd(Date))
+
+# remove extra columns
+#df_TTSum <- df_TTSum %>%
+  #dplyr::select(-MeanAirT)
+
+# check
+head(df_TTSum)
+summary(df_TTSum  )
+names(df_TTSum)
+str(df_TTSum$Date)
+tail(df_TTSum)
+
+```
+
+Merge dfs TTSum at Measurement and Sowing Date into df_Trifo
+
+```{r MergeTTSumDate}
+
+# Add Tt at measurement date
+df_Trifo <- merge(df_Trifo,df_TTSum,by="Date")
+
+# change name TT to TT at measurement
+df_Trifo <- df_Trifo %>%
+rename(TT_meas = TT)
+head(df_Trifo)
+
+# Add Tt at sowing date
+df_TTSum_mod <- df_TTSum %>%
+  mutate (SowingD = Date) %>%
+  dplyr::select (-Date)
+head(df_TTSum_mod)
+df_Trifo <- merge(df_Trifo,df_TTSum_mod, by = "SowingD")
+
+# change name TT to TT at measurement
+df_Trifo <- df_Trifo %>%
+rename(TT_sow = TT)
+
+
+#check
+head(df_Trifo)
+summary(df_Trifo )
+
+ 
+#calculate TT after sowing
+
+df_Trifo$TTAS <- df_Trifo$TT_meas-df_Trifo$TT_sow
+head(df_Trifo)
+
+df_Trifo %>%
+ # filter(SowTreat != "S6" & SowTreat != "S7")%>%
+  group_by(DAS,Cultivar,SowTreat,Percent,TTAS) %>%
+  summarise_each(funs(mean)) %>%
+  select(Percent, Cultivar,TTAS,SowTreat) %>%
+  filter(Cultivar == "Monti" | Cultivar =="Woogenellup") %>%
+  ggplot(aes(x=TTAS, y=Percent)) + 
+  #geom_bar(shape=1, stat="identity")
+  geom_line(aes(colour=Cultivar)) +
+  facet_grid(SowTreat~., scales = "free") +
+  geom_abline(intercept = 50, slope = 0)+
+  
+theme(axis.text.x = element_text(angle = 90, hjust = 1))
+
+#stop here  
+
+```
+

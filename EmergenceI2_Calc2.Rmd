@@ -22,152 +22,160 @@ setwd("C:\\Users\\EdCarmen\\Documents\\CarmenProjects2016\\GitSubclover")
 getwd()
 
 #create file
-df_emerg <- read.table("PlantPop.txt",header=TRUE)
-
-# define factors for the ones that "look like" values
-df_emerg$Plot <- as.factor(df_emerg$Plot)
-df_emerg$Block <- as.factor(df_emerg$Block)
-
- df_emerg <- df_emerg %>%
-  mutate(SowingDate = dmy(SowingDate), 
-         ReadingDate = dmy(ReadingDate),
-         PlantPop = (Sub1+Sub2+Sub3)/3/0.01)
-
-str(df_emerg)
-head(df_emerg)
-tail(df_emerg)
+df_emerg1 <- read.table("df_emerg_perc_TT.txt",header=TRUE)
+df_emerg1$ReadingDate <- ymd(df_emerg1$ReadingDate )
+df_emerg1$SowingDate <- ymd(df_emerg1$SowingDate )
+df_emerg1$Block <- as.factor(df_emerg1$Block)
+df_emerg1$Plot <- as.factor(df_emerg1$Plot)
+str(df_emerg1)
+head(df_emerg1)
+summary(df_emerg1)
 ```
 
-Calculate Mean Seedling Population in 1 m2  
+Calculate 50 PercentEmergence  
 
-```{r CalcAndGraph}
+```{r}
 
-df_emerg %>%
-  group_by(Plot) %>%
-   # plants/m2
 
+df_50_Perc <- df_emerg1 %>%
+  mutate(DAS = as.numeric(ReadingDate-SowingDate)) %>%
+  group_by(Cultivar,SowTreat, PercEmerg, 
+  ReadingDate) %>%
+  summarise(av_Perc = mean(PercEmerg), 
+            av_TT = mean(TT_FromSow),
+            av_DAS = mean(DAS)
+            )
+
+str(df_50_Perc)
+summary(df_50_Perc)
+head(df_50_Perc)
+
+write.table(df_50_Perc, "df_50_PercEmerg.txt")
+
+#  loop to calculate tt_50p_flow for each var x sd x cv
+cv <- unique(df_50_Perc$Cultivar)
+#var <- unique(df_50_Perc$PercEmerg)
+sow <- unique(df_50_Perc$SowTreat)
+sowd <- unique(df_50_Perc$SowingDate)
+
+# create empty df
+df_tt_50p_emerg <- data.frame(SowingD = NULL,
+                             Cultivar = NULL, 
+                             SowTreat = NULL,
+                             PercEmerg = NULL, 
+                             TT50Em = NULL)
+
+#loop trough each combination of factor levels
+
+for(i in 1:length(cv)) {
+#  for(j in 1:length(var)){
+    for(k in 1:length(sow)){
+      
+      # clean value holders
+      DAS_50p_emerg <- 0
+      tt_50p_emerg <- 0
+      
+      #FIX ME Partially set 
+    
+     # print(paste0(cv[i]," ",var[j]," ", sow[k]))
+      # filter for each combination
+
+  df_sub <- df_50_Perc %>%
+    subset(Cultivar == as.character(cv[i]) &
+#    Variable == as.character(var[j]) &
+    SowTreat == as.character(sow[k])) %>%
+    arrange(PercEmerg)
   
+  df_sub
+  
+  # create percentage with maximum value recorded 
+  # to avoid crossing the 50% line twice
+  
+  df_sub$av_Perc_max <- 0 # create new col
+  
+  for(z in 1:nrow(df_sub)) {
+    
+    df_sub$av_Perc_max[z] <- max(df_sub$av_Perc[z],
+                                 df_sub$av_Perc_max[z-1])
+    
+  }
+  
+  df_sub
+  head(df_sub)
+  tail(df_sub)
+
+  # Interpolate 
+  y_ref <- 50 # y value where we want to find x by interpolation
+  
+  # interpolate
+  #find DAS at 50 Pecent Emergence 
+
+  tryCatch(  
+  DAS_50p_emerg <- approx(df_sub$av_Perc_max, 
+  df_sub$av_DAS , xout = y_ref, rule = 1)$y,
+  error = function(e) 
+  {
+  DAS_50p_emerg <- NA
+  }
+)
+  #find TT at 50 Pecent Emergence
+  tryCatch(  
+  tt_50p_flow <- approx(df_sub$av_Perc_max, 
+  df_sub$av_TT , xout = y_ref, rule = 1)$y,
+  error = function(e) 
+  {
+  tt_50p_emerg <- NA
+  }
+)
+
+  df_temp <- NULL
+  df_temp <- data.frame(Cultivar = df_sub$Cultivar[1],
+                             PercEmerg = df_sub$PercEmerg[1], 
+                             SowTreat = df_sub$SowTreat[1],
+                          #   SowingD = df_sub$SowingDate[1], 
+                             DAS50F = DAS_50p_emerg,
+                             TT50F = tt_50p_emerg)
+                        
+  
+  df_tt_50p_emerg <- rbind(df_tt_50p_emerg,df_temp)
+      
+    } 
+  }
+}
+
+
+summary(df_tt_50p_emerg)
+
+write.table(df_tt_50p_emerg,"df_tt_50p_emerg.txt")
+
+summary(df_tt_50p_emerg)
+
+```
+
+not yet ready 
+
+```{r GraphResults}
+
+df_tt_50p_flow %>%
+  filter( SowTreat != "S6" & SowTreat != "S7")%>%
+  ggplot(aes(x=SowingD,y=DAS50F,colour=Cultivar))+
+  geom_point()+
+  facet_grid(Variable~.)+
+  geom_line()
+
+df_tt_50p_flow %>%
+    filter( SowTreat != "S6" & SowTreat != "S7")%>%
+  ggplot(aes(x=SowingD,y=TT50F,colour=Cultivar))+
+  geom_point()+
+  facet_grid(Variable~.)+
+  geom_line()
+
+summary(df_tt_50p_flow)
+
 
 ```
 
 
-```{r CacluatePercentageEmergence }
-
-df_emerg_perc <- df_emerg %>%
-group_by(Plot) %>%
-mutate(PercEmerg = round(PlantPop/max(PlantPop)*100,digits=2))
-
-# Check
-summary(df_emerg_perc)
-tail(df_emerg_perc)
-df_emerg_perc %>%  filter(Plot=="2")
-
- #Graph         
-  df_emerg_perc %>%
-  group_by(Cultivar, SowTreat, DAS) %>%
-#  filter(Cultivar =="Monti") %>%
-  dplyr::select(-SowingDate, - ReadingDate) %>%
-  summarise_each(funs(mean)) %>%
-  ggplot(aes(x=DAS, y=PercEmerg)) + 
-  geom_point(aes(colour=Cultivar)) +
-  geom_line(aes(colour=Cultivar)) +
-  facet_wrap (~SowTreat,ncol=4, scales = "free")+
-  labs(y="Percentage  of Seedling emergence",x="Days after sowing") +
-  geom_abline(intercept = 50, slope = 0)
-
-```
-
-Read Thermal Sum data. Need to include these values before 30 06 : 
-
-"1",2015-06-24,13.055375,13.055375
-"2",2015-06-25,12.44417391,25.49954891
-"3",2015-06-26,10.65429167,36.15384058
-"4",2015-06-27,10.04670833,46.20054891
-"5",2015-06-28,6.950333333,53.150882243
-"6",2015-06-29,9.378291667,62.52917391
-"
 
 
-```{r ThermalTime}
-#Fix me include air  temperature of dates that logger was not working 
 
-df_TTSum <- read.table("ThermalSum.txt",header=TRUE)
-
-# convert to date format
-df_TTSum <- df_TTSum %>%
- mutate(Date=ymd(Date))
-
-# check
-head(df_TTSum)
-summary(df_TTSum  )
-names(df_TTSum)
-str(df_TTSum$Date)
-tail(df_TTSum)
-
-```
-
-Merge the dataframes 
-
-```{r}
-
-head(df_TTSum)
-
-# temporary df to do merge 1
-df_tmp <- df_TTSum
-colnames(df_tmp) <- c("ReadingDate", "TT_Reading")
-head(df_tmp)
-
-
-# Merge Tt at measurement date
-df_emerg_perc_TT <- NULL
-df_emerg_perc_TT <- merge(df_emerg_perc,df_tmp,by="ReadingDate")
-head(df_emerg_perc_TT)
-
-
-# temporary df to do merge 1
-df_tmp <- df_TTSum
-colnames(df_tmp) <- c("SowingDate", "TT_SowingDate")
-head(df_tmp)
-
-# Merge Tt at measurement date
-df_emerg_perc_TT <- merge(df_emerg_perc_TT,df_tmp,by="SowingDate")
-head(df_emerg_perc_TT)
-
-
-# calculates TT from sowing at measurement date
-df_emerg_perc_TT <- df_emerg_perc_TT %>%
-  mutate(TT_FromSow = TT_Reading - TT_SowingDate)
-summary(df_emerg_perc_TT)
-#save as table 
-write.table(df_emerg_perc_TT, "df_emerg_perc_TT.txt")
-
-       
-
-# graph emerg x tt
-df_emerg_perc_TT %>%
-  group_by(Cultivar, SowTreat, TT_FromSow) %>%
-  #dplyr::select(-SowingDate, - ReadingDate) %>%
-  filter(Cultivar =="Antas") %>%
-  summarise_each(funs(mean)) %>%
-  ggplot(aes(x=TT_FromSow, y=PercEmerg)) + 
-  geom_point(aes(colour=Cultivar)) +
-  geom_line(aes(colour=Cultivar)) +
-  facet_wrap (~SowTreat,ncol=4, scales = "free")+
-  geom_abline(intercept = 50, slope = 0) +
-  xlab("Thermal-time from sowing") +
-  ylab("Percentage emergence")
-
-```
-
-```{r}
-#Attempt to fit a curve 
-df_emerg_perc_TT %>%
-filter(Cultivar =="Antas") %>%
-  summarise_each(funs(mean))%>%
-
-f <- fitModel(TT_FromSow~A^(+B*DAS, data=df_emerg_perc_TT)
-
- y¼a×exp{-exp[-(x - x0)/b]}
-coef(f)
-summary (f)
-summary(f)$r.squared

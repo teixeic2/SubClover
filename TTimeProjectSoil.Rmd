@@ -1,0 +1,84 @@
+
+---
+title: "ThermalTime"
+author: "CT"
+date: "Friday, January 01, 2016"
+output: html_document
+---
+
+
+```{r}
+library(tidyr)
+library (dplyr)
+library (ggplot2)
+library (lubridate)
+```
+
+Note: the file is called HistoricMeanTemp but actually contains the hobologger data Iversen 2
+
+```{rload file}
+setwd("C:\\Users\\EdCarmen\\Documents\\CarmenProjects2016\\GitSubclover")
+getwd()
+
+
+df_file <- read.table("SoilTemp.txt", header=TRUE)
+
+head(df_file)
+
+#keep this scirpt for the real weather data
+
+
+
+
+```
+
+
+
+```{r Soiltemp_mean}
+#Calculculate Mean Soil temp 
+
+df_file$Date <- dmy(df_file$Date)
+
+df_file <- df_file%>%
+group_by(Date)%>%
+summarise_each(funs(mean))
+head(df_file)
+
+#graph meanAir Temp
+
+df_file %>% 
+ggplot(aes(x=Date, y= TempSoil10mm)) +
+  labs(y="Soil Temperature (Degree Celsius)10mm",x="Date")+
+    geom_line()
+
+```
+
+
+Calculate accumulated TT
+
+```{r}
+
+df_file <- df_file%>%
+group_by(Date) %>%
+summarise_each(funs(mean))%>%
+  mutate(TT = cumsum(TempSoil10mm))%>%
+ # dplyr::select(-hour,-Air)
+  dplyr::select(-TempSoil10mm) # 
+
+write.table(df_file, "ThermalSumSoil.txt")
+
+```
+
+
+Graph it 
+
+
+```{r graph}
+
+df_file %>% 
+ggplot(aes(x=Date, y= TT)) +
+   labs(y="Accumulated Thermal time (DCd)",x="Date")+ geom_line()
+
+```
+
+

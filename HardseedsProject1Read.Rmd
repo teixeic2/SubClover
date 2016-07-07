@@ -133,6 +133,7 @@ df_seed %>%
   geom_line() +
  facet_grid(.~Cultivar) +
   labs(x="Sowing Date",y="Maximum Percentage of Hardseeds") +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1))+
   geom_errorbar(aes(ymin=mean-sd/2,
                     ymax=mean+sd/2))
 
