@@ -2,7 +2,7 @@
 title: "Hardseeds 6CV"
 author: "CT"
 date: "Thursday, FEbruary 3, 2015"
-output: html_document
+output: word_document
 ---
 
 ```{r loadLibraries}
@@ -12,6 +12,8 @@ library (ggplot2)
 library(agricolae)
 library(knitr)
 library (lubridate)
+library(markdown)
+#install.packages(markdown)
 
 ```
 
