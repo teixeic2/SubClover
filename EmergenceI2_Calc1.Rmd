@@ -51,7 +51,7 @@ df_emerg %>%
 ```
 
 
-```{r CacluatePercentageEmergence }
+```{r CalculatePercentageEmergence }
 
 df_emerg_perc <- df_emerg %>%
 group_by(Plot) %>%
@@ -63,8 +63,7 @@ tail(df_emerg_perc)
 df_emerg_perc %>%  filter(Plot=="2")
 
  #Graph         
-  df_emerg_perc %>%
-  group_by(Cultivar, SowTreat, DAS) %>%
+  df_emerg_perc %>%  group_by(Cultivar, SowTreat, DAS) %>%
 #  filter(Cultivar =="Monti") %>%
   dplyr::select(-SowingDate, - ReadingDate) %>%
   summarise_each(funs(mean)) %>%
@@ -77,6 +76,35 @@ df_emerg_perc %>%  filter(Plot=="2")
 
 ```
 
+Create Graph Percent emergence with Mean Soil Temperature 
+```{r}
+
+setwd("C:\\Users\\EdCarmen\\Documents\\CarmenProjects2016\\GitSubclover")
+getwd()
+
+
+df_fileSo <- read.table("SoilTemp.txt", header=TRUE)
+
+head(df_fileSo)%>%
+  
+mutate(ReadingDate = dmy(Date))%>%
+  dplyr:: select(-Date)
+df_fileSo$ReadingDate <- as.ddmmyy(df_fileSo$ReadingDate)
+str(df_fileSo)
+
+head(df_emerg_perc)
+
+#PROBLEM HERE WHY CAN NOT MERGE BY READING DATE? 
+# Merge SoilTemp and Emergence  at measurement date
+df_emerg_perc_SoilT <- NULL
+df_emerg_perc_SoilT <- merge(df_emerg_perc,df_fileSo,by="ReadingDate")
+head(df_emerg_perc_SoilT)
+
+
+```
+
+
+
 Merge with soil temperature to relate Percentage emergence vs Soil Temp.
 
 ```{r SoilTemp}
@@ -87,6 +115,7 @@ head(df_SoilTT)
 # convert to date format
 df_SoilTT <- df_SoilTT %>%
  mutate(Date=ymd(Date))
+
 
 # check
 head(df_SoilTT)
@@ -133,7 +162,7 @@ write.table(df_emerg_perc_TT, "df_emerg_perc_TT.txt")
 df_emerg_perc_TT %>%
   group_by(Cultivar, SowTreat, TT_FromSow) %>%
   #dplyr::select(-SowingDate, - ReadingDate) %>%
-  filter(Cultivar =="Antas") %>%
+  filter(Cultivar =="Narrikup") %>%
   summarise_each(funs(mean)) %>%
   ggplot(aes(x=TT_FromSow, y=PercEmerg)) + 
   geom_point(aes(colour=Cultivar)) +
@@ -150,7 +179,7 @@ Ate aqui!
 ```{r}
 #Attempt to fit a curve 
 df_emerg_perc_TT %>%
-filter(Cultivar =="Antas") %>%
+filter(Cultivar =="Narrikup") %>%
   summarise_each(funs(mean))%>%
 
 f <- fitModel(TT_FromSow~A^(+B*DAS, data=df_emerg_perc_TT)

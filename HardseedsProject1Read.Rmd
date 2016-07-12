@@ -58,6 +58,7 @@ g1 %>%
   geom_point() +
   geom_line() +
   labs(x="Hardseed Assessment",y="Cummulative Proportion Hardseeds") +
+  ylim(0,1)+
   facet_grid(SowTreat~Depth)
 
 
