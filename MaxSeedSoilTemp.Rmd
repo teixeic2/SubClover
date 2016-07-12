@@ -59,75 +59,18 @@ Calculate the mean and error bars for each cultivar
 
 ```{r}
 df_seed %>%
-  group_by(Cultivar,Plot, Block,MeanSoilTemp ) %>%
+  group_by(Cultivar,MeanSoilTemp ) %>%
   dplyr::select(MaxSeedlingPerm2) %>%
   summarise_each(funs(mean,sd)) %>%
   ggplot(aes(x=MeanSoilTemp, y=mean, colour=factor(Cultivar), shape=factor(Cultivar))) +
   geom_point() +
   #geom_line() +
- facet_grid(.~Cultivar) +
+ #facet_grid(.~Cultivar) +
   labs(x="Mean Soil Temperature",y="Maximum Number of seedlings") +
   theme(axis.text.x = element_text(angle = 90, hjust = 1))+
   geom_errorbar(aes(ymin=mean-sd/2,
                     ymax=mean+sd/2))+
   ylim(0,3500)
-
-#parei aqui
-head(df_seed)
-
-df_seedANOVA <- df_seed %>%
-mutate(hardSeed = 100-PropSoft) %>%
-filter(Round == 1) 
-
-
-
-#ANOVA
-
-#data transformation
-df_seedANOVA$transf_no <- 1*(df_seedANOVA$hardSeed)
-df_seedANOVA$transf_sqr <- sqrt(df_seedANOVA$hardSeed)
-df_seedANOVA$transf_log <- log(df_seedANOVA$hardSeed)
-df_seedANOVA$transf_acos <- acos(df_seedANOVA$hardSeed/100)
-
-head(df_seedANOVA)
-
-file <- df_seedANOVA
-
-x <- c( "transf_no",  "transf_sqr", "transf_log", "transf_acos")
-colsSelec <- match(x,colnames(file))
-
-file %>%
-  tidyr::gather("transformation","value",colsSelec) %>%
-  ggplot(aes(value)) + 
-  geom_histogram() +
-  facet_grid(.~transformation, scales="free")
-
-head(file)
-
-#normality test
-#tranform log was the best histogram so continue with it 
-shapiro.test(file$transf_log)
-
-#QQplot
-var<-file$transf_log
-qqnorm(var)
-qqline(var, col = 2)
-qqplot(var, rt(300))
-
-#-------------------------------------------------
-
-# Chosen transform log to do anova 
-file.subset <- file 
-
-head(file.subset, 50)
-summary(file.subset)
-my.anova <- aov(transf_acos ~ Cultivar*SowTreat + Block, data = file.subset)
-
-summary(my.anova)
-TukeyHSD(my.anova)
-
-#Means separation 
-(LSD.test(my.anova, c("Cultivar","SowTreat"), alpha= 0.05, p.adj="none")) 
 
 
 ```
