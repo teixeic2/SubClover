@@ -253,20 +253,8 @@ write.table(df_flower, "df_flower.txt")
 
 #Graph only Bud and Bur 4 
 
-df_flower %>%
-  mutate(Variable = 
-  factor(Variable,levels = c("Bud","Early","Open",
-          "Petal","Bur1","Bur2","Bur3","Bur4"  ))) %>%
-  group_by(DAS,TTAS,Cultivar,SowTreat,Variable) %>%
-  summarise_each(funs(mean)) %>%
-  select(DAS,Variable,Percent, Cultivar,TTAS,SowTreat) %>%
-  filter(Cultivar == "Narrikup" | Cultivar == "Denmark" ) %>%
-  filter(Variable == "Bud"| Variable =="Bur4") %>%
-  ggplot(aes(x=DAS, y=Percent)) + 
-  geom_line(aes(colour=Cultivar)) +
-  facet_grid(SowTreat~Variable, scales = "free") +
-  geom_abline(intercept = 50, slope = 0)+
-theme(axis.text.x = element_text(angle = 60, hjust = 1))
+
+
 
 
 

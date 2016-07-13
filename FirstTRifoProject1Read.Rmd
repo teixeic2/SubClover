@@ -45,7 +45,7 @@ summary(df_Trifo)
 
 Analysis of sowing date and cultivars for Trifo considering Date 
 
-```{r GraphBoxPlotBud}
+```{r GraphBoxPlot}
 
 head(df_Trifo)
  df_Trifo %>%
@@ -90,7 +90,7 @@ tail(df_TTSum)
 # convert to date format
 df_TTSum <- df_TTSum %>%
  mutate(Date=ymd(Date))
-
+head(df_TTSum)
 # remove extra columns
 #df_TTSum <- df_TTSum %>%
   #dplyr::select(-MeanAirT)
@@ -143,7 +143,7 @@ df_Trifo %>%
   group_by(DAS,Cultivar,SowTreat,Percent,TTAS) %>%
   summarise_each(funs(mean)) %>%
   select(Percent, Cultivar,TTAS,SowTreat) %>%
-  filter(Cultivar == "Monti" | Cultivar =="Woogenellup") %>%
+  filter(Cultivar == "Monti" | Cultivar =="Leura") %>%
   ggplot(aes(x=TTAS, y=Percent)) + 
   #geom_bar(shape=1, stat="identity")
   geom_line(aes(colour=Cultivar)) +
