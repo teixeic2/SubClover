@@ -42,10 +42,11 @@ tail(df_seed)
 ```
 
 
+
 ```{rCreate Percent Soft}
 
 g1 <- df_seed %>%
-  dplyr::select(-Date) %>%
+  dplyr::select(-Date) %>% # 
   group_by(SowTreat,Cultivar,Depth, Plot) %>% # need to keep level in which cumulation occurs
   arrange(Round) %>% # need to tell which factor to accumulate within
   mutate(Soft_cum = cumsum(Soft)) %>%
@@ -60,7 +61,7 @@ g1 %>%
   geom_point() +
   geom_line() +
   labs(x="Hardseed Assessment",y="Cummulative Proportion Hardseeds") +
-  ylim(0,1)+
+  #ylim(0,1)+
   facet_grid(SowTreat~Depth)
 
 
@@ -82,6 +83,68 @@ df_seed %>%
 
 ```
 
+
+```{r}
+
+df_soft_plot <- df_seed %>%
+  dplyr::select(-Date) %>%
+  group_by(SowTreat,Cultivar,Depth, Plot) %>% # need to keep level in which cumulation occurs
+  arrange(Round) %>% # need to tell which factor to accumulate within
+  mutate(Soft_cum = cumsum(Soft)) %>%
+  mutate(PercSoftCum=Soft_cum/max(SeedNumber))
+
+plots <- unique(df_soft_plot$Plot)
+depth <- unique(df_soft_plot$Depth)
+
+for(p in 1:length(plots)) {
+  for(d in 1:length(depth)) {
+  
+  df_sub <- subset(df_soft_plot, (df_soft_plot$Plot==plots[p] & Depth == depth[d]))
+  
+  x <- df_sub$Round
+  y <- df_sub$PercSoftCum
+  
+  print(data.frame(x=x,y=y))
+  
+  
+  fit <- NULL
+  fit <- lm(y ~ x)
+  
+  intercept <- fit$coefficients[[1]]
+  slope <- fit$coefficients[[2]]
+  r2 <- summary(fit)$r.squared * 100
+  # summary(fit)$adj.r.squared
+  block <- df_sub$Block[1]
+  cv <- as.character(df_sub$Cultivar[1])
+  sow <- as.character(df_sub$SowTreat[1])
+  sd <- dmy(df_sub$SowingD[1])
+  
+  
+  buf <- c(sow,cv,block, plots[p],  depth[d], intercept, slope, r2)
+  
+    if (p==1 & d==1) {
+    all.data <- data.frame(
+    sow = sow,
+    cv = cv,
+     block = block, 
+    plot = plots[p],  
+    depth = depth[d], 
+    int = intercept, 
+    slope = slope, 
+    r2 = r2
+    ) } else{
+    all.data <- rbind(all.data,buf)
+  }
+  
+  
+
+  }
+  
+}
+
+summary(all.data)
+
+```
 
 
 Graph date Propsoft  
