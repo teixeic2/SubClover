@@ -65,14 +65,14 @@ Analysis of Sowing dates and variables (from bud to bur4) considering DAS
 ```{r GraphSowingDateAndVariable}
 
 df_flower %>%
-  filter(SowTreat == "S4")%>%
+  filter(SowTreat != "S6" & SowTreat != "S7")%>%
   mutate(Variable = 
   factor(Variable,levels = c("Bud","Early","Open",
           "Petal","Bur1","Bur2","Bur3","Bur4" ))) %>%
   group_by(DAS,Cultivar,SowTreat,Variable) %>%
   summarise_each(funs(mean)) %>%
   select(Variable,Percent, Cultivar,DAS,SowTreat) %>%
-  filter(Cultivar == "MOnti" | Cultivar =="Woogenellup") %>%
+  filter(Cultivar == "Monti" | Cultivar =="Woogenellup") %>%
   ggplot(aes(x=DAS, y=Percent)) + 
   #geom_bar(shape=1, stat="identity")
   geom_line(aes(colour=Cultivar)) +

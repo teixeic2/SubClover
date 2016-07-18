@@ -95,14 +95,14 @@ df_soft_plot <- df_seed %>%
 
 plots <- unique(df_soft_plot$Plot)
 depth <- unique(df_soft_plot$Depth)
-
+all.data <- NULL
 for(p in 1:length(plots)) {
   for(d in 1:length(depth)) {
   
   df_sub <- subset(df_soft_plot, (df_soft_plot$Plot==plots[p] & Depth == depth[d]))
   
   x <- df_sub$Round
-  y <- df_sub$PercSoftCum
+  y <- 1-df_sub$PercSoftCum
   
   print(data.frame(x=x,y=y))
   
@@ -110,9 +110,9 @@ for(p in 1:length(plots)) {
   fit <- NULL
   fit <- lm(y ~ x)
   
-  intercept <- fit$coefficients[[1]]
-  slope <- fit$coefficients[[2]]
-  r2 <- summary(fit)$r.squared * 100
+  intercept <- round(fit$coefficients[[1]],2)
+  slope <- round(fit$coefficients[[2]],3)
+  r2 <- round(summary(fit)$r.squared * 100,2)
   # summary(fit)$adj.r.squared
   block <- df_sub$Block[1]
   cv <- as.character(df_sub$Cultivar[1])
@@ -120,20 +120,22 @@ for(p in 1:length(plots)) {
   sd <- dmy(df_sub$SowingD[1])
   
   
-  buf <- c(sow,cv,block, plots[p],  depth[d], intercept, slope, r2)
+  buf <- c(sow,cv,block, plots[p],  depth[d], intercept, slope, r2, nrow(df_sub))
+  print(buf)
   
     if (p==1 & d==1) {
     all.data <- data.frame(
     sow = sow,
     cv = cv,
-     block = block, 
+    block = block, 
     plot = plots[p],  
     depth = depth[d], 
     int = intercept, 
     slope = slope, 
-    r2 = r2
+    r2 = r2,
+   n= nrow(df_sub)
     ) } else{
-    all.data <- rbind(all.data,buf)
+    all.data <- rbind(all.data, buf)
   }
   
   
