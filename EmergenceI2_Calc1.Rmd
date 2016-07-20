@@ -85,16 +85,17 @@ getwd()
 
 df_fileSo <- read.table("SoilTemp.txt", header=TRUE)
 
-head(df_fileSo)%>%
-  
-mutate(ReadingDate = dmy(Date))%>%
-  dplyr:: select(-Date)
-df_fileSo$ReadingDate <- as.ddmmyy(df_fileSo$ReadingDate)
+head(df_fileSo)
+
+df_fileSo <- df_fileSo %>%
+mutate(ReadingDate = dmy(Date)) %>%
+dplyr:: select(-Date)
 str(df_fileSo)
 
 head(df_emerg_perc)
+head(df_fileSo)
 
-#PROBLEM HERE WHY CAN NOT MERGE BY READING DATE? 
+ 
 # Merge SoilTemp and Emergence  at measurement date
 df_emerg_perc_SoilT <- NULL
 df_emerg_perc_SoilT <- merge(df_emerg_perc,df_fileSo,by="ReadingDate")
@@ -104,8 +105,6 @@ head(df_emerg_perc_SoilT)
 ```
 
 
-
-Merge with soil temperature to relate Percentage emergence vs Soil Temp.
 
 ```{r SoilTemp}
 # include soil  temperature before 30 June_lysimeter  
@@ -137,16 +136,9 @@ head(df_tmp)
 df_emerg_perc_TT <- NULL
 df_emerg_perc_TT <- merge(df_emerg_perc,df_tmp,by="ReadingDate")
 head(df_emerg_perc_TT)
+tail(df_emerg_perc_TT)
 
 
-# temporary df to do merge 1
-df_tmp <- df_SoilTT
-colnames(df_tmp) <- c("SowingDate", "TT_SowingDate")
-head(df_tmp)
-
-# Merge Tt at measurement date
-df_emerg_perc_TT <- merge(df_emerg_perc_TT,df_tmp,by="SowingDate")
-head(df_emerg_perc_TT)
 
 
 # calculates TT from sowing at measurement date
@@ -154,7 +146,7 @@ df_emerg_perc_TT <- df_emerg_perc_TT %>%
   mutate(TT_FromSow = TT_Reading - TT_SowingDate)
 summary(df_emerg_perc_TT)
 #save as table 
-write.table(df_emerg_perc_TT, "df_emerg_perc_TT.txt")
+write.table(df_emerg_perc_TT, "df_emerg_perc_soilTT.txt")
 
        
 
@@ -171,7 +163,6 @@ df_emerg_perc_TT %>%
   geom_abline(intercept = 50, slope = 0) +
   xlab("Thermal-time from sowing") +
   ylab("Percentage emergence")
-
 
 
 ```
