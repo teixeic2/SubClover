@@ -136,6 +136,7 @@ summary(df_emerg_perc_TT)
 
 #save as table 
 write.table(df_emerg_perc_TT, "df_emerg_perc_soilTT.txt")
+head(df_emerg_perc_TT )
 
 # graph emerg x tt
 df_emerg_perc_TT %>%

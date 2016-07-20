@@ -46,6 +46,8 @@ summary(file)
 
 ```
 
+Seeds per Burr 
+
 ```{r}
 
 # Seeds per Burr 
@@ -130,7 +132,7 @@ TukeyHSD(my.anova)
 
 
 
-
+TSW
 
 ```{r}
 
@@ -211,21 +213,48 @@ TukeyHSD(my.anova)
 
 ```
 
-
+Seed density (seeds per m2)
 ```{r}
 
 
-#data transformation
+#barplot Seedperm2
 
-df_bur$transf_sqr <- sqrt(df_bur$PropBurrBuried)
-df_bur$transf_log <- log(df_bur$PropBurrBuried)
-df_bur$transf_acos <- acos(df_bur$PropBurrBuried/100)
+#The palette with grey:
+cbPalette <- c("#999999", "#666666", "#56B4E9", "#009E73", "#D55E00", "#0072B2","#999999", "#E69F00", "#56B4E9", "#009E73", "#D55E00", "#0072B2","#56B4E9", "#009E73")
 
-head(df_bur)
 
-file <- df_bur
+# define position of bar and errorbar
+dodge_x <- position_dodge(width = 0.9)
 
-x <- c("transf_sqr", "transf_log", "transf_acos")
+
+
+
+ file %>%
+  group_by(Cultivar, SowTreat, Layer) %>%
+  summarise_each(funs(mean,sd)) %>%
+  ggplot(aes(x=Cultivar, y=(Seedsperm2_mean))) +
+  geom_bar(stat="identity",position = dodge_x) +
+  geom_errorbar(aes(ymin=Seedsperm2_mean-Seedsperm2_sd/2, ymax=Seedsperm2_mean+Seedsperm2_sd/2),
+                width=0.25, size=0.3,position=dodge_x)   +
+  theme_grey(base_size = 16) +
+     facet_grid(Layer~SowTreat) +
+    labs(y="Seeds per m2") +
+theme(axis.text.x=element_text(angle = +89, hjust = 0.95))
+head(file)
+
+#ANOVA Seedsperm2 
+
+#data transformation or not (1*)
+
+file$transf_sqr <- sqrt(file$Seedsperm2)
+
+file$transf_no <- 1*(file$Seedsperm2)
+
+
+head(file)
+
+
+x <- c("transf_sqr", "transf_no" )
 colsSelec <- match(x,colnames(file))
 
 file %>%
@@ -237,35 +266,112 @@ file %>%
 head(file)
 
 #normality test
-shapiro.test(file$transf_acos)
+shapiro.test(file$transf_sqr)
 
 #QQplot
-var<-file$transf_acos
+var<-file$transf_sqr
 qqnorm(var)
 qqline(var, col = 2)
 qqplot(var, rt(300))
 
 #-------------------------------------------------
-# ANOVA (selecing by hand FIXME: do loop)
-# file.subset <- file %>% subset(SowTreat == "S2" & round==1)
+# ANOVA 
+
 file.subset <- file 
 
-head(file.subset, 50)
+head(file.subset, 80)
 summary(file.subset)
-my.anova <- aov(transf_acos ~ Cultivar*SowTreat + Block, data = file.subset)
+my.anova <- aov(transf_no ~ Layer*Cultivar*SowTreat + Block, data = file.subset)
 
 summary(my.anova)
 TukeyHSD(my.anova)
+
+
+
+#Means separation 
+(LSD.test(my.anova, "SowTreat", alpha= 0.05, p.adj="none")) 
+```
+
+
+Grams seeds per m2 
+
+
+```{r}
+##barplot gSeeds perm2
+
+#The palette with grey:
+cbPalette <- c("#999999", "#666666", "#56B4E9", "#009E73", "#D55E00", "#0072B2","#999999", "#E69F00", "#56B4E9", "#009E73", "#D55E00", "#0072B2","#56B4E9", "#009E73")
+
+
+# define position of bar and errorbar
+dodge_x <- position_dodge(width = 0.9)
+
+
+
+
+ file %>%
+  group_by(Cultivar, SowTreat, Layer) %>%
+  summarise_each(funs(mean,sd)) %>%
+  ggplot(aes(x=Cultivar, y=(gseedsperm2_mean))) +
+  geom_bar(stat="identity",position = dodge_x) +
+  geom_errorbar(aes(ymin=gseedsperm2_mean-gseedsperm2_sd/2, ymax=gseedsperm2_mean+gseedsperm2_sd/2),
+                width=0.25, size=0.3,position=dodge_x)   +
+  theme_grey(base_size = 16) +
+     facet_grid(Layer~SowTreat) +
+    labs(y="Grams seeds per m2") +
+theme(axis.text.x=element_text(angle = +89, hjust = 0.95))
+head(file)
+
+#ANOVA grams of seedsperm2 
+
+#data transformation or not (1*)
+
+file$transf_sqr <- sqrt(file$Seedsperm2)
+
+file$transf_no <- 1*(file$Seedsperm2)
+
+
+head(file)
+
+
+x <- c("transf_sqr", "transf_no" )
+colsSelec <- match(x,colnames(file))
+
+file %>%
+  tidyr::gather("transformation","value",colsSelec) %>%
+  ggplot(aes(value)) + 
+  geom_histogram() +
+  facet_grid(.~transformation, scales="free")
+
+head(file)
+
+#normality test
+shapiro.test(file$transf_sqr)
+
+#QQplot
+var<-file$transf_sqr
+qqnorm(var)
+qqline(var, col = 2)
+qqplot(var, rt(300))
+
+#-------------------------------------------------
+# ANOVA 
+
+file.subset <- file 
+
+head(file.subset, 80)
+summary(file.subset)
+my.anova <- aov(transf_no ~ Layer*Cultivar*SowTreat + Block, data = file.subset)
+
+summary(my.anova)
+TukeyHSD(my.anova)
+
+
 
 #Means separation 
 (LSD.test(my.anova, "SowTreat", alpha= 0.05, p.adj="none")) 
 
 ```
-
-
-
-
-
 
 
 
