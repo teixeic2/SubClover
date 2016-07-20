@@ -111,8 +111,9 @@ head(df_emerg_perc_SoilT)
 
 df_SoilTT <- read.table("ThermalSumSoil.txt",header=TRUE)
 head(df_SoilTT)
+
 # convert to date format
-df_SoilTT <- df_SoilTT %>%
+df_SoilTT <- as.data.frame(df_SoilTT) %>%
  mutate(Date=ymd(Date))
 
 
@@ -126,40 +127,26 @@ Merge the dataframes
 
 ```{r}
 
-# temporary df to do merge 1
-df_tmp <- df_SoilTT
-colnames(df_tmp) <- c("ReadingDate", "TT_Reading")
-head(df_tmp)
-
-
 # Merge Tt at measurement date
 df_emerg_perc_TT <- NULL
-df_emerg_perc_TT <- merge(df_emerg_perc,df_tmp,by="ReadingDate")
-head(df_emerg_perc_TT)
-tail(df_emerg_perc_TT)
-
-
-
-
-# calculates TT from sowing at measurement date
-df_emerg_perc_TT <- df_emerg_perc_TT %>%
-  mutate(TT_FromSow = TT_Reading - TT_SowingDate)
+df_emerg_perc_TT <- merge(df_emerg_perc,df_SoilTT,by.x="ReadingDate",by.y="Date")
+df_emerg_perc_TT <- merge(df_emerg_perc_TT,df_SoilTT,by.x="SowingDate",by.y="Date")
+df_emerg_perc_TT$TT_to_emerg <- df_emerg_perc_TT$TT.x-df_emerg_perc_TT$TT.y
 summary(df_emerg_perc_TT)
+
 #save as table 
 write.table(df_emerg_perc_TT, "df_emerg_perc_soilTT.txt")
 
-       
-
 # graph emerg x tt
 df_emerg_perc_TT %>%
-  group_by(Cultivar, SowTreat, TT_FromSow) %>%
+  group_by(Cultivar, SowTreat, TT_to_emerg) %>%
   #dplyr::select(-SowingDate, - ReadingDate) %>%
-  filter(Cultivar =="Narrikup") %>%
+#  filter(Cultivar =="Narrikup") %>%
   summarise_each(funs(mean)) %>%
-  ggplot(aes(x=TT_FromSow, y=PercEmerg)) + 
-  geom_point(aes(colour=Cultivar)) +
-  geom_line(aes(colour=Cultivar)) +
-  facet_wrap (~SowTreat,ncol=4, scales = "free")+
+  ggplot(aes(x=TT_to_emerg, y=PercEmerg,colour=factor(SowTreat))) + 
+  geom_point() +
+  geom_line() +
+  facet_grid (Cultivar~., scales = "free")+
   geom_abline(intercept = 50, slope = 0) +
   xlab("Thermal-time from sowing") +
   ylab("Percentage emergence")
