@@ -65,20 +65,20 @@ head(df_50_Perc)
 #sow <- unique(df_50_Perc$SowTreat)
 #sowd <- unique(df_50_Perc$SowingDate)
 plots <- unique(df_50_Perc$Plot)
-plotNo <- length(plot)
+ 
 
 # create empty df
-df_tt_50p_emerg <- data.frame(Plot = NULL,
-                              Block = NULL,
-                             SowingD = NULL,
-                             Cultivar = NULL, 
-                             SowTreat = NULL,
-                             PercEmerg = NULL, 
-                             TT50Em = NULL)
+# df_tt_50p_emerg <- data.frame(Plot = NULL,
+#                               Block = NULL,
+#                              SowingD = NULL,
+#                              Cultivar = NULL, 
+#                              SowTreat = NULL,
+#                              PercEmerg = NULL, 
+#                              TT50Em = NULL)
 
 #loop trough each combination of factor levels
 
-for(p in 1:plotNo) {
+for(p in 1:length(plots)) {
 #  for(j in 1:length(var)){
  #   for(k in 1:length(sow)){
       
@@ -124,7 +124,7 @@ for(p in 1:plotNo) {
   #find DAS at 50 Pecent Emergence 
 
   tryCatch(  
-  DAS_50p_emerg <- approx(df_sub$av_Perc_max, 
+  DAS_50p_emerg <- approx(df_sub$PercEmerg, 
   df_sub$av_DAS , xout = y_ref, rule = 1)$y,
   error = function(e) 
   {
@@ -133,7 +133,7 @@ for(p in 1:plotNo) {
 )
   #find TT at 50 Pecent Emergence
   tryCatch(  
-  tt_50p_flow <- approx(df_sub$av_Perc_max, 
+  tt_50p_emerg <- approx(df_sub$av_Perc, 
   df_sub$av_TT , xout = y_ref, rule = 1)$y,
   error = function(e) 
   {
@@ -149,16 +149,22 @@ for(p in 1:plotNo) {
                              Block = df_sub$Block[1],
                              DAS50F = DAS_50p_emerg,
                              TT50F = tt_50p_emerg)
-                        
+  print(p)
   
-  df_tt_50p_emerg <- rbind(df_tt_50p_emerg,df_temp)
+  if(p == 1) {
+    df_tt_50p_emerg <- df_temp
+  } else {
+   df_tt_50p_emerg <- rbind(df_tt_50p_emerg,df_temp) 
+  }                     
+  
+  
       
 #    } 
-  }
+  } # end plot loop
 
 
 
-summary(df_tt_50p_emerg)
+head(df_tt_50p_emerg)
 
 write.table(df_tt_50p_emerg,"df_tt_50p_emerg.txt")
 
@@ -170,21 +176,41 @@ not yet ready
 
 ```{r GraphResults}
 
-df_tt_50p_flow %>%
-  filter( SowTreat != "S6" & SowTreat != "S7")%>%
-  ggplot(aes(x=SowingD,y=DAS50F,colour=Cultivar))+
-  geom_point()+
-  facet_grid(Variable~.)+
+sdLookup <- data.frame (
+  SowTreat = c("S1","S2","S3","S4","S5","S6","S7","S8"),
+  SowingDate = c("24/06/2015", 
+                 "28/07/2015" ,
+                 "15/09/2015" ,
+                 "5/11/2015" ,
+                 "15/12/2015" ,
+                 "17/02/2016" ,
+                 "15/03/2016",
+                 "4/05/2016"))
+
+sdLookup$SowingDate <- dmy(sdLookup$SowingDate)
+
+
+df_tt_50p_emerg <- merge(df_tt_50p_emerg, sdLookup, by="SowTreat")
+
+df_tt_50p_emerg %>%
+  group_by(SowTreat, Cultivar) %>%
+  summarise_each(funs(mean)) %>%
+ # filter( SowTreat != "S6" & SowTreat != "S7")%>%
+  ggplot(aes(x=SowingDate,y=DAS50F, shape=Cultivar, colour=Cultivar))+
+  geom_point() +
+  geom_line() +
+ # facet_grid(Variable~.)+
   geom_line()
 
-df_tt_50p_flow %>%
-    filter( SowTreat != "S6" & SowTreat != "S7")%>%
-  ggplot(aes(x=SowingD,y=TT50F,colour=Cultivar))+
-  geom_point()+
-  facet_grid(Variable~.)+
+df_tt_50p_emerg %>%
+  group_by(SowTreat, Cultivar) %>%
+  summarise_each(funs(mean)) %>%
+ # filter( SowTreat != "S6" & SowTreat != "S7")%>%
+  ggplot(aes(x=SowingDate,y=TT50F, shape=Cultivar, colour=Cultivar))+
+  geom_point() +
+  geom_line() +
+ # facet_grid(Variable~.)+
   geom_line()
-
-summary(df_tt_50p_flow)
 
 
 ```
