@@ -5,6 +5,12 @@ date: "Thursday, December 31, 2015"
 output: html_document
 ---
 
+This script does this:
+
+- gjhgjhgjhgjhg
+- jhgjhgjhgjhgjhg
+- hjghghjgjhgjhgjhg
+
 ```{r loadLibraries}
 library(tidyr)
 library (dplyr)
@@ -22,7 +28,7 @@ setwd("C:\\Users\\EdCarmen\\Documents\\CarmenProjects2016\\GitSubclover")
 getwd()
 
 #create file
-df_emerg1 <- read.table("df_emerg_perc_TT.txt",header=TRUE)
+df_emerg1 <- read.table("df_emerg_perc_soilTT.txt",header=TRUE)
 df_emerg1$ReadingDate <- ymd(df_emerg1$ReadingDate )
 df_emerg1$SowingDate <- ymd(df_emerg1$SowingDate )
 df_emerg1$Block <- as.factor(df_emerg1$Block)
@@ -30,19 +36,20 @@ df_emerg1$Plot <- as.factor(df_emerg1$Plot)
 str(df_emerg1)
 head(df_emerg1)
 summary(df_emerg1)
+
 ```
 
 Calculate 50 PercentEmergence  
 
-```{r}
+```{r SummariseDf}
 
-
+# This step is now unnecessary as we want Plot values anyway (FIXME)
 df_50_Perc <- df_emerg1 %>%
   mutate(DAS = as.numeric(ReadingDate-SowingDate)) %>%
-  group_by(Cultivar,SowTreat, PercEmerg, 
+  group_by(Plot, Block,Cultivar,SowTreat, PercEmerg, 
   ReadingDate) %>%
   summarise(av_Perc = mean(PercEmerg), 
-            av_TT = mean(TT_FromSow),
+            av_TT = mean(TT_to_emerg),
             av_DAS = mean(DAS)
             )
 
@@ -50,16 +57,20 @@ str(df_50_Perc)
 summary(df_50_Perc)
 head(df_50_Perc)
 
-write.table(df_50_Perc, "df_50_PercEmerg.txt")
+# write.table(df_50_Perc, "df_50_PercEmerg.txt") # FIXME: this file is not yet 50%
 
 #  loop to calculate tt_50p_flow for each var x sd x cv
-cv <- unique(df_50_Perc$Cultivar)
+#cv <- unique(df_50_Perc$Cultivar)
 #var <- unique(df_50_Perc$PercEmerg)
-sow <- unique(df_50_Perc$SowTreat)
-sowd <- unique(df_50_Perc$SowingDate)
+#sow <- unique(df_50_Perc$SowTreat)
+#sowd <- unique(df_50_Perc$SowingDate)
+plots <- unique(df_50_Perc$Plot)
+plotNo <- length(plot)
 
 # create empty df
-df_tt_50p_emerg <- data.frame(SowingD = NULL,
+df_tt_50p_emerg <- data.frame(Plot = NULL,
+                              Block = NULL,
+                             SowingD = NULL,
                              Cultivar = NULL, 
                              SowTreat = NULL,
                              PercEmerg = NULL, 
@@ -67,9 +78,9 @@ df_tt_50p_emerg <- data.frame(SowingD = NULL,
 
 #loop trough each combination of factor levels
 
-for(i in 1:length(cv)) {
+for(p in 1:plotNo) {
 #  for(j in 1:length(var)){
-    for(k in 1:length(sow)){
+ #   for(k in 1:length(sow)){
       
       # clean value holders
       DAS_50p_emerg <- 0
@@ -81,13 +92,15 @@ for(i in 1:length(cv)) {
       # filter for each combination
 
   df_sub <- df_50_Perc %>%
-    subset(Cultivar == as.character(cv[i]) &
-#    Variable == as.character(var[j]) &
-    SowTreat == as.character(sow[k])) %>%
+    # subset(Cultivar == as.character(cv[i]) &
+    # Plot == as.character(var[j]) &
+    #   Block == as.character(var[b]) &
+    # SowTreat == as.character(sow[k])) %>%
+    subset(Plot == plots[p]) %>%
     arrange(PercEmerg)
   
   df_sub
-  
+  head(df_sub)
   # create percentage with maximum value recorded 
   # to avoid crossing the 50% line twice
   
@@ -132,16 +145,17 @@ for(i in 1:length(cv)) {
   df_temp <- data.frame(Cultivar = df_sub$Cultivar[1],
                              PercEmerg = df_sub$PercEmerg[1], 
                              SowTreat = df_sub$SowTreat[1],
-                          #   SowingD = df_sub$SowingDate[1], 
+                             Plot = df_sub$Plot[1],
+                             Block = df_sub$Block[1],
                              DAS50F = DAS_50p_emerg,
                              TT50F = tt_50p_emerg)
                         
   
   df_tt_50p_emerg <- rbind(df_tt_50p_emerg,df_temp)
       
-    } 
+#    } 
   }
-}
+
 
 
 summary(df_tt_50p_emerg)

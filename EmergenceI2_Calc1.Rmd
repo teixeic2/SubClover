@@ -5,6 +5,14 @@ date: "Thursday, December 31, 2015"
 output: html_document
 ---
 
+Purpose:
+
+-kjhdjahdkajshda
+-jashdajksdhkajshd
+-hasgdjhdjashdg
+-ahsgdhjasgdjhdajh
+
+
 ```{r loadLibraries}
 library(tidyr)
 library (dplyr)
@@ -36,17 +44,10 @@ df_emerg$Block <- as.factor(df_emerg$Block)
 str(df_emerg)
 head(df_emerg)
 tail(df_emerg)
-```
 
-Calculate Mean Seedling Population in 1 m2  
 
-```{r CalcAndGraph}
+df_emerg %>% filter(Plot ==1) %>% summary()
 
-df_emerg %>%
-  group_by(Plot) %>%
-   # plants/m2
-
-  
 
 ```
 
@@ -154,16 +155,3 @@ df_emerg_perc_TT %>%
 
 
 ```
-Ate aqui! 
-```{r}
-#Attempt to fit a curve 
-df_emerg_perc_TT %>%
-filter(Cultivar =="Narrikup") %>%
-  summarise_each(funs(mean))%>%
-
-f <- fitModel(TT_FromSow~A^(+B*DAS, data=df_emerg_perc_TT)
-
- y¼a×exp{-exp[-(x - x0)/b]}
-coef(f)
-summary (f)
-summary(f)$r.squared
