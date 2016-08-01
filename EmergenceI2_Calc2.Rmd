@@ -7,9 +7,9 @@ output: html_document
 
 This script does this:
 
-- gjhgjhgjhgjhg
-- jhgjhgjhgjhgjhg
-- hjghghjgjhgjhgjhg
+- get the dataframe produced in Calc1  
+- Calculate the DAS and TT for the 50% emergence by a loop interpolating points
+
 
 ```{r loadLibraries}
 library(tidyr)
@@ -172,7 +172,7 @@ summary(df_tt_50p_emerg)
 
 ```
 
-not yet ready 
+Graph results 
 
 ```{r GraphResults}
 

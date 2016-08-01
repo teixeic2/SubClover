@@ -1,4 +1,4 @@
-"Cultivar" "PercEmerg" "SowTreat" "Plot" "Block" "DAS50F" "TT50F"
+"Cultivar" "PercEmerg" "SowTreat" "Plot" "Block" "DAS50E" "TT50E"
 "1" "Antas" 0 "S1" "1" "1" 49.6666666666667 298.64
 "2" "Monti" 0 "S1" "2" "1" 47 281
 "3" "Denmark" 0 "S1" "3" "1" 56.25 344.5775

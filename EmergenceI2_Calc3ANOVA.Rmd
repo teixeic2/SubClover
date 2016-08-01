@@ -1,0 +1,114 @@
+---
+title: "Emergence seedlings I2"
+author: "CT"
+date: "Thursday, December 31, 2015"
+output: html_document
+---
+
+This script does this:
+
+-Reads the table "df_tt_50p_emerg.txt"
+- Run the anova on DAS and TT to 50 % Emergence for Sowind dates and cultivars 
+
+```{r loadLibraries}
+library(tidyr)
+library (dplyr)
+library (ggplot2)
+library(agricolae)
+library(knitr)
+library (lubridate)
+library(mosaic)
+library(lattice)
+```
+
+
+```{r loadFile}
+setwd("C:\\Users\\EdCarmen\\Documents\\CarmenProjects2016\\GitSubclover")
+getwd()
+
+#create file
+df_emerg1 <- read.table("df_tt_50p_emerg.txt",header=TRUE)
+
+df_emerg1$SowingDate <- ymd(df_emerg1$SowingDate )
+df_emerg1$SowTreat <- as.factor(df_emerg1$SowTreat)
+df_emerg1$Cultivar <- as.factor(df_emerg1$Cultivar)
+df_emerg1$Block <- as.factor(df_emerg1$Block)
+#df_emerg1$Plot <- as.factor(df_emerg1$Plot)
+str(df_emerg1)
+head(df_emerg1)
+summary(df_emerg1)
+
+```
+
+Calculate ......  
+Note : DAS and TT are not normal distributed!!! 
+```{r DataCheckANOVADf}
+
+# This step is now check for data Normality 
+
+#normality test
+shapiro.test(df_emerg1$DAS50E)
+shapiro.test(df_emerg1$TT50E)
+
+#data transformation
+
+df_emerg1$transf_sqr <- sqrt(df_emerg1$DAS50E)
+df_emerg1$transf_log <- log(df_emerg1$DAS50E)
+df_emerg1$transf_ <- ln(df_emerg1$DAS50E+1)
+df_emerg1$transf_no <- 1*(df_emerg1$DAS50E)
+head(df_emerg1)
+
+file <- df_emerg1
+
+x <- c("transf_sqr", "transf_log", "transf_no", "transf_ln")
+colsSelec <- match(x,colnames(file))
+
+file %>%
+  tidyr::gather("transformation","value",colsSelec) %>%
+  ggplot(aes(value)) + 
+  geom_histogram() +
+  facet_grid(.~transformation, scales="free")
+
+head(file)
+
+#normality test
+shapiro.test(file$transf_ln)
+
+#QQplot
+var<-file$transf_acos
+qqnorm(var)
+qqline(var, col = 2)
+qqplot(var, rt(300))
+
+#-------------------------------------------------
+# ANOVA (selecing by hand FIXME: do loop)
+# file.subset <- file %>% subset(SowTreat == "S2" & round==1)
+file.subset <- file 
+
+head(file.subset, 50)
+summary(file.subset)
+my.anova <- aov(transf_no ~ Cultivar*SowTreat + Block, data = file.subset)
+
+summary(my.anova)
+TukeyHSD(my.anova)
+
+#Means separation 
+(LSD.test(my.anova, "SowTreat", alpha= 0.05, p.adj="none")) 
+
+#loop trough each combination of factor levels
+
+
+```
+
+Graph results 
+
+```{r GraphResults}
+
+
+
+```
+
+
+
+
+
