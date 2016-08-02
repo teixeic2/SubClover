@@ -7,10 +7,9 @@ output: html_document
 
 Purpose:
 
--kjhdjahdkajshda
--jashdajksdhkajshd
--hasgdjhdjashdg
--ahsgdhjasgdjhdajh
+-Analysis of plant population 
+-calculate the percentage of emergence 
+
 
 
 ```{r loadLibraries}
@@ -48,6 +47,17 @@ tail(df_emerg)
 
 df_emerg %>% filter(Plot ==1) %>% summary()
 
+#Graph         
+  df_emerg %>%  group_by(Cultivar, SowTreat, DAS) %>%
+#  filter(Cultivar =="Monti") %>%
+  #dplyr::select(-SowingDate, - ReadingDate) %>%
+  summarise_each(funs(mean)) %>%
+  ggplot(aes(x=DAS, y=PlantPop)) + 
+  geom_point(aes(colour=Cultivar)) +
+  geom_line(aes(colour=Cultivar)) +
+  facet_wrap (~SowTreat,ncol=4, scales = "free")+
+  labs(y="Number of seedlings per m2",x="Days after sowing") 
+  #+geom_abline(intercept = 50, slope = 0)
 
 ```
 
@@ -63,6 +73,10 @@ summary(df_emerg_perc)
 tail(df_emerg_perc)
 df_emerg_perc %>%  filter(Plot=="2")
 
+
+
+
+
  #Graph         
   df_emerg_perc %>%  group_by(Cultivar, SowTreat, DAS) %>%
 #  filter(Cultivar =="Monti") %>%
@@ -76,6 +90,78 @@ df_emerg_perc %>%  filter(Plot=="2")
   geom_abline(intercept = 50, slope = 0)
 
 ```
+
+
+```{r ANOVAMaxPlantPop}
+
+#compare max plant population among Sowing dates and cultivars
+
+df_emerg_perc <- df_emerg %>%
+group_by(Plot) %>%
+mutate(FinalPop= round(max(PlantPop)*1,digits=2))
+
+head(df_emerg_perc)
+summary (df_emerg_perc)
+
+
+#normality test
+shapiro.test(df_emerg_perc$FinalPop)
+
+
+#data transformation
+file <- df_emerg_perc
+
+file$transf_sqr <- sqrt(df_emerg_perc$FinalPop)
+file$transf_log <- log(df_emerg_perc$FinalPop)
+file$transf_log1 <- log(df_emerg_perc$FinalPop+1)
+file$transf_no <- 1*(df_emerg_perc$FinalPop)
+head(file)
+
+
+
+x <- c("transf_sqr", "transf_log","transf_log1", "transf_no")
+colsSelec <- match(x,colnames(file))
+
+file %>%
+  tidyr::gather("transformation","value",colsSelec) %>%
+  ggplot(aes(value)) + 
+  geom_histogram() +
+ # facet_wrap(SowTreat~transformation, scales="free", ncol=4) +
+  facet_grid(transformation~SowTreat, scales="free")
+
+head(file)
+
+
+#QQplot
+var<-file$transf_log
+qqnorm(var)
+qqline(var, col = 2)
+qqplot(var, rt(300))
+
+#-------------------------------------------------
+# ANOVA (selecing by hand FIXME: do loop)
+# file.subset <- file %>% subset(SowTreat == "S2" & round==1)
+file.subset <- file 
+
+head(file.subset, 50)
+summary(file.subset)
+my.anova <- aov(transf_no ~ Cultivar*SowTreat + Block, 
+                data = file.subset)
+
+summary(my.anova)
+
+TukeyHSD(my.anova)
+
+#Means separation 
+(LSD.test(my.anova, c("SowTreat"), alpha= 0.05, p.adj="none") ) 
+(LSD.test(my.anova, c("Cultivar"), alpha= 0.05, p.adj="none") )
+(LSD.test(my.anova, c("SowTreat","Cultivar"), alpha= 0.05, p.adj="none"))
+
+
+```
+
+
+
 
 Create Graph Percent emergence with Mean Soil Temperature 
 ```{r}

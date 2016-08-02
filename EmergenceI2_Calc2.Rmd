@@ -147,8 +147,8 @@ for(p in 1:length(plots)) {
                              SowTreat = df_sub$SowTreat[1],
                              Plot = df_sub$Plot[1],
                              Block = df_sub$Block[1],
-                             DAS50F = DAS_50p_emerg,
-                             TT50F = tt_50p_emerg)
+                             DAS50E = DAS_50p_emerg,
+                             TT50E = tt_50p_emerg)
   print(p)
   
   if(p == 1) {
@@ -196,7 +196,7 @@ df_tt_50p_emerg %>%
   group_by(SowTreat, Cultivar) %>%
   summarise_each(funs(mean)) %>%
  # filter( SowTreat != "S6" & SowTreat != "S7")%>%
-  ggplot(aes(x=SowingDate,y=DAS50F, shape=Cultivar, colour=Cultivar))+
+  ggplot(aes(x=SowingDate,y=DAS50E, shape=Cultivar, colour=Cultivar))+
   geom_point() +
   geom_line() +
  # facet_grid(Variable~.)+
@@ -206,7 +206,7 @@ df_tt_50p_emerg %>%
   group_by(SowTreat, Cultivar) %>%
   summarise_each(funs(mean)) %>%
  # filter( SowTreat != "S6" & SowTreat != "S7")%>%
-  ggplot(aes(x=SowingDate,y=TT50F, shape=Cultivar, colour=Cultivar))+
+  ggplot(aes(x=SowingDate,y=TT50E, shape=Cultivar, colour=Cultivar))+
   geom_point() +
   geom_line() +
  # facet_grid(Variable~.)+

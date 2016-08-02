@@ -28,12 +28,13 @@ getwd()
 
 #create file
 df_emerg1 <- read.table("df_tt_50p_emerg.txt",header=TRUE)
+head(df_emerg1)
 
-df_emerg1$SowingDate <- ymd(df_emerg1$SowingDate )
 df_emerg1$SowTreat <- as.factor(df_emerg1$SowTreat)
 df_emerg1$Cultivar <- as.factor(df_emerg1$Cultivar)
 df_emerg1$Block <- as.factor(df_emerg1$Block)
-#df_emerg1$Plot <- as.factor(df_emerg1$Plot)
+df_emerg1$Plot <- as.factor(df_emerg1$Plot)
+
 str(df_emerg1)
 head(df_emerg1)
 summary(df_emerg1)
@@ -51,31 +52,33 @@ shapiro.test(df_emerg1$DAS50E)
 shapiro.test(df_emerg1$TT50E)
 
 #data transformation
-
-df_emerg1$transf_sqr <- sqrt(df_emerg1$DAS50E)
-df_emerg1$transf_log <- log(df_emerg1$DAS50E)
-df_emerg1$transf_ <- ln(df_emerg1$DAS50E+1)
-df_emerg1$transf_no <- 1*(df_emerg1$DAS50E)
-head(df_emerg1)
-
 file <- df_emerg1
 
-x <- c("transf_sqr", "transf_log", "transf_no", "transf_ln")
+file$transf_sqr <- sqrt(df_emerg1$DAS50E)
+file$transf_log <- log(df_emerg1$DAS50E)
+file$transf_log1 <- log(df_emerg1$DAS50E+1)
+file$transf_no <- 1*(df_emerg1$DAS50E)
+head(file)
+
+
+
+x <- c("transf_sqr", "transf_log","transf_log1", "transf_no")
 colsSelec <- match(x,colnames(file))
 
 file %>%
   tidyr::gather("transformation","value",colsSelec) %>%
   ggplot(aes(value)) + 
   geom_histogram() +
-  facet_grid(.~transformation, scales="free")
+ # facet_wrap(SowTreat~transformation, scales="free", ncol=4) +
+  facet_grid(transformation~SowTreat, scales="free")
 
 head(file)
 
 #normality test
-shapiro.test(file$transf_ln)
+#shapiro.test(file$transf_ln)
 
 #QQplot
-var<-file$transf_acos
+var<-file$transf_no
 qqnorm(var)
 qqline(var, col = 2)
 qqplot(var, rt(300))
@@ -87,28 +90,21 @@ file.subset <- file
 
 head(file.subset, 50)
 summary(file.subset)
-my.anova <- aov(transf_no ~ Cultivar*SowTreat + Block, data = file.subset)
+my.anova <- aov(transf_no ~ Cultivar*SowTreat + Block, 
+                data = file.subset)
 
 summary(my.anova)
+
 TukeyHSD(my.anova)
 
 #Means separation 
-(LSD.test(my.anova, "SowTreat", alpha= 0.05, p.adj="none")) 
+(LSD.test(my.anova, c("SowTreat"), alpha= 0.05, p.adj="none")) 
+(LSD.test(my.anova, c("Cultivar"), alpha= 0.05, p.adj="none") )
+(LSD.test(my.anova, c("SowTreat","Cultivar"), alpha= 0.05, p.adj="none"))
 
 #loop trough each combination of factor levels
 
 
 ```
-
-Graph results 
-
-```{r GraphResults}
-
-
-
-```
-
-
-
 
 
