@@ -96,25 +96,25 @@ df_emerg_perc %>%  filter(Plot=="2")
 
 #compare max plant population among Sowing dates and cultivars
 
-df_emerg_perc <- df_emerg %>%
+df_emerg_perc3 <- df_emerg %>%
 group_by(Plot) %>%
 mutate(FinalPop= round(max(PlantPop)*1,digits=2))
 
-head(df_emerg_perc)
-summary (df_emerg_perc)
+head(df_emerg_perc3)
+summary (df_emerg_perc3)
 
 
 #normality test
-shapiro.test(df_emerg_perc$FinalPop)
+shapiro.test(df_emerg_perc3$FinalPop)
 
 
 #data transformation
-file <- df_emerg_perc
+file <- df_emerg_perc3
 
-file$transf_sqr <- sqrt(df_emerg_perc$FinalPop)
-file$transf_log <- log(df_emerg_perc$FinalPop)
-file$transf_log1 <- log(df_emerg_perc$FinalPop+1)
-file$transf_no <- 1*(df_emerg_perc$FinalPop)
+file$transf_sqr <- sqrt(df_emerg_perc3$FinalPop)
+file$transf_log <- log(df_emerg_perc3$FinalPop)
+file$transf_log1 <- log(df_emerg_perc3$FinalPop+1)
+file$transf_no <- 1*(df_emerg_perc3$FinalPop)
 head(file)
 
 
@@ -133,7 +133,7 @@ head(file)
 
 
 #QQplot
-var<-file$transf_log
+var<-file$transf_no
 qqnorm(var)
 qqline(var, col = 2)
 qqplot(var, rt(300))
@@ -231,11 +231,12 @@ df_emerg_perc_TT %>%
   #dplyr::select(-SowingDate, - ReadingDate) %>%
 #  filter(Cultivar =="Narrikup") %>%
   summarise_each(funs(mean)) %>%
-  ggplot(aes(x=TT_to_emerg, y=PercEmerg,colour=factor(SowTreat))) + 
+  ggplot(aes(x=TT_to_emerg, y=PercEmerg,colour=Cultivar)) + 
   geom_point() +
   geom_line() +
-  facet_grid (Cultivar~., scales = "free")+
+  #facet_grid (Cultivar~., scales = "free")+
   geom_abline(intercept = 50, slope = 0) +
+  facet_wrap (~SowTreat,ncol=4, scales = "free")+
   xlab("Thermal-time from sowing") +
   ylab("Percentage emergence")
 
