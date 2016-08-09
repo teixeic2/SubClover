@@ -1,0 +1,168 @@
+---
+title: "WaterAct 6CV"
+author: "CT"
+date: "Thursday, February , 2016"
+output: pdf_document
+---
+
+```{r loadLibraries}
+library(tidyr)
+library (dplyr)
+library (ggplot2)
+library(agricolae)
+library(knitr)
+library (lubridate)
+library(markdown)
+#install.packages(markdown)
+
+```
+
+
+```{r loadFile}
+setwd("C:\\Users\\EdCarmen\\Documents\\CarmenProjects2016\\Gitsubclover\\WaterAct")
+getwd()
+
+#create file
+df_seed <- read.table("WaterAct.txt",header=TRUE)
+head(df_seed)
+# Jeito 1 de trocar formato (usando base R)
+df_seed$Date <- dmy(df_seed$Date)
+
+# change format  (with dplyr)
+df_seed <- df_seed %>%
+  mutate(Plot = as.factor(Plot), 
+         Block = as.factor(Block),
+         Cultivar = as.factor(Cultivar),
+         SowTreat = as.factor(SowTreat))
+
+summary(df_seed) # explore values
+str(df_seed) # check formats
+head(df_seed) # see to rows
+tail(df_seed)
+
+```
+
+
+
+```{rCreate Percent Soft}
+
+
+#Check for outliers _Boxplot 
+df_seed %>%
+
+  ggplot(aes(x=Cultivar, y=WaterAct, colour=factor(SowTreat)))+
+  geom_boxplot() +
+  geom_jitter() +
+  theme(axis.text.x=element_text(angle = +90, hjust = 0))+
+  facet_grid(Depth~SowTreat)
+
+```
+
+
+```{r}
+
+
+
+```
+
+
+ 
+
+```{r Graph}
+
+  
+```
+
+
+```{r}
+
+  
+```
+
+
+
+
+Calculate the mean and error bars for each cultivar 
+
+```{r}
+df_seed %>%
+  mutate(SowingD = dmy(SowingD)) %>%
+  #filter(Round == 1) %>%
+  group_by(Cultivar,SowingD) %>%
+  dplyr::select(WaterAct) %>%
+  summarise_each(funs(mean,sd)) %>%
+  ggplot(aes(x=SowingD, y=mean, colour=(Cultivar), shape=(Cultivar))) +
+  geom_point() +
+  geom_line() +
+ #facet_grid(.~Cultivar) +
+  labs(x="Sowing Date",y="Water Activity ") +
+  #theme(axis.text.x = element_text(angle = 90, hjust = 1))+
+  geom_errorbar(aes(ymin=mean-sd/2,
+                    ymax=mean+sd/2), width = 0.8)+
+  ylim(0,1) 
+
+head(df_seed)
+
+ 
+
+#ANOVA
+
+#data transformation
+df_seed$transf_no <- 1*(df_seed$WaterAct)
+
+#df_seedANOVA$transf_sqr <- sqrt(df_seedANOVA$hardSeed)
+#df_seedANOVA$transf_log <- log(df_seedANOVA$hardSeed)
+#df_seedANOVA$transf_acos <- acos(df_seedANOVA$hardSeed/100)
+#df_seedANOVA$transf_power3 <- (df_seedANOVA$hardSeed)^3
+
+
+
+file <- df_seed
+
+x <- c( "transf_no",  "transf_sqr", "transf_log", "transf_acos", "transf_power3")
+
+colsSelec <- match(x,colnames(file))
+
+file %>%
+  tidyr::gather("transformation" ,"value",colsSelec) %>%
+  ggplot(aes(value)) + 
+  geom_histogram() +
+  facet_grid(.~transformation, scales="free" )
+
+head(file)
+head(df_seedANOVA)
+#normality test
+#tranform log was the best histogram so continue with it 
+shapiro.test(file$transf_acos)
+
+#QQplot
+var<-file$transf_acos
+qqnorm(var)
+qqline(var, col = 2)
+qqplot(var, rt(300))
+
+#-------------------------------------------------
+
+# Chosen transform log to do anova 
+file.subset <- file 
+
+head(file.subset, 50)
+summary(file.subset)
+my.anova <- aov(transf_acos ~ Cultivar*SowTreat + Block, data = file.subset)
+
+summary(my.anova)
+TukeyHSD(my.anova)
+
+#Means separation 
+(LSD.test(my.anova, c("Cultivar","SowTreat"), alpha= 0.05, p.adj="none")) 
+
+
+```
+
+
+```{r}
+
+markdown::render("<C:\\Users\\EdCarmen\\Documents\\CarmenProjects2016\\Gitsubclover\\HardseedsProject1Read.Rmd>") 
+```
+
+

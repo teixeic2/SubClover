@@ -1,0 +1,97 @@
+---
+title: "Hardseeds Slopes 6CV"
+author: "CT"
+date: "Tuesday, July 19, 2016"
+output: pdf_document
+---
+
+```{r loadLibraries}
+library(tidyr)
+library (dplyr)
+library (ggplot2)
+library(agricolae)
+library(knitr)
+library (lubridate)
+library(markdown)
+#install.packages(markdown)
+
+```
+
+
+```{r loadFile}
+setwd("C:\\Users\\EdCarmen\\Documents\\CarmenProjects2016\\Gitsubclover\\Hardseeds")
+getwd()
+
+#create file
+df_seed <- read.table("df_seedANOVA.txt",header=TRUE)
+head(df_seed)
+df_RHT <- read.table("RHAndTemp.txt",header=TRUE)
+head(df_RHT)
+mutate(ReadingDate = dmy(Date)) %>%
+
+```
+
+Bind the two data frames 
+
+```{r}
+
+df_seedRHT <- NULL
+df_seedRHT <- merge(df_seed,df_RHT,by="Plot")
+head(df_seedRHT)
+
+
+```
+
+Graph Hardseeds vs RH 
+
+```{r}
+
+df_seedRHT %>%
+  group_by(Cultivar.x, SowTreat.x) %>%
+  #dplyr::select(-SowingDate, - ReadingDate) %>%
+  #filter(Cultivar.x =="Antas") %>%
+  summarise_each(funs(mean)) %>%
+  ggplot(aes(x=RH, y=hardSeed,colour=Cultivar.x)) + 
+  geom_point() +
+  geom_line() +
+  #facet_grid (Cultivar~., scales = "free")+
+  #geom_abline(intercept = 50, slope = 0) +
+  #facet_wrap (~SowTreat,ncol=4, scales = "free")+
+  xlab("Sowtreat") +
+  ylab("Hardseeds")
+
+```
+
+
+ 
+
+```{r Graph}
+
+
+
+  
+  
+```
+
+
+```{r}
+
+  
+```
+
+
+
+
+Calculate the mean and error bars for each cultivar 
+
+```{r}
+
+
+```
+
+
+```{r}
+
+```
+
+

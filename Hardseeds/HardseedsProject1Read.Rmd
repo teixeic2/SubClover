@@ -19,7 +19,7 @@ library(markdown)
 
 
 ```{r loadFile}
-setwd("C:\\Users\\EdCarmen\\Documents\\CarmenProjects2016\\Gitsubclover")
+setwd("C:\\Users\\EdCarmen\\Documents\\CarmenProjects2016\\Gitsubclover\\Hardseeds")
 getwd()
 
 #create file
@@ -211,6 +211,8 @@ head(df_seed)
 df_seedANOVA <- df_seed %>%
 mutate(hardSeed = 100-PropSoft) %>%
 filter(Round == 1) 
+
+head(df_seedANOVA)
 
 
 
