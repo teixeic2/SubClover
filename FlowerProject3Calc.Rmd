@@ -158,14 +158,14 @@ summary(df_tt_50p_flow)
 ```{r GraphResults}
 
 df_tt_50p_flow %>%
-  filter( SowTreat != "S6" & SowTreat != "S7")%>%
+  #filter( SowTreat != "S6" & SowTreat != "S7")%>%
   ggplot(aes(x=SowingD,y=DAS50F,colour=Cultivar))+
   geom_point()+
   facet_grid(Variable~.)+
   geom_line()
 
 df_tt_50p_flow %>%
-    filter( SowTreat != "S6" & SowTreat != "S7")%>%
+    #filter( SowTreat != "S6" & SowTreat != "S7")%>%
   ggplot(aes(x=SowingD,y=TT50F,colour=Cultivar))+
   geom_point()+
   facet_grid(Variable~.)+
