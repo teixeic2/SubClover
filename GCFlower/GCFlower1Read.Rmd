@@ -1,0 +1,62 @@
+---
+title: "Flowering 3CV"
+author: "CT"
+date: "Monday,29 August, 2016"
+output: html_document
+notes: GCF = Growth Cabinet Flower 
+---
+
+```{r loadLibraries}
+library(tidyr)
+library (dplyr)
+library (ggplot2)
+library(agricolae)
+library(knitr)
+library (lubridate)
+
+```
+
+
+```{r loadFile}
+setwd("C:\\Users\\EdCarmen\\Documents\\CarmenProjects2016\\GitSubclover\\GCFlower")
+getwd()
+
+#create file
+df_GCF <- read.table("GCFlow.txt",header=TRUE)
+
+head(df_GCF)
+
+summary(df_GCF)
+
+# convert to date format
+df_GCF <- df_GCF %>%
+mutate(DateReading=dmy(DateReading),SowingD=dmy(SowingD), 
+       Percent=(S1+S2)/2*100)
+str(df_GCF)
+head(df_GCF)
+summary(df_GCF)
+tail(df_GCF)
+```
+
+Parei aqui! 
+Analysis of sowing date and cultivars for Bud considering Date 
+
+```{r GraphBoxPlotBud}
+
+head(df_GCF)
+ df_GCF %>%
+  group_by(DAS, Cultivar,SowingD,Variable)%>%
+  summarise_each(funs(mean)) %>%
+  select(Variable,Percent, Cultivar,SowingD)%>%
+  filter(Variable == "Bud") %>%
+  ggplot(aes(x=DAS, y=Percent)) + 
+  geom_line(aes(colour=Cultivar)) +
+   geom_point(aes(colour=Cultivar))+
+  #facet_grid(.~Cultivar, scales = "free")+
+  #facet_grid(Cultivar~., scales = "free")+
+  geom_abline(intercept = 50, slope = 0) 
+  
+```
+
+
+

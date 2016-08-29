@@ -65,7 +65,7 @@ Analysis of Sowing dates and variables (from bud to bur4) considering DAS
 ```{r GraphSowingDateAndVariable}
 
 df_flower %>%
-  filter(SowTreat != "S6" & SowTreat != "S7")%>%
+  #filter(SowTreat != "S6" & SowTreat != "S7")%>%
   mutate(Variable = 
   factor(Variable,levels = c("Bud","Early","Open",
           "Petal","Bur1","Bur2","Bur3","Bur4" ))) %>%
@@ -80,6 +80,11 @@ df_flower %>%
   geom_abline(intercept = 50, slope = 0)+
   
 theme(axis.text.x = element_text(angle = 90, hjust = 1))
+
+
+
+
+
 
 
 
