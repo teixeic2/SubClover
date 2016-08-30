@@ -65,7 +65,7 @@ df_GCF %>%
   #filter(SowTreat != "S6" & SowTreat != "S7")%>%
   mutate(Variable = 
   factor(Variable,levels = c("Bud","Early","Open",
-          "Petal","Bur1","Bur2","Bur3","Bur4" ))) %>%
+          "Petal","Bur1","Bur2","Bur3","Bur4" )))%>%
   group_by(DAS,Cultivar,Variable) %>%
   summarise_each(funs(mean)) %>%
   select(Variable,Percent, Cultivar,DAS) %>%
@@ -73,7 +73,8 @@ df_GCF %>%
   ggplot(aes(x=DAS, y=Percent)) + 
   #geom_bar(shape=1, stat="identity")
   geom_line(aes(colour=Cultivar)) +
+   geom_point(aes(colour=Cultivar))+
   facet_grid(.~Variable, scales = "free") +
-  geom_abline(intercept = 50, slope = 0)
+  geom_abline(intercept = 50, slope = 0,linetype=2)
 ```
 
