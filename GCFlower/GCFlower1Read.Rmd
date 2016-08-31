@@ -46,7 +46,7 @@ head(df_GCF)
  df_GCF %>%
   group_by(DAS, Cultivar,SowingD,Variable)%>%
   summarise_each(funs(mean)) %>%
-  select(Variable,Percent, Cultivar,SowingD)%>%
+  select(Variable,Percent, Cultivar)%>%
   filter(Variable == "Bud") %>%
   ggplot(aes(x=DAS, y=Percent)) + 
   geom_line(aes(colour=Cultivar)) +
@@ -75,6 +75,7 @@ df_GCF %>%
   geom_line(aes(colour=Cultivar)) +
    geom_point(aes(colour=Cultivar))+
   facet_grid(.~Variable, scales = "free") +
-  geom_abline(intercept = 50, slope = 0,linetype=2)
+  geom_abline(intercept = 50, slope = 0,linetype=2)+
+theme(axis.text.x = element_text(angle = 90, hjust = 1))
 ```
 
