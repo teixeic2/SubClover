@@ -38,6 +38,17 @@ Graph Box Plot
 
 ```{r GraphBoxPlot}
 
+# Graph DAS and Location 
+
+df_Re %>%
+  filter(Location != "Canberra"& Location != "Lismore") %>%
+  ggplot(aes(x=Country, y=DaysToFlower)) + 
+  geom_boxplot(alpha =0.2) +
+  geom_violin(alpha =0.2)+
+  geom_jitter(aes(colour=Location), width=0.25)+
+  labs(y="DAS",x="Country")
+
+
 
  df_Re %>%
    ggplot(aes(x=AuthorYear, y=TtFlowerAdjusted)) + 
@@ -46,7 +57,7 @@ Graph Box Plot
   theme(axis.text.x = element_text(angle = 90, hjust = 1))
 
 
-
+#Graph PhotoPTarget and TT Flower per Author 
 
  df_Re %>%
   ggplot(aes(x=PhotopAtTtTarget, y=TtFlowerAdjusted)) + 
@@ -58,12 +69,32 @@ Graph Box Plot
   
 
 ```
-Graph per ...
+Graph Photperiod and TT flower per Location and cultivar 
 
 
 ```{rGraphFacetwrap}
+head(df_Re)
 
 
+# location 
+df_Re %>%
+  filter(Location =="Launceston" | Location =="Katanning") %>%
+  ggplot(aes(x=PhotopAtTtTarget, y=TtFlowerAdjusted)) + 
+  geom_line(aes(colour=Treatcultivar)) +
+  geom_point(aes(colour=Treatcultivar)) +
+  facet_grid(.~Country, scales = "free")
+
+#analysis cultivar 
+
+df_Re %>%
+  filter(Treatcultivar =="Tallarook" | Treatcultivar =="MtBarker") %>%
+  ggplot(aes(x=PhotopAtTtTarget, y=TtFlowerAdjusted)) + 
+  geom_line(aes(colour=Location)) +
+  geom_point(aes(colour=Location)) +
+  facet_grid(Treatcultivar~Country, scales = "free")
+  
+  #labs(y="Percentage plants with first Trifoliate",x="Days after sowing") +
+    # facet_wrap(~AuthorYear, scales = "free")
 
 ```
 
