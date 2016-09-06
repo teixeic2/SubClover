@@ -56,7 +56,7 @@ g1 <- df_seed %>%
 
 # per round
 g1 %>%
- filter(SowTreat != "S4") %>%
+# filter(SowTreat != "S4") %>%
   ggplot(aes(x=Round,y=1-PercSoftCum,colour=factor(Cultivar)))+
   geom_point() +
   geom_line() +
@@ -192,7 +192,7 @@ Calculate the mean and error bars for each cultivar
 df_seed %>%
   mutate(hardSeed = 100-PropSoft) %>%
   mutate(SowingD = dmy(SowingD)) %>%
-  filter(Round == 1) %>%
+  #filter(Round == 1) %>%
   group_by(Cultivar,SowingD) %>%
   dplyr::select(hardSeed) %>%
   summarise_each(funs(mean,sd)) %>%

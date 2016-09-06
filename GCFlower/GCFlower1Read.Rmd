@@ -1,5 +1,5 @@
 ---
-title: "Flowering 3CV"
+title: "Flowering 3CV Growth Chamber"
 author: "CT"
 date: "Monday,29 August, 2016"
 output: html_document
@@ -62,7 +62,7 @@ head(df_GCF)
 
 
 df_GCF %>%
-  #filter(SowTreat != "S6" & SowTreat != "S7")%>%
+  filter(Cultivar != "Denmark" )%>%
   mutate(Variable = 
   factor(Variable,levels = c("Bud","Early","Open",
           "Petal","Bur1","Bur2","Bur3","Bur4" )))%>%
