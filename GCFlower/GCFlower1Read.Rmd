@@ -76,6 +76,8 @@ df_GCF %>%
    geom_point(aes(colour=Cultivar))+
   facet_grid(.~Variable, scales = "free") +
   geom_abline(intercept = 50, slope = 0,linetype=2)+
-theme(axis.text.x = element_text(angle = 90, hjust = 1))
+theme(axis.text.x = element_text(angle = 0, hjust = 0.5))+
+scale_x_continuous(breaks=seq(min(df_GCF$DAS),max(df_GCF$DAS),10))
+  
 ```
 
