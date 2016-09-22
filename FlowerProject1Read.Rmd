@@ -165,11 +165,11 @@ df_flower %>%
   filter(SowTreat != "S6" & SowTreat != "S7")%>%
   mutate(Variable = 
   factor(Variable,levels = c("Bud","Bur3"))) %>%
-  group_by(DAS,Cultivar,SowTreat,Variable,TTAS) %>%
+  group_by(DAS,Cultivar,SowTreat,Variable) %>%
   summarise_each(funs(mean)) %>%
-  select(Variable,Percent, Cultivar,TTAS,SowTreat) %>%
+  select(Variable,Percent, Cultivar,SowTreat) %>%
   filter(Cultivar == "Monti" | Cultivar =="Woogenellup") %>%
-  ggplot(aes(x=TTAS, y=Percent)) + 
+  ggplot(aes(x=DAS, y=Percent)) + 
   #geom_bar(shape=1, stat="identity")
   geom_line(aes(colour=Cultivar)) +
   facet_grid(SowTreat~Variable, scales = "free") +
@@ -230,9 +230,10 @@ df_flower %>%
   geom_line(aes(colour=Cultivar)) +
   facet_grid(SowTreat~Cultivar, scales = "free") +
   geom_abline(intercept = 50, slope = 0)+
-theme(axis.text.x = element_text(angle = 60, hjust = 1))
+theme(axis.text.x = element_text(angle = 60, hjust = 1))+
+  labs(x="Days after sowing",y="Percent of Plants with Floral bud ")
 
-
+summary(df_flower)
 
 
 
@@ -280,7 +281,7 @@ df_flower %>%
   group_by(TTAS,Cultivar,SowTreat,Variable) %>%
   summarise_each(funs(mean)) %>%
   select(Variable,Percent, Cultivar,TTAS,SowTreat) %>%
-  filter(Cultivar == "Monti" | Cultivar == "Leura" ) %>%
+  filter(Cultivar == "Narrikup" | Cultivar == "Denmark" ) %>%
   filter(Variable == "Bud") %>%
   ggplot(aes(x=TTAS, y=Percent)) + 
   geom_line(aes(colour=Cultivar)) +

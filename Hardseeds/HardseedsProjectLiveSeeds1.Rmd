@@ -1,7 +1,7 @@
 ---
-title: "Hardseeds 6CV"
+title: "Hardseeds Live Max 6CV"
 author: "CT"
-date: "Thursday, FEbruary 3, 2015"
+date: "Thursday, 22 September , 2016"
 output: pdf_document
 ---
 
@@ -23,84 +23,129 @@ setwd("C:\\Users\\EdCarmen\\Documents\\CarmenProjects2016\\Gitsubclover\\Hardsee
 getwd()
 
 #create file
-df_seed <- read.table("HardseedsData.txt",header=TRUE)
+df_seed <- read.table("HardseedsLiveData.txt",header=TRUE)
 head(df_seed)
-summary(df_seed)
-
-df_seed %>%
-  filter(Plot==1)
-
 # Jeito 1 de trocar formato (usando base R)
 df_seed$Date <- dmy(df_seed$Date)
 
 # jeito 2 de trocar formato (usando dplyr)
 df_seed <- df_seed %>%
-  mutate(Plot = as.factor(Plot), Block = as.factor(Block)) %>%
-#  mutate(Soft = as.numeric(Soft)) %>%
-  mutate(PropSoft = round(Soft/max(SeedNumber)*100,digits=2))
+  mutate(Plot = as.factor(Plot), Block = as.factor(Block))%>%
+  mutate(Soft = as.numeric(Soft),
+         SoftDead = as.numeric(SoftDead),
+         SoftGerm = as.numeric (SoftGerm),
+         SoftAbn = as.numeric (SoftAbn),
+         SoftUngerm = as.numeric (SoftUngerm)) %>%
+  
 
 summary(df_seed) # explore values
 str(df_seed) # check formats
 head(df_seed) # see to rows
 tail(df_seed)
 
-df_seed %>%
-  filter(Plot==1)
+
 
 ```
 
 
 
 ```{r CreatePercentSoft}
+#Create a column that is the Accumulated Dead this is to calculate the Maximum hardseeds live 
 
-g1 <- df_seed %>%
+
+df_hard_live_max <- df_seed %>%
+  group_by(Plot,Depth) %>% 
   dplyr::select(-Date) %>% # 
-  group_by(SowTreat,Cultivar,Depth, Plot) %>% # need to keep level in which cumulation occurs
   arrange(Round) %>% # need to tell which factor to accumulate within
-  mutate(Soft_cum = cumsum(Soft)) %>%
-  mutate(PercSoftCum=Soft_cum/max(SeedNumber))%>%
-  group_by(SowTreat,Cultivar,Depth, Round) %>%
-  summarise_each(funs(mean)) 
+  mutate(CumSoftDead = cumsum(SoftDead)) %>%
+  #subtract number of dead seeds to find living seeds 
+  mutate(Total_live = InitialSeedlotR1Number-max(CumSoftDead)) %>%
+   mutate(Soft_live = SoftGerm + SoftUngerm + SoftAbn) %>%
+  filter(Round==1) %>%
+  mutate(Hard_perc = round(100-(Soft_live/Total_live*100),2))
 
-# per round
-g1 %>%
-# filter(SowTreat != "S4") %>%
-  ggplot(aes(x=Round,y=1-PercSoftCum,colour=factor(Cultivar)))+
-  geom_point() +
-  geom_line() +
-  labs(x="Hardseed Assessment",y="Cummulative Proportion Hardseeds") +
-  #ylim(0,1)+
-  facet_grid(SowTreat~Depth)
+  
+summary (df_hard_live_max)
 
+head(df_hard_live_max)
+summary(df_hard_live_max) # explore values
 
-# xy up down comparison
-g1 %>%
-  dplyr::select(Plot,PercSoftCum,Depth,Round) %>%
-  tidyr::spread(Depth, PercSoftCum)%>%
-  ggplot(aes(x=down,y=up,colour=factor(Cultivar)))+
-  geom_point() +
-  facet_grid(SowTreat~.)
-
-#Check for outliers _Boxplot 
-df_seed %>%
-  ggplot(aes(x=Cultivar, y=Soft, colour=factor(SowTreat)))+
-  geom_boxplot() +
-  geom_jitter() +
-  theme(axis.text.x=element_text(angle = +90, hjust = 0))+
-  facet_grid(Depth~Round+SowTreat)
 
 ```
 
 
 ```{r}
-#CumulativePercentage of Soft Seeds
 
-df_soft_plot <- df_seed %>%
-  dplyr::select(-Date) %>%
+#Graph the maximum percentage of Live hardseeds!!! 
+
+  df_hard_live_max %>%
+  mutate(SowingD = dmy(SowingD)) %>%
+  filter(Round == 1) %>%
+  group_by(Cultivar,SowingD) %>%
+  dplyr::select(Hard_perc) %>%
+  summarise_each(funs(mean,sd)) %>%
+  ggplot(aes(x=SowingD, y=mean, colour=factor(Cultivar), shape=factor(Cultivar))) +
+  geom_point() +
+  geom_line() +
+ facet_grid(.~Cultivar) +
+  labs(x="Sowing Date",y="Maximum Percentage of LiveHardseeds") +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1))+
+  geom_errorbar(aes(ymin=mean-sd/2,
+                    ymax=mean+sd/2))+
+  ylim(0,100)
+
+
+
+
+
+
+
+
+```
+
+
+
+
+```{r}
+
+  
+#Now need to correct the hardseed breakdown for the number of living seeds : use softLive and Total live
+
+  
+  
+df_soft_live <- df_hard_live_max  %>%
+  #dplyr::select(-Date) %>%
   group_by(SowTreat,Cultivar,Depth, Plot) %>% # need to keep level in which cumulation occurs
   arrange(Round) %>% # need to tell which factor to accumulate within
-  mutate(Soft_cum = cumsum(Soft)) %>%
-  mutate(PercSoftCum=Soft_cum/max(SeedNumber))
+  mutate(CumSoft_live = cumsum(Soft_live)) %>%
+ mutate(HardLive_perc = round(100-(CumSoft_live/Total_live*100),2))
+
+head (df_soft_live)
+  summary (df_soft_live)
+
+
+#Graph Breakdown Living hard seeds 
+
+df_soft_live %>%
+  mutate(SowingD = dmy(SowingD)) %>%
+  ilter(Round == 1) %>%
+  group_by(Cultivar,SowingD, SowTreat, Depth, Round) %>%
+  dplyr::select(HardLive_perc) %>%
+  summarise_each(funs(mean)) %>%
+  ggplot(aes(x=Round, y=mean, colour=factor(Cultivar), shape=factor(Cultivar))) +
+  geom_point() +
+  geom_line() +
+  ylim(0,100)+
+ #facet_grid(.~Depth) +
+  labs(x="Round",y="Percentage of LiveHardseeds") +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1))
+
+
+
+
+
+
+
 
 plots <- unique(df_soft_plot$Plot)
 depth <- unique(df_soft_plot$Depth)
@@ -187,7 +232,7 @@ head(df_seed)
 #Fix here 
 
 head(df_seed)
-  df_seed %>%
+  df_seed %>%c
   mutate(SumPropSoft = cumsum(PropSoft))
   
 ```

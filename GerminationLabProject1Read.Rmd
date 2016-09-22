@@ -52,6 +52,7 @@ tail(df_seed)
 ggplot(aes(x=HoursofTest, y=PropGerm_cum/50*100, colour=factor(Cv))) + # do percentage here
   geom_point()+
   geom_line()+
+  labs(x="Hours",y="Cummulative Germination Percnet(%)")+
   facet_grid(.~Temp)
 
 head(df_seed)
