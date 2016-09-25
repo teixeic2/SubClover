@@ -228,6 +228,16 @@ df_seed %>%
 
 head(df_seed)
 
+df_Hard <-df_seed %>%
+  mutate(hardSeed = 100-PropSoft) %>%
+  mutate(SowingD = dmy(SowingD)) %>%
+  #filter(Round == 1) %>%
+  group_by(Cultivar,SowingD) %>%
+  dplyr::select(hardSeed) %>%
+  summarise_each(funs(mean,sd))
+head(df_Hard)
+
+
 df_seedANOVA <- df_seed %>%
 mutate(hardSeed = 100-PropSoft) %>%
 filter(Round == 1) 
