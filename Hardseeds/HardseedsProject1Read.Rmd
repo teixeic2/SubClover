@@ -65,12 +65,23 @@ g1 <- df_seed %>%
 # per round
 g1 %>%
 # filter(SowTreat != "S4") %>%
-  ggplot(aes(x=Round,y=1-PercSoftCum,colour=factor(Cultivar)))+
+  ggplot(aes(x=Round,y=100*(1-PercSoftCum),colour=factor(Cultivar)))+
   geom_point() +
   geom_line() +
   labs(x="Hardseed Assessment",y="Cummulative Proportion Hardseeds") +
   #ylim(0,1)+
+  labs(y="Percentage of Hardseeds")+
   facet_grid(SowTreat~Depth)
+
+#new graph
+g1 %>%
+ggplot(aes(x=Round, y=1-PercSoftCum,colour, 
+             colour=Cultivar, shape=Cultivar)) +
+  geom_point() +
+  geom_line() +
+  facet_grid(SowTreat~Depth) +
+  geom_vline(xintercept = 5, linetype=2)+
+  labs(y="Percentage of Hardseeds")
 
 
 # xy up down comparison

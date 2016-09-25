@@ -130,7 +130,8 @@ df_soft_live %>%
              colour=Cultivar, shape=Cultivar)) +
   geom_point() +
   geom_line() +
-  facet_grid(Depth~SowTreat) +
+  facet_grid(SowTreat~Depth) +
+  labs(y="Percentage of live Hardseeds")+
   geom_vline(xintercept = 5, linetype=2)
   
   
