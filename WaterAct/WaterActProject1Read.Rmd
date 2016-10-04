@@ -44,13 +44,12 @@ tail(df_seed)
 
 
 
-```{rCreate Percent Soft}
+```{r}
 
 
-#Check for outliers _Boxplot 
+#Graph it  
 df_seed %>%
-
-  ggplot(aes(x=Cultivar, y=WaterAct, colour=factor(SowTreat)))+
+  ggplot(aes(x=SowTreat, y=WaterAct, colour=factor(Cultivar)))+
   geom_boxplot() +
   geom_jitter() +
   theme(axis.text.x=element_text(angle = +90, hjust = 0))+
@@ -60,7 +59,19 @@ df_seed %>%
 
 
 ```{r}
-
+  df_seed %>%
+  group_by(Cultivar,SowTreat) %>%
+  dplyr::select(WaterAct)%>%
+  summarise_each(funs(mean,sd)) %>%
+  ggplot(aes(x=SowTreat, y=mean, colour=factor(Cultivar),     shape=factor(Cultivar))) +
+  geom_point() +
+  geom_line() +
+ facet_grid(.~Cultivar) +
+  labs(x="Sowing Treat",y="Water Activity") +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1))+
+  geom_errorbar(aes(ymin=mean-sd/2,
+                    ymax=mean+sd/2))+
+  ylim(0,1)
 
 
 ```

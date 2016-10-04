@@ -228,6 +228,8 @@ df_seed %>%
 
 head(df_seed)
 
+#just get the means and stdv of Hardseeds for cultivars in 4 SowD
+
 df_Hard <-df_seed %>%
   mutate(hardSeed = 100-PropSoft) %>%
   mutate(SowingD = dmy(SowingD)) %>%
