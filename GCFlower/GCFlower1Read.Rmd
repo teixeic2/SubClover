@@ -62,7 +62,7 @@ head(df_GCF)
 
 
 df_GCF %>%
-  filter(Cultivar != "Denmark" )%>%
+  #filter(Cultivar != "Denmark" )%>%
   mutate(Variable = 
   factor(Variable,levels = c("Bud","Early","Open",
           "Petal","Bur1","Bur2","Bur3","Bur4" )))%>%
