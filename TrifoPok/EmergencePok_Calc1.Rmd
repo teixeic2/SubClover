@@ -1,0 +1,223 @@
+---
+title: "Trifoliates Poukawa "
+author: "CT"
+date: "Thursday, August  31, 2016"
+output: html_document
+---
+
+Purpose:
+
+-Analysis of trifoliate expansion 
+ 
+
+
+
+```{r loadLibraries}
+library(tidyr)
+library (dplyr)
+library (ggplot2)
+library(agricolae)
+library(knitr)
+library (lubridate)
+library(mosaic)
+library(lattice)
+```
+
+
+```{r loadFile}
+setwd("C:\\Users\\EdCarmen\\Documents\\CarmenProjects2016\\GitSubclover\\TrifoPok")
+getwd()
+
+#create file
+df_trifo <- read.table("TrifoPok.txt",header=TRUE)
+head(df_trifo)
+
+# define factors for the ones that "look like" values
+df_trifo$Plot <- as.factor(df_trifo$Plot)
+df_trifo$Block <- as.factor(df_trifo$Block)
+
+ df_trifo <- df_trifo %>%
+  mutate(SowingDate = dmy(SowingDate), 
+         ReadingDate = dmy(ReadingDate),
+         Trifo = (s1+s2+s3+s4+s5+s6+s7+s8+s9+s10)/10)
+
+str(df_trifo)
+head(df_trifo)
+tail(df_trifo)
+
+
+df_trifo %>% filter(Plot ==1) %>% summary()
+
+#Graph         
+  df_trifo %>%  group_by(Cultivar, SowTreat, DAS) %>%
+  summarise_each(funs(mean)) %>%
+  ggplot(aes(x=DAS, y=Trifo)) + 
+  geom_point(aes(colour=Cultivar)) +
+  geom_line(aes(colour=Cultivar)) +
+  facet_wrap (~SowTreat,ncol=4, scales = "free")+c
+  labs(y="Number of trifoliates",x="Days after sowing")+
+    geom_abline(intercept = 10, slope = 0)
+
+```
+
+Stop here !!!
+
+```{r CalculatePercentageEmergence }
+
+
+
+
+```
+
+
+```{r ANOVAMaxPlantPop}
+
+#compare max plant population among Sowing dates and cultivars
+
+df_emerg_perc3 <- df_emerg %>%
+group_by(Plot) %>%
+mutate(FinalPop= round(max(PlantPop)*1,digits=2))
+
+head(df_emerg_perc3)
+summary (df_emerg_perc3)
+
+
+
+#normality test
+shapiro.test(df_emerg_perc3$FinalPop)
+
+
+#data transformation
+file <- df_emerg_perc3
+
+file$transf_sqr <- sqrt(df_emerg_perc3$FinalPop)
+file$transf_log <- log(df_emerg_perc3$FinalPop)
+file$transf_log1 <- log(df_emerg_perc3$FinalPop+1)
+file$transf_no <- 1*(df_emerg_perc3$FinalPop)
+head(file)
+
+
+
+x <- c("transf_sqr", "transf_log","transf_log1", "transf_no")
+colsSelec <- match(x,colnames(file))
+
+file %>%
+  tidyr::gather("transformation","value",colsSelec) %>%
+  ggplot(aes(value)) + 
+  geom_histogram() +
+ # facet_wrap(SowTreat~transformation, scales="free", ncol=4) +
+  facet_grid(transformation~SowTreat, scales="free")
+
+head(file)
+
+
+#QQplot
+var<-file$transf_no
+qqnorm(var)
+qqline(var, col = 2)
+qqplot(var, rt(300))
+
+#-------------------------------------------------
+# ANOVA (selecing by hand FIXME: do loop)
+# file.subset <- file %>% subset(SowTreat == "S2" & round==1)
+file.subset <- file 
+
+head(file.subset, 50)
+summary(file.subset)
+my.anova <- aov(transf_no ~ Cultivar*SowTreat + Block, 
+                data = file.subset)
+
+summary(my.anova)
+
+TukeyHSD(my.anova)
+
+#Means separation 
+(LSD.test(my.anova, c("SowTreat"), alpha= 0.05, p.adj="none") ) 
+(LSD.test(my.anova, c("Cultivar"), alpha= 0.05, p.adj="none") )
+(LSD.test(my.anova, c("SowTreat","Cultivar"), alpha= 0.05, p.adj="none"))
+
+
+```
+
+
+
+
+Create Graph Percent emergence with Mean Soil Temperature 
+```{r}
+
+setwd("C:\\Users\\EdCarmen\\Documents\\CarmenProjects2016\\GitSubclover")
+getwd()
+
+
+df_fileSo <- read.table("SoilTemp.txt", header=TRUE)
+
+head(df_fileSo)
+
+df_fileSo <- df_fileSo %>%
+mutate(ReadingDate = dmy(Date)) %>%
+dplyr:: select(-Date)
+str(df_fileSo)
+
+head(df_emerg_perc)
+head(df_fileSo)
+
+ 
+# Merge SoilTemp and Emergence  at measurement date
+df_emerg_perc_SoilT <- NULL
+df_emerg_perc_SoilT <- merge(df_emerg_perc,df_fileSo,by="ReadingDate")
+head(df_emerg_perc_SoilT)
+
+
+```
+
+
+
+```{r SoilTemp}
+# include soil  temperature before 30 June_lysimeter  
+
+df_SoilTT <- read.table("ThermalSumSoil.txt",header=TRUE)
+head(df_SoilTT)
+
+# convert to date format
+df_SoilTT <- as.data.frame(df_SoilTT) %>%
+ mutate(Date=ymd(Date))
+
+
+# check
+head(df_SoilTT)
+
+
+```
+
+Merge the dataframes 
+
+```{r}
+
+# Merge Tt at measurement date
+df_emerg_perc_TT <- NULL
+df_emerg_perc_TT <- merge(df_emerg_perc,df_SoilTT,by.x="ReadingDate",by.y="Date")
+df_emerg_perc_TT <- merge(df_emerg_perc_TT,df_SoilTT,by.x="SowingDate",by.y="Date")
+df_emerg_perc_TT$TT_to_emerg <- df_emerg_perc_TT$TT.x-df_emerg_perc_TT$TT.y
+summary(df_emerg_perc_TT)
+
+#save as table 
+write.table(df_emerg_perc_TT, "df_emerg_perc_soilTT.txt")
+head(df_emerg_perc_TT )
+
+# graph emerg x tt
+df_emerg_perc_TT %>%
+  group_by(Cultivar, SowTreat, TT_to_emerg) %>%
+  #dplyr::select(-SowingDate, - ReadingDate) %>%
+#  filter(Cultivar =="Narrikup") %>%
+  summarise_each(funs(mean)) %>%
+  ggplot(aes(x=TT_to_emerg, y=PercEmerg,colour=Cultivar)) + 
+  geom_point() +
+  geom_line() +
+  #facet_grid (Cultivar~., scales = "free")+
+  geom_abline(intercept = 50, slope = 0) +
+  facet_wrap (~SowTreat,ncol=4, scales = "free")+
+  xlab("Thermal-time from sowing") +
+  ylab("Percentage emergence")
+
+
+```
