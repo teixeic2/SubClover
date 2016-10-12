@@ -1,7 +1,7 @@
 ---
 title: "Flowering 6CV Poukawa"
 author: "CT"
-date: "Thursday, December 31, 2015"
+date: "01/10/2016, 2016"
 output: html_document
 ---
 
@@ -24,8 +24,6 @@ getwd()
 df_flower <-read.table("FlowPok.txt",header=TRUE)
 
 
-colnames(df_flower)[1] <- "Cultivar" # fix bug of extra characters in name
-# convert to date format
 df_flower <- df_flower %>%
 mutate(Date=dmy(Date),SowingD=dmy(SowingD), 
        Percent=(S1+S2+S3+S4+S5)/5*100)
@@ -41,49 +39,59 @@ Analysis of sowing date and cultivars for Bud considering Date
 
 head(df_flower)
  df_flower %>%
-  group_by(DAS,Date, Cultivar,SowTreat,Variable)%>%
+  group_by(DAS,Date, Cultivar,SowTreat)%>%
   summarise_each(funs(mean)) %>%
-  select(Variable,Percent, Cultivar,Date,SowTreat)%>%
-  filter(Variable == "Bud") %>%
+  select(Percent, Cultivar,Date,SowTreat)%>%
   ggplot(aes(x=Date, y=Percent)) + 
   geom_line(aes(colour=Cultivar)) +
   facet_grid(SowTreat~Cultivar, scales = "free")+
   #facet_grid(Cultivar~., scales = "free")+
   geom_abline(intercept = 50, slope = 0) +
   theme(axis.text.x = element_text(angle = 90, hjust = 1))
+ 
+
+```
+
+
+```{r}
+#Create a cummulative Percentage 
+g1 <-df_flower %>%
+  dplyr::select(-Date) %>%  
+  group_by(SowTreat,Cultivar, PlotNumber) %>% # need to keep level in which cumulation occurs
+  arrange(DAS) %>% # need to tell which factor to accumulate within
+  mutate(Percent_cum = cumsum(Percent)) %>%
+  #fix me here - print the Percent cum in df
+  
+  group_by(SowTreat,Cultivar,PlotNumber,Date) %>%
+  summarise_each(funs(mean)) 
+
+head(df_flower)
+summary(df_flower)
+
+
+
 
 ```
 
 
 
 
-Analysis of Sowing dates and variables (from bud to bur4) considering DAS 
+Graph  
 
 ```{r GraphSowingDateAndVariable}
 
-df_flower %>%
-  #filter(SowTreat != "S6" & SowTreat != "S7")%>%
-  mutate(Variable = 
-  factor(Variable,levels = c("Bud","Early","Open",
-          "Petal","Bur1","Bur2","Bur3","Bur4" ))) %>%
-  group_by(DAS,Cultivar,SowTreat,Variable) %>%
+head(df_flower)
+ df_flower %>%
+  group_by(DAS,Date, Cultivar,SowTreat)%>%
   summarise_each(funs(mean)) %>%
-  select(Variable,Percent, Cultivar,DAS,SowTreat) %>%
-  filter(Cultivar == "Monti" | Cultivar =="Woogenellup") %>%
-  ggplot(aes(x=DAS, y=Percent)) + 
-  #geom_bar(shape=1, stat="identity")
+  select(Percent, Cultivar,Date,SowTreat)%>%
+  #filter(Variable == "Bud") %>%
+  ggplot(aes(x=Date, y=Percent)) + 
   geom_line(aes(colour=Cultivar)) +
-  facet_grid(SowTreat~Variable, scales = "free") +
-  geom_abline(intercept = 50, slope = 0)+
-  
-theme(axis.text.x = element_text(angle = 90, hjust = 1))
-
-
-
-
-
-
-
+  facet_grid(SowTreat~Cultivar, scales = "free")+
+  #facet_grid(Cultivar~., scales = "free")+
+  geom_abline(intercept = 50, slope = 0) +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1))
 
 
 ```

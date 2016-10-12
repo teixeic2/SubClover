@@ -54,7 +54,7 @@ df_seed %>%
 ```{r CreatePercentSoft}
 
 g1 <- df_seed %>%
-  dplyr::select(-Date) %>% # 
+  dplyr::select(-Date) %>% #
   group_by(SowTreat,Cultivar,Depth, Plot) %>% # need to keep level in which cumulation occurs
   arrange(Round) %>% # need to tell which factor to accumulate within
   mutate(Soft_cum = cumsum(Soft)) %>%
