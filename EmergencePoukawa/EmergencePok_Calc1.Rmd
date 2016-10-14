@@ -56,7 +56,7 @@ df_emerg %>% filter(Plot ==1) %>% summary()
   ggplot(aes(x=DAS, y=PlantPop)) + 
   geom_point(aes(colour=Cultivar)) +
   geom_line(aes(colour=Cultivar)) +
-  facet_wrap (~SowTreat,ncol=4, scales = "free")+
+  facet_grid (SowTreat~., scales = "free")+
   labs(y="Number of seedlings per m2",x="Days after sowing") 
   #+geom_abline(intercept = 50, slope = 0)
 

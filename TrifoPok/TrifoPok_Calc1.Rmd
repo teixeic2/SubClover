@@ -54,7 +54,7 @@ df_trifo %>% filter(Plot ==1) %>% summary()
   ggplot(aes(x=DAS, y=Trifo)) + 
   geom_point(aes(colour=Cultivar)) +
   geom_line(aes(colour=Cultivar)) +
-  facet_wrap (~SowTreat,ncol=4, scales = "free")+c
+  facet_grid (SowTreat~., scales = "free")+
   labs(y="Number of trifoliates",x="Days after sowing")+
     geom_abline(intercept = 10, slope = 0)
 
