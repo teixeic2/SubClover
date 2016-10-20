@@ -171,7 +171,7 @@ setwd("C:\\Users\\EdCarmen\\Documents\\CarmenProjects2016\\GitSubclover")
 getwd()
 
 
-df_fileSo <- read.table("SoilTemp.txt", header=TRUE)
+df_fileSo <- read.table("SoilTempPok.txt", header=TRUE)
 
 head(df_fileSo)
 

@@ -64,41 +64,32 @@ g1 <- df_seed %>%
 
 # per round
 g1 %>%
-# filter(SowTreat != "S4") %>%
-  ggplot(aes(x=Round,y=100*(1-PercSoftCum),colour=factor(Cultivar)))+
-  geom_point() +
-  geom_line() +
-  labs(x="Hardseed Assessment",y="Cummulative Proportion Hardseeds") +
-  #ylim(0,1)+
-  labs(y="Percentage of Hardseeds")+
-  facet_grid(SowTreat~Depth)
-
-#new graph
-g1 %>%
-ggplot(aes(x=Round, y=1-PercSoftCum,colour, 
-             colour=Cultivar, shape=Cultivar)) +
+  ungroup() %>%
+mutate(Depth = factor(Depth,levels=c( "up","down"))) %>%
+ggplot(aes(x=Round, y=100*(1-PercSoftCum), colour=Cultivar, shape=Cultivar)) +
   geom_point() +
   geom_line() +
   facet_grid(SowTreat~Depth) +
   geom_vline(xintercept = 5, linetype=2)+
-  labs(y="Percentage of Hardseeds")
+   labs(x="Hardseed Assessment",y="Cummulative Proportion Hardseeds")
 
 
 # xy up down comparison
 g1 %>%
   dplyr::select(Plot,PercSoftCum,Depth,Round) %>%
-  tidyr::spread(Depth, PercSoftCum)%>%
-  ggplot(aes(x=down,y=up,colour=factor(Cultivar)))+
-  geom_point() +
+  tidyr::spread(Depth, PercSoftCum) %>%
+  ggplot(aes(x=down,y=up))+
+  geom_point(aes(colour=factor(Cultivar))) +
+  stat_smooth(method = "lm") +
   facet_grid(SowTreat~.)
 
 #Check for outliers _Boxplot 
-df_seed %>%
-  ggplot(aes(x=Cultivar, y=Soft, colour=factor(SowTreat)))+
-  geom_boxplot() +
-  geom_jitter() +
-  theme(axis.text.x=element_text(angle = +90, hjust = 0))+
-  facet_grid(Depth~Round+SowTreat)
+# df_seed %>%
+#   ggplot(aes(x=Cultivar, y=Soft, colour=factor(SowTreat)))+
+#   geom_boxplot() +
+#   geom_jitter() +
+#   theme(axis.text.x=element_text(angle = +90, hjust = 0))+
+#   facet_grid(SowTreat~Depth+Round)
 
 ```
 
@@ -113,9 +104,13 @@ df_soft_plot <- df_seed %>%
   mutate(Soft_cum = cumsum(Soft)) %>%
   mutate(PercSoftCum=Soft_cum/max(SeedNumber))
 
+summary(df_soft_plot)
+str(df_soft_plot)
+
 plots <- unique(df_soft_plot$Plot)
 depth <- unique(df_soft_plot$Depth)
 all.data <- NULL
+
 for(p in 1:length(plots)) {
   for(d in 1:length(depth)) {
   
@@ -143,21 +138,25 @@ for(p in 1:length(plots)) {
   buf <- c(sow,cv,block, plots[p],  depth[d], intercept, slope, r2, nrow(df_sub))
   print(buf)
   
-    if (p==1 & d==1) {
+    if (p==1 & d==1) { 
     all.data <- data.frame(
-    sow = sow,
-    cv = cv,
-    block = block, 
-    plot = plots[p],  
-    depth = depth[d], 
-    int = intercept, 
-    slope = slope, 
-    r2 = r2,
-   n= nrow(df_sub)
-    ) } else{
-    all.data <- rbind(all.data, buf)
+    Sow = sow,
+    Cv = cv,
+    Block = block, 
+    Plot = plots[p],  
+    Depth = depth[d], 
+    Int = intercept, 
+    Slope = slope, 
+    R2 = r2,
+    n = nrow(df_sub)
+    ) } else {
+    all.data <- rbind(all.data, buf) # FIXME: Logic is not working for df creation
   }
-  
+
+# Error:  
+#   Warning message:
+# In `[<-.factor`(`*tmp*`, ri, value = "2") :
+#   invalid factor level, NA generated
   
 
   }
@@ -212,14 +211,16 @@ Calculate the mean and error bars for each cultivar
 df_seed %>%
   mutate(hardSeed = 100-PropSoft) %>%
   mutate(SowingD = dmy(SowingD)) %>%
-  #filter(Round == 1) %>%
-  group_by(Cultivar,SowingD) %>%
+    filter(Round == 1) %>%  #need to keep filter to get first and max hardseed percent
+  
+  mutate(Depth = factor(Depth,levels=c( "up","down"))) %>%
+  group_by(Cultivar,SowingD,Depth) %>%
   dplyr::select(hardSeed) %>%
   summarise_each(funs(mean,sd)) %>%
   ggplot(aes(x=SowingD, y=mean, colour=factor(Cultivar), shape=factor(Cultivar))) +
   geom_point() +
   geom_line() +
- facet_grid(.~Cultivar) +
+ facet_grid(Depth ~ Cultivar) +
   labs(x="Sowing Date",y="Maximum Percentage of Hardseeds") +
   theme(axis.text.x = element_text(angle = 90, hjust = 1))+
   geom_errorbar(aes(ymin=mean-sd/2,
