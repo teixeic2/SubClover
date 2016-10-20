@@ -54,6 +54,7 @@ tail(df_seed)
 
 
 df_hard_live_max <- df_seed %>%
+  mutate(Depth = factor(Depth,levels=c( "up","down")))%>%
   group_by(Plot,Depth) %>% 
   dplyr::select(-Date) %>% # 
   arrange(Round) %>% # need to tell which factor to accumulate within
@@ -80,14 +81,15 @@ summary(df_hard_live_max) # explore values
 
   df_hard_live_max %>%
   mutate(SowingD = dmy(SowingD)) %>%
+  
   filter(Round == 1) %>%
-  group_by(Cultivar,SowingD) %>%
+  group_by(Cultivar,SowingD, Depth) %>%
   dplyr::select(Hard_perc) %>%
   summarise_each(funs(mean,sd)) %>%
   ggplot(aes(x=SowingD, y=mean, colour=factor(Cultivar), shape=factor(Cultivar))) +
   geom_point() +
   geom_line() +
- facet_grid(.~Cultivar) +
+ facet_grid(Depth~Cultivar) +
   labs(x="Sowing Date",y="Maximum Percentage of LiveHardseeds") +
   theme(axis.text.x = element_text(angle = 90, hjust = 1))+
   geom_errorbar(aes(ymin=mean-sd/2,
@@ -128,7 +130,7 @@ head (df_soft_live)
 
 df_soft_live %>%
   mutate(SowingD = dmy(SowingD)) %>%
-  ilter(Round == 1) %>%
+  #filter(Round == 1) %>%
   group_by(Cultivar,SowingD, SowTreat, Depth, Round) %>%
   dplyr::select(HardLive_perc) %>%
   summarise_each(funs(mean)) %>%
@@ -136,16 +138,11 @@ df_soft_live %>%
   geom_point() +
   geom_line() +
   ylim(0,100)+
- #facet_grid(.~Depth) +
+ facet_grid(.~Depth) +
   labs(x="Round",y="Percentage of LiveHardseeds") +
   theme(axis.text.x = element_text(angle = 90, hjust = 1))
 
-
-
-
-
-
-
+#Calculate slopes not working 
 
 plots <- unique(df_soft_plot$Plot)
 depth <- unique(df_soft_plot$Depth)
