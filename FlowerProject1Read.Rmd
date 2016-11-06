@@ -83,12 +83,6 @@ theme(axis.text.x = element_text(angle = 90, hjust = 1))
 
 
 
-
-
-
-
-
-
 ```
 
 Read Thermal Sum data. Need to include these values before 30 06 : 
