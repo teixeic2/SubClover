@@ -48,7 +48,7 @@ head(df_flower)
   summarise_each(funs(mean)) %>%
   select(Variable,Percent, Cultivar,Date,SowTreat)%>%
   filter(Variable == "Bud") %>%
-  ggplot(aes(x=Date, y=Percent)) + 
+  ggplot(aes(x=DAS, y=Percent)) + 
   geom_line(aes(colour=Cultivar)) +
   facet_grid(SowTreat~Cultivar, scales = "free")+
   #facet_grid(Cultivar~., scales = "free")+
@@ -156,7 +156,7 @@ summary(df_flower )
 # TT from Bud to Bur 3 
 
 df_flower %>%
-  filter(SowTreat != "S6" & SowTreat != "S7")%>%
+  #filter(SowTreat != "S6" & SowTreat != "S7")%>%
   mutate(Variable = 
   factor(Variable,levels = c("Bud","Bur3"))) %>%
   group_by(DAS,Cultivar,SowTreat,Variable) %>%

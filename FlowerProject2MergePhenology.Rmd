@@ -108,7 +108,7 @@ df_bud_flow_bur_simple %>%
   select(Variable,Percent, Cultivar,DAS,SowTreat, TTAS) %>%
   #filter(SowTreat == "S1" | SowTreat == "S2" | SowTreat == "S3" | SowTreat == "S4" ) %>%
   #filter(Cultivar == "Monti" | Cultivar == "Leura") %>%
-  filter(Variable == "Flowering")%>%
+  filter(Variable == "Bud")%>%
  ggplot(aes(x=DAS, y=Percent)) + 
   #ggplot(aes(x=TTAS, y=Percent)) + 
   geom_line(aes(colour=Cultivar)) +
@@ -116,7 +116,7 @@ df_bud_flow_bur_simple %>%
   #facet_grid(Cultivar~SowTreat, scales = "free") +
   facet_grid(SowTreat~Cultivar, scales = "free") +
   geom_abline(intercept = 50, slope = 0) +
-  ylab("Percent of Flowering (%)") +
+  ylab("Percent of Bud (%)") +
    xlab("DAS")+
   #xlab("Thermal-time from sowing (oCd)")+
 theme(axis.text.x = element_text(angle = 60, hjust = 1))

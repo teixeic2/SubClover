@@ -72,8 +72,30 @@ head(df_hard_live_max)
 summary(df_hard_live_max) # explore values
 
 
+# GRaph the percentage of dead seeds ! 
+
+  df_hard_live_max %>%
+  mutate(SowingD = dmy(SowingD)) %>%
+  #filter(Round == 1) %>%
+  group_by(Cultivar,SowingD, Depth) %>%
+  dplyr::select(Dead_perc) %>%
+  summarise_each(funs(mean,sd)) %>%
+  ggplot(aes(x=SowingD, y=mean, colour=factor(Cultivar), shape=factor(Cultivar))) +
+  geom_point() +
+  geom_line() +
+ facet_grid(Depth~Cultivar) +
+  labs(x="Sowing Date",y=" Percentage of Dead Seeds (%)") +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1))+
+  geom_errorbar(aes(ymin=mean-sd/2,
+                    ymax=mean+sd/2))+
+  ylim(0,30)
+
+
+
+
 ```
 
+abnormal seedlings
 
 ```{r}
 
@@ -97,7 +119,7 @@ df_hard_live_abn <- df_seed %>%
 summary (df_hard_live_abn)
 
 
-#Graph the  percentage of dead seeds!!! 
+#Graph the  percentage of abnormal seeds!!! 
 
   df_hard_live_abn %>%
   mutate(SowingD = dmy(SowingD)) %>%
@@ -110,12 +132,11 @@ summary (df_hard_live_abn)
   geom_point() +
   geom_line() +
  facet_grid(Depth~Cultivar) +
-  labs(x="Sowing Date",y=" Percentage of Abnormal Seeds (%)") +
+  labs(x="Sowing Date",y=" Percentage of Abnormal Seedlings (%)") +
   theme(axis.text.x = element_text(angle = 90, hjust = 1))+
   geom_errorbar(aes(ymin=mean-sd/2,
                     ymax=mean+sd/2))+
   ylim(0,50)
-
 
 
 ```
@@ -126,26 +147,19 @@ summary (df_hard_live_abn)
 ```{r}
 
 
-
-
-  df_hard_live_max %>%
+#Visualise values as table 
+ df_sum <- df_hard_live_abn %>%
   mutate(SowingD = dmy(SowingD)) %>%
-  
-  #filter(Round == 1) %>%
-  group_by(Cultivar,SowingD, Depth) %>%
-  dplyr::select(Dead_perc) %>%
-  summarise_each(funs(mean,sd)) %>%
-  ggplot(aes(x=SowingD, y=mean, colour=factor(Cultivar), shape=factor(Cultivar))) +
-  geom_point() +
-  geom_line() +
- facet_grid(Depth~Cultivar) +
-  labs(x="Sowing Date",y=" Percentage of Dead Seeds (%)") +
-  theme(axis.text.x = element_text(angle = 90, hjust = 1))+
-  geom_errorbar(aes(ymin=mean-sd/2,
-                    ymax=mean+sd/2))+
-  ylim(0,50)
+    group_by (SowingD) %>%
+  #group_by( Cultivar) %>%
+  dplyr::select(Abn_perc) %>%
+  summarise_each(funs(mean,sd))
 
+summary (df_sum)
 
+# table
+df_sum %>%
+  kable()
 
 
 ```
