@@ -16,11 +16,10 @@ library (lubridate)
 
 Note: the file is called HistoricMeanTemp but actually contains the hobologger data Iversen 2
 
-```{rload file}
+
+```{r}
 setwd("C:\\Users\\EdCarmen\\Documents\\CarmenProjects2016\\GitSubclover")
 getwd()
-
-
 df_file <- read.table("HistoricMeanTemp.txt", header=TRUE)
 
 head(df_file)
@@ -36,13 +35,12 @@ head(df_file)
 #head(df_file,20)
 
 
-
 ```
 
 
 
-```{r airtempmean}
-#Calculculate Mean Air temp 
+```{r}
+#Calculat Mean Air Temp
 
 df_file$Date <- dmy(df_file$Date)
 
@@ -56,8 +54,8 @@ head(df_file)
 df_file %>% 
 ggplot(aes(x=Date, y= Air)) +
     geom_line()
-
 ```
+
 
 
 Calculate accumulated TT
@@ -69,7 +67,7 @@ group_by(Date) %>%
 summarise_each(funs(mean))%>%
   mutate(TT = cumsum(Air))%>%
  # dplyr::select(-hour,-Air)
-  dplyr::select(-Air) # using historical input
+  dplyr::select(-Air) # using I2 input
 
 write.table(df_file, "ThermalSum.txt")
 
@@ -77,7 +75,6 @@ write.table(df_file, "ThermalSum.txt")
 
 
 Graph it 
-
 
 
 ```{r graph}

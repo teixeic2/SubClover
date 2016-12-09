@@ -62,6 +62,8 @@ df_flower_simple %>%
   filter(Variable=="Flowering")  %>%
   head()
 
+tail(df_flower_simple)
+
 
 ```
 
