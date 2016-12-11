@@ -77,7 +77,30 @@ df_GCF %>%
   facet_grid(.~Variable, scales = "free") +
   geom_abline(intercept = 50, slope = 0,linetype=2)+
 theme(axis.text.x = element_text(angle = 0, hjust = 0.5))+
-scale_x_continuous(breaks=seq(min(df_GCF$DAS),max(df_GCF$DAS),10))
+scale_x_continuous(breaks=seq(min(df_GCF$DAS),max(df_GCF$DAS),50))
   
 ```
+
+
+```{r}
+
+df_GCF %>%
+  filter(Cultivar =="Narrikup" )%>%
+  mutate(Variable = 
+  factor(Variable,levels = c("Bud","Early","Open",
+          "Petal","Bur1","Bur2","Bur3","Bur4" )))%>%
+  group_by(DAS,Cultivar,Variable) %>%
+  #summarise_each(funs(mean)) %>%
+  select(Variable,Percent, Cultivar,DAS) %>%
+  #filter(Cultivar == "Antas" | Cultivar =="Narrikup") %>%
+  ggplot(aes(x=DAS, y=Percent)) + 
+  #geom_bar(shape=1, stat="identity")
+  geom_line(aes(colour=Cultivar)) +
+   geom_point(aes(colour=Cultivar))+
+  facet_grid(.~Variable, scales = "free") +
+  geom_abline(intercept = 50, slope = 0,linetype=2)+
+theme(axis.text.x = element_text(angle = 0, hjust = 0.5))+
+scale_x_continuous(breaks=seq(min(df_GCF$DAS),max(df_GCF$DAS),50))
+```
+
 

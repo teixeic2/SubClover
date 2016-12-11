@@ -3,11 +3,13 @@
 title: "CreateMergedPhenologyStages"
 author: "CT"
 date: "Sunday, January 17, 2016"
-output: html_document
+output:
+  html_document: default
+  word_document: default
 ---
 
 
-```{r loadLibraries}
+```{r loadLibraries,echo=FALSE}
 library(tidyr)
 library (dplyr)
 library (ggplot2)
@@ -18,13 +20,13 @@ library (lubridate)
 ```
 
 
-```{r loadFile}
+```{r loadFile, include=FALSE}
 setwd("C:\\Users\\EdCarmen\\Documents\\CarmenProjects2016\\GitSubclover")
 getwd()
 
 #create file
 df_flower <- read.table("df_flower.txt",header=TRUE)
-head(df_flower)
+
 tail(df_flower)
 
 summary(df_flower)
@@ -35,10 +37,14 @@ df_flower %>%
 
 ```
 
+```{r}
+head(df_flower)
+```
 
-Merge phenological stages into "bud, flower and burr"
 
-```{r joinEarlyOpenFlower}
+#Merge phenological stages into "bud, flower and burr"
+
+```{r joinEarlyOpenFlower, warning=FALSE}
 
 # create df with flowering stages only (merged)
 df_flower_simple <- df_flower %>%
@@ -69,7 +75,7 @@ tail(df_flower_simple)
 
 Do the same joining for Burr
 
-```{r joinBurrStages}
+```{r joinBurrStages, warning=FALSE}
 
 # create df with bur only (merged bur1,2,3 and 4)
 df_bur_simple <- df_flower %>%
@@ -97,6 +103,22 @@ df_bud_flow_bur_simple <-
 #check
 summary(df_bud_flow_bur_simple)
 
+
+
+
+write.table(df_bud_flow_bur_simple, "df_bud_flow_bur_simple.txt")
+
+
+```
+
+#Graph of merged 
+
+##ghggfhgfgh
+
+*ffdfdgd
+*gfdjkfjg
+
+```{r graph,fig.height= 10,fig.width= 10, warning=FALSE}
 # graph it
 df_bud_flow_bur_simple %>%
   filter(Variable == "Bud" |
@@ -122,10 +144,5 @@ df_bud_flow_bur_simple %>%
    xlab("DAS")+
   #xlab("Thermal-time from sowing (oCd)")+
 theme(axis.text.x = element_text(angle = 60, hjust = 1))
-
-
-write.table(df_bud_flow_bur_simple, "df_bud_flow_bur_simple.txt")
-
-
 ```
 
