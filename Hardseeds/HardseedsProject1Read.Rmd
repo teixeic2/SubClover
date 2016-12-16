@@ -204,9 +204,6 @@ head(df_seed)
 
 
 
-
-Calculate the mean and error bars for each cultivar 
-
 ```{r}
 df_seed %>%
   mutate(hardSeed = 100-PropSoft) %>%
@@ -227,6 +224,14 @@ df_seed %>%
   ylim(0,100)
 
 head(df_seed)
+
+```
+
+
+
+Calculate the mean and stdev  
+
+```{r}
 
 #just get the means and stdv of Hardseeds for cultivars in 4 SowD
 
