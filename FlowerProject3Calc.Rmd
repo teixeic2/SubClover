@@ -257,6 +257,7 @@ Graph TTAS and Photoperiod
 ```{r GraphPhoto}
 
 # graph it
+#head (df_bur_simple)
 df_bur_simple %>%
   filter(Variable == "Bud" |
            Variable =="Flowering"| 
@@ -264,15 +265,15 @@ df_bur_simple %>%
   mutate(Variable = 
   factor(Variable,levels = c("Bud","Flowering",
                              "Bur"))) %>%
-  group_by(TT50F,Cultivar,SowTreat,Variable,Pp) %>%
+  group_by(TTAS,Cultivar,SowTreat,Variable,Pp_sow) %>%
   summarise_each(funs(mean)) %>%
-  select(Variable,Percent, Cultivar,TT50F,SowTreat,Pp) %>%
+  select(Variable,Percent, Cultivar,TTAS,SowTreat,Pp_sow) %>%
   #filter(Cultivar == "Monti" | Cultivar == "Leura" ) %>%
   #filter(Variable == "Bud") %>%
-  ggplot(aes(x=TT50F, y=Percent)) + 
+  ggplot(aes(x=TTAS, y=Percent)) + 
   geom_line(aes(colour=Cultivar)) +
   geom_point(aes(shape=Cultivar,colour=Cultivar))+
-  facet_grid(Pp~Variable, scales = "free") +
+  facet_grid(SowTreat~Variable, scales = "free") +
   geom_abline(intercept = 50, slope = 0)+
 theme(axis.text.x = element_text(angle = 60, hjust = 1))
 

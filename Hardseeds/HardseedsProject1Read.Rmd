@@ -50,6 +50,20 @@ df_seed %>%
 ```
 
 
+```{r}
+
+g1 <- df_seed %>%
+  dplyr::select(-Date) %>% #
+  group_by(SowTreat,Cultivar,Depth, Plot) %>% # need to keep level in which cumulation occurs
+  arrange(Round) %>% # need to tell which factor to accumulate within
+  mutate(Soft_cum = cumsum(Soft)) %>%
+  mutate(PercSoftCum=Soft_cum/max(SeedNumber))%>%
+  group_by(SowTreat,Cultivar,Depth, Round) %>%
+  summarise_each(funs(mean)) 
+```
+
+
+
 
 ```{r CreatePercentSoft}
 
@@ -311,7 +325,6 @@ TukeyHSD(my.anova)
 
 ```{r}
 
-markdown::render("<C:\\Users\\EdCarmen\\Documents\\CarmenProjects2016\\Gitsubclover\\HardseedsProject1Read.Rmd>") 
 ```
 
 
