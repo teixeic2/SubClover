@@ -1,4 +1,4 @@
-Block	Cultivar	SowingD	DAS	DateReading	Pot	Variable	S1	S2
+Block	Cultivar	SowingD	DAS	Date	Pot	Variable	S1	S2
 1	Antas	17/06/2016	55	11/08/2016	1	Bud	0	0
 1	Antas	17/06/2016	55	11/08/2016	1	Early	0	0
 1	Antas	17/06/2016	55	11/08/2016	1	Open	0	0

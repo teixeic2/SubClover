@@ -30,7 +30,7 @@ summary(df_GCF)
 
 # convert to date format
 df_GCF <- df_GCF %>%
-mutate(DateReading=dmy(DateReading),SowingD=dmy(SowingD), 
+mutate(Date=dmy(Date),SowingD=dmy(SowingD), 
        Percent=(S1+S2)/2*100)
 str(df_GCF)
 head(df_GCF)
@@ -85,12 +85,11 @@ scale_x_continuous(breaks=seq(min(df_GCF$DAS),max(df_GCF$DAS),50))
 ```{r}
 
 df_GCF %>%
-  filter(Cultivar =="Narrikup" )%>%
+  filter(Cultivar =="Denmark" )%>%
   mutate(Variable = 
-  factor(Variable,levels = c("Bud","Early","Open",
-          "Petal","Bur1","Bur2","Bur3","Bur4" )))%>%
+  factor(Variable,levels = c("Bud","Bur3","Bur4" )))%>%
   group_by(DAS,Cultivar,Variable) %>%
-  #summarise_each(funs(mean)) %>%
+  summarise_each(funs(mean)) %>%
   select(Variable,Percent, Cultivar,DAS) %>%
   #filter(Cultivar == "Antas" | Cultivar =="Narrikup") %>%
   ggplot(aes(x=DAS, y=Percent)) + 
@@ -101,6 +100,139 @@ df_GCF %>%
   geom_abline(intercept = 50, slope = 0,linetype=2)+
 theme(axis.text.x = element_text(angle = 0, hjust = 0.5))+
 scale_x_continuous(breaks=seq(min(df_GCF$DAS),max(df_GCF$DAS),50))
+```
+
+
+Include Thermal time ; file same folder as GCFlower. called TTSum.txt
+
+```{r ReadThermalSumData}
+
+ 
+df_TTSum <- read.table("TTSumPp.txt",header=TRUE)
+summary(df_TTSum)
+tail(df_TTSum)
+
+df_TTSum  <- df_TTSum %>%
+mutate(Date=dmy(Date))
+
+# check
+head(df_TTSum)
+summary(df_TTSum  )
+names(df_TTSum)
+str(df_TTSum$Date)
+tail(df_TTSum)
+```
+
+
+```{r}
+
+# Add Tt at measurement date
+df_flower <- merge(df_GCF,df_TTSum,by="Date")
+head(df_flower)
+ 
+# change name TT to TT at measurement
+df_flower <- df_flower %>%
+rename(TT_meas = TT)
+head(df_flower)
+
+# Add Tt at sowing date
+df_TTSum_mod <- df_TTSum %>%
+  mutate (SowingD = Date) %>%
+  dplyr::select (-Date)
+
+df_flower <- merge(df_flower,df_TTSum_mod, by = "SowingD")
+
+df_flower <- df_flower %>%
+rename(TT_sow = TT)
+head(df_flower)
+
+#check why Ppx and Ppy?
+head(df_flower)
+summary(df_flower )
+```
+
+
+```{r}
+
+#aqi
+# TT from Bud to Bur 3 
+
+df_flower %>%
+  mutate(Variable = 
+  factor(Variable,levels = c("Bud","Bur3"))) %>%
+  group_by(DAS,Cultivar,Variable) %>%
+  summarise_each(funs(mean)) %>%
+  select(Variable,Percent, Cultivar) %>%
+  filter(Cultivar == "Narrikup" | Cultivar =="Denmark") %>%
+  ggplot(aes(x=DAS, y=Percent)) + 
+  geom_line(aes(colour=Cultivar)) +
+  facet_grid(.~Variable, scales = "free") +
+  geom_abline(intercept = 50, slope = 0)+
+  
+theme(axis.text.x = element_text(angle = 90, hjust = 1))
+```
+
+
+```{r CalculateTTAftersowing}
+
+
+
+df_flower$TTAS <- df_flower$TT_meas-df_flower$TT_sow
+head(df_flower)
+
+
+# graph
+df_flower %>%
+  mutate(Variable = 
+  factor(Variable,levels = c("Bud","Early","Open",
+          "Petal","Bur1","Bur2","Bur3","Bur4" ))) %>%
+  group_by(TTAS,Cultivar,Variable,DAS) %>%
+  summarise_each(funs(mean)) %>%
+  select(Variable,Percent, Cultivar,TTAS,DAS) %>%
+  filter(Variable == "Bud") %>%
+  ggplot(aes(x=TTAS, y=Percent)) + 
+  geom_line(aes(colour=Cultivar)) +
+  facet_grid(.~Cultivar, scales = "free") +
+  geom_abline(intercept = 50, slope = 0)+
+theme(axis.text.x = element_text(angle = 60, hjust = 1))+
+  labs(x="TTAS",y="Percent of Plants at floral stageBud")
+
+summary(df_flower)
+
+```
+
+```{r}
+df_flower %>%
+  #filter(Cultivar != "Denmark" )%>%
+  mutate(Variable = 
+  factor(Variable,levels = c("Bud","Early","Open",
+          "Petal","Bur1","Bur2","Bur3","Bur4" )))%>%
+  group_by(TTAS,DAS,Cultivar,Variable) %>%
+  summarise_each(funs(mean)) %>%
+  select(Variable,Percent, Cultivar,DAS,TTAS) %>%
+  #filter(Cultivar == "Antas" | Cultivar =="Narrikup") %>%
+  ggplot(aes(x=TTAS, y=Percent)) + 
+  #geom_bar(shape=1, stat="identity")
+  geom_line(aes(colour=Cultivar)) +
+   geom_point(aes(colour=Cultivar))+
+  facet_grid(.~Variable, scales = "free") +
+  geom_abline(intercept = 50, slope = 0,linetype=2)+
+theme(axis.text.x = element_text(angle = 0, hjust = 0.5))+
+scale_x_continuous(breaks=seq(min(df_flower$TTAS),max(df_flower$TTAS),3000))
+
+```
+
+
+
+```{r}
+# save final DF
+write.table(df_flower, "df_GCflower.txt")
+```
+
+
+
+```{r}
+
 ```
 
 
