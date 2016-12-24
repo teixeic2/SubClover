@@ -50,7 +50,7 @@ head(df_GCF)
   filter(Variable == "Bud") %>%
   ggplot(aes(x=DAS, y=Percent)) + 
   geom_line(aes(colour=Cultivar)) +
-   geom_point(aes(colour=Cultivar))+
+   geom_point(aes(colour=Cultivar, shape=Cultivar))+
   #facet_grid(.~Cultivar, scales = "free")+
   #facet_grid(Cultivar~., scales = "free")+
   geom_abline(intercept = 50, slope = 0) 
@@ -73,8 +73,8 @@ df_GCF %>%
   ggplot(aes(x=DAS, y=Percent)) + 
   #geom_bar(shape=1, stat="identity")
   geom_line(aes(colour=Cultivar)) +
-   geom_point(aes(colour=Cultivar))+
-  facet_grid(.~Variable, scales = "free") +
+   geom_point(aes(colour=Cultivar,shape=Cultivar))+
+  facet_grid(Variable~., scales = "free") +
   geom_abline(intercept = 50, slope = 0,linetype=2)+
 theme(axis.text.x = element_text(angle = 0, hjust = 0.5))+
 scale_x_continuous(breaks=seq(min(df_GCF$DAS),max(df_GCF$DAS),50))
@@ -95,11 +95,11 @@ df_GCF %>%
   ggplot(aes(x=DAS, y=Percent)) + 
   #geom_bar(shape=1, stat="identity")
   geom_line(aes(colour=Cultivar)) +
-   geom_point(aes(colour=Cultivar))+
-  facet_grid(.~Variable, scales = "free") +
+   geom_point(aes(colour=Cultivar, shape=Cultivar))+
+  facet_grid(Variable~., scales = "free") +
   geom_abline(intercept = 50, slope = 0,linetype=2)+
 theme(axis.text.x = element_text(angle = 0, hjust = 0.5))+
-scale_x_continuous(breaks=seq(min(df_GCF$DAS),max(df_GCF$DAS),50))
+scale_x_continuous(breaks=seq(min(df_GCF$DAS),max(df_GCF$DAS),2 0))
 ```
 
 
@@ -163,9 +163,10 @@ df_flower %>%
   group_by(DAS,Cultivar,Variable) %>%
   summarise_each(funs(mean)) %>%
   select(Variable,Percent, Cultivar) %>%
-  filter(Cultivar == "Narrikup" | Cultivar =="Denmark") %>%
+  #filter(Cultivar == "Narrikup" | Cultivar =="Denmark") %>%
   ggplot(aes(x=DAS, y=Percent)) + 
   geom_line(aes(colour=Cultivar)) +
+  geom_point(aes(colour=Cultivar, shape=Cultivar))+
   facet_grid(.~Variable, scales = "free") +
   geom_abline(intercept = 50, slope = 0)+
   
@@ -201,7 +202,7 @@ summary(df_flower)
 
 ```
 
-```{r}
+```{r , fig.height=10,fig.width=7}
 df_flower %>%
   #filter(Cultivar != "Denmark" )%>%
   mutate(Variable = 
@@ -214,11 +215,11 @@ df_flower %>%
   ggplot(aes(x=TTAS, y=Percent)) + 
   #geom_bar(shape=1, stat="identity")
   geom_line(aes(colour=Cultivar)) +
-   geom_point(aes(colour=Cultivar))+
-  facet_grid(.~Variable, scales = "free") +
+   geom_point(aes(colour=Cultivar, shape=Cultivar))+
+  facet_grid(Variable~., scales = "free") +
   geom_abline(intercept = 50, slope = 0,linetype=2)+
-theme(axis.text.x = element_text(angle = 0, hjust = 0.5))+
-scale_x_continuous(breaks=seq(min(df_flower$TTAS),max(df_flower$TTAS),3000))
+theme(axis.text.x = element_text(angle = 0, hjust = 0.5))#+
+#scale_x_continuous(breaks=seq(min(df_flower$TTAS),max(df_flower$TTAS),1200))
 
 ```
 
