@@ -47,10 +47,48 @@ df_We %>%
   tidyr::gather("Variable", "Value",Tx:Pp) %>%
   ggplot(aes(x=Date,y=Value))+
   geom_line(aes(colour=factor(Variable))) +
-  facet_wrap(~LocationYear,scale="free")+
-  
+  facet_wrap(~LocationYear,scale="free") +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1))
 
 
 ```
 
+Calculate TT
+
+```{r}
+
+#Create Thermal time cardinal temperatures 
+tt_card <- data.frame(temp=c(0,20,30,50),TT=c(0,20,20,0))
+tt_card %>%
+  ggplot(aes(x=temp, y=TT))+
+  geom_line()
+  
+#FIX ME include REF Thermal time 
+```
+
+```{r}
+
+#Create and test interpolation function 
+y_ref  <- 5
+x <- c(1,2,3)
+y <- c(0,10,20)
+
+int_func <- function(x,y,y_ref){
+  
+ tryCatch(  
+   
+  out <- approx(y, 
+  x, xout = y_ref, rule = 1)$y,
+  error = function(e) 
+  {
+  out <- NA
+  }
+) 
+return(out)  
+}
+int_func(x,y,y_ref)
+
+
+
+```
 
