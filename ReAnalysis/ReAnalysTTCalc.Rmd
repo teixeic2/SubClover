@@ -1,0 +1,56 @@
+---
+title: "ReanalysisTT"
+author: "CT"
+date: "27 December 2016"
+output: html_document
+---
+
+```{r setup, include=FALSE, loadlibraires}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyr)
+library (dplyr)
+library (ggplot2)
+library(agricolae)
+library(knitr)
+library (lubridate)
+
+```
+
+
+
+```{r cars}
+setwd("C:\\Users\\EdCarmen\\Documents\\CarmenProjects2016\\GitSubclover\\ReAnalysis")
+getwd()
+
+#create file
+df_We <- read.table("RawWeather.txt",header=TRUE)
+
+head(df_We)
+
+summary(df_We)
+```
+
+
+
+```{r changeformat, echo=FALSE}
+
+df_We$Date<-dmy(df_We$Date)
+
+str(df_We)
+
+```
+graph it 
+
+```{r, fig.height=10, fig.width=10}
+
+df_We %>%
+  tidyr::gather("Variable", "Value",Tx:Pp) %>%
+  ggplot(aes(x=Date,y=Value))+
+  geom_line(aes(colour=factor(Variable))) +
+  facet_wrap(~LocationYear,scale="free")+
+  
+
+
+```
+
+

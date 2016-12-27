@@ -1,0 +1,175 @@
+---
+title: "ReAnalysis Table"
+author: "CT"
+date: "Thursday, December  05, 2016"
+output: html_document
+note: Re analysis data compilation; Days, TT and Photop.
+---
+
+```{r loadLibraries}
+library(tidyr)
+library (dplyr)
+library (ggplot2)
+library(agricolae)
+library(knitr)
+library (lubridate)
+
+```
+Here loading the database : publication, location and dates of experiments 
+
+
+```{r   loadFile}
+setwd("C:\\Users\\EdCarmen\\Documents\\CarmenProjects2016\\GitSubclover\\ReAnalysis")
+getwd()
+
+
+#create file
+df_Data <- read.table("RawDatabase.txt",header=TRUE)
+
+#head(df_Data)
+
+summary(df_Data)
+
+
+
+```
+
+```{r}
+#change formats 
+
+df_Data$SowingDate <-dmy(df_Data$SowingDate)
+df_Data$StartFlowering <-dmy(df_Data$StartFlowering)
+
+str(df_Data)
+```
+
+```{r}
+#Calculate DaysToFlower
+
+df_Data <- df_Data %>%
+mutate(DaysToFlower=(StartFlowering-SowingDate))
+
+
+```
+
+Check data quality , graph
+
+```{r}
+df_Data %>%
+  ggplot(aes(x=Location,y=DaysToFlower))+
+  geom_jitter(width = 0.2)+
+  geom_boxplot(alpha=0.2)+
+theme(axis.text.x = element_text(angle = 90, hjust = 1))+
+  facet_wrap(~Country)
+```
+
+
+```{r}
+df_Data %>%
+  ggplot(aes(x=month(SowingDate),y=DaysToFlower))+
+  #geom_jitter(width = 0.2)+
+  geom_point(alpha=0.2)+
+#theme(axis.text.x = element_text(angle = 90, hjust = 1))+
+  facet_wrap(~Country)
+```
+
+
+
+Graph Box Plot 
+
+```{r GraphBoxPlot}
+
+# Graph DAS and Location 
+
+df_Data %>%
+  filter(Location != "Canberra"& Location != "Lismore") %>%
+  ggplot(aes(x=Country, y=DaysToFlower)) + 
+  geom_boxplot(alpha =0.2) +
+  geom_violin(alpha =0.2)+
+  geom_jitter(aes(colour=Location), width=0.25)+
+  labs(y="DAS to flower ",x="Country")
+  
+
+```
+
+
+```{r loadweather file}
+
+setwd("C:\\Users\\EdCarmen\\Documents\\CarmenProjects2016\\GitSubclover\\ReAnalysis")
+getwd()
+
+#create file
+df_We <- read.table("RawWeather.txt",header=TRUE)
+
+head(df_We)
+
+summary(df_We)
+
+#change formats 
+
+df_We$Date <-dmy(df_We$Date)
+
+```
+
+
+
+
+```{r}
+
+
+
+```
+
+
+
+
+Graph Photperiod and TT flower per Location and cultivar 
+
+
+```{rGraphFacetwrap}
+head(df_Re)
+
+
+# location 
+df_Re %>%
+  filter(Location =="Launceston" | Location =="Katanning") %>%
+  ggplot(aes(x=PhotopAtTtTarget, y=TtFlowerAdjusted)) + 
+  geom_line(aes(colour=Treatcultivar)) +
+  geom_point(aes(colour=Treatcultivar)) +
+  facet_grid(.~Country, scales = "free")
+
+#analysis cultivar 
+
+df_Re %>%
+  filter(Treatcultivar =="Tallarook" | Treatcultivar =="MtBarker") %>%
+  ggplot(aes(x=PhotopAtTtTarget, y=TtFlowerAdjusted)) + 
+  geom_line(aes(colour=Location)) +
+  geom_point(aes(colour=Location)) +
+  facet_grid(Treatcultivar~Country, scales = "free")
+  
+  #labs(y="Percentage plants with first Trifoliate",x="Days after sowing") +
+    # facet_wrap(~AuthorYear, scales = "free")
+    
+    
+ df_Data %>%
+   ggplot(aes(x=AuthorYear, y=TtFlowerAdjusted)) + 
+    geom_boxplot() +
+  geom_jitter(width=0.25) +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1))
+
+
+#Graph PhotoPTarget and TT Flower per Author 
+
+ df_Data %>%
+  ggplot(aes(x=PhotopAtTtTarget, y=TtFlowerAdjusted)) + 
+  geom_point(aes(colour=AuthorYear)) 
+  facet_wrap (~AuthorYea,ncol=10, scales = "free")
+  #+
+  #labs(y="Percentage plants with first Trifoliate",x="Days after sowing") +
+    # facet_wrap(~AuthorYear, scales = "free")
+
+```
+
+
+
+

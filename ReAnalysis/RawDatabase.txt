@@ -1,446 +1,446 @@
-LocationYear	AuthorYear 	YearExperiment	Location	Country	Treatcultivar	SowingDate	StartFlowering	DaysToFlower 	FlowerPercent
-Crowmwell1965	Smetham1968	1965	Cromwell	NZ	Dwang	17/02/1965	30/09/1965	225.0	50.00
-Crowmwell1965	Smetham1968	1965	Cromwell	NZ	Geraldton	17/02/1965	30/09/1965	225.0	50.00
-Crowmwell1965	Smetham1968	1965	Cromwell	NZ	Yarloop	17/02/1965	30/09/1965	225.0	50.00
-Crowmwell1965	Smetham1968	1965	Cromwell	NZ	Burrelmedic	17/02/1965	30/09/1965	225.0	50.00
-Crowmwell1965	Smetham1968	1965	Cromwell	NZ	Woogenellup	17/02/1965	15/10/1965	240.0	50.00
-Crowmwell1965	Smetham1968	1965	Cromwell	NZ	Clare	17/02/1965	15/10/1965	240.0	50.00
-Crowmwell1965	Smetham1968	1965	Cromwell	NZ	MtBarker	17/02/1965	22/10/1965	247.0	50.00
-Crowmwell1965	Smetham1968	1965	Cromwell	NZ	EdenHope	17/02/1965	22/10/1965	247.0	50.00
-Crowmwell1965	Smetham1968	1965	Cromwell	NZ	BacchusM	17/02/1965	22/10/1965	247.0	50.00
-Crowmwell1965	Smetham1968	1965	Cromwell	NZ	Kilmore	17/02/1965	22/10/1965	247.0	50.00
-Crowmwell1965	Smetham1968	1965	Cromwell	NZ	Nangeela	17/02/1965	30/10/1965	255.0	50.00
-Crowmwell1965	Smetham1968	1965	Cromwell	NZ	Derrinal	17/02/1965	30/10/1965	255.0	50.00
-Crowmwell1965	Smetham1968	1965	Cromwell	NZ	Wenigup	17/02/1965	30/10/1965	255.0	50.00
-Crowmwell1965	Smetham1968	1965	Cromwell	NZ	TallarookvsWenig	17/02/1965	30/10/1965	255.0	50.00
-Crowmwell1965	Smetham1968	1965	Cromwell	NZ	Boomerang	17/02/1965	30/10/1965	255.0	50.00
-Crowmwell1965	Smetham1968	1965	Cromwell	NZ	Portugal294	17/02/1965	30/10/1965	255.0	50.00
-Crowmwell1965	Smetham1968	1965	Cromwell	NZ	Bena	17/02/1965	15/11/1965	271.0	50.00
-Crowmwell1965	Smetham1968	1965	Cromwell	NZ	Tallarook	17/02/1965	15/11/1965	271.0	50.00
-NA	Aitken1955	1952	Melbourne	AU	Dwang	8/04/1952	16/09/1952	162	NA
-NA	Aitken1955	1952	Melbourne	AU	Yarloop	8/04/1952	4/10/1952	179	NA
-NA	Aitken1955	1952	Melbourne	AU	Clare	8/04/1952	6/10/1952	182	NA
-NA	Aitken1955	1952	Melbourne	AU	BacchusM	8/04/1952	15/10/1952	191	NA
-NA	Aitken1955	1952	Melbourne	AU	MtBarker	8/04/1952	3/11/1952	209	NA
-NA	Aitken1955	1952	Melbourne	AU	Tallarook	8/04/1952	3/11/1952	209	NA
-Launceston1987	Evansetal1992	1987	Launceston	AU	Nungarin	3/05/1987	9/09/1987	129	50.00
-Launceston1987	Evansetal1992	1987	Launceston	AU	Dalkeith	3/05/1987	15/09/1987	135	50.00
-Launceston1987	Evansetal1992	1987	Launceston	AU	Trikkala	3/05/1987	21/09/1987	141	50.00
-Launceston1987	Evansetal1992	1987	Launceston	AU	Woogenellup	3/05/1987	25/09/1987	145	50.00
-Launceston1987	Evansetal1992	1987	Launceston	AU	Karridale	3/05/1987	4/10/1987	154	50.00
-Launceston1987	Evansetal1992	1987	Launceston	AU	Larisa	3/05/1987	8/10/1987	158	50.00
-Launceston1987	Evansetal1992	1987	Launceston	AU	Meteora	3/05/1987	14/10/1987	164	50.00
-Launceston1987	Evansetal1992	1987	Launceston	AU	MtBarker	3/05/1987	4/10/1987	154	50.00
-Katanning1990	Evansetal1992	1990	Katanning	AU	Nungarin	3/05/1990	11/08/1990	100	50.00
-Katanning1990	Evansetal1992	1990	Katanning	AU	Dalkeith	3/05/1990	4/09/1990	124	50.00
-Katanning1990	Evansetal1992	1990	Katanning	AU	Trikkala	3/05/1990	6/09/1990	126	50.00
-Katanning1990	Evansetal1992	1990	Katanning	AU	Woogenellup	3/05/1990	13/09/1990	133	50.00
-Katanning1990	Evansetal1992	1990	Katanning	AU	Karridale	3/05/1990	29/09/1990	149	50.00
-Katanning1990	Evansetal1992	1990	Katanning	AU	Larisa	3/05/1990	4/10/1990	154	50.00
-Katanning1990	Evansetal1992	1990	Katanning	AU	Meteora	3/05/1990	8/10/1990	158	50.00
-Katanning1990	Evansetal1992	1990	Katanning	AU	MtBarker	3/05/1990	30/09/1990	150	50.00
-Launceston1987	Evansetal1992	1987	Launceston	AU	Nungarin	3/06/1987	18/09/1987	107	50.00
-Launceston1987	Evansetal1992	1987	Launceston	AU	Dalkeith	3/06/1987	27/09/1987	116	50.00
-Launceston1987	Evansetal1992	1987	Launceston	AU	Trikkala	3/06/1987	6/10/1987	125	50.00
-Launceston1987	Evansetal1992	1987	Launceston	AU	Woogenellup	3/06/1987	4/10/1987	123	50.00
-Launceston1987	Evansetal1992	1987	Launceston	AU	Karridale	3/06/1987	20/10/1987	139	50.00
-Launceston1987	Evansetal1992	1987	Launceston	AU	Larisa	3/06/1987	22/10/1987	141	50.00
-Launceston1987	Evansetal1992	1987	Launceston	AU	Meteora	3/06/1987	27/10/1987	146	50.00
-Launceston1987	Evansetal1992	1987	Launceston	AU	MtBarker	3/06/1987	20/10/1987	139	50.00
-Katanning1990	Evansetal1992	1990	Katanning	AU	Nungarin	3/06/1990	7/09/1990	96	50.00
-Katanning1990	Evansetal1992	1990	Katanning	AU	Dalkeith	3/06/1990	9/09/1990	98	50.00
-Katanning1990	Evansetal1992	1990	Katanning	AU	Trikkala	3/06/1990	13/09/1990	102	50.00
-Katanning1990	Evansetal1992	1990	Katanning	AU	Woogenellup	3/06/1990	30/09/1990	119	50.00
-Katanning1990	Evansetal1992	1990	Katanning	AU	Karridale	3/06/1990	5/10/1990	124	50.00
-Katanning1990	Evansetal1992	1990	Katanning	AU	Larisa	3/06/1990	12/10/1990	131	50.00
-Katanning1990	Evansetal1992	1990	Katanning	AU	Meteora	3/06/1990	15/10/1990	134	50.00
-Katanning1990	Evansetal1992	1990	Katanning	AU	MtBarker	3/06/1990	6/10/1990	125	50.00
-Launceston1987	Evansetal1992	1987	Launceston	AU	Nungarin	3/07/1987	3/10/1987	92	50.00
-Launceston1987	Evansetal1992	1987	Launceston	AU	Dalkeith	3/07/1987	8/10/1987	97	50.00
-Launceston1987	Evansetal1992	1987	Launceston	AU	Trikkala	3/07/1987	17/10/1987	106	50.00
-Launceston1987	Evansetal1992	1987	Launceston	AU	Woogenellup	3/07/1987	20/10/1987	109	50.00
-Launceston1987	Evansetal1992	1987	Launceston	AU	Karridale	3/07/1987	30/10/1987	119	50.00
-Launceston1987	Evansetal1992	1987	Launceston	AU	Larisa	3/07/1987	2/11/1987	122	50.00
-Launceston1987	Evansetal1992	1987	Launceston	AU	Meteora	3/07/1987	5/11/1987	125	50.00
-Launceston1987	Evansetal1992	1987	Launceston	AU	MtBarker	3/07/1987	2/11/1987	122	50.00
-Katanning1990	Evansetal1992	1990	Katanning	AU	Nungarin	3/06/1990	16/08/1990	74	50.00
-Katanning1990	Evansetal1992	1990	Katanning	AU	Dalkeith	3/06/1990	29/08/1990	87	50.00
-Katanning1990	Evansetal1992	1990	Katanning	AU	Trikkala	3/06/1990	28/08/1990	86	50.00
-Katanning1990	Evansetal1992	1990	Katanning	AU	Woogenellup	3/06/1990	10/09/1990	99	50.00
-Katanning1990	Evansetal1992	1990	Katanning	AU	Karridale	3/06/1990	18/09/1990	107	50.00
-Katanning1990	Evansetal1992	1990	Katanning	AU	Larisa	3/06/1990	22/09/1990	111	50.00
-Katanning1990	Evansetal1992	1990	Katanning	AU	Meteora	3/06/1990	26/09/1990	115	50.00
-Katanning1990	Evansetal1992	1990	Katanning	AU	MtBarker	3/06/1990	21/09/1990	110	50.00
-Launceston1987	Evansetal1992	1987	Launceston	AU	Nungarin	1/08/1987	17/10/1987	77	50.00
-Launceston1987	Evansetal1992	1987	Launceston	AU	Dalkeith	1/08/1987	21/10/1987	81	50.00
-Launceston1987	Evansetal1992	1987	Launceston	AU	Trikkala	1/08/1987	29/10/1987	89	50.00
-Launceston1987	Evansetal1992	1987	Launceston	AU	Woogenellup	1/08/1987	3/11/1987	94	50.00
-Launceston1987	Evansetal1992	1987	Launceston	AU	Karridale	1/08/1987	9/11/1987	100	50.00
-Launceston1987	Evansetal1992	1987	Launceston	AU	Larisa	1/08/1987	11/11/1987	102	50.00
-Launceston1987	Evansetal1992	1987	Launceston	AU	Meteora	1/08/1987	14/11/1987	105	50.00
-Launceston1987	Evansetal1992	1987	Launceston	AU	MtBarker	1/08/1987	16/11/1987	107	50.00
-Katanning1990	Evansetal1992	1990	Katanning	AU	Nungarin	1/08/1990	8/10/1990	68	50.00
-Katanning1990	Evansetal1992	1990	Katanning	AU	Dalkeith	1/08/1990	11/10/1990	71	50.00
-Katanning1990	Evansetal1992	1990	Katanning	AU	Trikkala	1/08/1990	13/10/1990	73	50.00
-Katanning1990	Evansetal1992	1990	Katanning	AU	Woogenellup	1/08/1990	1/11/1990	92	50.00
-Katanning1990	Evansetal1992	1990	Katanning	AU	Karridale	1/08/1990	4/11/1990	95	50.00
-Katanning1990	Evansetal1992	1990	Katanning	AU	Larisa	1/08/1990	8/11/1990	99	50.00
-Katanning1990	Evansetal1992	1990	Katanning	AU	Meteora	1/08/1990	6/11/1990	97	50.00
-Katanning1990	Evansetal1992	1990	Katanning	AU	MtBarker	1/08/1990	10/11/1990	101	50.00
-Launceston1987	Evansetal1992	1987	Launceston	AU	Nungarin	15/08/1987	29/10/1987	75	50.00
-Launceston1987	Evansetal1992	1987	Launceston	AU	Dalkeith	15/08/1987	2/11/1987	79	50.00
-Launceston1987	Evansetal1992	1987	Launceston	AU	Trikkala	15/08/1987	5/11/1987	82	50.00
-Launceston1987	Evansetal1992	1987	Launceston	AU	Woogenellup	15/08/1987	16/11/1987	93	50.00
-Launceston1987	Evansetal1992	1987	Launceston	AU	Karridale	15/08/1987	17/11/1987	94	50.00
-Launceston1987	Evansetal1992	1987	Launceston	AU	Larisa	15/08/1987	21/11/1987	98	50.00
-Launceston1987	Evansetal1992	1987	Launceston	AU	Meteora	15/08/1987	22/11/1987	99	50.00
-Launceston1987	Evansetal1992	1987	Launceston	AU	MtBarker	15/08/1987	28/11/1987	105	50.00
-Katanning1990	Evansetal1992	1990	Katanning	AU	Nungarin	3/04/1990	29/06/1990	87	50.00
-Katanning1990	Evansetal1992	1990	Katanning	AU	Dalkeith	3/04/1990	3/08/1990	122	50.00
-Katanning1990	Evansetal1992	1990	Katanning	AU	Trikkala	3/04/1990	6/08/1990	125	50.00
-Katanning1990	Evansetal1992	1990	Katanning	AU	Woogenellup	3/04/1990	4/09/1990	154	50.00
-Katanning1990	Evansetal1992	1990	Katanning	AU	Karridale	3/04/1990	16/09/1990	166	50.00
-Katanning1990	Evansetal1992	1990	Katanning	AU	Larisa	3/04/1990	20/09/1990	170	50.00
-Katanning1990	Evansetal1992	1990	Katanning	AU	Meteora	3/04/1990	24/09/1990	174	50.00
-Katanning1990	Evansetal1992	1990	Katanning	AU	MtBarker	3/04/1990	20/09/1990	170	50.00
-Launceston1987	Evansetal1992	1987	Launceston	AU	Nungarin	1/09/1987	6/11/1987	66	50.00
-Launceston1987	Evansetal1992	1987	Launceston	AU	Dalkeith	1/09/1987	8/11/1987	68	50.00
-Launceston1987	Evansetal1992	1987	Launceston	AU	Trikkala	1/09/1987	7/11/1987	67	50.00
-Launceston1987	Evansetal1992	1987	Launceston	AU	Woogenellup	1/09/1987	1/12/1987	91	50.00
-Launceston1987	Evansetal1992	1987	Launceston	AU	Karridale	1/09/1987	1/12/1987	91	50.00
-Launceston1987	Evansetal1992	1987	Launceston	AU	Larisa	1/09/1987	8/12/1987	98	50.00
-Launceston1987	Evansetal1992	1987	Launceston	AU	Meteora	1/09/1987	3/12/1987	93	50.00
-Launceston1987	Evansetal1992	1987	Launceston	AU	MtBarker	1/09/1987	10/12/1987	100	50.00
-Katanning1990	Evansetal1992	1990	Katanning	AU	Nungarin	1/09/1990	1/11/1990	61	50.00
-Katanning1990	Evansetal1992	1990	Katanning	AU	Dalkeith	1/09/1990	2/11/1990	62	50.00
-Katanning1990	Evansetal1992	1990	Katanning	AU	Trikkala	1/09/1990	31/10/1990	60	50.00
-Katanning1990	Evansetal1992	1990	Katanning	AU	Woogenellup	1/09/1990	6/12/1990	96	50.00
-Katanning1990	Evansetal1992	1990	Katanning	AU	Karridale	1/09/1990	29/11/1990	89	50.00
-Katanning1990	Evansetal1992	1990	Katanning	AU	Larisa	1/09/1990	2/12/1990	92	50.00
-Katanning1990	Evansetal1992	1990	Katanning	AU	Meteora	1/09/1990	6/12/1990	96	50.00
-Katanning1990	Evansetal1992	1990	Katanning	AU	MtBarker	1/09/1990	23/12/1990	113	50.00
-Launceston1987	Evansetal1992	1987	Launceston	AU	Nungarin	15/09/1987	15/11/1987	61	50.00
-Launceston1987	Evansetal1992	1987	Launceston	AU	Dalkeith	15/09/1987	16/11/1987	62	50.00
-Launceston1987	Evansetal1992	1987	Launceston	AU	Trikkala	15/09/1987	17/11/1987	63	50.00
-Launceston1987	Evansetal1992	1987	Launceston	AU	Woogenellup	15/09/1987	14/12/1987	90	50.00
-Launceston1987	Evansetal1992	1987	Launceston	AU	Karridale	15/09/1987	17/12/1987	93	50.00
-Launceston1987	Evansetal1992	1987	Launceston	AU	Larisa	15/09/1987	19/12/1987	95	50.00
-Launceston1987	Evansetal1992	1987	Launceston	AU	Meteora	15/09/1987	21/12/1987	97	50.00
-Launceston1987	Evansetal1992	1987	Launceston	AU	MtBarker	15/09/1987	29/12/1987	105	50.00
-Katanning1990	Evansetal1992	1990	Katanning	AU	Nungarin	15/09/1990	NA	NA	50.00
-Katanning1990	Evansetal1992	1990	Katanning	AU	Dalkeith	15/09/1990	NA	NA	50.00
-Katanning1990	Evansetal1992	1990	Katanning	AU	Trikkala	15/09/1990	NA	NA	50.00
-Katanning1990	Evansetal1992	1990	Katanning	AU	Woogenellup	15/09/1990	NA	NA	50.00
-Katanning1990	Evansetal1992	1990	Katanning	AU	Karridale	15/09/1990	NA	NA	50.00
-Katanning1990	Evansetal1992	1990	Katanning	AU	Larisa	15/09/1990	NA	NA	50.00
-Katanning1990	Evansetal1992	1990	Katanning	AU	Meteora	15/09/1990	NA	NA	50.00
-Katanning1990	Evansetal1992	1990	Katanning	AU	MtBarker	15/09/1990	NA	NA	50.00
-Launceston1987	Evansetal1992	1987	Launceston	AU	Nungarin	1/10/1987	27/11/1987	57	50.00
-Launceston1987	Evansetal1992	1987	Launceston	AU	Dalkeith	1/10/1987	27/11/1987	57	50.00
-Launceston1987	Evansetal1992	1987	Launceston	AU	Trikkala	1/10/1987	24/11/1987	54	50.00
-Launceston1987	Evansetal1992	1987	Launceston	AU	Woogenellup	1/10/1987	28/12/1987	88	50.00
-Launceston1987	Evansetal1992	1987	Launceston	AU	Karridale	1/10/1987	24/12/1987	84	50.00
-Launceston1987	Evansetal1992	1987	Launceston	AU	Larisa	1/10/1987	31/12/1987	91	50.00
-Launceston1987	Evansetal1992	1987	Launceston	AU	Meteora	1/10/1987	2/01/1988	93	50.00
-Launceston1987	Evansetal1992	1987	Launceston	AU	MtBarker	1/10/1987	27/01/1988	118	50.00
-Katanning1990	Evansetal1992	1990	Katanning	AU	Nungarin	1/10/1990	24/11/1990	54	50.00
-Katanning1990	Evansetal1992	1990	Katanning	AU	Dalkeith	1/10/1990	22/11/1990	52	50.00
-Katanning1990	Evansetal1992	1990	Katanning	AU	Trikkala	1/10/1990	21/11/1990	51	50.00
-Katanning1990	Evansetal1992	1990	Katanning	AU	Woogenellup	1/10/1990	23/12/1990	83	50.00
-Katanning1990	Evansetal1992	1990	Katanning	AU	Karridale	1/10/1990	22/12/1990	82	50.00
-Katanning1990	Evansetal1992	1990	Katanning	AU	Larisa	1/10/1990	24/12/1990	84	50.00
-Katanning1990	Evansetal1992	1990	Katanning	AU	Meteora	1/10/1990	25/12/1990	85	50.00
-Katanning1990	Evansetal1992	1990	Katanning	AU	MtBarker	1/10/1990	1/01/1991	92	50.00
-Launceston1987	Evansetal1992	1987	Launceston	AU	Nungarin	1/11/1987	31/12/1987	60	50.00
-Launceston1987	Evansetal1992	1987	Launceston	AU	Dalkeith	1/11/1987	25/12/1987	54	50.00
-Launceston1987	Evansetal1992	1987	Launceston	AU	Trikkala	1/11/1987	15/12/1987	44	50.00
-Launceston1987	Evansetal1992	1987	Launceston	AU	Woogenellup	1/11/1987	17/01/1988	77	50.00
-Launceston1987	Evansetal1992	1987	Launceston	AU	Karridale	1/11/1987	20/01/1988	80	50.00
-Launceston1987	Evansetal1992	1987	Launceston	AU	Larisa	1/11/1987	23/01/1988	83	50.00
-Launceston1987	Evansetal1992	1987	Launceston	AU	Meteora	1/11/1987	28/01/1988	88	50.00
-Launceston1987	Evansetal1992	1987	Launceston	AU	MtBarker	1/11/1987	9/02/1988	100	50.00
-Katanning1990	Evansetal1992	1990	Katanning	AU	Nungarin	1/11/1990	NA	NA	50.00
-Katanning1990	Evansetal1992	1990	Katanning	AU	Dalkeith	1/11/1990	NA	NA	50.00
-Katanning1990	Evansetal1992	1990	Katanning	AU	Trikkala	1/11/1990	NA	NA	50.00
-Katanning1990	Evansetal1992	1990	Katanning	AU	Woogenellup	1/11/1990	NA	NA	50.00
-Katanning1990	Evansetal1992	1990	Katanning	AU	Karridale	1/11/1990	NA	NA	50.00
-Katanning1990	Evansetal1992	1990	Katanning	AU	Larisa	1/11/1990	NA	NA	50.00
-Katanning1990	Evansetal1992	1990	Katanning	AU	Meteora	1/11/1990	NA	NA	50.00
-Katanning1990	Evansetal1992	1990	Katanning	AU	MtBarker	1/11/1990	NA	NA	50.00
-NA	FrancisAndGladstone1974	NA	Perth	AU	Daglish	NA	NA	81	NA
-NA	FrancisAndGladstone1974	NA	Perth	AU	NorthamA	NA	NA	76	NA
-NA	FrancisAndGladstone1974	NA	Perth	AU	Geraldton	NA	NA	88	NA
-NA	FrancisAndGladstone1974	NA	Perth	AU	Dwalganup	NA	NA	84	NA
-NA	FrancisAndGladstone1974	NA	Perth	AU	Uniwager	NA	NA	90	NA
-NA	FrancisAndGladstone1974	NA	Perth	AU	Mt.HelenaA	NA	NA	87	NA
-NA	FrancisAndGladstone1974	NA	Perth	AU	Daliak	NA	NA	86	NA
-NA	FrancisAndGladstone1974	NA	Perth	AU	ShentonParkA	NA	NA	86	NA
-NA	FrancisAndGladstone1974	NA	Perth	AU	Toodyay	NA	NA	92	NA
-NA	FrancisAndGladstone1974	NA	Perth	AU	Lake	NA	NA	84	NA
-NA	FrancisAndGladstone1974	NA	Perth	AU	Mulwala	NA	NA	92	NA
-NA	FrancisAndGladstone1974	NA	Perth	AU	Gingin	NA	NA	97	NA
-NA	FrancisAndGladstone1974	NA	Perth	AU	Darlington	NA	NA	91	NA
-NA	FrancisAndGladstone1974	NA	Perth	AU	Collie	NA	NA	96	NA
-NA	FrancisAndGladstone1974	NA	Perth	AU	Clackline	NA	NA	94	NA
-NA	FrancisAndGladstone1974	NA	Perth	AU	CPI12709	NA	NA	96	NA
-NA	FrancisAndGladstone1974	NA	Perth	AU	MidlandB	NA	NA	102	NA
-NA	FrancisAndGladstone1974	NA	Perth	AU	SeatonPark	NA	NA	98	NA
-NA	FrancisAndGladstone1974	NA	Perth	AU	Dinninup	NA	NA	104	NA
-NA	FrancisAndGladstone1974	NA	Perth	AU	NorthamB3	NA	NA	102	NA
-NA	FrancisAndGladstone1974	NA	Perth	AU	MahoganyCreek	NA	NA	96	NA
-NA	FrancisAndGladstone1974	NA	Perth	AU	BassendeanH	NA	NA	102	NA
-NA	FrancisAndGladstone1974	NA	Perth	AU	Woogenellup	NA	NA	106	NA
-Templeton1992	WiddupAndPennel_2000	1993	Templeton	NZ	Breedinglines	3/05/1993	9/10/1993	159.0	50.00
-Templeton1992	WiddupAndPennel_2000	1993	Templeton	NZ	MediterraneanEcotypes_subterraneum	3/05/1993	19/10/1993	169.0	50.00
-Templeton1992	WiddupAndPennel_2000	1993	Templeton	NZ	SardinianEcotypes_subterraneum	3/05/1993	15/10/1993	165.0	50.00
-Templeton1992	WiddupAndPennel_2000	1993	Templeton	NZ	Whatawhataws536	3/05/1993	24/10/1993	174.0	50.00
-Templeton1992	WiddupAndPennel_2000	1993	Templeton	NZ	Whatawhataws1737	3/05/1993	24/10/1993	174.0	50.00
-Templeton1992	WiddupAndPennel_2000	1993	Templeton	NZ	Whatawhataws1801	3/05/1993	18/10/1993	168.0	50.00
-Templeton1992	WiddupAndPennel_2000	1993	Templeton	NZ	PalmerstonNAK920	3/05/1993	24/10/1993	174.0	50.00
-Templeton1992	WiddupAndPennel_2000	1993	Templeton	NZ	PalmerstonAK948	3/05/1993	15/10/1993	165.0	50.00
-Templeton1992	WiddupAndPennel_2000	1993	Templeton	NZ	Dalkeith	3/05/1993	13/09/1993	133.0	50.00
-Templeton1992	WiddupAndPennel_2000	1993	Templeton	NZ	SeatonPark	3/05/1993	24/09/1993	144.0	50.00
-Templeton1992	WiddupAndPennel_2000	1993	Templeton	NZ	Trikkala	3/05/1993	26/09/1993	146.0	50.00
-Templeton1992	WiddupAndPennel_2000	1993	Templeton	NZ	Gosse	3/05/1993	8/10/1993	158.0	50.00
-Templeton1992	WiddupAndPennel_2000	1993	Templeton	NZ	Junee	3/05/1993	10/10/1993	160.0	50.00
-Templeton1992	WiddupAndPennel_2000	1993	Templeton	NZ	Woogenellup	3/05/1993	10/10/1993	160.0	50.00
-Templeton1992	WiddupAndPennel_2000	1993	Templeton	NZ	Clare	3/05/1993	10/10/1993	160.0	50.00
-Templeton1992	WiddupAndPennel_2000	1993	Templeton	NZ	MtBarker	3/05/1993	12/10/1993	162.0	50.00
-Templeton1992	WiddupAndPennel_2000	1993	Templeton	NZ	Goulburn	3/05/1993	12/10/1993	162.0	50.00
-Templeton1992	WiddupAndPennel_2000	1993	Templeton	NZ	Karridale	3/05/1993	14/10/1993	164.0	50.00
-Templeton1992	WiddupAndPennel_2000	1993	Templeton	NZ	Nangeela	3/05/1993	16/10/1993	166.0	50.00
-Templeton1992	WiddupAndPennel_2000	1993	Templeton	NZ	Denmark	3/05/1993	16/10/1993	166.0	50.00
-Templeton1992	WiddupAndPennel_2000	1993	Templeton	NZ	Larisa	3/05/1993	20/10/1993	170.0	50.00
-Templeton1992	WiddupAndPennel_2000	1993	Templeton	NZ	Leura	3/05/1993	23/10/1993	173.0	50.00
-Templeton1992	WiddupAndPennel_2000	1993	Templeton	NZ	Tallarook	3/05/1993	26/10/1993	176.0	50.00
-Melbourne1969	CollinsAndAitken1970	1969	Melbourne	AU	MtBarker	15/08/1969	23/11/1969	100	50.00
-Melbourne1969	CollinsAndAitken1970	1969	Melbourne	AU	MtBarker	28/07/1969	18/11/1969	113	50.00
-NA	Rossiter1978	NA	Perth	AU	Daliak	1/07/1978	NA	NA	NA
-NA	Rossiter1978	NA	Perth	AU	Gingin	6/07/1978	NA	NA	NA
-NA	MorleyAndDAvern1956	1955	Canberra 	AU	Dwalganup	NA	NA	NA	NA
-NA	MorleyAndDAvern1956	1955	Canberra 	AU	Yarloop	NA	NA	NA	NA
-NA	MorleyAndDAvern1956	1955	Canberra 	AU	Clare	NA	NA	NA	NA
-NA	MorleyAndDAvern1956	1955	Canberra 	AU	BacchusM	NA	NA	NA	NA
-NA	MorleyAndDAvern1956	1955	Canberra 	AU	Wenigup	NA	NA	NA	NA
-NA	MorleyAndDAvern1956	1955	Canberra 	AU	Tallarook	NA	NA	NA	NA
-NA	MorleyAndDAvern1956	1955	Melbourne	AU	Dwalganup	NA	NA	NA	NA
-NA	MorleyAndDAvern1956	1955	Melbourne	AU	Yarloop	NA	NA	NA	NA
-NA	MorleyAndDAvern1956	1955	Melbourne	AU	Clare	NA	NA	NA	NA
-NA	MorleyAndDAvern1956	1955	Melbourne	AU	BacchusM	NA	NA	NA	NA
-NA	MorleyAndDAvern1956	1955	Melbourne	AU	Wenigup	NA	NA	NA	NA
-NA	MorleyAndDAvern1956	1955	Melbourne	AU	Tallarook	NA	NA	NA	NA
-NA	MorleyAndDAvern1956	1955	WaggaWagga	AU	Dwalganup	NA	NA	NA	NA
-NA	MorleyAndDAvern1956	1955	WaggaWagga	AU	Yarloop	NA	NA	NA	NA
-NA	MorleyAndDAvern1956	1955	WaggaWagga	AU	Clare	NA	NA	NA	NA
-NA	MorleyAndDAvern1956	1955	WaggaWagga	AU	BacchusM	NA	NA	NA	NA
-NA	MorleyAndDAvern1956	1955	WaggaWagga	AU	Wenigup	NA	NA	NA	NA
-NA	MorleyAndDAvern1956	1955	WaggaWagga	AU	Tallarook	NA	NA	NA	NA
-NA	MorleyAndDAvern1956	1955	Lismore	AU	Dwalganup	NA	27/06/1955	NA	NA
-NA	MorleyAndDAvern1956	1955	Lismore	AU	Yarloop	NA	6/07/1955	NA	NA
-NA	MorleyAndDAvern1956	1955	Lismore	AU	Clare	NA	7/09/1955	NA	NA
-NA	MorleyAndDAvern1956	1955	Lismore	AU	BacchusM	NA	15/09/1955	NA	NA
-NA	MorleyAndDAvern1956	1955	Lismore	AU	Wenigup	NA	8/10/1955	NA	NA
-NA	MorleyAndDAvern1956	1955	Lismore	AU	Tallarook	NA	11/10/1955	NA	NA
-Carvossa1981	Honglund_1990	1981	Carvossa	NZ	Trikkala	1/05/1981	8/09/1981	130.0	1.00
-Carvossa1981	Honglund_1990	1981	Carvossa	NZ	SeatonPark	1/05/1981	22/09/1981	144.0	1.00
-Carvossa1981	Honglund_1990	1981	Carvossa	NZ	Woogenellup	1/05/1981	22/09/1981	144.0	1.00
-Carvossa1981	Honglund_1990	1981	Carvossa	NZ	Howard	1/05/1981	22/09/1981	144.0	1.00
-Carvossa1981	Honglund_1990	1981	Carvossa	NZ	Nangeela	1/05/1981	22/09/1981	144.0	1.00
-Carvossa1981	Honglund_1990	1981	Carvossa	NZ	Clare	1/05/1981	22/09/1981	144.0	1.00
-Carvossa1981	Honglund_1990	1981	Carvossa	NZ	MtBarker	1/05/1981	22/09/1981	144.0	1.00
-Carvossa1981	Honglund_1990	1981	Carvossa	NZ	Larisa	1/05/1981	8/10/1981	160.0	1.00
-Carvossa1981	Honglund_1990	1981	Carvossa	NZ	Tallarook	1/05/1981	27/09/1981	149.0	1.00
-Waggawagga1985	DearEtal1993	1985	WaggaWagga	AU	Nungarin	25/03/1985	3/08/1985	131	5.00
-Waggawagga1985	DearEtal1993	1985	WaggaWagga	AU	Northam	25/03/1985	16/08/1985	144	5.00
-Waggawagga1985	DearEtal1993	1985	WaggaWagga	AU	Dalkeith	25/03/1985	5/08/1985	133	5.00
-Waggawagga1985	DearEtal1993	1985	WaggaWagga	AU	Daliak	25/03/1985	2/09/1985	161	5.00
-Waggawagga1985	DearEtal1993	1985	WaggaWagga	AU	SeatonPark	25/03/1985	5/09/1985	164	5.00
-Waggawagga1985	DearEtal1993	1985	WaggaWagga	AU	Trikkala	25/03/1985	8/09/1985	167	5.00
-Waggawagga1985	DearEtal1993	1985	WaggaWagga	AU	Esperance	25/03/1985	17/09/1985	176	5.00
-Waggawagga1985	DearEtal1993	1985	WaggaWagga	AU	Junee	25/03/1985	16/09/1985	175	5.00
-Waggawagga1985	DearEtal1993	1985	WaggaWagga	AU	Woogenellup	25/03/1985	16/09/1985	175	5.00
-Waggawagga1985	DearEtal1993	1985	WaggaWagga	AU	GD56	25/03/1985	21/09/1985	180	5.00
-Waggawagga1985	DearEtal1993	1985	WaggaWagga	AU	Enfield	25/03/1985	20/09/1985	179	5.00
-Waggawagga1985	DearEtal1993	1985	WaggaWagga	AU	Karridale	25/03/1985	22/09/1985	181	5.00
-Waggawagga1985	DearEtal1993	1985	WaggaWagga	AU	MtBarker	25/03/1985	21/09/1985	180	5.00
-Waggawagga1985	DearEtal1993	1985	WaggaWagga	AU	Clare	25/03/1985	25/09/1985	184	5.00
-Waggawagga1985	DearEtal1993	1986	WaggaWagga	AU	Nungarin	10/05/1986	30/08/1986	112	5.00
-Waggawagga1985	DearEtal1993	1986	WaggaWagga	AU	Northam	10/05/1986	4/09/1986	117	5.00
-Waggawagga1985	DearEtal1993	1986	WaggaWagga	AU	Dalkeith	10/05/1986	10/09/1986	123	5.00
-Waggawagga1985	DearEtal1993	1986	WaggaWagga	AU	Daliak	10/05/1986	17/09/1986	130	5.00
-Waggawagga1985	DearEtal1993	1986	WaggaWagga	AU	SeatonPark	10/05/1986	18/09/1986	131	5.00
-Waggawagga1985	DearEtal1993	1986	WaggaWagga	AU	Trikkala	10/05/1986	27/09/1986	140	5.00
-Waggawagga1985	DearEtal1993	1986	WaggaWagga	AU	Esperance	10/05/1986	24/09/1986	137	5.00
-Waggawagga1985	DearEtal1993	1986	WaggaWagga	AU	Junee	10/05/1986	25/09/1986	138	5.00
-Waggawagga1985	DearEtal1993	1986	WaggaWagga	AU	Woogenellup	10/05/1986	30/09/1986	143	5.00
-Waggawagga1985	DearEtal1993	1986	WaggaWagga	AU	GD56	10/05/1986	1/10/1986	144	5.00
-Waggawagga1985	DearEtal1993	1986	WaggaWagga	AU	Enfield	10/05/1986	7/10/1986	150	5.00
-Waggawagga1985	DearEtal1993	1986	WaggaWagga	AU	Karridale	10/05/1986	3/10/1986	146	5.00
-Waggawagga1985	DearEtal1993	1986	WaggaWagga	AU	MtBarker	10/05/1986	1/10/1986	144	5.00
-Waggawagga1985	DearEtal1993	1986	WaggaWagga	AU	Clare	10/05/1986	1/10/1986	144	5.00
-Waggawagga1985	DearEtal1993	1985	WaggaWagga	AU	Nungarin	25/03/1985	18/08/1985	146	50.00
-Waggawagga1985	DearEtal1993	1985	WaggaWagga	AU	Northam	25/03/1985	29/08/1985	157	50.00
-Waggawagga1985	DearEtal1993	1985	WaggaWagga	AU	Dalkeith	25/03/1985	24/08/1985	152	50.00
-Waggawagga1985	DearEtal1993	1985	WaggaWagga	AU	Daliak	25/03/1985	9/09/1985	168	50.00
-Waggawagga1985	DearEtal1993	1985	WaggaWagga	AU	SeatonPark	25/03/1985	14/09/1985	173	50.00
-Waggawagga1985	DearEtal1993	1985	WaggaWagga	AU	Trikkala	25/03/1985	17/09/1985	176	50.00
-Waggawagga1985	DearEtal1993	1985	WaggaWagga	AU	Esperance	25/03/1985	18/09/1985	177	50.00
-Waggawagga1985	DearEtal1993	1985	WaggaWagga	AU	Junee	25/03/1985	22/09/1985	181	50.00
-Waggawagga1985	DearEtal1993	1985	WaggaWagga	AU	Woogenellup	25/03/1985	25/09/1985	184	50.00
-Waggawagga1985	DearEtal1993	1985	WaggaWagga	AU	GD56	25/03/1985	1/10/1985	190	50.00
-Waggawagga1985	DearEtal1993	1985	WaggaWagga	AU	Enfield	25/03/1985	1/10/1985	190	50.00
-Waggawagga1985	DearEtal1993	1985	WaggaWagga	AU	Karridale	25/03/1985	10/10/1985	199	50.00
-Waggawagga1985	DearEtal1993	1985	WaggaWagga	AU	MtBarker	25/03/1985	2/10/1985	191	50.00
-Waggawagga1985	DearEtal1993	1985	WaggaWagga	AU	Clare	25/03/1985	7/10/1985	196	50.00
-Waggawagga1985	DearEtal1993	1986	WaggaWagga	AU	Nungarin	10/05/1986	16/09/1986	129	50.00
-Waggawagga1985	DearEtal1993	1986	WaggaWagga	AU	Northam	10/05/1986	19/09/1986	132	50.00
-Waggawagga1985	DearEtal1993	1986	WaggaWagga	AU	Dalkeith	10/05/1986	22/09/1986	135	50.00
-Waggawagga1985	DearEtal1993	1986	WaggaWagga	AU	Daliak	10/05/1986	26/09/1986	139	50.00
-Waggawagga1985	DearEtal1993	1986	WaggaWagga	AU	SeatonPark	10/05/1986	29/09/1986	142	50.00
-Waggawagga1985	DearEtal1993	1986	WaggaWagga	AU	Trikkala	10/05/1986	1/10/1986	144	50.00
-Waggawagga1985	DearEtal1993	1986	WaggaWagga	AU	Esperance	10/05/1986	2/10/1986	145	50.00
-Waggawagga1985	DearEtal1993	1986	WaggaWagga	AU	Junee	10/05/1986	30/09/1986	143	50.00
-Waggawagga1985	DearEtal1993	1986	WaggaWagga	AU	Woogenellup	10/05/1986	5/10/1986	148	50.00
-Waggawagga1985	DearEtal1993	1986	WaggaWagga	AU	GD56	10/05/1986	9/10/1986	152	50.00
-Waggawagga1985	DearEtal1993	1986	WaggaWagga	AU	Enfield	10/05/1986	13/10/1986	156	50.00
-Waggawagga1985	DearEtal1993	1986	WaggaWagga	AU	Karridale	10/05/1986	11/10/1986	154	50.00
-Waggawagga1985	DearEtal1993	1986	WaggaWagga	AU	MtBarker	10/05/1986	10/10/1986	153	50.00
-Waggawagga1985	DearEtal1993	1986	WaggaWagga	AU	Clare	10/05/1986	14/10/1986	157	50.00
-Waggawagga1985	DearEtal1993	1985	WaggaWagga	AU	Nungarin	25/03/1985	31/08/1985	159	100.00
-Waggawagga1985	DearEtal1993	1985	WaggaWagga	AU	Northam	25/03/1985	12/09/1985	171	100.00
-Waggawagga1985	DearEtal1993	1985	WaggaWagga	AU	Dalkeith	25/03/1985	8/09/1985	167	100.00
-Waggawagga1985	DearEtal1993	1985	WaggaWagga	AU	Daliak	25/03/1985	18/09/1985	177	100.00
-Waggawagga1985	DearEtal1993	1985	WaggaWagga	AU	SeatonPark	25/03/1985	22/09/1985	181	100.00
-Waggawagga1985	DearEtal1993	1985	WaggaWagga	AU	Trikkala	25/03/1985	26/09/1985	185	100.00
-Waggawagga1985	DearEtal1993	1985	WaggaWagga	AU	Esperance	25/03/1985	29/09/1985	188	100.00
-Waggawagga1985	DearEtal1993	1985	WaggaWagga	AU	Junee	25/03/1985	26/09/1985	185	100.00
-Waggawagga1985	DearEtal1993	1985	WaggaWagga	AU	Woogenellup	25/03/1985	6/10/1985	195	100.00
-Waggawagga1985	DearEtal1993	1985	WaggaWagga	AU	GD56	25/03/1985	18/10/1985	207	100.00
-Waggawagga1985	DearEtal1993	1985	WaggaWagga	AU	Enfield	25/03/1985	14/10/1985	203	100.00
-Waggawagga1985	DearEtal1993	1985	WaggaWagga	AU	Karridale	25/03/1985	17/10/1985	206	100.00
-Waggawagga1985	DearEtal1993	1985	WaggaWagga	AU	MtBarker	25/03/1985	16/10/1985	205	100.00
-Waggawagga1985	DearEtal1993	1985	WaggaWagga	AU	Clare	25/03/1985	19/10/1985	208	100.00
-Waggawagga1985	DearEtal1993	1986	WaggaWagga	AU	Nungarin	10/05/1986	1/10/1986	144	100.00
-Waggawagga1985	DearEtal1993	1986	WaggaWagga	AU	Northam	10/05/1986	29/09/1986	142	100.00
-Waggawagga1985	DearEtal1993	1986	WaggaWagga	AU	Dalkeith	10/05/1986	30/09/1986	143	100.00
-Waggawagga1985	DearEtal1993	1986	WaggaWagga	AU	Daliak	10/05/1986	1/10/1986	144	100.00
-Waggawagga1985	DearEtal1993	1986	WaggaWagga	AU	SeatonPark	10/05/1986	3/10/1986	146	100.00
-Waggawagga1985	DearEtal1993	1986	WaggaWagga	AU	Trikkala	10/05/1986	10/10/1986	153	100.00
-Waggawagga1985	DearEtal1993	1986	WaggaWagga	AU	Esperance	10/05/1986	6/10/1986	149	100.00
-Waggawagga1985	DearEtal1993	1986	WaggaWagga	AU	Junee	10/05/1986	10/10/1986	153	100.00
-Waggawagga1985	DearEtal1993	1986	WaggaWagga	AU	Woogenellup	10/05/1986	16/10/1986	159	100.00
-Waggawagga1985	DearEtal1993	1986	WaggaWagga	AU	GD56	10/05/1986	24/10/1986	167	100.00
-Waggawagga1985	DearEtal1993	1986	WaggaWagga	AU	Enfield	10/05/1986	29/10/1986	172	100.00
-Waggawagga1985	DearEtal1993	1986	WaggaWagga	AU	Karridale	10/05/1986	25/10/1986	168	100.00
-Waggawagga1985	DearEtal1993	1986	WaggaWagga	AU	MtBarker	10/05/1986	25/10/1986	168	100.00
-Waggawagga1985	DearEtal1993	1986	WaggaWagga	AU	Clare	10/05/1986	28/10/1986	171	100.00
-Mininera2005	ConboyAndHardwidge_2006	2005	Mininera	AU	Losa	28/05/2005	2/09/2005	97	50.00
-Mininera2005	ConboyAndHardwidge_2006	2005	Mininera	AU	SeatonPark	28/05/2005	17/09/2005	112	50.00
-Mininera2005	ConboyAndHardwidge_2006	2005	Mininera	AU	Campeda	28/05/2005	28/09/2005	123	50.00
-Mininera2005	ConboyAndHardwidge_2006	2005	Mininera	AU	Trikkala	28/05/2005	17/09/2005	112	50.00
-Mininera2005	ConboyAndHardwidge_2006	2005	Mininera	AU	Gosse	28/05/2005	1/10/2005	126	50.00
-Mininera2005	ConboyAndHardwidge_2006	2005	Mininera	AU	Antas	28/05/2005	9/10/2005	134	50.00
-Mininera2005	ConboyAndHardwidge_2006	2005	Mininera	AU	Denmark	28/05/2005	19/10/2005	144	50.00
-Mininera2005	ConboyAndHardwidge_2006	2005	Mininera	AU	Napier	28/05/2005	15/10/2005	140	50.00
-Mininera2005	ConboyAndHardwidge_2006	2005	Mininera	AU	Leura	28/05/2005	26/10/2005	151	50.00
-Whatawhata1989_91	DoddEtAl_1995	1989	Whatawhata	NZ	Enfield	3/05/1989	2/10/1989	151.6	75.00
-Whatawhata1989_91	DoddEtAl_1995	1989	Whatawhata	NZ	GreenRange	3/05/1989	4/10/1989	153.6	75.00
-Whatawhata1989_91	DoddEtAl_1995	1989	Whatawhata	NZ	Karridale	3/05/1989	22/10/1989	171.6	75.00
-Whatawhata1989_91	DoddEtAl_1995	1989	Whatawhata	NZ	MtBarker	3/05/1989	24/10/1989	173.7	75.00
-Whatawhata1989_91	DoddEtAl_1995	1989	Whatawhata	NZ	Meteora	3/05/1989	17/10/1989	166.7	75.00
-Whatawhata1989_91	DoddEtAl_1995	1989	Whatawhata	NZ	Tallarook	3/05/1989	20/11/1989	200.6	75.00
-Whatawhata1989_91	DoddEtAl_1995	1990	Whatawhata	NZ	Enfield	1/05/1990	31/10/1990	182.7	75.00
-Whatawhata1989_91	DoddEtAl_1995	1990	Whatawhata	NZ	GreenRange	1/05/1990	20/11/1990	202.7	75.00
-Whatawhata1989_91	DoddEtAl_1995	1990	Whatawhata	NZ	Karridale	1/05/1990	10/11/1990	193.0	75.00
-Whatawhata1989_91	DoddEtAl_1995	1990	Whatawhata	NZ	MtBarker	1/05/1990	11/11/1990	194.4	75.00
-Whatawhata1989_91	DoddEtAl_1995	1990	Whatawhata	NZ	Meteora	1/05/1990	27/11/1990	210.3	75.00
-Whatawhata1989_91	DoddEtAl_1995	1990	Whatawhata	NZ	Tallarook	1/05/1990	1/12/1990	214.4	75.00
-Whatawhata1989_91	DoddEtAl_1995	1991	Whatawhata	NZ	Enfield	1/05/1991	23/08/1991	114.2	75.00
-Whatawhata1989_91	DoddEtAl_1995	1991	Whatawhata	NZ	GreenRange	1/05/1991	30/08/1991	121.1	75.00
-Whatawhata1989_91	DoddEtAl_1995	1991	Whatawhata	NZ	Karridale	1/05/1991	11/09/1991	132.9	75.00
-Whatawhata1989_91	DoddEtAl_1995	1991	Whatawhata	NZ	MtBarker	1/05/1991	21/09/1991	142.5	75.00
-Whatawhata1989_91	DoddEtAl_1995	1991	Whatawhata	NZ	Meteora	1/05/1991	7/10/1991	159.1	75.00
-Whatawhata1989_91	DoddEtAl_1995	1991	Whatawhata	NZ	Tallarook	1/05/1991	22/10/1991	173.6	75.00
-Ballantrae1981	ChapmanAndWilliams_1990	1982	Ballantrae	NZ	SeatonPark	24/04/1982	3/09/1982	132.0	1.00
-Ballantrae1981	ChapmanAndWilliams_1990	1982	Ballantrae	NZ	Trikkala	24/04/1982	5/09/1982	134.0	1.00
-Ballantrae1981	ChapmanAndWilliams_1990	1982	Ballantrae	NZ	Howard	24/04/1982	7/09/1982	136.0	1.00
-Ballantrae1981	ChapmanAndWilliams_1990	1982	Ballantrae	NZ	Woogenellup	24/04/1982	16/09/1982	145.0	1.00
-Ballantrae1981	ChapmanAndWilliams_1990	1982	Ballantrae	NZ	Clare	24/04/1982	22/09/1982	151.0	1.00
-Ballantrae1981	ChapmanAndWilliams_1990	1982	Ballantrae	NZ	Larisa	24/04/1982	4/10/1982	163.0	1.00
-Ballantrae1981	ChapmanAndWilliams_1990	1982	Ballantrae	NZ	Nangeela	24/04/1982	4/10/1982	163.0	1.00
-Ballantrae1981	ChapmanAndWilliams_1990	1982	Ballantrae	NZ	MtBarker	24/04/1982	7/10/1982	166.0	1.00
-Ballantrae1981	ChapmanAndWilliams_1990	1982	Ballantrae	NZ	Tallarook	24/04/1982	16/10/1982	175.0	1.00
-Whatawhata1979	SheathAndRichardson_1983	1979	Whatawhata	NZ	Dwalganup	5/05/1979	13/09/1979	131.0	100.00
-Whatawhata1979	SheathAndRichardson_1983	1979	Whatawhata	NZ	Geraldton	5/05/1979	13/09/1979	131.0	100.00
-Whatawhata1979	SheathAndRichardson_1983	1979	Whatawhata	NZ	Nungarin	5/05/1979	13/09/1979	131.0	100.00
-Whatawhata1979	SheathAndRichardson_1983	1979	Whatawhata	NZ	Uniwager	5/05/1979	13/09/1979	131.0	100.00
-Whatawhata1979	SheathAndRichardson_1983	1979	Whatawhata	NZ	Yarloop	5/05/1979	27/09/1979	145.0	100.00
-Whatawhata1979	SheathAndRichardson_1983	1979	Whatawhata	NZ	Trikkala	5/05/1979	27/09/1979	145.0	100.00
-Whatawhata1979	SheathAndRichardson_1983	1979	Whatawhata	NZ	SeatonPark	5/05/1979	27/09/1979	145.0	100.00
-Whatawhata1979	SheathAndRichardson_1983	1979	Whatawhata	NZ	BacchusM	5/05/1979	27/09/1979	145.0	100.00
-Whatawhata1979	SheathAndRichardson_1983	1979	Whatawhata	NZ	Woogenellup	5/05/1979	27/09/1979	145.0	100.00
-Whatawhata1979	SheathAndRichardson_1983	1979	Whatawhata	NZ	Clare	5/05/1979	18/10/1979	166.0	100.00
-Whatawhata1979	SheathAndRichardson_1983	1979	Whatawhata	NZ	MtBarker	5/05/1979	18/10/1979	166.0	100.00
-Whatawhata1979	SheathAndRichardson_1983	1979	Whatawhata	NZ	Howard	5/05/1979	18/10/1979	166.0	100.00
-Whatawhata1979	SheathAndRichardson_1983	1979	Whatawhata	NZ	Larisa	5/05/1979	18/10/1979	166.0	100.00
-Whatawhata1979	SheathAndRichardson_1983	1979	Whatawhata	NZ	Tallarook	5/05/1979	28/11/1979	207.0	100.00
-ShentonPark1974	Collins1981	1974	ShentonPark	AU	MidlandB	16/05/1974	4/09/1974	111	5.00
-ShentonPark1974	Collins1981	1974	ShentonPark	AU	SeatonPark	16/05/1974	2/09/1974	109	5.00
-Adelaide1978	CocksAndPhillips1979	1978	Adelaide	AU	MtBarker	13/03/1978	16/09/1978	187	50.00
-Adelaide1978	CocksAndPhillips1979	1978	Adelaide	AU	Dwalganup	13/03/1978	21/06/1978	100	50.00
-Adelaide1978	CocksAndPhillips1979	1978	Adelaide	AU	Tallarook	13/03/1978	12/10/1978	213	50.00
-Adelaide1978	CocksAndPhillips1979	1978	Adelaide	AU	BacchusM	13/03/1978	9/08/1978	149	50.00
-Adelaide1978	CocksAndPhillips1979	1978	Adelaide	AU	Yarloop	13/03/1978	20/07/1978	129	50.00
-Adelaide1978	CocksAndPhillips1979	1978	Adelaide	AU	Clare	13/03/1978	22/08/1978	162	50.00
-Adelaide1978	CocksAndPhillips1979	1978	Adelaide	AU	Woogenellup	13/03/1978	15/08/1978	155	50.00
-Adelaide1978	CocksAndPhillips1979	1978	Adelaide	AU	Geraldton	13/03/1978	21/07/1978	130	50.00
-Adelaide1978	CocksAndPhillips1979	1978	Adelaide	AU	Nangeela	13/03/1978	27/09/1978	198	50.00
-Adelaide1978	CocksAndPhillips1979	1978	Adelaide	AU	Dinninup	13/03/1978	23/07/1978	132	50.00
-Adelaide1978	CocksAndPhillips1979	1978	Adelaide	AU	Howard	13/03/1978	1/09/1978	172	50.00
-Adelaide1978	CocksAndPhillips1979	1978	Adelaide	AU	SeatonPark	13/03/1978	31/07/1978	140	50.00
-Adelaide1978	CocksAndPhillips1979	1978	Adelaide	AU	Daliak	13/03/1978	25/07/1978	134	50.00
-Adelaide1978	CocksAndPhillips1979	1978	Adelaide	AU	Uniwager	13/03/1978	23/07/1978	132	50.00
-Adelaide1978	CocksAndPhillips1979	1978	Adelaide	AU	Northam	13/03/1978	13/06/1978	92	50.00
-Adelaide1978	CocksAndPhillips1979	1978	Adelaide	AU	Trikkala	13/03/1978	21/07/1978	130	50.00
-Adelaide1978	CocksAndPhillips1979	1978	Adelaide	AU	Larisa	13/03/1978	20/09/1978	191	50.00
-Adelaide1978	CocksAndPhillips1979	1978	Adelaide	AU	Nungarin	13/03/1978	8/06/1978	87	50.00
-Christchurch1993	SmethamETAl1994	1993	Christchurch	NZ	15077	2/05/1993	8/09/1993	129	1.00
-Christchurch1993	SmethamETAl1994	1993	Christchurch	NZ	Dalkeith	2/05/1993	14/09/1993	135	1.00
-Christchurch1993	SmethamETAl1994	1993	Christchurch	NZ	015258b	2/05/1993	21/09/1993	142	1.00
-Christchurch1993	SmethamETAl1994	1993	Christchurch	NZ	DalkelthWithMaru	2/05/1993	24/09/1993	145	1.00
-Christchurch1993	SmethamETAl1994	1993	Christchurch	NZ	015258C	2/05/1993	28/09/1993	149	1.00
-Christchurch1993	SmethamETAl1994	1993	Christchurch	NZ	12683	2/05/1993	1/10/1993	152	1.00
-Christchurch1993	SmethamETAl1994	1993	Christchurch	NZ	Enfield	2/05/1993	4/10/1993	155	1.00
-Christchurch1993	SmethamETAl1994	1993	Christchurch	NZ	142118	2/05/1993	5/10/1993	156	1.00
-Christchurch1993	SmethamETAl1994	1993	Christchurch	NZ	014205A	2/05/1993	6/10/1993	157	1.00
-Christchurch1993	SmethamETAl1994	1993	Christchurch	NZ	9756	2/05/1993	6/10/1993	157	1.00
-Christchurch1993	SmethamETAl1994	1993	Christchurch	NZ	01421fA	2/05/1993	8/10/1993	159	1.00
-Christchurch1993	SmethamETAl1994	1993	Christchurch	NZ	014326f-l	2/05/1993	9/10/1993	160	1.00
-Christchurch1993	SmethamETAl1994	1993	Christchurch	NZ	014555A	2/05/1993	9/10/1993	160	1.00
-Christchurch1993	SmethamETAl1994	1993	Christchurch	NZ	14198	2/05/1993	9/10/1993	160	1.00
-Christchurch1993	SmethamETAl1994	1993	Christchurch	NZ	12722	2/05/1993	12/10/1993	163	1.00
-Christchurch1993	SmethamETAl1994	1993	Christchurch	NZ	01421IC	2/05/1993	13/10/1993	164	1.00
-Christchurch1993	SmethamETAl1994	1993	Christchurch	NZ	144548	2/05/1993	15/10/1993	166	1.00
-Christchurch1993	SmethamETAl1994	1993	Christchurch	NZ	Tallarook	2/05/1993	18/10/1993	169	1.00
-Christchurch1993	SmethamETAl1994	1993	Christchurch	NZ	142058	2/05/1993	25/10/1993	176	1.00
-Condobolin1986	YoungEtal_1994	1986	Condobolin	AU	Nungarin	25/03/1986	14/07/1986	111	50.00
-Condobolin1986	YoungEtal_1994	1986	Condobolin	AU	Dalkeith	25/03/1986	3/09/1986	162	50.00
-Condobolin1986	YoungEtal_1994	1986	Condobolin	AU	SeatonPark	25/03/1986	26/08/1986	154	50.00
-Condobolin1986	YoungEtal_1994	1986	Condobolin	AU	Nungarin	16/04/1986	24/07/1986	99	50.00
-Condobolin1986	YoungEtal_1994	1986	Condobolin	AU	Dalkeith	16/04/1986	3/09/1986	140	50.00
-Condobolin1986	YoungEtal_1994	1986	Condobolin	AU	SeatonPark	16/04/1986	27/08/1986	133	50.00
-Condobolin1986	YoungEtal_1994	1986	Condobolin	AU	Nungarin	5/05/1986	19/08/1986	106	50.00
-Condobolin1986	YoungEtal_1994	1986	Condobolin	AU	Dalkeith	5/05/1986	31/08/1986	118	50.00
-Condobolin1986	YoungEtal_1994	1986	Condobolin	AU	SeatonPark	5/05/1986	30/08/1986	117	50.00
-Condobolin1986	YoungEtal_1994	1986	Condobolin	AU	Nungarin	27/05/1986	31/08/1986	96	50.00
-Condobolin1986	YoungEtal_1994	1986	Condobolin	AU	Dalkeith	27/05/1986	6/09/1986	102	50.00
-Condobolin1986	YoungEtal_1994	1986	Condobolin	AU	SeatonPark	27/05/1986	8/09/1986	104	50.00
-Condobolin1986	YoungEtal_1994	1986	Condobolin	AU	Nungarin	19/06/1986	11/09/1986	84	50.00
-Condobolin1986	YoungEtal_1994	1986	Condobolin	AU	Dalkeith	19/06/1986	18/09/1986	91	50.00
-Condobolin1986	YoungEtal_1994	1986	Condobolin	AU	SeatonPark	19/06/1986	19/09/1986	92	50.00
-Condobolin1986	YoungEtal_1994	1986	Condobolin	AU	Nungarin	7/07/1986	22/09/1986	77	50.00
-Condobolin1986	YoungEtal_1994	1986	Condobolin	AU	Dalkeith	7/07/1986	27/09/1986	82	50.00
-Condobolin1986	YoungEtal_1994	1986	Condobolin	AU	SeatonPark	7/07/1986	29/09/1986	84	50.00
-Waggawagga1985	SmethamandDear2003	1985	WaggaWagga	AU	SeatonPark	20/06/1985	3/10/1985	105	50.00
-Waggawagga1985	SmethamandDear2003	1985	WaggaWagga	AU	Woogenellup	20/06/1985	3/10/1985	105	1.00
-Waggawagga1985	SmethamandDear2003	1985	WaggaWagga	AU	Trikkala	20/06/1985	3/10/1985	105	1.00
+LocationYear	AuthorYear 	YearExperiment	Location	Country	Treatcultivar	SowingDate	StartFlowering	PercentFlower
+Crowmwell1965	Smetham1968	1965	Cromwell	NZ	Dwang	17/02/1965	30/09/1965	50
+Crowmwell1965	Smetham1968	1965	Cromwell	NZ	Geraldton	17/02/1965	30/09/1965	50
+Crowmwell1965	Smetham1968	1965	Cromwell	NZ	Yarloop	17/02/1965	30/09/1965	50
+Crowmwell1965	Smetham1968	1965	Cromwell	NZ	Burrelmedic	17/02/1965	30/09/1965	50
+Crowmwell1965	Smetham1968	1965	Cromwell	NZ	Woogenellup	17/02/1965	15/10/1965	50
+Crowmwell1965	Smetham1968	1965	Cromwell	NZ	Clare	17/02/1965	15/10/1965	50
+Crowmwell1965	Smetham1968	1965	Cromwell	NZ	MtBarker	17/02/1965	22/10/1965	50
+Crowmwell1965	Smetham1968	1965	Cromwell	NZ	EdenHope	17/02/1965	22/10/1965	50
+Crowmwell1965	Smetham1968	1965	Cromwell	NZ	BacchusM	17/02/1965	22/10/1965	50
+Crowmwell1965	Smetham1968	1965	Cromwell	NZ	Kilmore	17/02/1965	22/10/1965	50
+Crowmwell1965	Smetham1968	1965	Cromwell	NZ	Nangeela	17/02/1965	30/10/1965	50
+Crowmwell1965	Smetham1968	1965	Cromwell	NZ	Derrinal	17/02/1965	30/10/1965	50
+Crowmwell1965	Smetham1968	1965	Cromwell	NZ	Wenigup	17/02/1965	30/10/1965	50
+Crowmwell1965	Smetham1968	1965	Cromwell	NZ	TallarookvsWenig	17/02/1965	30/10/1965	50
+Crowmwell1965	Smetham1968	1965	Cromwell	NZ	Boomerang	17/02/1965	30/10/1965	50
+Crowmwell1965	Smetham1968	1965	Cromwell	NZ	Portugal294	17/02/1965	30/10/1965	50
+Crowmwell1965	Smetham1968	1965	Cromwell	NZ	Bena	17/02/1965	15/11/1965	50
+Crowmwell1965	Smetham1968	1965	Cromwell	NZ	Tallarook	17/02/1965	15/11/1965	50
+NA	Aitken1955	1952	Melbourne	AU	Dwang	8/04/1952	16/09/1952	NA
+NA	Aitken1955	1952	Melbourne	AU	Yarloop	8/04/1952	4/10/1952	NA
+NA	Aitken1955	1952	Melbourne	AU	Clare	8/04/1952	6/10/1952	NA
+NA	Aitken1955	1952	Melbourne	AU	BacchusM	8/04/1952	15/10/1952	NA
+NA	Aitken1955	1952	Melbourne	AU	MtBarker	8/04/1952	3/11/1952	NA
+NA	Aitken1955	1952	Melbourne	AU	Tallarook	8/04/1952	3/11/1952	NA
+Launceston1987	Evansetal1992	1987	Launceston	AU	Nungarin	3/05/1987	9/09/1987	50
+Launceston1987	Evansetal1992	1987	Launceston	AU	Dalkeith	3/05/1987	15/09/1987	50
+Launceston1987	Evansetal1992	1987	Launceston	AU	Trikkala	3/05/1987	21/09/1987	50
+Launceston1987	Evansetal1992	1987	Launceston	AU	Woogenellup	3/05/1987	25/09/1987	50
+Launceston1987	Evansetal1992	1987	Launceston	AU	Karridale	3/05/1987	4/10/1987	50
+Launceston1987	Evansetal1992	1987	Launceston	AU	Larisa	3/05/1987	8/10/1987	50
+Launceston1987	Evansetal1992	1987	Launceston	AU	Meteora	3/05/1987	14/10/1987	50
+Launceston1987	Evansetal1992	1987	Launceston	AU	MtBarker	3/05/1987	4/10/1987	50
+Katanning1990	Evansetal1992	1990	Katanning	AU	Nungarin	3/05/1990	11/08/1990	50
+Katanning1990	Evansetal1992	1990	Katanning	AU	Dalkeith	3/05/1990	4/09/1990	50
+Katanning1990	Evansetal1992	1990	Katanning	AU	Trikkala	3/05/1990	6/09/1990	50
+Katanning1990	Evansetal1992	1990	Katanning	AU	Woogenellup	3/05/1990	13/09/1990	50
+Katanning1990	Evansetal1992	1990	Katanning	AU	Karridale	3/05/1990	29/09/1990	50
+Katanning1990	Evansetal1992	1990	Katanning	AU	Larisa	3/05/1990	4/10/1990	50
+Katanning1990	Evansetal1992	1990	Katanning	AU	Meteora	3/05/1990	8/10/1990	50
+Katanning1990	Evansetal1992	1990	Katanning	AU	MtBarker	3/05/1990	30/09/1990	50
+Launceston1987	Evansetal1992	1987	Launceston	AU	Nungarin	3/06/1987	18/09/1987	50
+Launceston1987	Evansetal1992	1987	Launceston	AU	Dalkeith	3/06/1987	27/09/1987	50
+Launceston1987	Evansetal1992	1987	Launceston	AU	Trikkala	3/06/1987	6/10/1987	50
+Launceston1987	Evansetal1992	1987	Launceston	AU	Woogenellup	3/06/1987	4/10/1987	50
+Launceston1987	Evansetal1992	1987	Launceston	AU	Karridale	3/06/1987	20/10/1987	50
+Launceston1987	Evansetal1992	1987	Launceston	AU	Larisa	3/06/1987	22/10/1987	50
+Launceston1987	Evansetal1992	1987	Launceston	AU	Meteora	3/06/1987	27/10/1987	50
+Launceston1987	Evansetal1992	1987	Launceston	AU	MtBarker	3/06/1987	20/10/1987	50
+Katanning1990	Evansetal1992	1990	Katanning	AU	Nungarin	3/06/1990	7/09/1990	50
+Katanning1990	Evansetal1992	1990	Katanning	AU	Dalkeith	3/06/1990	9/09/1990	50
+Katanning1990	Evansetal1992	1990	Katanning	AU	Trikkala	3/06/1990	13/09/1990	50
+Katanning1990	Evansetal1992	1990	Katanning	AU	Woogenellup	3/06/1990	30/09/1990	50
+Katanning1990	Evansetal1992	1990	Katanning	AU	Karridale	3/06/1990	5/10/1990	50
+Katanning1990	Evansetal1992	1990	Katanning	AU	Larisa	3/06/1990	12/10/1990	50
+Katanning1990	Evansetal1992	1990	Katanning	AU	Meteora	3/06/1990	15/10/1990	50
+Katanning1990	Evansetal1992	1990	Katanning	AU	MtBarker	3/06/1990	6/10/1990	50
+Launceston1987	Evansetal1992	1987	Launceston	AU	Nungarin	3/07/1987	3/10/1987	50
+Launceston1987	Evansetal1992	1987	Launceston	AU	Dalkeith	3/07/1987	8/10/1987	50
+Launceston1987	Evansetal1992	1987	Launceston	AU	Trikkala	3/07/1987	17/10/1987	50
+Launceston1987	Evansetal1992	1987	Launceston	AU	Woogenellup	3/07/1987	20/10/1987	50
+Launceston1987	Evansetal1992	1987	Launceston	AU	Karridale	3/07/1987	30/10/1987	50
+Launceston1987	Evansetal1992	1987	Launceston	AU	Larisa	3/07/1987	2/11/1987	50
+Launceston1987	Evansetal1992	1987	Launceston	AU	Meteora	3/07/1987	5/11/1987	50
+Launceston1987	Evansetal1992	1987	Launceston	AU	MtBarker	3/07/1987	2/11/1987	50
+Katanning1990	Evansetal1992	1990	Katanning	AU	Nungarin	3/06/1990	16/08/1990	50
+Katanning1990	Evansetal1992	1990	Katanning	AU	Dalkeith	3/06/1990	29/08/1990	50
+Katanning1990	Evansetal1992	1990	Katanning	AU	Trikkala	3/06/1990	28/08/1990	50
+Katanning1990	Evansetal1992	1990	Katanning	AU	Woogenellup	3/06/1990	10/09/1990	50
+Katanning1990	Evansetal1992	1990	Katanning	AU	Karridale	3/06/1990	18/09/1990	50
+Katanning1990	Evansetal1992	1990	Katanning	AU	Larisa	3/06/1990	22/09/1990	50
+Katanning1990	Evansetal1992	1990	Katanning	AU	Meteora	3/06/1990	26/09/1990	50
+Katanning1990	Evansetal1992	1990	Katanning	AU	MtBarker	3/06/1990	21/09/1990	50
+Launceston1987	Evansetal1992	1987	Launceston	AU	Nungarin	1/08/1987	17/10/1987	50
+Launceston1987	Evansetal1992	1987	Launceston	AU	Dalkeith	1/08/1987	21/10/1987	50
+Launceston1987	Evansetal1992	1987	Launceston	AU	Trikkala	1/08/1987	29/10/1987	50
+Launceston1987	Evansetal1992	1987	Launceston	AU	Woogenellup	1/08/1987	3/11/1987	50
+Launceston1987	Evansetal1992	1987	Launceston	AU	Karridale	1/08/1987	9/11/1987	50
+Launceston1987	Evansetal1992	1987	Launceston	AU	Larisa	1/08/1987	11/11/1987	50
+Launceston1987	Evansetal1992	1987	Launceston	AU	Meteora	1/08/1987	14/11/1987	50
+Launceston1987	Evansetal1992	1987	Launceston	AU	MtBarker	1/08/1987	16/11/1987	50
+Katanning1990	Evansetal1992	1990	Katanning	AU	Nungarin	1/08/1990	8/10/1990	50
+Katanning1990	Evansetal1992	1990	Katanning	AU	Dalkeith	1/08/1990	11/10/1990	50
+Katanning1990	Evansetal1992	1990	Katanning	AU	Trikkala	1/08/1990	13/10/1990	50
+Katanning1990	Evansetal1992	1990	Katanning	AU	Woogenellup	1/08/1990	1/11/1990	50
+Katanning1990	Evansetal1992	1990	Katanning	AU	Karridale	1/08/1990	4/11/1990	50
+Katanning1990	Evansetal1992	1990	Katanning	AU	Larisa	1/08/1990	8/11/1990	50
+Katanning1990	Evansetal1992	1990	Katanning	AU	Meteora	1/08/1990	6/11/1990	50
+Katanning1990	Evansetal1992	1990	Katanning	AU	MtBarker	1/08/1990	10/11/1990	50
+Launceston1987	Evansetal1992	1987	Launceston	AU	Nungarin	15/08/1987	29/10/1987	50
+Launceston1987	Evansetal1992	1987	Launceston	AU	Dalkeith	15/08/1987	2/11/1987	50
+Launceston1987	Evansetal1992	1987	Launceston	AU	Trikkala	15/08/1987	5/11/1987	50
+Launceston1987	Evansetal1992	1987	Launceston	AU	Woogenellup	15/08/1987	16/11/1987	50
+Launceston1987	Evansetal1992	1987	Launceston	AU	Karridale	15/08/1987	17/11/1987	50
+Launceston1987	Evansetal1992	1987	Launceston	AU	Larisa	15/08/1987	21/11/1987	50
+Launceston1987	Evansetal1992	1987	Launceston	AU	Meteora	15/08/1987	22/11/1987	50
+Launceston1987	Evansetal1992	1987	Launceston	AU	MtBarker	15/08/1987	28/11/1987	50
+Katanning1990	Evansetal1992	1990	Katanning	AU	Nungarin	3/04/1990	29/06/1990	50
+Katanning1990	Evansetal1992	1990	Katanning	AU	Dalkeith	3/04/1990	3/08/1990	50
+Katanning1990	Evansetal1992	1990	Katanning	AU	Trikkala	3/04/1990	6/08/1990	50
+Katanning1990	Evansetal1992	1990	Katanning	AU	Woogenellup	3/04/1990	4/09/1990	50
+Katanning1990	Evansetal1992	1990	Katanning	AU	Karridale	3/04/1990	16/09/1990	50
+Katanning1990	Evansetal1992	1990	Katanning	AU	Larisa	3/04/1990	20/09/1990	50
+Katanning1990	Evansetal1992	1990	Katanning	AU	Meteora	3/04/1990	24/09/1990	50
+Katanning1990	Evansetal1992	1990	Katanning	AU	MtBarker	3/04/1990	20/09/1990	50
+Launceston1987	Evansetal1992	1987	Launceston	AU	Nungarin	1/09/1987	6/11/1987	50
+Launceston1987	Evansetal1992	1987	Launceston	AU	Dalkeith	1/09/1987	8/11/1987	50
+Launceston1987	Evansetal1992	1987	Launceston	AU	Trikkala	1/09/1987	7/11/1987	50
+Launceston1987	Evansetal1992	1987	Launceston	AU	Woogenellup	1/09/1987	1/12/1987	50
+Launceston1987	Evansetal1992	1987	Launceston	AU	Karridale	1/09/1987	1/12/1987	50
+Launceston1987	Evansetal1992	1987	Launceston	AU	Larisa	1/09/1987	8/12/1987	50
+Launceston1987	Evansetal1992	1987	Launceston	AU	Meteora	1/09/1987	3/12/1987	50
+Launceston1987	Evansetal1992	1987	Launceston	AU	MtBarker	1/09/1987	10/12/1987	50
+Katanning1990	Evansetal1992	1990	Katanning	AU	Nungarin	1/09/1990	1/11/1990	50
+Katanning1990	Evansetal1992	1990	Katanning	AU	Dalkeith	1/09/1990	2/11/1990	50
+Katanning1990	Evansetal1992	1990	Katanning	AU	Trikkala	1/09/1990	31/10/1990	50
+Katanning1990	Evansetal1992	1990	Katanning	AU	Woogenellup	1/09/1990	6/12/1990	50
+Katanning1990	Evansetal1992	1990	Katanning	AU	Karridale	1/09/1990	29/11/1990	50
+Katanning1990	Evansetal1992	1990	Katanning	AU	Larisa	1/09/1990	2/12/1990	50
+Katanning1990	Evansetal1992	1990	Katanning	AU	Meteora	1/09/1990	6/12/1990	50
+Katanning1990	Evansetal1992	1990	Katanning	AU	MtBarker	1/09/1990	23/12/1990	50
+Launceston1987	Evansetal1992	1987	Launceston	AU	Nungarin	15/09/1987	15/11/1987	50
+Launceston1987	Evansetal1992	1987	Launceston	AU	Dalkeith	15/09/1987	16/11/1987	50
+Launceston1987	Evansetal1992	1987	Launceston	AU	Trikkala	15/09/1987	17/11/1987	50
+Launceston1987	Evansetal1992	1987	Launceston	AU	Woogenellup	15/09/1987	14/12/1987	50
+Launceston1987	Evansetal1992	1987	Launceston	AU	Karridale	15/09/1987	17/12/1987	50
+Launceston1987	Evansetal1992	1987	Launceston	AU	Larisa	15/09/1987	19/12/1987	50
+Launceston1987	Evansetal1992	1987	Launceston	AU	Meteora	15/09/1987	21/12/1987	50
+Launceston1987	Evansetal1992	1987	Launceston	AU	MtBarker	15/09/1987	29/12/1987	50
+Katanning1990	Evansetal1992	1990	Katanning	AU	Nungarin	15/09/1990	NA	50
+Katanning1990	Evansetal1992	1990	Katanning	AU	Dalkeith	15/09/1990	NA	50
+Katanning1990	Evansetal1992	1990	Katanning	AU	Trikkala	15/09/1990	NA	50
+Katanning1990	Evansetal1992	1990	Katanning	AU	Woogenellup	15/09/1990	NA	50
+Katanning1990	Evansetal1992	1990	Katanning	AU	Karridale	15/09/1990	NA	50
+Katanning1990	Evansetal1992	1990	Katanning	AU	Larisa	15/09/1990	NA	50
+Katanning1990	Evansetal1992	1990	Katanning	AU	Meteora	15/09/1990	NA	50
+Katanning1990	Evansetal1992	1990	Katanning	AU	MtBarker	15/09/1990	NA	50
+Launceston1987	Evansetal1992	1987	Launceston	AU	Nungarin	1/10/1987	27/11/1987	50
+Launceston1987	Evansetal1992	1987	Launceston	AU	Dalkeith	1/10/1987	27/11/1987	50
+Launceston1987	Evansetal1992	1987	Launceston	AU	Trikkala	1/10/1987	24/11/1987	50
+Launceston1987	Evansetal1992	1987	Launceston	AU	Woogenellup	1/10/1987	28/12/1987	50
+Launceston1987	Evansetal1992	1987	Launceston	AU	Karridale	1/10/1987	24/12/1987	50
+Launceston1987	Evansetal1992	1987	Launceston	AU	Larisa	1/10/1987	31/12/1987	50
+Launceston1987	Evansetal1992	1987	Launceston	AU	Meteora	1/10/1987	2/01/1988	50
+Launceston1987	Evansetal1992	1987	Launceston	AU	MtBarker	1/10/1987	27/01/1988	50
+Katanning1990	Evansetal1992	1990	Katanning	AU	Nungarin	1/10/1990	24/11/1990	50
+Katanning1990	Evansetal1992	1990	Katanning	AU	Dalkeith	1/10/1990	22/11/1990	50
+Katanning1990	Evansetal1992	1990	Katanning	AU	Trikkala	1/10/1990	21/11/1990	50
+Katanning1990	Evansetal1992	1990	Katanning	AU	Woogenellup	1/10/1990	23/12/1990	50
+Katanning1990	Evansetal1992	1990	Katanning	AU	Karridale	1/10/1990	22/12/1990	50
+Katanning1990	Evansetal1992	1990	Katanning	AU	Larisa	1/10/1990	24/12/1990	50
+Katanning1990	Evansetal1992	1990	Katanning	AU	Meteora	1/10/1990	25/12/1990	50
+Katanning1990	Evansetal1992	1990	Katanning	AU	MtBarker	1/10/1990	1/01/1991	50
+Launceston1987	Evansetal1992	1987	Launceston	AU	Nungarin	1/11/1987	31/12/1987	50
+Launceston1987	Evansetal1992	1987	Launceston	AU	Dalkeith	1/11/1987	25/12/1987	50
+Launceston1987	Evansetal1992	1987	Launceston	AU	Trikkala	1/11/1987	15/12/1987	50
+Launceston1987	Evansetal1992	1987	Launceston	AU	Woogenellup	1/11/1987	17/01/1988	50
+Launceston1987	Evansetal1992	1987	Launceston	AU	Karridale	1/11/1987	20/01/1988	50
+Launceston1987	Evansetal1992	1987	Launceston	AU	Larisa	1/11/1987	23/01/1988	50
+Launceston1987	Evansetal1992	1987	Launceston	AU	Meteora	1/11/1987	28/01/1988	50
+Launceston1987	Evansetal1992	1987	Launceston	AU	MtBarker	1/11/1987	9/02/1988	50
+Katanning1990	Evansetal1992	1990	Katanning	AU	Nungarin	1/11/1990	NA	50
+Katanning1990	Evansetal1992	1990	Katanning	AU	Dalkeith	1/11/1990	NA	50
+Katanning1990	Evansetal1992	1990	Katanning	AU	Trikkala	1/11/1990	NA	50
+Katanning1990	Evansetal1992	1990	Katanning	AU	Woogenellup	1/11/1990	NA	50
+Katanning1990	Evansetal1992	1990	Katanning	AU	Karridale	1/11/1990	NA	50
+Katanning1990	Evansetal1992	1990	Katanning	AU	Larisa	1/11/1990	NA	50
+Katanning1990	Evansetal1992	1990	Katanning	AU	Meteora	1/11/1990	NA	50
+Katanning1990	Evansetal1992	1990	Katanning	AU	MtBarker	1/11/1990	NA	50
+NA	FrancisAndGladstone1974	NA	Perth	AU	Daglish	NA	NA	NA
+NA	FrancisAndGladstone1974	NA	Perth	AU	NorthamA	NA	NA	NA
+NA	FrancisAndGladstone1974	NA	Perth	AU	Geraldton	NA	NA	NA
+NA	FrancisAndGladstone1974	NA	Perth	AU	Dwalganup	NA	NA	NA
+NA	FrancisAndGladstone1974	NA	Perth	AU	Uniwager	NA	NA	NA
+NA	FrancisAndGladstone1974	NA	Perth	AU	Mt.HelenaA	NA	NA	NA
+NA	FrancisAndGladstone1974	NA	Perth	AU	Daliak	NA	NA	NA
+NA	FrancisAndGladstone1974	NA	Perth	AU	ShentonParkA	NA	NA	NA
+NA	FrancisAndGladstone1974	NA	Perth	AU	Toodyay	NA	NA	NA
+NA	FrancisAndGladstone1974	NA	Perth	AU	Lake	NA	NA	NA
+NA	FrancisAndGladstone1974	NA	Perth	AU	Mulwala	NA	NA	NA
+NA	FrancisAndGladstone1974	NA	Perth	AU	Gingin	NA	NA	NA
+NA	FrancisAndGladstone1974	NA	Perth	AU	Darlington	NA	NA	NA
+NA	FrancisAndGladstone1974	NA	Perth	AU	Collie	NA	NA	NA
+NA	FrancisAndGladstone1974	NA	Perth	AU	Clackline	NA	NA	NA
+NA	FrancisAndGladstone1974	NA	Perth	AU	CPI12709	NA	NA	NA
+NA	FrancisAndGladstone1974	NA	Perth	AU	MidlandB	NA	NA	NA
+NA	FrancisAndGladstone1974	NA	Perth	AU	SeatonPark	NA	NA	NA
+NA	FrancisAndGladstone1974	NA	Perth	AU	Dinninup	NA	NA	NA
+NA	FrancisAndGladstone1974	NA	Perth	AU	NorthamB3	NA	NA	NA
+NA	FrancisAndGladstone1974	NA	Perth	AU	MahoganyCreek	NA	NA	NA
+NA	FrancisAndGladstone1974	NA	Perth	AU	BassendeanH	NA	NA	NA
+NA	FrancisAndGladstone1974	NA	Perth	AU	Woogenellup	NA	NA	NA
+Templeton1992	WiddupAndPennel_2000	1993	Templeton	NZ	Breedinglines	3/05/1993	9/10/1993	50
+Templeton1992	WiddupAndPennel_2000	1993	Templeton	NZ	MediterraneanEcotypes_subterraneum	3/05/1993	19/10/1993	50
+Templeton1992	WiddupAndPennel_2000	1993	Templeton	NZ	SardinianEcotypes_subterraneum	3/05/1993	15/10/1993	50
+Templeton1992	WiddupAndPennel_2000	1993	Templeton	NZ	Whatawhataws536	3/05/1993	24/10/1993	50
+Templeton1992	WiddupAndPennel_2000	1993	Templeton	NZ	Whatawhataws1737	3/05/1993	24/10/1993	50
+Templeton1992	WiddupAndPennel_2000	1993	Templeton	NZ	Whatawhataws1801	3/05/1993	18/10/1993	50
+Templeton1992	WiddupAndPennel_2000	1993	Templeton	NZ	PalmerstonNAK920	3/05/1993	24/10/1993	50
+Templeton1992	WiddupAndPennel_2000	1993	Templeton	NZ	PalmerstonAK948	3/05/1993	15/10/1993	50
+Templeton1992	WiddupAndPennel_2000	1993	Templeton	NZ	Dalkeith	3/05/1993	13/09/1993	50
+Templeton1992	WiddupAndPennel_2000	1993	Templeton	NZ	SeatonPark	3/05/1993	24/09/1993	50
+Templeton1992	WiddupAndPennel_2000	1993	Templeton	NZ	Trikkala	3/05/1993	26/09/1993	50
+Templeton1992	WiddupAndPennel_2000	1993	Templeton	NZ	Gosse	3/05/1993	8/10/1993	50
+Templeton1992	WiddupAndPennel_2000	1993	Templeton	NZ	Junee	3/05/1993	10/10/1993	50
+Templeton1992	WiddupAndPennel_2000	1993	Templeton	NZ	Woogenellup	3/05/1993	10/10/1993	50
+Templeton1992	WiddupAndPennel_2000	1993	Templeton	NZ	Clare	3/05/1993	10/10/1993	50
+Templeton1992	WiddupAndPennel_2000	1993	Templeton	NZ	MtBarker	3/05/1993	12/10/1993	50
+Templeton1992	WiddupAndPennel_2000	1993	Templeton	NZ	Goulburn	3/05/1993	12/10/1993	50
+Templeton1992	WiddupAndPennel_2000	1993	Templeton	NZ	Karridale	3/05/1993	14/10/1993	50
+Templeton1992	WiddupAndPennel_2000	1993	Templeton	NZ	Nangeela	3/05/1993	16/10/1993	50
+Templeton1992	WiddupAndPennel_2000	1993	Templeton	NZ	Denmark	3/05/1993	16/10/1993	50
+Templeton1992	WiddupAndPennel_2000	1993	Templeton	NZ	Larisa	3/05/1993	20/10/1993	50
+Templeton1992	WiddupAndPennel_2000	1993	Templeton	NZ	Leura	3/05/1993	23/10/1993	50
+Templeton1992	WiddupAndPennel_2000	1993	Templeton	NZ	Tallarook	3/05/1993	26/10/1993	50
+Melbourne1969	CollinsAndAitken1970	1969	Melbourne	AU	MtBarker	15/08/1969	23/11/1969	50
+Melbourne1969	CollinsAndAitken1970	1969	Melbourne	AU	MtBarker	28/07/1969	18/11/1969	50
+NA	Rossiter1978	NA	Perth	AU	Daliak	1/07/1978	NA	NA
+NA	Rossiter1978	NA	Perth	AU	Gingin	6/07/1978	NA	NA
+NA	MorleyAndDAvern1956	1955	Canberra 	AU	Dwalganup	NA	NA	NA
+NA	MorleyAndDAvern1956	1955	Canberra 	AU	Yarloop	NA	NA	NA
+NA	MorleyAndDAvern1956	1955	Canberra 	AU	Clare	NA	NA	NA
+NA	MorleyAndDAvern1956	1955	Canberra 	AU	BacchusM	NA	NA	NA
+NA	MorleyAndDAvern1956	1955	Canberra 	AU	Wenigup	NA	NA	NA
+NA	MorleyAndDAvern1956	1955	Canberra 	AU	Tallarook	NA	NA	NA
+NA	MorleyAndDAvern1956	1955	Melbourne	AU	Dwalganup	NA	NA	NA
+NA	MorleyAndDAvern1956	1955	Melbourne	AU	Yarloop	NA	NA	NA
+NA	MorleyAndDAvern1956	1955	Melbourne	AU	Clare	NA	NA	NA
+NA	MorleyAndDAvern1956	1955	Melbourne	AU	BacchusM	NA	NA	NA
+NA	MorleyAndDAvern1956	1955	Melbourne	AU	Wenigup	NA	NA	NA
+NA	MorleyAndDAvern1956	1955	Melbourne	AU	Tallarook	NA	NA	NA
+NA	MorleyAndDAvern1956	1955	WaggaWagga	AU	Dwalganup	NA	NA	NA
+NA	MorleyAndDAvern1956	1955	WaggaWagga	AU	Yarloop	NA	NA	NA
+NA	MorleyAndDAvern1956	1955	WaggaWagga	AU	Clare	NA	NA	NA
+NA	MorleyAndDAvern1956	1955	WaggaWagga	AU	BacchusM	NA	NA	NA
+NA	MorleyAndDAvern1956	1955	WaggaWagga	AU	Wenigup	NA	NA	NA
+NA	MorleyAndDAvern1956	1955	WaggaWagga	AU	Tallarook	NA	NA	NA
+NA	MorleyAndDAvern1956	1955	Lismore	AU	Dwalganup	NA	27/06/1955	NA
+NA	MorleyAndDAvern1956	1955	Lismore	AU	Yarloop	NA	6/07/1955	NA
+NA	MorleyAndDAvern1956	1955	Lismore	AU	Clare	NA	7/09/1955	NA
+NA	MorleyAndDAvern1956	1955	Lismore	AU	BacchusM	NA	15/09/1955	NA
+NA	MorleyAndDAvern1956	1955	Lismore	AU	Wenigup	NA	8/10/1955	NA
+NA	MorleyAndDAvern1956	1955	Lismore	AU	Tallarook	NA	11/10/1955	NA
+Carvossa1981	Honglund_1990	1981	Carvossa	NZ	Trikkala	1/05/1981	8/09/1981	1
+Carvossa1981	Honglund_1990	1981	Carvossa	NZ	SeatonPark	1/05/1981	22/09/1981	1
+Carvossa1981	Honglund_1990	1981	Carvossa	NZ	Woogenellup	1/05/1981	22/09/1981	1
+Carvossa1981	Honglund_1990	1981	Carvossa	NZ	Howard	1/05/1981	22/09/1981	1
+Carvossa1981	Honglund_1990	1981	Carvossa	NZ	Nangeela	1/05/1981	22/09/1981	1
+Carvossa1981	Honglund_1990	1981	Carvossa	NZ	Clare	1/05/1981	22/09/1981	1
+Carvossa1981	Honglund_1990	1981	Carvossa	NZ	MtBarker	1/05/1981	22/09/1981	1
+Carvossa1981	Honglund_1990	1981	Carvossa	NZ	Larisa	1/05/1981	8/10/1981	1
+Carvossa1981	Honglund_1990	1981	Carvossa	NZ	Tallarook	1/05/1981	27/09/1981	1
+Waggawagga1985	DearEtal1993	1985	WaggaWagga	AU	Nungarin	25/03/1985	3/08/1985	5
+Waggawagga1985	DearEtal1993	1985	WaggaWagga	AU	Northam	25/03/1985	16/08/1985	5
+Waggawagga1985	DearEtal1993	1985	WaggaWagga	AU	Dalkeith	25/03/1985	5/08/1985	5
+Waggawagga1985	DearEtal1993	1985	WaggaWagga	AU	Daliak	25/03/1985	2/09/1985	5
+Waggawagga1985	DearEtal1993	1985	WaggaWagga	AU	SeatonPark	25/03/1985	5/09/1985	5
+Waggawagga1985	DearEtal1993	1985	WaggaWagga	AU	Trikkala	25/03/1985	8/09/1985	5
+Waggawagga1985	DearEtal1993	1985	WaggaWagga	AU	Esperance	25/03/1985	17/09/1985	5
+Waggawagga1985	DearEtal1993	1985	WaggaWagga	AU	Junee	25/03/1985	16/09/1985	5
+Waggawagga1985	DearEtal1993	1985	WaggaWagga	AU	Woogenellup	25/03/1985	16/09/1985	5
+Waggawagga1985	DearEtal1993	1985	WaggaWagga	AU	GD56	25/03/1985	21/09/1985	5
+Waggawagga1985	DearEtal1993	1985	WaggaWagga	AU	Enfield	25/03/1985	20/09/1985	5
+Waggawagga1985	DearEtal1993	1985	WaggaWagga	AU	Karridale	25/03/1985	22/09/1985	5
+Waggawagga1985	DearEtal1993	1985	WaggaWagga	AU	MtBarker	25/03/1985	21/09/1985	5
+Waggawagga1985	DearEtal1993	1985	WaggaWagga	AU	Clare	25/03/1985	25/09/1985	5
+Waggawagga1985	DearEtal1993	1986	WaggaWagga	AU	Nungarin	10/05/1986	30/08/1986	5
+Waggawagga1985	DearEtal1993	1986	WaggaWagga	AU	Northam	10/05/1986	4/09/1986	5
+Waggawagga1985	DearEtal1993	1986	WaggaWagga	AU	Dalkeith	10/05/1986	10/09/1986	5
+Waggawagga1985	DearEtal1993	1986	WaggaWagga	AU	Daliak	10/05/1986	17/09/1986	5
+Waggawagga1985	DearEtal1993	1986	WaggaWagga	AU	SeatonPark	10/05/1986	18/09/1986	5
+Waggawagga1985	DearEtal1993	1986	WaggaWagga	AU	Trikkala	10/05/1986	27/09/1986	5
+Waggawagga1985	DearEtal1993	1986	WaggaWagga	AU	Esperance	10/05/1986	24/09/1986	5
+Waggawagga1985	DearEtal1993	1986	WaggaWagga	AU	Junee	10/05/1986	25/09/1986	5
+Waggawagga1985	DearEtal1993	1986	WaggaWagga	AU	Woogenellup	10/05/1986	30/09/1986	5
+Waggawagga1985	DearEtal1993	1986	WaggaWagga	AU	GD56	10/05/1986	1/10/1986	5
+Waggawagga1985	DearEtal1993	1986	WaggaWagga	AU	Enfield	10/05/1986	7/10/1986	5
+Waggawagga1985	DearEtal1993	1986	WaggaWagga	AU	Karridale	10/05/1986	3/10/1986	5
+Waggawagga1985	DearEtal1993	1986	WaggaWagga	AU	MtBarker	10/05/1986	1/10/1986	5
+Waggawagga1985	DearEtal1993	1986	WaggaWagga	AU	Clare	10/05/1986	1/10/1986	5
+Waggawagga1985	DearEtal1993	1985	WaggaWagga	AU	Nungarin	25/03/1985	18/08/1985	50
+Waggawagga1985	DearEtal1993	1985	WaggaWagga	AU	Northam	25/03/1985	29/08/1985	50
+Waggawagga1985	DearEtal1993	1985	WaggaWagga	AU	Dalkeith	25/03/1985	24/08/1985	50
+Waggawagga1985	DearEtal1993	1985	WaggaWagga	AU	Daliak	25/03/1985	9/09/1985	50
+Waggawagga1985	DearEtal1993	1985	WaggaWagga	AU	SeatonPark	25/03/1985	14/09/1985	50
+Waggawagga1985	DearEtal1993	1985	WaggaWagga	AU	Trikkala	25/03/1985	17/09/1985	50
+Waggawagga1985	DearEtal1993	1985	WaggaWagga	AU	Esperance	25/03/1985	18/09/1985	50
+Waggawagga1985	DearEtal1993	1985	WaggaWagga	AU	Junee	25/03/1985	22/09/1985	50
+Waggawagga1985	DearEtal1993	1985	WaggaWagga	AU	Woogenellup	25/03/1985	25/09/1985	50
+Waggawagga1985	DearEtal1993	1985	WaggaWagga	AU	GD56	25/03/1985	1/10/1985	50
+Waggawagga1985	DearEtal1993	1985	WaggaWagga	AU	Enfield	25/03/1985	1/10/1985	50
+Waggawagga1985	DearEtal1993	1985	WaggaWagga	AU	Karridale	25/03/1985	10/10/1985	50
+Waggawagga1985	DearEtal1993	1985	WaggaWagga	AU	MtBarker	25/03/1985	2/10/1985	50
+Waggawagga1985	DearEtal1993	1985	WaggaWagga	AU	Clare	25/03/1985	7/10/1985	50
+Waggawagga1985	DearEtal1993	1986	WaggaWagga	AU	Nungarin	10/05/1986	16/09/1986	50
+Waggawagga1985	DearEtal1993	1986	WaggaWagga	AU	Northam	10/05/1986	19/09/1986	50
+Waggawagga1985	DearEtal1993	1986	WaggaWagga	AU	Dalkeith	10/05/1986	22/09/1986	50
+Waggawagga1985	DearEtal1993	1986	WaggaWagga	AU	Daliak	10/05/1986	26/09/1986	50
+Waggawagga1985	DearEtal1993	1986	WaggaWagga	AU	SeatonPark	10/05/1986	29/09/1986	50
+Waggawagga1985	DearEtal1993	1986	WaggaWagga	AU	Trikkala	10/05/1986	1/10/1986	50
+Waggawagga1985	DearEtal1993	1986	WaggaWagga	AU	Esperance	10/05/1986	2/10/1986	50
+Waggawagga1985	DearEtal1993	1986	WaggaWagga	AU	Junee	10/05/1986	30/09/1986	50
+Waggawagga1985	DearEtal1993	1986	WaggaWagga	AU	Woogenellup	10/05/1986	5/10/1986	50
+Waggawagga1985	DearEtal1993	1986	WaggaWagga	AU	GD56	10/05/1986	9/10/1986	50
+Waggawagga1985	DearEtal1993	1986	WaggaWagga	AU	Enfield	10/05/1986	13/10/1986	50
+Waggawagga1985	DearEtal1993	1986	WaggaWagga	AU	Karridale	10/05/1986	11/10/1986	50
+Waggawagga1985	DearEtal1993	1986	WaggaWagga	AU	MtBarker	10/05/1986	10/10/1986	50
+Waggawagga1985	DearEtal1993	1986	WaggaWagga	AU	Clare	10/05/1986	14/10/1986	50
+Waggawagga1985	DearEtal1993	1985	WaggaWagga	AU	Nungarin	25/03/1985	31/08/1985	100
+Waggawagga1985	DearEtal1993	1985	WaggaWagga	AU	Northam	25/03/1985	12/09/1985	100
+Waggawagga1985	DearEtal1993	1985	WaggaWagga	AU	Dalkeith	25/03/1985	8/09/1985	100
+Waggawagga1985	DearEtal1993	1985	WaggaWagga	AU	Daliak	25/03/1985	18/09/1985	100
+Waggawagga1985	DearEtal1993	1985	WaggaWagga	AU	SeatonPark	25/03/1985	22/09/1985	100
+Waggawagga1985	DearEtal1993	1985	WaggaWagga	AU	Trikkala	25/03/1985	26/09/1985	100
+Waggawagga1985	DearEtal1993	1985	WaggaWagga	AU	Esperance	25/03/1985	29/09/1985	100
+Waggawagga1985	DearEtal1993	1985	WaggaWagga	AU	Junee	25/03/1985	26/09/1985	100
+Waggawagga1985	DearEtal1993	1985	WaggaWagga	AU	Woogenellup	25/03/1985	6/10/1985	100
+Waggawagga1985	DearEtal1993	1985	WaggaWagga	AU	GD56	25/03/1985	18/10/1985	100
+Waggawagga1985	DearEtal1993	1985	WaggaWagga	AU	Enfield	25/03/1985	14/10/1985	100
+Waggawagga1985	DearEtal1993	1985	WaggaWagga	AU	Karridale	25/03/1985	17/10/1985	100
+Waggawagga1985	DearEtal1993	1985	WaggaWagga	AU	MtBarker	25/03/1985	16/10/1985	100
+Waggawagga1985	DearEtal1993	1985	WaggaWagga	AU	Clare	25/03/1985	19/10/1985	100
+Waggawagga1985	DearEtal1993	1986	WaggaWagga	AU	Nungarin	10/05/1986	1/10/1986	100
+Waggawagga1985	DearEtal1993	1986	WaggaWagga	AU	Northam	10/05/1986	29/09/1986	100
+Waggawagga1985	DearEtal1993	1986	WaggaWagga	AU	Dalkeith	10/05/1986	30/09/1986	100
+Waggawagga1985	DearEtal1993	1986	WaggaWagga	AU	Daliak	10/05/1986	1/10/1986	100
+Waggawagga1985	DearEtal1993	1986	WaggaWagga	AU	SeatonPark	10/05/1986	3/10/1986	100
+Waggawagga1985	DearEtal1993	1986	WaggaWagga	AU	Trikkala	10/05/1986	10/10/1986	100
+Waggawagga1985	DearEtal1993	1986	WaggaWagga	AU	Esperance	10/05/1986	6/10/1986	100
+Waggawagga1985	DearEtal1993	1986	WaggaWagga	AU	Junee	10/05/1986	10/10/1986	100
+Waggawagga1985	DearEtal1993	1986	WaggaWagga	AU	Woogenellup	10/05/1986	16/10/1986	100
+Waggawagga1985	DearEtal1993	1986	WaggaWagga	AU	GD56	10/05/1986	24/10/1986	100
+Waggawagga1985	DearEtal1993	1986	WaggaWagga	AU	Enfield	10/05/1986	29/10/1986	100
+Waggawagga1985	DearEtal1993	1986	WaggaWagga	AU	Karridale	10/05/1986	25/10/1986	100
+Waggawagga1985	DearEtal1993	1986	WaggaWagga	AU	MtBarker	10/05/1986	25/10/1986	100
+Waggawagga1985	DearEtal1993	1986	WaggaWagga	AU	Clare	10/05/1986	28/10/1986	100
+Mininera2005	ConboyAndHardwidge_2006	2005	Mininera	AU	Losa	28/05/2005	2/09/2005	50
+Mininera2005	ConboyAndHardwidge_2006	2005	Mininera	AU	SeatonPark	28/05/2005	17/09/2005	50
+Mininera2005	ConboyAndHardwidge_2006	2005	Mininera	AU	Campeda	28/05/2005	28/09/2005	50
+Mininera2005	ConboyAndHardwidge_2006	2005	Mininera	AU	Trikkala	28/05/2005	17/09/2005	50
+Mininera2005	ConboyAndHardwidge_2006	2005	Mininera	AU	Gosse	28/05/2005	1/10/2005	50
+Mininera2005	ConboyAndHardwidge_2006	2005	Mininera	AU	Antas	28/05/2005	9/10/2005	50
+Mininera2005	ConboyAndHardwidge_2006	2005	Mininera	AU	Denmark	28/05/2005	19/10/2005	50
+Mininera2005	ConboyAndHardwidge_2006	2005	Mininera	AU	Napier	28/05/2005	15/10/2005	50
+Mininera2005	ConboyAndHardwidge_2006	2005	Mininera	AU	Leura	28/05/2005	26/10/2005	50
+Whatawhata1989_91	DoddEtAl_1995	1989	Whatawhata	NZ	Enfield	3/05/1989	2/10/1989	75
+Whatawhata1989_91	DoddEtAl_1995	1989	Whatawhata	NZ	GreenRange	3/05/1989	4/10/1989	75
+Whatawhata1989_91	DoddEtAl_1995	1989	Whatawhata	NZ	Karridale	3/05/1989	22/10/1989	75
+Whatawhata1989_91	DoddEtAl_1995	1989	Whatawhata	NZ	MtBarker	3/05/1989	24/10/1989	75
+Whatawhata1989_91	DoddEtAl_1995	1989	Whatawhata	NZ	Meteora	3/05/1989	17/10/1989	75
+Whatawhata1989_91	DoddEtAl_1995	1989	Whatawhata	NZ	Tallarook	3/05/1989	20/11/1989	75
+Whatawhata1989_91	DoddEtAl_1995	1990	Whatawhata	NZ	Enfield	1/05/1990	31/10/1990	75
+Whatawhata1989_91	DoddEtAl_1995	1990	Whatawhata	NZ	GreenRange	1/05/1990	20/11/1990	75
+Whatawhata1989_91	DoddEtAl_1995	1990	Whatawhata	NZ	Karridale	1/05/1990	10/11/1990	75
+Whatawhata1989_91	DoddEtAl_1995	1990	Whatawhata	NZ	MtBarker	1/05/1990	11/11/1990	75
+Whatawhata1989_91	DoddEtAl_1995	1990	Whatawhata	NZ	Meteora	1/05/1990	27/11/1990	75
+Whatawhata1989_91	DoddEtAl_1995	1990	Whatawhata	NZ	Tallarook	1/05/1990	1/12/1990	75
+Whatawhata1989_91	DoddEtAl_1995	1991	Whatawhata	NZ	Enfield	1/05/1991	23/08/1991	75
+Whatawhata1989_91	DoddEtAl_1995	1991	Whatawhata	NZ	GreenRange	1/05/1991	30/08/1991	75
+Whatawhata1989_91	DoddEtAl_1995	1991	Whatawhata	NZ	Karridale	1/05/1991	11/09/1991	75
+Whatawhata1989_91	DoddEtAl_1995	1991	Whatawhata	NZ	MtBarker	1/05/1991	21/09/1991	75
+Whatawhata1989_91	DoddEtAl_1995	1991	Whatawhata	NZ	Meteora	1/05/1991	7/10/1991	75
+Whatawhata1989_91	DoddEtAl_1995	1991	Whatawhata	NZ	Tallarook	1/05/1991	22/10/1991	75
+Ballantrae1981	ChapmanAndWilliams_1990	1982	Ballantrae	NZ	SeatonPark	24/04/1982	3/09/1982	1
+Ballantrae1981	ChapmanAndWilliams_1990	1982	Ballantrae	NZ	Trikkala	24/04/1982	5/09/1982	1
+Ballantrae1981	ChapmanAndWilliams_1990	1982	Ballantrae	NZ	Howard	24/04/1982	7/09/1982	1
+Ballantrae1981	ChapmanAndWilliams_1990	1982	Ballantrae	NZ	Woogenellup	24/04/1982	16/09/1982	1
+Ballantrae1981	ChapmanAndWilliams_1990	1982	Ballantrae	NZ	Clare	24/04/1982	22/09/1982	1
+Ballantrae1981	ChapmanAndWilliams_1990	1982	Ballantrae	NZ	Larisa	24/04/1982	4/10/1982	1
+Ballantrae1981	ChapmanAndWilliams_1990	1982	Ballantrae	NZ	Nangeela	24/04/1982	4/10/1982	1
+Ballantrae1981	ChapmanAndWilliams_1990	1982	Ballantrae	NZ	MtBarker	24/04/1982	7/10/1982	1
+Ballantrae1981	ChapmanAndWilliams_1990	1982	Ballantrae	NZ	Tallarook	24/04/1982	16/10/1982	1
+Whatawhata1979	SheathAndRichardson_1983	1979	Whatawhata	NZ	Dwalganup	5/05/1979	13/09/1979	100
+Whatawhata1979	SheathAndRichardson_1983	1979	Whatawhata	NZ	Geraldton	5/05/1979	13/09/1979	100
+Whatawhata1979	SheathAndRichardson_1983	1979	Whatawhata	NZ	Nungarin	5/05/1979	13/09/1979	100
+Whatawhata1979	SheathAndRichardson_1983	1979	Whatawhata	NZ	Uniwager	5/05/1979	13/09/1979	100
+Whatawhata1979	SheathAndRichardson_1983	1979	Whatawhata	NZ	Yarloop	5/05/1979	27/09/1979	100
+Whatawhata1979	SheathAndRichardson_1983	1979	Whatawhata	NZ	Trikkala	5/05/1979	27/09/1979	100
+Whatawhata1979	SheathAndRichardson_1983	1979	Whatawhata	NZ	SeatonPark	5/05/1979	27/09/1979	100
+Whatawhata1979	SheathAndRichardson_1983	1979	Whatawhata	NZ	BacchusM	5/05/1979	27/09/1979	100
+Whatawhata1979	SheathAndRichardson_1983	1979	Whatawhata	NZ	Woogenellup	5/05/1979	27/09/1979	100
+Whatawhata1979	SheathAndRichardson_1983	1979	Whatawhata	NZ	Clare	5/05/1979	18/10/1979	100
+Whatawhata1979	SheathAndRichardson_1983	1979	Whatawhata	NZ	MtBarker	5/05/1979	18/10/1979	100
+Whatawhata1979	SheathAndRichardson_1983	1979	Whatawhata	NZ	Howard	5/05/1979	18/10/1979	100
+Whatawhata1979	SheathAndRichardson_1983	1979	Whatawhata	NZ	Larisa	5/05/1979	18/10/1979	100
+Whatawhata1979	SheathAndRichardson_1983	1979	Whatawhata	NZ	Tallarook	5/05/1979	28/11/1979	100
+ShentonPark1974	Collins1981	1974	ShentonPark	AU	MidlandB	16/05/1974	4/09/1974	5
+ShentonPark1974	Collins1981	1974	ShentonPark	AU	SeatonPark	16/05/1974	2/09/1974	5
+Adelaide1978	CocksAndPhillips1979	1978	Adelaide	AU	MtBarker	13/03/1978	16/09/1978	50
+Adelaide1978	CocksAndPhillips1979	1978	Adelaide	AU	Dwalganup	13/03/1978	21/06/1978	50
+Adelaide1978	CocksAndPhillips1979	1978	Adelaide	AU	Tallarook	13/03/1978	12/10/1978	50
+Adelaide1978	CocksAndPhillips1979	1978	Adelaide	AU	BacchusM	13/03/1978	9/08/1978	50
+Adelaide1978	CocksAndPhillips1979	1978	Adelaide	AU	Yarloop	13/03/1978	20/07/1978	50
+Adelaide1978	CocksAndPhillips1979	1978	Adelaide	AU	Clare	13/03/1978	22/08/1978	50
+Adelaide1978	CocksAndPhillips1979	1978	Adelaide	AU	Woogenellup	13/03/1978	15/08/1978	50
+Adelaide1978	CocksAndPhillips1979	1978	Adelaide	AU	Geraldton	13/03/1978	21/07/1978	50
+Adelaide1978	CocksAndPhillips1979	1978	Adelaide	AU	Nangeela	13/03/1978	27/09/1978	50
+Adelaide1978	CocksAndPhillips1979	1978	Adelaide	AU	Dinninup	13/03/1978	23/07/1978	50
+Adelaide1978	CocksAndPhillips1979	1978	Adelaide	AU	Howard	13/03/1978	1/09/1978	50
+Adelaide1978	CocksAndPhillips1979	1978	Adelaide	AU	SeatonPark	13/03/1978	31/07/1978	50
+Adelaide1978	CocksAndPhillips1979	1978	Adelaide	AU	Daliak	13/03/1978	25/07/1978	50
+Adelaide1978	CocksAndPhillips1979	1978	Adelaide	AU	Uniwager	13/03/1978	23/07/1978	50
+Adelaide1978	CocksAndPhillips1979	1978	Adelaide	AU	Northam	13/03/1978	13/06/1978	50
+Adelaide1978	CocksAndPhillips1979	1978	Adelaide	AU	Trikkala	13/03/1978	21/07/1978	50
+Adelaide1978	CocksAndPhillips1979	1978	Adelaide	AU	Larisa	13/03/1978	20/09/1978	50
+Adelaide1978	CocksAndPhillips1979	1978	Adelaide	AU	Nungarin	13/03/1978	8/06/1978	50
+Christchurch1993	SmethamETAl1994	1993	Christchurch	NZ	15077	2/05/1993	8/09/1993	1
+Christchurch1993	SmethamETAl1994	1993	Christchurch	NZ	Dalkeith	2/05/1993	14/09/1993	1
+Christchurch1993	SmethamETAl1994	1993	Christchurch	NZ	015258b	2/05/1993	21/09/1993	1
+Christchurch1993	SmethamETAl1994	1993	Christchurch	NZ	DalkelthWithMaru	2/05/1993	24/09/1993	1
+Christchurch1993	SmethamETAl1994	1993	Christchurch	NZ	015258C	2/05/1993	28/09/1993	1
+Christchurch1993	SmethamETAl1994	1993	Christchurch	NZ	12683	2/05/1993	1/10/1993	1
+Christchurch1993	SmethamETAl1994	1993	Christchurch	NZ	Enfield	2/05/1993	4/10/1993	1
+Christchurch1993	SmethamETAl1994	1993	Christchurch	NZ	142118	2/05/1993	5/10/1993	1
+Christchurch1993	SmethamETAl1994	1993	Christchurch	NZ	014205A	2/05/1993	6/10/1993	1
+Christchurch1993	SmethamETAl1994	1993	Christchurch	NZ	9756	2/05/1993	6/10/1993	1
+Christchurch1993	SmethamETAl1994	1993	Christchurch	NZ	01421fA	2/05/1993	8/10/1993	1
+Christchurch1993	SmethamETAl1994	1993	Christchurch	NZ	014326f-l	2/05/1993	9/10/1993	1
+Christchurch1993	SmethamETAl1994	1993	Christchurch	NZ	014555A	2/05/1993	9/10/1993	1
+Christchurch1993	SmethamETAl1994	1993	Christchurch	NZ	14198	2/05/1993	9/10/1993	1
+Christchurch1993	SmethamETAl1994	1993	Christchurch	NZ	12722	2/05/1993	12/10/1993	1
+Christchurch1993	SmethamETAl1994	1993	Christchurch	NZ	01421IC	2/05/1993	13/10/1993	1
+Christchurch1993	SmethamETAl1994	1993	Christchurch	NZ	144548	2/05/1993	15/10/1993	1
+Christchurch1993	SmethamETAl1994	1993	Christchurch	NZ	Tallarook	2/05/1993	18/10/1993	1
+Christchurch1993	SmethamETAl1994	1993	Christchurch	NZ	142058	2/05/1993	25/10/1993	1
+Condobolin1986	YoungEtal_1994	1986	Condobolin	AU	Nungarin	25/03/1986	14/07/1986	50
+Condobolin1986	YoungEtal_1994	1986	Condobolin	AU	Dalkeith	25/03/1986	3/09/1986	50
+Condobolin1986	YoungEtal_1994	1986	Condobolin	AU	SeatonPark	25/03/1986	26/08/1986	50
+Condobolin1986	YoungEtal_1994	1986	Condobolin	AU	Nungarin	16/04/1986	24/07/1986	50
+Condobolin1986	YoungEtal_1994	1986	Condobolin	AU	Dalkeith	16/04/1986	3/09/1986	50
+Condobolin1986	YoungEtal_1994	1986	Condobolin	AU	SeatonPark	16/04/1986	27/08/1986	50
+Condobolin1986	YoungEtal_1994	1986	Condobolin	AU	Nungarin	5/05/1986	19/08/1986	50
+Condobolin1986	YoungEtal_1994	1986	Condobolin	AU	Dalkeith	5/05/1986	31/08/1986	50
+Condobolin1986	YoungEtal_1994	1986	Condobolin	AU	SeatonPark	5/05/1986	30/08/1986	50
+Condobolin1986	YoungEtal_1994	1986	Condobolin	AU	Nungarin	27/05/1986	31/08/1986	50
+Condobolin1986	YoungEtal_1994	1986	Condobolin	AU	Dalkeith	27/05/1986	6/09/1986	50
+Condobolin1986	YoungEtal_1994	1986	Condobolin	AU	SeatonPark	27/05/1986	8/09/1986	50
+Condobolin1986	YoungEtal_1994	1986	Condobolin	AU	Nungarin	19/06/1986	11/09/1986	50
+Condobolin1986	YoungEtal_1994	1986	Condobolin	AU	Dalkeith	19/06/1986	18/09/1986	50
+Condobolin1986	YoungEtal_1994	1986	Condobolin	AU	SeatonPark	19/06/1986	19/09/1986	50
+Condobolin1986	YoungEtal_1994	1986	Condobolin	AU	Nungarin	7/07/1986	22/09/1986	50
+Condobolin1986	YoungEtal_1994	1986	Condobolin	AU	Dalkeith	7/07/1986	27/09/1986	50
+Condobolin1986	YoungEtal_1994	1986	Condobolin	AU	SeatonPark	7/07/1986	29/09/1986	50
+Waggawagga1985	SmethamandDear2003	1985	WaggaWagga	AU	SeatonPark	20/06/1985	3/10/1985	50
+Waggawagga1985	SmethamandDear2003	1985	WaggaWagga	AU	Woogenellup	20/06/1985	3/10/1985	1
+Waggawagga1985	SmethamandDear2003	1985	WaggaWagga	AU	Trikkala	20/06/1985	3/10/1985	1
