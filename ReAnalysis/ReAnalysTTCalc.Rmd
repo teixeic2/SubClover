@@ -48,7 +48,7 @@ df_We %>%
   ggplot(aes(x=Date,y=Value))+
   geom_line(aes(colour=factor(Variable))) +
   facet_wrap(~LocationYear,scale="free") +
-  scale_color_manual(values=c("#CC6666", "#9999CC", "#9389CC"))+
+  scale_color_manual(values=c("#333333", "#9999CC", "#CC3300"))+
   theme(axis.text.x = element_text(angle = 90, hjust = 1)) 
 
 
@@ -70,13 +70,25 @@ tt_card %>%
 ```{r}
 
 #Create and test interpolation function 
-temp_ref  <- 5
-TT <- c(1,2,3)
-temp <- c(0,10,20)
+temp_ref  <- 25
+TT <- tt_card$TT
+temp <- tt_card$temp
 
-int_func <- function(temp,TT,TT_ref){
-  
- tryCatch(  
+int_func <- function(temp,TT,temp_ref){
+  # if temp is too low or too high give extreme TT values
+ if(temp_ref>max(temp)) {
+   
+   out <- TT[length(TT)]
+   
+ } else if (temp_ref<min(temp)) {
+   
+   out <- TT[1]
+   
+ } else {
+   
+   # else interpolate
+   
+   tryCatch(  
    
   out <- approx(TT, 
   temp, xout = temp_ref, rule = 1)$y,
@@ -85,8 +97,12 @@ int_func <- function(temp,TT,TT_ref){
   out <- NA
   }
 ) 
+  
+} # end if check
 return(out)  
-}
+  
+ }
+  
 int_func(TT,temp,temp_ref)
 
 
@@ -98,20 +114,36 @@ int_func(TT,temp,temp_ref)
 #create REF 
 
 TTfunc <-
-function(Tmax , Tmin){         
+function(Tmin ,Tmax){         
+ if (Tmin>Tmax){
+   print("Tmin>Tmax")
+   break
+ } 
   
-  x<-0
-  for(n in 1:8){  
-    x <- ((0.931 +  0.114 * n - 0.0703 * n^2 + 0.0053 * n^3) * (Tmax-Tmin)) + Tmin
-    Td <- Td+x
+  TTav  <- 0
+  TTsum <- 0
+  
+  for(n in 1:8){ 
+    
+    tn <- 0
+    
+    TT_tn <- 0
+    
+    tn <- ((0.931 +  0.114 * n - 0.0703 * n^2 + 0.0053 * n^3) * (Tmax-Tmin)) + Tmin # 8-h temperature
+    
+    TT_tn <- int_func(tt_card$TT,tt_card$temp,tn) 
+    
+    TTsum <- TT_tn + TTsum
+    
+    print(TT_tn)
     
     }
-
-  return(Td)
+  TTav <- TTsum/8
   
+  return(TTav)
   }
 
-TTfunc()
+TTfunc(0,3000)
 
 ```
 
