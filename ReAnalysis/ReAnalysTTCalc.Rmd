@@ -18,14 +18,14 @@ library (lubridate)
 
 
 
-```{r cars}
+```{r readData}
 setwd("C:\\Users\\EdCarmen\\Documents\\CarmenProjects2016\\GitSubclover\\ReAnalysis")
 getwd()
 
 #create file
 df_We <- read.table("RawWeather.txt",header=TRUE)
 
-head(df_We)
+#head(df_We)
 
 summary(df_We)
 ```
@@ -39,7 +39,8 @@ df_We$Date<-dmy(df_We$Date)
 str(df_We)
 
 ```
-graph it 
+
+## Graph it 
 
 ```{r, fig.height=10, fig.width=10}
 
@@ -54,7 +55,7 @@ df_We %>%
 
 ```
 
-Calculate TT
+## Define Tt cardinal temperatures
 
 ```{r}
 
@@ -70,17 +71,21 @@ tt_card %>%
 ```{r}
 
 #Create and test interpolation function 
-temp_ref  <- 25
-TT <- tt_card$TT
-temp <- tt_card$temp
+
+temp_ref  <- 25 # x-axes reference
+temp <- tt_card$temp # x-axes
+TT <- tt_card$TT # y-axes
+
 
 int_func <- function(temp,TT,temp_ref){
+
   # if temp is too low or too high give extreme TT values
- if(temp_ref>max(temp)) {
+ if(temp_ref>temp[length(temp)]) {
    
-   out <- TT[length(TT)]
+   out <- TT[length(TT)] 
+   # FIXME: approx functions seems to do that - need param
    
- } else if (temp_ref<min(temp)) {
+ } else if (temp_ref<temp[1]) {
    
    out <- TT[1]
    
@@ -90,8 +95,9 @@ int_func <- function(temp,TT,temp_ref){
    
    tryCatch(  
    
-  out <- approx(TT, 
-  temp, xout = temp_ref, rule = 1)$y,
+  out <- approx(temp, TT, xout = temp_ref, 
+         method="linear", 
+         rule = 2)$y,
   error = function(e) 
   {
   out <- NA
@@ -99,23 +105,23 @@ int_func <- function(temp,TT,temp_ref){
 ) 
   
 } # end if check
-return(out)  
+
+  return(out)  
   
  }
   
-int_func(TT,temp,temp_ref)
+int_func(temp,TT,temp_ref)
 
 
 ```
 
 ```{r}
 
-
 #create REF 
 
-TTfunc <-
-function(Tmin ,Tmax){         
- if (Tmin>Tmax){
+TTfunc <- function(Tmin ,Tmax){         
+ 
+  if (Tmin>Tmax){
    print("Tmin>Tmax")
    break
  } 
@@ -129,9 +135,11 @@ function(Tmin ,Tmax){
     
     TT_tn <- 0
     
-    tn <- ((0.931 +  0.114 * n - 0.0703 * n^2 + 0.0053 * n^3) * (Tmax-Tmin)) + Tmin # 8-h temperature
+    tn <- ((0.931 +  0.114*n - 0.0703 * n^2
+            + 0.0053 * n^3) * (Tmax-Tmin)) + 
+      Tmin # 8-h temperature
     
-    TT_tn <- int_func(tt_card$TT,tt_card$temp,tn) 
+    TT_tn <- int_func(tt_card$temp, tt_card$T,tn) 
     
     TTsum <- TT_tn + TTsum
     
@@ -143,7 +151,7 @@ function(Tmin ,Tmax){
   return(TTav)
   }
 
-TTfunc(0,3000)
+TTfunc(10,30)
 
 ```
 
