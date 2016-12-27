@@ -48,7 +48,8 @@ df_We %>%
   ggplot(aes(x=Date,y=Value))+
   geom_line(aes(colour=factor(Variable))) +
   facet_wrap(~LocationYear,scale="free") +
-  theme(axis.text.x = element_text(angle = 90, hjust = 1))
+  scale_color_manual(values=c("#CC6666", "#9999CC", "#9389CC"))+
+  theme(axis.text.x = element_text(angle = 90, hjust = 1)) 
 
 
 ```
@@ -69,16 +70,16 @@ tt_card %>%
 ```{r}
 
 #Create and test interpolation function 
-y_ref  <- 5
-x <- c(1,2,3)
-y <- c(0,10,20)
+temp_ref  <- 5
+TT <- c(1,2,3)
+temp <- c(0,10,20)
 
-int_func <- function(x,y,y_ref){
+int_func <- function(temp,TT,TT_ref){
   
  tryCatch(  
    
-  out <- approx(y, 
-  x, xout = y_ref, rule = 1)$y,
+  out <- approx(TT, 
+  temp, xout = temp_ref, rule = 1)$y,
   error = function(e) 
   {
   out <- NA
@@ -86,9 +87,31 @@ int_func <- function(x,y,y_ref){
 ) 
 return(out)  
 }
-int_func(x,y,y_ref)
+int_func(TT,temp,temp_ref)
 
 
+```
+
+```{r}
+
+
+#create REF 
+
+TTfunc <-
+function(Tmax , Tmin){         
+  
+  x<-0
+  for(n in 1:8){  
+    x <- ((0.931 +  0.114 * n - 0.0703 * n^2 + 0.0053 * n^3) * (Tmax-Tmin)) + Tmin
+    Td <- Td+x
+    
+    }
+
+  return(Td)
+  
+  }
+
+TTfunc()
 
 ```
 
