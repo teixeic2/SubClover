@@ -165,16 +165,45 @@ write.table(df_We_tt, "TTReanalysis.txt")
 
 
 ```{r}
+#Check TT 
+df_We_tt  %>% 
+ggplot(aes(x=TTday_s, y= TTday)) +
+    geom_point(shape=21,alpha=0.2)+
+  geom_abline(intercept = 0, slope = 1)
+
+```
+
+
+
+
+
+```{r}
 
 #Calculate accumulated Themal time 
 
 df_CumTT <- df_We_tt %>%
 group_by(LocationYear) %>%
 arrange(Date) %>%
-mutate(SumTTday = cumsum(TTday))
- 
+mutate(SumTTday = cumsum(TTday)) %>%
+mutate(DayCount=Date-min(Date))
+
 head(df_CumTT)
 
 
 ```
+
+```{r, fig.height=10, fig.width=10}
+#Graph Accumulated TT 
+
+df_CumTT %>%
+  ggplot(aes(x=DayCount,y=SumTTday))+
+  geom_line(aes(colour=LocationYear, linetype=Country)) +
+  #facet_wrap(~LocationYear,scale="free") +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1)) +
+  xlim(0,300)+
+  ylim(0,9000)
+
+```
+
+
 
