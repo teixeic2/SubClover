@@ -112,15 +112,15 @@ df_Rea3 %>%
 
 df_Rea3 %>%
   filter(LocationYear=="Waggawagga1985"&  AuthorYear=="DearEtal1993") %>%
+  #filter(Treatcultivar=="Clare") %>%
+  group_by(SowingDate,Treatcultivar) %>%
   ggplot(aes(x=TTtoFlower, y=PercentFlower,colour=Treatcultivar)) +
-  geom_point(aes(colour=Treatcultivar))+
+  geom_point()+
   #geom_line()+
-  geom_smooth(method ="lm",se=FALSE)
-              #+
-#facet_grid(Treatcultivar~.)
+  geom_smooth(method ="lm",se=FALSE)+
+facet_grid(SowingDate~.)
 #write loop to calculate slope of individual cultivars 
 
-#Fixme: NA values in Waggawagga1985 fix in excel! 
 
 
 ```
@@ -128,16 +128,37 @@ df_Rea3 %>%
 ```{r}
 #create slopes for each cv 
 
-
-df_Rea3 %>%
+df_ReaSlop <- df_Rea3 %>%
   filter(LocationYear=="Waggawagga1985"&  AuthorYear=="DearEtal1993") %>%
-  group_by(Treatcultivar)%>%
+  group_by(SowingDate,Treatcultivar)%>%
 do(mod = lm(PercentFlower ~ TTtoFlower, data = .)) %>%
   mutate(Slope = summary(mod)$coeff[2]) %>%
   select(-mod)
 
-
+#note: slope is PercentFlower/TToCd!!
 ```
 
 
+```{r}
+#graph the slopes 
+df_ReaSlop %>%
+  ggplot(aes(x=SowingDate, y=95/Slope,colour=Treatcultivar)) +
+  geom_point()
+  
+#95 used because readings were 5 , 50 and 100 % flowering 
+```
+
+```{r}
+
+#create the average of TT for 5 , 50 and 100 % , used 95/Slope!
+
+df_ReaSlop %>%
+  group_by(SowingDate)%>%
+  mutate(TT=95/Slope)%>%
+  summarise(mean=mean(Slope), sd=sd(Slope),meanTT=mean(TT), sdTT=sd(TT))
+  
+
+
+
+```
 
