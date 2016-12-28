@@ -86,6 +86,17 @@ ggplot(aes(x=LocationYear, y= TTFloAdj, colour=Treatcultivar)) +
 ```
 
 
+plot TTAdjs vs DaysToFlower
+
+```{r, fig.height=5, fig.width=10}
+df_Rea4  %>% 
+  #filter(Treatcultivar=="Woogenellup") %>%
+ggplot(aes(x=DaysToFlower, y= TTFloAdj)) +
+  geom_point(shape=21,alpha=0.5)+
+  facet_grid(Country~.)
+
+```
+
 
 
 Photoperiod at sowing 
