@@ -59,7 +59,8 @@ df_We %>%
 
 ```{r}
 
-#Create Thermal time cardinal temperatures 
+#Create Thermal time cardinal temperatures need REF! 
+
 tt_card <- data.frame(temp=c(0,20,30,50),TT=c(0,20,20,0))
 tt_card %>%
   ggplot(aes(x=temp, y=TT))+
@@ -70,7 +71,7 @@ tt_card %>%
 
 ```{r}
 
-#Create and test interpolation function 
+#Create and test interpolation function - Test if works 
 
 temp_ref  <- 25 # x-axes reference
 temp <- tt_card$temp # x-axes
@@ -117,7 +118,7 @@ int_func(temp,TT,temp_ref)
 
 ```{r}
 
-#create REF 
+#create REF Jones CA, Ritchie JT, Kiniry JR, Godwin DC (1986) Subroutine structure.In 'CERES-Maize: A simulation model of maize growth anddevelopment'. (Eds CA Jones, JR Kiniry) pp. 49-194. (Texas A&M University Press: Texas, USA
 
 TTfunc <- function(Tmin ,Tmax){         
  
@@ -160,7 +161,6 @@ TTfunc(10,30)
 df_We_tt <- df_We %>%
   mutate(TTday=TTfunc(Tm,Tx), TTday_s=(Tm+Tx)/2, diff=(TTday_s/TTday)*100)
 
-write.table(df_We_tt, "TTReanalysis.txt")
 ```
 
 
@@ -206,4 +206,11 @@ df_CumTT %>%
 ```
 
 
+
+
+```{r}
+
+write.table(df_CumTT, "TTReanalysis.txt")
+
+```
 

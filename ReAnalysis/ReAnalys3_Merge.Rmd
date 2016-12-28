@@ -1,0 +1,67 @@
+---
+title: "ReAnalysis Table"
+author: "CT"
+date: "Thursday, December  05, 2016"
+output: html_document
+note: Re analysis data and weather files : merge .
+---
+
+```{r loadLibraries}
+library(tidyr)
+library (dplyr)
+library (ggplot2)
+library(agricolae)
+library(knitr)
+library (lubridate)
+
+```
+ 
+
+
+```{r   loadFile}
+setwd("C:\\Users\\EdCarmen\\Documents\\CarmenProjects2016\\GitSubclover\\ReAnalysis")
+getwd()
+
+
+#get dataframe created in ReAnalysis1
+df_Data <- read.table("df_Data.txt",header=TRUE)
+
+
+#head(df_Data)
+
+summary(df_Data)
+
+```
+
+```{r}
+df_CumTT <- read.table("df_CumTT.txt",header=TRUE)
+
+summary (df_CumTT)
+
+```
+
+```{r}
+df_CumTT2 <- df_CumTT %>%
+  select(LocationYear, Date, SumTTday,Pp)
+
+  summary (df_CumTT2)
+```
+
+```{r  jointwodataframes, warning=FALSE}}
+#
+
+df_Rea <- merge(df_Data, df_CumTT2,by.x=c("LocationYear","SowingDate"), by.y=c("LocationYear","Date"))
+
+
+
+
+summary(df_Rea)
+
+```
+
+```{r}
+#C 
+
+
+```
+
