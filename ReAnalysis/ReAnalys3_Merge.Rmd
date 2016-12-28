@@ -87,6 +87,7 @@ mutate(TTtoFlower=TTSumFlower-TTSumSow)
 
 summary(df_Rea3)
 
+write.table(df_Rea3, "df_Rea3.txt")
 
 ```
 

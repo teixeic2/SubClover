@@ -201,7 +201,7 @@ df_CumTT %>%
   #facet_wrap(~LocationYear,scale="free") +
   theme(axis.text.x = element_text(angle = 90, hjust = 1)) +
   xlim(0,300)+
-  ylim(0,9000)
+  ylim(0,5000)
 
 ```
 
@@ -210,7 +210,7 @@ df_CumTT %>%
 
 ```{r}
 
-write.table(df_CumTT, "TTReanalysis.txt")
+write.table(df_CumTT, "df_CumTT.txt")
 
 ```
 

@@ -38,6 +38,7 @@ Use slope values (Rea3) to normalise TT flowering
 ```{r}
 #Flowering reference = Floref
 floref <- 50
+
 TTpercflo <- 2.6 # degree days from 5 to 100 flowering (value calculated from DearEtAL1993_Reanalysis3 script)
 
 df_Rea4 <- df_Rea3 %>%
@@ -54,12 +55,21 @@ summary(df_Rea4)
 #Check TT 
 df_Rea4  %>% 
 ggplot(aes(x=TTtoFlower, y= TTFloAdj)) +
-    geom_point(shape=21,alpha=0.2)+
+    geom_point(shape=21)+
   geom_abline(intercept = 0, slope = 1)
-
-
 
 ```
 
+Photoperiod
+
+```{r}
+
+#Check TT 
+df_Rea4  %>% 
+ggplot(aes(x=Pp, y= TTFloAdj, colour=Treatcultivar)) +
+    geom_point(shape=21) +
+  facet_grid(Country~.)
+
+```
 
 
