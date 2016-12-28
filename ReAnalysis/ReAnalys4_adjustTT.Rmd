@@ -60,9 +60,37 @@ ggplot(aes(x=TTtoFlower, y= TTFloAdj)) +
 
 ```
 
-Photoperiod
+plot TTadj vs. sowing date
 
-```{r}
+```{r , fig.height=5, fig.width=10}
+df_Rea4  %>% 
+  filter(Treatcultivar=="Woogenellup") %>%
+ggplot(aes(x=month(SowingDate), y= TTFloAdj, colour=Treatcultivar)) +
+    geom_point(shape=21) +
+  scale_x_continuous(breaks = c(2,4,6,8,10,12))+
+ # geom_smooth()+
+  facet_grid(Country~.)
+
+
+```
+
+plot TTadjst vs. LocationYear
+
+```{r, fig.height=5, fig.width=10}
+df_Rea4  %>% 
+  #filter(Treatcultivar=="Woogenellup") %>%
+ggplot(aes(x=LocationYear, y= TTFloAdj, colour=Treatcultivar)) +
+    geom_point(shape=21) +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1))+
+  facet_grid(Country~.)
+```
+
+
+
+
+Photoperiod at sowing 
+
+```{r, fig.height=5, fig.width=10}
 
 #Check TT 
 df_Rea4  %>% 
@@ -71,5 +99,8 @@ ggplot(aes(x=Pp, y= TTFloAdj, colour=Treatcultivar)) +
   facet_grid(Country~.)
 
 ```
+
+
+
 
 
