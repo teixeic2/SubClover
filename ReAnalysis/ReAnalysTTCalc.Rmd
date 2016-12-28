@@ -158,6 +158,23 @@ TTfunc(10,30)
 ```{r ReadCalcTt}
 
 df_We_tt <- df_We %>%
-  mutate(TTday=TTfunc(Tm,Tx))
+  mutate(TTday=TTfunc(Tm,Tx), TTday_s=(Tm+Tx)/2, diff=(TTday_s/TTday)*100)
+
+write.table(df_We_tt, "TTReanalysis.txt")
+```
+
+
+```{r}
+
+#Calculate accumulated Themal time 
+
+df_CumTT <- df_We_tt %>%
+group_by(LocationYear) %>%
+arrange(Date) %>%
+mutate(SumTTday = cumsum(TTday))
+ 
+head(df_CumTT)
+
+
 ```
 
