@@ -52,16 +52,55 @@ df_CumTT2 <- df_CumTT %>%
 
 df_Rea <- merge(df_Data, df_CumTT2,by.x=c("LocationYear","SowingDate"), by.y=c("LocationYear","Date"))
 
-
-
-
 summary(df_Rea)
 
 ```
 
 ```{r}
-#C 
+#Create TTatSow
+df_Rea1 <- df_Rea %>%
+mutate(TTSumSow=(SumTTday)) %>%
+dplyr::select(-SumTTday)
+summary(df_Rea1)
 
+```
+
+
+```{r}
+#Create TTsum at flowering
+
+df_CumTT3 <- df_CumTT %>%
+dplyr::select(LocationYear,SumTTday,Date)
+
+df_Rea2 <- merge(df_Rea1, df_CumTT3,by.x=c("LocationYear","StartFlowering"), by.y=c("LocationYear","Date"))
+
+summary(df_Rea2)
+```
+
+
+```{r}
+#Create TTsum at flowering 
+df_Rea3 <- df_Rea2 %>%
+mutate(TTSumFlower=(SumTTday)) %>%
+dplyr::select(-SumTTday) %>%
+mutate(TTtoFlower=TTSumFlower-TTSumSow)
+
+summary(df_Rea3)
+
+
+```
+
+```{r, fig.height=10 , fig.width= 10}
+#Graph it to  check 
+
+df_Rea3 %>%
+  filter(Treatcultivar=="MtBarker") %>%
+  ggplot(aes(x=LocationYear, y=TTtoFlower))+
+  geom_boxplot(alpha=0.2)+
+  geom_jitter(width = 0.1, aes(colour=Treatcultivar))+
+  theme(axis.text.x = element_text(angle = 90, hjust = 1))+
+  facet_wrap(~Country)
+  
 
 ```
 
