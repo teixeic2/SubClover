@@ -30,13 +30,13 @@ df_seed$Date <- dmy(df_seed$Date)
 
 # jeito 2 de trocar formato (usando dplyr)
 df_seed <- df_seed %>%
-  mutate(Plot = as.factor(Plot), Block = as.factor(Block))%>%
+  mutate(Plot = as.factor(Plot), Block = as.factor(Block)) %>%
   mutate(Soft = as.numeric(Soft),
-         Depth = factor(Depth,levels("up", "down")),
+         #Depth = factor(Depth,levels("up","down")),
          SoftDead = as.numeric(SoftDead),
          SoftGerm = as.numeric (SoftGerm),
          SoftAbn = as.numeric (SoftAbn),
-         SoftUngerm = as.numeric (SoftUngerm)) %>%
+         SoftUngerm = as.numeric (SoftUngerm))
   
 
 summary(df_seed) # explore values

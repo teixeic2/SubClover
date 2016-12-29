@@ -87,6 +87,13 @@ ggplot(aes(x=Round, y=100*(1-PercSoftCum), colour=Cultivar, shape=Cultivar)) +
   geom_vline(xintercept = 5, linetype=2)+
    labs(x="Hardseed Assessment",y="Cummulative Proportion Hardseeds")
 
+
+
+```
+
+
+```{r}
+
 summary(g1)
 # xy up down comparison
 g1 %>%
@@ -97,6 +104,7 @@ g1 %>%
   stat_smooth(method = "lm") +
   facet_grid(SowTreat~.)
 
+
 #Check for outliers _Boxplot 
 # df_seed %>%
 #   ggplot(aes(x=Cultivar, y=Soft, colour=factor(SowTreat)))+
@@ -105,7 +113,9 @@ g1 %>%
 #   theme(axis.text.x=element_text(angle = +90, hjust = 0))+
 #   facet_grid(SowTreat~Depth+Round)
 
+
 ```
+
 
 
 ```{r}

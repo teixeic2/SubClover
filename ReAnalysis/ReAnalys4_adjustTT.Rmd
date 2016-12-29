@@ -74,6 +74,74 @@ ggplot(aes(x=month(SowingDate), y= TTFloAdj, colour=Treatcultivar)) +
 
 ```
 
+```{r,fig.height=5, fig.width=10}
+library(scales)
+
+df_Rea4  %>% 
+  tidyr::gather("Variable", "Value",DaysToFlower,TTFloAdj) %>%
+  ggplot(aes(x=month(SowingDate), y= Value, colour=Treatcultivar)) +
+  geom_point(shape=21) +
+ theme(legend.position="none")+
+  facet_grid(Variable~Country, scales = "free")
+
+```
+
+Then, select datasets with more than one sowing date in different months:
+
+Condobolin1986
+Katanning1990
+Launceston1987
+Melbourne1969
+Waggawagga1985
+
+```{r,fig.height=5, fig.width=10,warning=FALSE}
+library(scales)
+df_Rea4  %>% 
+  filter(LocationYear=="Condobolin1986"| 
+           LocationYear=="Katanning1990"|
+           LocationYear=="Launceston1987"|
+           LocationYear=="Melbourne1969"|
+           LocationYear=="Waggawagga1985") %>%
+  tidyr::gather("Variable", "Value",DaysToFlower,TTFloAdj) %>%
+  ggplot(aes(x=month(SowingDate), y= Value, colour=Treatcultivar)) +
+  geom_point(shape=21) +
+ geom_smooth(se=FALSE)+
+  #theme(legend.position="none")+
+  facet_grid(Variable~Country, scales = "free")
+
+#fixme makes month _number into date in month name (Apr, May etc ) 
+
+  
+
+```
+
+Then, select contrasting cultivars : MtBarker, Trikala, Woogenelup 
+
+
+```{r,fig.height=5, fig.width=10,warning=FALSE}
+library(scales)
+df_Rea4  %>% 
+  filter(LocationYear=="Condobolin1986"| 
+           LocationYear=="Katanning1990"|
+           LocationYear=="Launceston1987"|
+           LocationYear=="Melbourne1969"|
+           LocationYear=="Waggawagga1985") %>%
+  filter(Treatcultivar=="MtBarker"|
+          Treatcultivar=="Trikkala"| 
+           Treatcultivar=="Woogenellup")%>%
+  tidyr::gather("Variable", "Value",DaysToFlower,TTFloAdj) %>%
+  ggplot(aes(x=month(SowingDate), y= Value, colour=Treatcultivar)) +
+  geom_point(shape=21) +
+ geom_smooth(se=FALSE)+
+  #theme(legend.position="none")+
+  facet_grid(Variable~Country, scales = "free")
+
+
+```
+
+
+
+
 plot TTadjst vs. LocationYear
 
 ```{r, fig.height=5, fig.width=10}
@@ -82,8 +150,13 @@ df_Rea4  %>%
 ggplot(aes(x=LocationYear, y= TTFloAdj, colour=Treatcultivar)) +
     geom_point(shape=21) +
   theme(axis.text.x = element_text(angle = 90, hjust = 1))+
+  theme(legend.position="none")+
   facet_grid(Country~.)
 ```
+
+
+
+
 
 
 plot TTAdjs vs DaysToFlower
