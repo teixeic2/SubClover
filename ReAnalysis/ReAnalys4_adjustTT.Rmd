@@ -60,6 +60,23 @@ ggplot(aes(x=TTtoFlower, y= TTFloAdj)) +
 
 ```
 
+Analysis of TTFlowerAdj vs T5-100. Is there any relationship between Time to flower and period (short orlong) for flower duration (5 to 100 %)? use DearEtAl1993 dataset to check.
+
+
+```{r}
+df_Rea4  %>% 
+  filter(LocationYear=="Waggawagga1985") %>%
+  #tidyr::gather("Variable", "Value",PercentFlower,TTFloAdj) %>%
+    ggplot(aes(x=PercentFlower, y= TTFloAdj, colour=Treatcultivar)) +
+  geom_point(shape=21) 
+ #theme(legend.position="none")
+  #facet_grid(), scales = "free")
+ 
+```
+
+
+
+
 plot TTadj vs. sowing date
 
 ```{r , fig.height=5, fig.width=10}
@@ -128,7 +145,8 @@ df_Rea4  %>%
            LocationYear=="Waggawagga1985") %>%
   filter(Treatcultivar=="MtBarker"|
           Treatcultivar=="Trikkala"| 
-           Treatcultivar=="Woogenellup")%>%
+           Treatcultivar=="Woogenellup"|
+           Treatcultivar=="Nungarin")%>%
   tidyr::gather("Variable", "Value",DaysToFlower,TTFloAdj) %>%
   ggplot(aes(x=month(SowingDate), y= Value, colour=Treatcultivar)) +
   geom_point(shape=21) +
