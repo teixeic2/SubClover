@@ -33,18 +33,27 @@ summary(df_Rea6)
 
 ```
 
-
+Create the loop to identify each combination of indexLocCult - isolate and calculate stats for each Pp target. 
 
 ```{r}
+#created loop
 
-for(i in 1:length(unique(df_Rea6$indexLocCult))){
+
+indexValues <- unique(df_Rea6$indexLocCult)
+
+for(i in 1:length(indexValues)){
+  
   print(i)
+ 
+  s <- indexValues [i]
   
+  print(s) 
+
   
+  x <- df_Rea6 %>%
+    dplyr::filter(indexLocCult== s) 
   
-  
-  
-  
+    print(unique(x$indexLocCult))
 }
 
 ```
