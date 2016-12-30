@@ -13,6 +13,7 @@ library (ggplot2)
 library(agricolae)
 library(knitr)
 library (lubridate)
+library (segmented)
 
 ```
  
@@ -24,26 +25,79 @@ getwd()
 
 
 #get dataframe created in ReAnalysis4
-df_Rea6 <- read.table("df_Rea6.txt",header=TRUE)
+df_1 <- read.table("df_Rea6.txt",header=TRUE)
 
 
 #head(df_Data)
 
-summary(df_Rea6)
+#summary(df_Rea6)
+
+# Here used just to save unique values of indexes 
+
+# xx <- unique(df_Rea6$indexLocCult)
+# 
+# write.csv(xx, "listOfExpCultUsedForPp.csv")
+
+df_Gr <- read.table("CultivarGroup.txt",header=TRUE)
+
+#now merge the two df 
+
+df_Rea6 <- merge(df_1, df_Gr,by=c("indexLocCult"))
+
+summary (df_Rea6)
 
 ```
-
+Select two groups of cultivars : hight Pp sensitive response varies and low sensitive cultivar group (TT decreases at the end )
 
 ```{r, warning=FALSE}
 #Check data filtering indexLocCult. See r2 generated below. 
 df_Rea6 %>%
-  filter(indexLocCult=="Melbourne1969_MtBarker")%>%
-  ggplot(aes(x=month(SowingDate), y= Value, colour=indexLocCult)) +
+  #filter(indexLocCult=="Launceston1987_Meteora")%>%
+  ggplot(aes(x=month(SowingDate), y= Value, colour=SensGroup)) +
+  geom_point(shape=21) +
+ #geom_smooth(se=FALSE)+
+  #theme(legend.position="none")+
+  facet_grid(Variable~., scales = "free")
+```
+
+
+```{r}
+
+#Check data filtering indexLocCult. See r2 generated below. 
+df_Rea6 %>%
+  filter(Variable=="TTFloAdj")%>%
+  ggplot(aes(x=Pp, y= Value, colour=SensGroup)) +
+  geom_point(shape=21) +
+ #geom_smooth(se=FALSE)+
+  #theme(legend.position="none")+
+  facet_grid(Variable~., scales = "free")
+
+
+```
+
+
+
+
+
+
+```{r, warning=FALSE}
+
+#Check cvs 
+df_Rea6 %>%
+dplyr::filter(Treatcultivar=="Nungarin"|
+         Treatcultivar=="SeatonPark"|
+           Treatcultivar=="Trikkala"|
+           Treatcultivar=="Dalkeith")%>%
+  ggplot(aes(x=Pp, y= Value, colour=indexLocCult)) +
   geom_point(shape=21) +
  geom_smooth(se=FALSE)+
   #theme(legend.position="none")+
-  facet_grid(Variable~Country, scales = "free")
+  facet_grid(Variable~SensGroup, scales = "free")
+
+
+
 ```
+
 
 
 
@@ -53,7 +107,7 @@ Create the loop to identify each combination of indexLocCult - isolate and calcu
 #created loop
 
 
-indexValues <- unique(df_Rea6$indexLocCult)
+indexValues <- unique(df_Rea6$SensGroup)
 
 for(i in 1:length(indexValues)){
   
@@ -65,7 +119,7 @@ for(i in 1:length(indexValues)){
 
   
   df_sub <- df_Rea6 %>%
-    dplyr::filter(indexLocCult== s) %>%
+    dplyr::filter(SensGroup == s) %>%
     filter(Variable=="TTFloAdj")
   
     print(unique(df_sub$indexLocCult))
@@ -84,6 +138,13 @@ for(i in 1:length(indexValues)){
   r2 <- round(summary(fit)$r.squared * 100,2)
   
   print(paste0("int:",intercept," slope:",slope, " r2:",r2))
+  
+  out.lm <-lm(Value~Pp,data=df_sub)
+  
+  o<-segmented(out.lm,seg.Z=~Pp,psi=list(Pp=c(12)),
+                   control=seg.control(display=FALSE))
+      # show stats
+      print(summary(o))
   
 }
 
