@@ -3,7 +3,7 @@ title: "ReAnalysis Table"
 author: "CT"
 date: "Thursday, December  05, 2016"
 output: html_document
-note: Re analysis data and weather files : merge .
+note: Re analysis : include Pp analysis using selected datasets from Reanalysis4 (df_REa6)
 ---
 
 ```{r loadLibraries}
@@ -23,139 +23,31 @@ setwd("C:\\Users\\EdCarmen\\Documents\\CarmenProjects2016\\GitSubclover\\ReAnaly
 getwd()
 
 
-#get dataframe created in ReAnalysis1
-df_Data <- read.table("df_Data.txt",header=TRUE)
+#get dataframe created in ReAnalysis4
+df_Rea6 <- read.table("df_Rea6.txt",header=TRUE)
 
 
 #head(df_Data)
 
-summary(df_Data)
+summary(df_Rea6)
 
 ```
 
-```{r}
-df_CumTT <- read.table("df_CumTT.txt",header=TRUE)
-
-summary (df_CumTT)
-
-```
-
-```{r}
-df_CumTT2 <- df_CumTT %>%
-  select(LocationYear, Date, SumTTday,Pp)
-
-  summary (df_CumTT2)
-```
-
-```{r  jointwodataframes, warning=FALSE}}
-#
-
-df_Rea <- merge(df_Data, df_CumTT2,by.x=c("LocationYear","SowingDate"), by.y=c("LocationYear","Date"))
-
-summary(df_Rea)
-
-```
-
-```{r}
-#Get Photoperiod at Flowering Date
-
-df_PpFlow <- merge(df_Data, df_CumTT2,by.x=c("LocationYear","StartFlowering"), by.y=c("LocationYear","Date"))
-
-summary(df_PpFlow)
-
-```
 
 
 ```{r}
-#Change Column name Ppx = Ppsow and Ppy =Ppflo
 
-df_PpFlow1 <-df_PpFlow %>%
-mutate(PpSow=(Pp.x), PpFlo=(Pp.y)) 
-
-summary(df_PpFlow)
-```
-
-
-```{r}
-#Create Pp average (Ppav) 
-df_PpFlow2 <- df_PpFlow1 %>%
-mutate(Ppav=(PpFlo+PpSow)/2)
-
-summary(df_PpFlow2)
-
-
-
-```
-
-```{r, fig.height=10 , fig.width= 10}
-#Graph it to  check 
-
-df_PpFlow2 %>%
-  filter(Treatcultivar=="MtBarker") %>%
-  ggplot(aes(x=Ppav, y=TTtoFlower))+
-  geom_boxplot(alpha=0.2)+
-  geom_jitter(width = 0.1, aes(colour=Treatcultivar))+
-  theme(axis.text.x = element_text(angle = 90, hjust = 1))+
-  facet_wrap(~Country)
+for(i in 1:length(unique(df_Rea6$indexLocCult))){
+  print(i)
   
-
-```
-
-
-
-
-```{r , fig.height=5 , fig.width= 10}
-#Subset of DeatetAl (Waggaw1985 to normalise flowering 50% )
-
-df_Rea3 %>%
-  filter(LocationYear=="Waggawagga1985"&  AuthorYear=="DearEtal1993") %>%
-  #filter(Treatcultivar=="Clare") %>%
-  group_by(SowingDate,Treatcultivar) %>%
-  ggplot(aes(x=TTtoFlower, y=PercentFlower,colour=Treatcultivar)) +
-  geom_point()+
-  #geom_line()+
-  geom_smooth(method ="lm",se=FALSE)+
-facet_grid(SowingDate~.)
-#write loop to calculate slope of individual cultivars 
-
-
-
-```
-
-```{r}
-#create slopes for each cv 
-
-df_ReaSlop <- df_Rea3 %>%
-  filter(LocationYear=="Waggawagga1985"&  AuthorYear=="DearEtal1993") %>%
-  group_by(SowingDate,Treatcultivar)%>%
-do(mod = lm(PercentFlower ~ TTtoFlower, data = .)) %>%
-  mutate(Slope = summary(mod)$coeff[2]) %>%
-  select(-mod)
-
-#note: slope is PercentFlower/TToCd!!
-```
-
-
-```{r}
-#graph the slopes 
-df_ReaSlop %>%
-  ggplot(aes(x=SowingDate, y=95/Slope,colour=Treatcultivar)) +
-  geom_point()
   
-#95 used because readings were 5 , 50 and 100 % flowering 
-```
-
-```{r}
-
-#create the average of TT for 5 , 50 and 100 % , used 95/Slope!
-
-df_ReaSlop %>%
-  group_by(SowingDate)%>%
-  mutate(TT=95/Slope)%>%
-  summarise(mean=mean(Slope), sd=sd(Slope),meanTT=mean(TT), sdTT=sd(TT))
   
-
-
+  
+  
+  
+}
 
 ```
+
+
 

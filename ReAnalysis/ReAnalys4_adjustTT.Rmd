@@ -138,7 +138,7 @@ df_Rea5 <-df_Rea4  %>%
 
 
 Then, select Location year with different cultivars in a range of Pp. This will be df_Rea6.
-indexLocCult = combination of LoactionYear and cultivar.
+indexLocCult = combination of LocationYear and cultivar.
 
 
 ```{r,fig.height=5, fig.width=10,warning=FALSE}
@@ -158,52 +158,12 @@ df_Rea6 <- df_Rea5 %>%
 ```
 
 
+```{r}
+
+#Next step include Pp (next script Reanalysis 5). Use table created here! 
 
 
-plot TTadjst vs. LocationYear
-
-```{r, fig.height=5, fig.width=10}
-df_Rea4  %>% 
-  #filter(Treatcultivar=="Woogenellup") %>%
-ggplot(aes(x=LocationYear, y= TTFloAdj, colour=Treatcultivar)) +
-    geom_point(shape=21) +
-  theme(axis.text.x = element_text(angle = 90, hjust = 1))+
-  theme(legend.position="none")+
-  facet_grid(Country~.)
-```
-
-
-
-
-
-
-plot TTAdjs vs DaysToFlower
-
-```{r, fig.height=5, fig.width=10}
-df_Rea4  %>% 
-  #filter(Treatcultivar=="Woogenellup") %>%
-ggplot(aes(x=DaysToFlower, y= TTFloAdj)) +
-  geom_point(shape=21,alpha=0.5)+
-  facet_grid(Country~.)
+write.table(df_Rea6, "df_Rea6.txt")
 
 ```
-
-
-
-Photoperiod at sowing 
-
-```{r, fig.height=5, fig.width=10}
-
-#Check TT 
-df_Rea4  %>% 
-ggplot(aes(x=Pp, y= TTFloAdj, colour=Treatcultivar)) +
-    geom_point(shape=21) +
-  theme(legend.position="none")+
-  facet_grid(Country~.)
-
-```
-
-
-
-
 
