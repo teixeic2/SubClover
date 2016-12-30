@@ -137,16 +137,18 @@ df_Rea5 <-df_Rea4  %>%
 ```
 
 
-Then, select Location year with different cultivars in a range of Pp. This will be df_Rea6.   
+Then, select Location year with different cultivars in a range of Pp. This will be df_Rea6.
+indexLocCult = combination of LoactionYear and cultivar.
 
 
 ```{r,fig.height=5, fig.width=10,warning=FALSE}
 
 df_Rea6 <- df_Rea5 %>% 
-  filter(LocationYear!="Waggawagga1985")
+  filter(LocationYear!="Waggawagga1985") %>%
+  mutate(indexLocCult=paste0(LocationYear,"_",Treatcultivar))
   
   df_Rea6 %>%
-  ggplot(aes(x=month(SowingDate), y= Value, colour=Treatcultivar)) +
+  ggplot(aes(x=month(SowingDate), y= Value, colour=indexLocCult)) +
   geom_point(shape=21) +
  geom_smooth(se=FALSE)+
   #theme(legend.position="none")+
