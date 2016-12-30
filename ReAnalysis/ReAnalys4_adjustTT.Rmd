@@ -85,8 +85,8 @@ df_Rea4  %>%
 ggplot(aes(x=month(SowingDate), y= TTFloAdj, colour=Treatcultivar)) +
     geom_point(shape=21) +
   scale_x_continuous(breaks = c(2,4,6,8,10,12))+
- # geom_smooth()+
-  facet_grid(Country~.)
+  geom_smooth()
+  #facet_grid(Country~.)
 
 
 ```
@@ -111,15 +111,19 @@ Launceston1987
 Melbourne1969
 Waggawagga1985
 
+This df will be df_Rea5
+
 ```{r,fig.height=5, fig.width=10,warning=FALSE}
 library(scales)
-df_Rea4  %>% 
+df_Rea5 <-df_Rea4  %>% 
   filter(LocationYear=="Condobolin1986"| 
            LocationYear=="Katanning1990"|
            LocationYear=="Launceston1987"|
            LocationYear=="Melbourne1969"|
            LocationYear=="Waggawagga1985") %>%
-  tidyr::gather("Variable", "Value",DaysToFlower,TTFloAdj) %>%
+  tidyr::gather("Variable", "Value",DaysToFlower,TTFloAdj)
+
+  df_Rea5 %>% 
   ggplot(aes(x=month(SowingDate), y= Value, colour=Treatcultivar)) +
   geom_point(shape=21) +
  geom_smooth(se=FALSE)+
@@ -132,22 +136,16 @@ df_Rea4  %>%
 
 ```
 
-Then, select contrasting cultivars : MtBarker, Trikala, Woogenelup 
+
+Then, select Location year with different cultivars in a range of Pp. This will be df_Rea6.   
 
 
 ```{r,fig.height=5, fig.width=10,warning=FALSE}
-library(scales)
-df_Rea4  %>% 
-  filter(LocationYear=="Condobolin1986"| 
-           LocationYear=="Katanning1990"|
-           LocationYear=="Launceston1987"|
-           LocationYear=="Melbourne1969"|
-           LocationYear=="Waggawagga1985") %>%
-  filter(Treatcultivar=="MtBarker"|
-          Treatcultivar=="Trikkala"| 
-           Treatcultivar=="Woogenellup"|
-           Treatcultivar=="Nungarin")%>%
-  tidyr::gather("Variable", "Value",DaysToFlower,TTFloAdj) %>%
+
+df_Rea6 <- df_Rea5 %>% 
+  filter(LocationYear!="Waggawagga1985")
+  
+  df_Rea6 %>%
   ggplot(aes(x=month(SowingDate), y= Value, colour=Treatcultivar)) +
   geom_point(shape=21) +
  geom_smooth(se=FALSE)+
@@ -198,6 +196,7 @@ Photoperiod at sowing
 df_Rea4  %>% 
 ggplot(aes(x=Pp, y= TTFloAdj, colour=Treatcultivar)) +
     geom_point(shape=21) +
+  theme(legend.position="none")+
   facet_grid(Country~.)
 
 ```
