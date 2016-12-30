@@ -50,11 +50,79 @@ for(i in 1:length(indexValues)){
   print(s) 
 
   
-  x <- df_Rea6 %>%
-    dplyr::filter(indexLocCult== s) 
+  df_sub <- df_Rea6 %>%
+    dplyr::filter(indexLocCult== s) %>%
+    filter(Variable=="TTFloAdj")
   
-    print(unique(x$indexLocCult))
+    print(unique(dfsub$indexLocCult))
+    
+    
+    x <- df_sub$Pp
+    y <- df_sub$Value
+  
+  print(data.frame(x=x,y=y))
+  
 }
+
+
+
+```
+
+Now get slopes and R squares  
+
+```{r}
+
+
+df_sub <- subset(df_soft_plot, (df_soft_plot$Plot==plots[p] & Depth == depth[d]))
+  
+  x <- df_sub$Round
+  y <- 1-df_sub$PercSoftCum
+  
+  print(data.frame(x=x,y=y))
+  
+  
+  fit <- NULL
+  fit <- lm(y ~ x)
+  
+  intercept <- round(fit$coefficients[[1]],2)
+  slope <- round(fit$coefficients[[2]],3)
+  r2 <- round(summary(fit)$r.squared * 100,2)
+  # summary(fit)$adj.r.squared
+  block <- df_sub$Block[1]
+  cv <- as.character(df_sub$Cultivar[1])
+  sow <- as.character(df_sub$SowTreat[1])
+  sd <- dmy(df_sub$SowingD[1])
+  
+  
+  buf <- c(sow,cv,block, plots[p],  depth[d], intercept, slope, r2, nrow(df_sub))
+  print(buf)
+  
+    if (p==1 & d==1) { 
+    all.data <- data.frame(
+    Sow = sow,
+    Cv = cv,
+    Block = block, 
+    Plot = plots[p],  
+    Depth = depth[d], 
+    Int = intercept, 
+    Slope = slope, 
+    R2 = r2,
+    n = nrow(df_sub)
+    ) } else {
+    all.data <- rbind(all.data, buf) # FIXME: Logic is not working for df creation
+  }
+
+# Error:  
+#   Warning message:
+# In `[<-.factor`(`*tmp*`, ri, value = "2") :
+#   invalid factor level, NA generated
+  
+
+  }
+  
+}
+
+summary(all.data)
 
 ```
 
