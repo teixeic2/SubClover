@@ -33,6 +33,20 @@ summary(df_Rea6)
 
 ```
 
+
+```{r, warning=FALSE}
+#Check data filtering indexLocCult. See r2 generated below. 
+df_Rea6 %>%
+  filter(indexLocCult=="Melbourne1969_MtBarker")%>%
+  ggplot(aes(x=month(SowingDate), y= Value, colour=indexLocCult)) +
+  geom_point(shape=21) +
+ geom_smooth(se=FALSE)+
+  #theme(legend.position="none")+
+  facet_grid(Variable~Country, scales = "free")
+```
+
+
+
 Create the loop to identify each combination of indexLocCult - isolate and calculate stats for each Pp target. 
 
 ```{r}
@@ -54,13 +68,22 @@ for(i in 1:length(indexValues)){
     dplyr::filter(indexLocCult== s) %>%
     filter(Variable=="TTFloAdj")
   
-    print(unique(dfsub$indexLocCult))
+    print(unique(df_sub$indexLocCult))
     
     
     x <- df_sub$Pp
     y <- df_sub$Value
   
-  print(data.frame(x=x,y=y))
+  #print(data.frame(x=x,y=y))
+  
+  fit <- NULL
+  fit <- lm(y ~ x)
+  
+  intercept <- round(fit$coefficients[[1]],2)
+  slope <- round(fit$coefficients[[2]],3)
+  r2 <- round(summary(fit)$r.squared * 100,2)
+  
+  print(paste0("int:",intercept," slope:",slope, " r2:",r2))
   
 }
 
