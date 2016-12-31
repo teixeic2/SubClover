@@ -104,8 +104,6 @@ dplyr::filter(Treatcultivar=="Nungarin"|
 #attempt to get Pp target via TT target 
 
 
-
-
 df_test <- df_Rea6 %>%
   mutate(TTtarg=TTSumSow + 200)
 
@@ -116,12 +114,22 @@ select(LocationYear, TTtarg, indexLocCult) %>%
 head(df_test_select)
 
 
-df_merged <- merge(df_test_select, df_weather, by=approx("SumTTday"))
-
-#,by.x=c("LocationYear","TTtarg"), by.y=c("LocationYear","SumTTday"))
+df_weather_selec <- df_weather %>%
+  filter(LocationYear=="Katanning1990"|
+           LocationYear=="Condobolin1986"|
+           LocationYear=="Launceston1987"|
+           LocationYear=="Melbourne1969") 
   
 
-head(df_merged )
+write.table(df_weather_selec, "df_weather_selec.txt")
+
+write.table(df_test_select, "df_test_select.txt")
+
+Data <- merge(df_test_select, df_weather_selec, by.x="TTtarg", by.y="SumTTday", all=TRUE)
+y1.na <- is.na(Data$y1)
+Data$y1[y1.na] <- (approx(Data$y1, rule=2, n=NROW(Data))$y)[y1.na]
+
+
 ```
 
 
