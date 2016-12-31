@@ -112,38 +112,16 @@ df_weather <-df_weather %>%
 
 summary(df_weather)
 
-
-
-
-  
-
-
 ```
 
 ```{r}
-#retrieve sowing date per experiment
-
-#summary(df_Rea6)
-# 
-# df_temp <- df_Rea6 %>%
-#   select(LocationYear,indexLocCult, SowingDate,TTSumSow,Variable,Value)
-
-#summary(df_temp)
-
-# find the photoperiod at TT_Target 
-# created a function to find the Pp
-
-#idx_loc <-"Katanning1990"
-```
-
-```{r}
-Pp_finder_func <- function(idx_loc,tt_sow,tt_extra){
+Pp_finder_func <- function(idx_loc,tt_target){
   
   #isolate the experiment and cultivar 
   df_temp_wea <- df_weather %>%
     filter(LocationYear == idx_loc)
   
-  tt_target <- tt_sow + tt_extra
+ # tt_target <- tt_sow + tt_extra
   
   # lookup for Pp at new tt sum
   tryCatch(  
@@ -161,14 +139,12 @@ Pp_finder_func <- function(idx_loc,tt_sow,tt_extra){
 ```
 
 ```{r}
-TT_extra <- 200
+tt_target <- 2172.8526
 #TTsum estimated to reach 1st trifoliate 
 
 #test if function is working : example : 
-Pp_finder_func("Katanning1990",1972.8526,TT_extra)
+Pp_finder_func("Katanning1990",tt_target)
 ```
-
-
 
 Create the loop to identify each combination of indexLocCult - isolate and calculate stats for each Pp target. 
 
@@ -188,13 +164,11 @@ for(i in 1:length(indexValues)){
   df_s <- df_Rea6 %>%
     dplyr::filter(SensGroup == s) %>%
     filter(Variable=="TTFloAdj") %>%
-    #mutate(TT_target=TTSumSow+TT_extra) %>% #define thermal time after sowing for which photoperiod needs to be retrieved 
+    mutate(TT_target=TTSumSow+TT_extra) %>% #define thermal time after sowing for which photoperiod needs to be retrieved 
     rowwise() %>%
-   # mutate(Pp_target=Pp_finder_func(LocationYear,TTSumSow,TT_extra))
-    mutate(Pp_target=LocationYear) # FIXME: Func not yet implemented
+    mutate(Pp_target=Pp_finder_func(as.character(LocationYear),TT_target)) # functions gets a charater therefore format change
      
     print(unique(df_s$indexLocCult))
-    
     
     x <- df_s$Pp
     y <- df_s$Value
@@ -218,8 +192,6 @@ for(i in 1:length(indexValues)){
       print(summary(o))
   
 }
-
-
 
 ```
 
