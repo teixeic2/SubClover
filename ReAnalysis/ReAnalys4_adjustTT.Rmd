@@ -65,7 +65,7 @@ Analysis of TTFlowerAdj vs T5-100. Is there any relationship between Time to flo
 
 ```{r}
 df_Rea4  %>% 
-  filter(LocationYear=="Waggawagga1985") %>%
+  filter(LocationYear=="Waggawagga1985"& AuthorYear=="DearEtal1993") %>%
   #tidyr::gather("Variable", "Value",PercentFlower,TTFloAdj) %>%
     ggplot(aes(x=PercentFlower, y= TTFloAdj, colour=Treatcultivar)) +
   geom_point(shape=21) 
@@ -81,7 +81,9 @@ plot TTadj vs. sowing date
 
 ```{r , fig.height=5, fig.width=10}
 df_Rea4  %>% 
-  filter(Treatcultivar=="Woogenellup") %>%
+  filter(Treatcultivar=="Trikkala"|
+         Treatcultivar=="Dalkeith"|
+           Treatcultivar=="Woogenellup") %>%
 ggplot(aes(x=month(SowingDate), y= TTFloAdj, colour=Treatcultivar)) +
     geom_point(shape=21) +
   scale_x_continuous(breaks = c(2,4,6,8,10,12))+
@@ -124,7 +126,7 @@ df_Rea5 <-df_Rea4  %>%
   tidyr::gather("Variable", "Value",DaysToFlower,TTFloAdj)
 
   df_Rea5 %>% 
-  ggplot(aes(x=month(SowingDate), y= Value, colour=Treatcultivar)) +
+  ggplot(aes(x=Pp, y= Value, colour=Treatcultivar)) +
   geom_point(shape=21) +
  geom_smooth(se=FALSE)+
   #theme(legend.position="none")+
@@ -154,7 +156,7 @@ df_Rea6 <- df_Rea5 %>%
   #theme(legend.position="none")+
   facet_grid(Variable~Country, scales = "free")
 
-
+summary(df_Rea6)
 ```
 
 

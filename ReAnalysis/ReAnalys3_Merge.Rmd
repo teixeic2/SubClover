@@ -112,7 +112,7 @@ df_Rea3 %>%
 #Subset of DeatetAl (Waggaw1985 to normalise flowering 50% )
 
 df_Rea3 %>%
-  filter(LocationYear=="Waggawagga1985"&  AuthorYear=="DearEtal1993") %>%
+  filter(LocationYear=="Waggawagga1985"& AuthorYear=="DearEtal1993") %>%
   #filter(Treatcultivar=="Clare") %>%
   group_by(SowingDate,Treatcultivar) %>%
   ggplot(aes(x=TTtoFlower, y=PercentFlower,colour=Treatcultivar)) +

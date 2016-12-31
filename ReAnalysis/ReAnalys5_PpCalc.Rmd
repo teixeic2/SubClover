@@ -100,11 +100,111 @@ dplyr::filter(Treatcultivar=="Nungarin"|
 
 
 
+```{r}
+#attempt to get Pp target via TT target 
+
+
+
+
+df_test <- df_Rea6 %>%
+  mutate(TTtarg=TTSumSow + 200)
+
+df_test_select <- df_test %>%
+select(LocationYear, TTtarg, indexLocCult) %>%
+  mutate(SumTTday=TTtarg)
+  
+head(df_test_select)
+
+
+df_merged <- merge(df_test_select, df_weather, by=approx("SumTTday"))
+
+#,by.x=c("LocationYear","TTtarg"), by.y=c("LocationYear","SumTTday"))
+  
+
+head(df_merged )
+```
+
+
+
+
+
+
+
+Create function for retrieving photoperiod as a function of TT after sowing
+
+
+```{r}
+
+
+
+df_weather <- read.table("df_CumTT.txt",header=TRUE)
+
+df_weather <-df_weather %>%
+  select(LocationYear,Date, Pp, SumTTday)
+
+summary(df_weather)
+
+#retrieve sowing date per experiment
+
+summary(df_Rea6)
+
+
+df_temp <-df_Rea6 %>%
+  select(LocationYear,indexLocCult, SowingDate,TTSumSow,Variable,Value)
+
+summary(df_temp)
+
+ #find the photoperiod at TT_Target 
+  # created a function to find the Pp
+
+#idx_loc <-"Katanning1990"
+
+Pp_finder_func <-function(idx_loc,tt_sow,tt_extra){
+  
+  #isolate the experiment and cultivar 
+  
+  df_temp_wea <-df_weather %>%
+    filter(LocationYear==idx_loc)
+  
+  
+  
+  tt_target <- tt_sow + tt_extra
+  
+  tryCatch(  
+  Pp_target <- approx(df_temp_wea$SumTTday, 
+  df_temp_wea$Pp, xout = tt_target, rule = 1)$y,
+  error = function(e) 
+  {
+  Pp_target <- NA
+  }
+)
+ 
+  return(Pp_target)
+  
+}
+  
+
+TT_extra <- 200
+#TTsum estimated to reach 1st trifoliate
+
+Pp_finder_func("Katanning1990",1972.8526,TT_extra)
+  
+  y_ref <- df_sub$TT_target # y value where we want to find x by interpolation
+  
+  
+
+ 
+
+
+```
+
+
 
 Create the loop to identify each combination of indexLocCult - isolate and calculate stats for each Pp target. 
 
 ```{r}
 #created loop
+
 
 
 indexValues <- unique(df_Rea6$SensGroup)
@@ -120,7 +220,12 @@ for(i in 1:length(indexValues)){
   
   df_sub <- df_Rea6 %>%
     dplyr::filter(SensGroup == s) %>%
-    filter(Variable=="TTFloAdj")
+    filter(Variable=="TTFloAdj")%>%
+  mutate(TT_target=TTSumSow+TT_extra) #define thermal time after sowing for which photoperiod needs to be retrieved 
+  
+  
+ 
+
   
     print(unique(df_sub$indexLocCult))
     
