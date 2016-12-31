@@ -21,12 +21,11 @@ library (segmented)
 
 ```{r   loadFile}
 setwd("C:\\Users\\EdCarmen\\Documents\\CarmenProjects2016\\GitSubclover\\ReAnalysis")
-getwd()
 
+getwd()
 
 #get dataframe created in ReAnalysis4
 df_1 <- read.table("df_Rea6.txt",header=TRUE)
-
 
 #head(df_Data)
 
@@ -100,50 +99,11 @@ dplyr::filter(Treatcultivar=="Nungarin"|
 
 
 
-```{r}
-#attempt to get Pp target via TT target 
-
-
-df_test <- df_Rea6 %>%
-  mutate(TTtarg=TTSumSow + 200)
-
-df_test_select <- df_test %>%
-select(LocationYear, TTtarg, indexLocCult) %>%
-  mutate(SumTTday=TTtarg)
-  
-head(df_test_select)
-
-
-df_weather_selec <- df_weather %>%
-  filter(LocationYear=="Katanning1990"|
-           LocationYear=="Condobolin1986"|
-           LocationYear=="Launceston1987"|
-           LocationYear=="Melbourne1969") 
-  
-
-write.table(df_weather_selec, "df_weather_selec.txt")
-
-write.table(df_test_select, "df_test_select.txt")
-
-Data <- merge(df_test_select, df_weather_selec, by.x="TTtarg", by.y="SumTTday", all=TRUE)
-y1.na <- is.na(Data$y1)
-Data$y1[y1.na] <- (approx(Data$y1, rule=2, n=NROW(Data))$y)[y1.na]
-
-
-```
-
-
-
-
-
-
 
 Create function for retrieving photoperiod as a function of TT after sowing
 
 
 ```{r}
-
-
 
 df_weather <- read.table("df_CumTT.txt",header=TRUE)
 
@@ -152,32 +112,40 @@ df_weather <-df_weather %>%
 
 summary(df_weather)
 
+
+
+
+  
+
+
+```
+
+```{r}
 #retrieve sowing date per experiment
 
-summary(df_Rea6)
+#summary(df_Rea6)
+# 
+# df_temp <- df_Rea6 %>%
+#   select(LocationYear,indexLocCult, SowingDate,TTSumSow,Variable,Value)
 
+#summary(df_temp)
 
-df_temp <-df_Rea6 %>%
-  select(LocationYear,indexLocCult, SowingDate,TTSumSow,Variable,Value)
-
-summary(df_temp)
-
- #find the photoperiod at TT_Target 
-  # created a function to find the Pp
+# find the photoperiod at TT_Target 
+# created a function to find the Pp
 
 #idx_loc <-"Katanning1990"
+```
 
-Pp_finder_func <-function(idx_loc,tt_sow,tt_extra){
+```{r}
+Pp_finder_func <- function(idx_loc,tt_sow,tt_extra){
   
   #isolate the experiment and cultivar 
-  
-  df_temp_wea <-df_weather %>%
-    filter(LocationYear==idx_loc)
-  
-  
+  df_temp_wea <- df_weather %>%
+    filter(LocationYear == idx_loc)
   
   tt_target <- tt_sow + tt_extra
   
+  # lookup for Pp at new tt sum
   tryCatch(  
   Pp_target <- approx(df_temp_wea$SumTTday, 
   df_temp_wea$Pp, xout = tt_target, rule = 1)$y,
@@ -190,20 +158,14 @@ Pp_finder_func <-function(idx_loc,tt_sow,tt_extra){
   return(Pp_target)
   
 }
-  
+```
 
+```{r}
 TT_extra <- 200
-#TTsum estimated to reach 1st trifoliate
+#TTsum estimated to reach 1st trifoliate 
 
+#test if function is working : example : 
 Pp_finder_func("Katanning1990",1972.8526,TT_extra)
-  
-  y_ref <- df_sub$TT_target # y value where we want to find x by interpolation
-  
-  
-
- 
-
-
 ```
 
 
@@ -212,8 +174,6 @@ Create the loop to identify each combination of indexLocCult - isolate and calcu
 
 ```{r}
 #created loop
-
-
 
 indexValues <- unique(df_Rea6$SensGroup)
 
@@ -224,22 +184,20 @@ for(i in 1:length(indexValues)){
   s <- indexValues [i]
   
   print(s) 
-
   
-  df_sub <- df_Rea6 %>%
+  df_s <- df_Rea6 %>%
     dplyr::filter(SensGroup == s) %>%
-    filter(Variable=="TTFloAdj")%>%
-  mutate(TT_target=TTSumSow+TT_extra) #define thermal time after sowing for which photoperiod needs to be retrieved 
-  
-  
- 
-
-  
-    print(unique(df_sub$indexLocCult))
+    filter(Variable=="TTFloAdj") %>%
+    #mutate(TT_target=TTSumSow+TT_extra) %>% #define thermal time after sowing for which photoperiod needs to be retrieved 
+    rowwise() %>%
+   # mutate(Pp_target=Pp_finder_func(LocationYear,TTSumSow,TT_extra))
+    mutate(Pp_target=LocationYear) # FIXME: Func not yet implemented
+     
+    print(unique(df_s$indexLocCult))
     
     
-    x <- df_sub$Pp
-    y <- df_sub$Value
+    x <- df_s$Pp
+    y <- df_s$Value
   
   #print(data.frame(x=x,y=y))
   
@@ -252,7 +210,7 @@ for(i in 1:length(indexValues)){
   
   print(paste0("int:",intercept," slope:",slope, " r2:",r2))
   
-  out.lm <-lm(Value~Pp,data=df_sub)
+  out.lm <-lm(Value~Pp,data=df_s)
   
   o<-segmented(out.lm,seg.Z=~Pp,psi=list(Pp=c(12)),
                    control=seg.control(display=FALSE))
@@ -264,64 +222,4 @@ for(i in 1:length(indexValues)){
 
 
 ```
-
-Now get slopes and R squares  
-
-```{r}
-
-
-df_sub <- subset(df_soft_plot, (df_soft_plot$Plot==plots[p] & Depth == depth[d]))
-  
-  x <- df_sub$Round
-  y <- 1-df_sub$PercSoftCum
-  
-  print(data.frame(x=x,y=y))
-  
-  
-  fit <- NULL
-  fit <- lm(y ~ x)
-  
-  intercept <- round(fit$coefficients[[1]],2)
-  slope <- round(fit$coefficients[[2]],3)
-  r2 <- round(summary(fit)$r.squared * 100,2)
-  # summary(fit)$adj.r.squared
-  block <- df_sub$Block[1]
-  cv <- as.character(df_sub$Cultivar[1])
-  sow <- as.character(df_sub$SowTreat[1])
-  sd <- dmy(df_sub$SowingD[1])
-  
-  
-  buf <- c(sow,cv,block, plots[p],  depth[d], intercept, slope, r2, nrow(df_sub))
-  print(buf)
-  
-    if (p==1 & d==1) { 
-    all.data <- data.frame(
-    Sow = sow,
-    Cv = cv,
-    Block = block, 
-    Plot = plots[p],  
-    Depth = depth[d], 
-    Int = intercept, 
-    Slope = slope, 
-    R2 = r2,
-    n = nrow(df_sub)
-    ) } else {
-    all.data <- rbind(all.data, buf) # FIXME: Logic is not working for df creation
-  }
-
-# Error:  
-#   Warning message:
-# In `[<-.factor`(`*tmp*`, ri, value = "2") :
-#   invalid factor level, NA generated
-  
-
-  }
-  
-}
-
-summary(all.data)
-
-```
-
-
 
