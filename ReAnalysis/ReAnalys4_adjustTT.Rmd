@@ -39,7 +39,7 @@ Use slope values (Rea3) to normalise TT flowering
 #Flowering reference = Floref
 floref <- 50
 
-TTpercflo <- 2.6 # degree days from 5 to 100 flowering (value calculated from DearEtAL1993_Reanalysis3 script)
+TTpercflo <- 2.6 # degree days from 5 to full (100) flowering (value calculated from DearEtAL1993_Reanalysis3 script)
 
 df_Rea4 <- df_Rea3 %>%
   mutate(TTFloAdj=((floref-PercentFlower)*TTpercflo )+TTtoFlower)

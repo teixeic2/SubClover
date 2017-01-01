@@ -115,6 +115,8 @@ summary(df_weather)
 ```
 
 ```{r}
+
+
 Pp_finder_func <- function(idx_loc,tt_target){
   
   #isolate the experiment and cultivar 
@@ -139,6 +141,7 @@ Pp_finder_func <- function(idx_loc,tt_target){
 ```
 
 ```{r}
+#test
 tt_target <- 2172.8526
 #TTsum estimated to reach 1st trifoliate 
 
@@ -149,7 +152,15 @@ Pp_finder_func("Katanning1990",tt_target)
 Create the loop to identify each combination of indexLocCult - isolate and calculate stats for each Pp target. 
 
 ```{r}
-#created loop
+
+#Flowering reference = Floref
+floref <- 50
+
+TTpercflo <- 2.6 # degree days from 5 to full (100) flowering 
+#value calculated from DearEtAL1993_Reanalysis3 script
+
+
+#loop
 
 cvGroup <- unique(df_Rea6$SensGroup)
 vc_temp <- vector()
@@ -169,7 +180,12 @@ for(i in 1:length(cvGroup)){
   df_s <- df_Rea6 %>%
     dplyr::filter(SensGroup == cvG) %>%
     filter(Variable=="TTFloAdj") %>%
-    mutate(TT_target=TTSumSow + t) %>% #define multiple thermal time after sowing for which photoperiod needs to be retrieved 
+    mutate(ttFlowZero=Value-(floref*TTpercflo)) %>% 
+    mutate(z=TTSumSow + t) %>% #define multiple tt after sowing for which Pp needs to be retrieved 
+    mutate(TT_target= ifelse (z > ttFlowZero,
+                             ttFlowZero,
+                             z)) %>%
+    #mutate(z=TTSumSow + t) %>% #testing Pp even if Pp greater than experienced by crop
     rowwise() %>%
     mutate(Pp_target=Pp_finder_func(as.character(LocationYear),TT_target)) # functions gets a charater therefore format change
      
@@ -181,7 +197,7 @@ for(i in 1:length(cvGroup)){
   
   out.lm <-lm(Value~Pp_target,data=df_s)
   
-  o <- segmented(out.lm,seg.Z=~Pp_target,psi=list(Pp_target=c(12)),
+  o <- segmented(out.lm,seg.Z=~Pp_target,psi=list(Pp_target=c(13)),
                    control=seg.control(display=FALSE))
       
   
@@ -189,7 +205,7 @@ for(i in 1:length(cvGroup)){
       s <- slope(o)$Pp[,1]    
       interc <- intercept(o)
     
-      r2 <- round(summary.segmented(o)$adj.r.squared*100,digits=2)
+      r2 <- round(summary.segmented(o)$adj.r.squared*100,digits=5)
       slope1 <- round(s[1], digits = 4)
       slope2 <- round(s[2], digits = 4)
       pVs1 <- summary.segmented(o)$coefficients[14]#pvalue slope1
@@ -237,9 +253,9 @@ df_all %>%
 #graph PPat 1000TTextra 
 df_opt <- df_all %>%
 group_by(CvGroup) %>%
-filter(r2 ==max(as.numeric(as.character(r2))))
+filter(r2==max(as.numeric(as.character(r2))))
 
-tt_extra_opt <- df_opt$Ttextra
+tt_extra_opt <- 800
 
 ggg <- c("High","Low")
 
@@ -253,9 +269,9 @@ for(tte in 1:length(tt_extra_opt)) {
     rowwise() %>%
     mutate(Pp_target = Pp_finder_func(as.character(LocationYear),TT_target)) %>%
     ggplot(aes(x=Pp_target,y=(Value))) +
-    geom_point()+
-     facet_grid(SensGroup~.)
-   
+    geom_point()
+    
+
    print(g)
   
 }
