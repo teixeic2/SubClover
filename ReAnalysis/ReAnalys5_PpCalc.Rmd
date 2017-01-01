@@ -153,22 +153,26 @@ Create the loop to identify each combination of indexLocCult - isolate and calcu
 
 indexValues <- unique(df_Rea6$SensGroup)
  Vc_all <- vector()
+
 for(i in 1:length(indexValues)){
   
-  print(i)
+  for(t in seq(0,1000, by=100)){
+   
+   #print(t)
+  #print(i)
  
   s <- indexValues [i]
   
-  print(s) 
+  #print(s) 
   
   df_s <- df_Rea6 %>%
     dplyr::filter(SensGroup == s) %>%
     filter(Variable=="TTFloAdj") %>%
-    mutate(TT_target=TTSumSow+TT_extra) %>% #define thermal time after sowing for which photoperiod needs to be retrieved 
+    mutate(TT_target=TTSumSow + t) %>% #define multiple thermal time after sowing for which photoperiod needs to be retrieved 
     rowwise() %>%
     mutate(Pp_target=Pp_finder_func(as.character(LocationYear),TT_target)) # functions gets a charater therefore format change
      
-    print(unique(df_s$indexLocCult))
+    #print(unique(df_s$indexLocCult))
     
     x <- df_s$Pp_target
     y <- df_s$Value
@@ -193,16 +197,20 @@ for(i in 1:length(indexValues)){
       # find breaks
       b = o$psi[,2]
       
-      Vc_temp <- c(r2,slope1,slope2,pVs1,pVs2,b)
+      Vc_temp <- c(t, r2,slope1,slope2,pVs1,pVs2,b)
       Vc_all <- rbind(Vc_all,Vc_temp)
       # show slopes and breakpoints
-      print(paste0(" slope: ",s, " break: ", b))
+      #print(paste0(" slope: ",s, " break: ", b))
       
      # print(summary(o))
   
-}
+}  #this ends the loop of multiple thermal time
 
-
+ } #end loop high and low sensegroup of cultivars
+  
+ 
+ Vc_all
+ 
 # loop acros multiple TT extras
 # select best stats or simply store all (better I think) and test in next chunck
 
