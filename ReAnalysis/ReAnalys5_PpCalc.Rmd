@@ -173,22 +173,12 @@ for(i in 1:length(indexValues)){
     x <- df_s$Pp_target
     y <- df_s$Value
   
-  #print(data.frame(x=x,y=y))
-  
-  # fit <- NULL
-  # fit <- lm(y ~ x)
-  
-  # intercept <- round(fit$coefficients[[1]],2)
-  # slope <- round(fit$coefficients[[2]],3)
-  # r2 <- round(summary(fit)$r.squared * 100,2)
-  # 
-  # print(paste0("int:",intercept," slope:",slope, " r2:",r2))
   
   out.lm <-lm(Value~Pp,data=df_s)
   
   o<-segmented(out.lm,seg.Z=~Pp,psi=list(Pp=c(12)),
                    control=seg.control(display=FALSE))
-      # show stats
+      
   
   # find stats
       s <- slope(o)$Pp[,1]    
@@ -213,7 +203,6 @@ for(i in 1:length(indexValues)){
 }
 
 
-# NEXT: retrieve stats in a df
 # loop acros multiple TT extras
 # select best stats or simply store all (better I think) and test in next chunck
 
