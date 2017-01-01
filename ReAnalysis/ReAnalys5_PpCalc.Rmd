@@ -152,7 +152,7 @@ Create the loop to identify each combination of indexLocCult - isolate and calcu
 #created loop
 
 indexValues <- unique(df_Rea6$SensGroup)
-
+ Vc_all <- vector()
 for(i in 1:length(indexValues)){
   
   print(i)
@@ -170,28 +170,52 @@ for(i in 1:length(indexValues)){
      
     print(unique(df_s$indexLocCult))
     
-    x <- df_s$Pp
+    x <- df_s$Pp_target
     y <- df_s$Value
   
   #print(data.frame(x=x,y=y))
   
-  fit <- NULL
-  fit <- lm(y ~ x)
+  # fit <- NULL
+  # fit <- lm(y ~ x)
   
-  intercept <- round(fit$coefficients[[1]],2)
-  slope <- round(fit$coefficients[[2]],3)
-  r2 <- round(summary(fit)$r.squared * 100,2)
-  
-  print(paste0("int:",intercept," slope:",slope, " r2:",r2))
+  # intercept <- round(fit$coefficients[[1]],2)
+  # slope <- round(fit$coefficients[[2]],3)
+  # r2 <- round(summary(fit)$r.squared * 100,2)
+  # 
+  # print(paste0("int:",intercept," slope:",slope, " r2:",r2))
   
   out.lm <-lm(Value~Pp,data=df_s)
   
   o<-segmented(out.lm,seg.Z=~Pp,psi=list(Pp=c(12)),
                    control=seg.control(display=FALSE))
       # show stats
-      print(summary(o))
+  
+  # find stats
+      s <- slope(o)$Pp[,1]    
+      interc <- intercept(o)
+      
+      r2 <- summary.segmented(o)$adj.r.squared
+      slope1 <- round(s[1], digits = 4)
+      slope2 <- round(s[2], digits = 4)
+      pVs1 <- summary.segmented(o)$coefficients[14]#pvalue slope1
+      pVs2 <-summary.segmented(o)$coefficients[15]#pvalue slope2
+      
+      # find breaks
+      b = o$psi[,2]
+      
+      Vc_temp <- c(r2,slope1,slope2,pVs1,pVs2,b)
+      Vc_all <- rbind(Vc_all,Vc_temp)
+      # show slopes and breakpoints
+      print(paste0(" slope: ",s, " break: ", b))
+      
+     # print(summary(o))
   
 }
+
+
+# NEXT: retrieve stats in a df
+# loop acros multiple TT extras
+# select best stats or simply store all (better I think) and test in next chunck
 
 ```
 
