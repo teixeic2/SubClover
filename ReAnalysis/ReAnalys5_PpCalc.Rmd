@@ -151,22 +151,23 @@ Create the loop to identify each combination of indexLocCult - isolate and calcu
 ```{r}
 #created loop
 
-indexValues <- unique(df_Rea6$SensGroup)
- Vc_all <- vector()
+cvGroup <- unique(df_Rea6$SensGroup)
+vc_temp <- vector()
+vc_all <- vector()
 
-for(i in 1:length(indexValues)){
+for(i in 1:length(cvGroup)){
   
-  for(t in seq(0,1000, by=100)){
+  for(t in seq(0,1500, by=100)){
    
    #print(t)
   #print(i)
  
-  s <- indexValues [i]
+  cvG <- cvGroup[i]
   
   #print(s) 
   
   df_s <- df_Rea6 %>%
-    dplyr::filter(SensGroup == s) %>%
+    dplyr::filter(SensGroup == cvG) %>%
     filter(Variable=="TTFloAdj") %>%
     mutate(TT_target=TTSumSow + t) %>% #define multiple thermal time after sowing for which photoperiod needs to be retrieved 
     rowwise() %>%
@@ -178,17 +179,17 @@ for(i in 1:length(indexValues)){
     y <- df_s$Value
   
   
-  out.lm <-lm(Value~Pp,data=df_s)
+  out.lm <-lm(Value~Pp_target,data=df_s)
   
-  o<-segmented(out.lm,seg.Z=~Pp,psi=list(Pp=c(12)),
+  o <- segmented(out.lm,seg.Z=~Pp_target,psi=list(Pp_target=c(12)),
                    control=seg.control(display=FALSE))
       
   
   # find stats
       s <- slope(o)$Pp[,1]    
       interc <- intercept(o)
-      
-      r2 <- summary.segmented(o)$adj.r.squared
+    
+      r2 <- round(summary.segmented(o)$adj.r.squared*100,digits=2)
       slope1 <- round(s[1], digits = 4)
       slope2 <- round(s[2], digits = 4)
       pVs1 <- summary.segmented(o)$coefficients[14]#pvalue slope1
@@ -197,19 +198,25 @@ for(i in 1:length(indexValues)){
       # find breaks
       b = o$psi[,2]
       
-      Vc_temp <- c(t, r2,slope1,slope2,pVs1,pVs2,b)
-      Vc_all <- rbind(Vc_all,Vc_temp)
+      vc_temp <- c(as.character(cvG),t, r2,slope1,slope2,pVs1,pVs2,b)
+      vc_all <- rbind(vc_all,vc_temp)
       # show slopes and breakpoints
       #print(paste0(" slope: ",s, " break: ", b))
       
      # print(summary(o))
   
 }  #this ends the loop of multiple thermal time
-
+vc_temp <-NULL
  } #end loop high and low sensegroup of cultivars
   
  
- Vc_all
+ df_all <-data.frame(vc_all)
+ colnames(df_all) <-c("CvGroup","Ttextra", "r2","slope1","slope2","pVs1","pVs2","b")
+ 
+ df_all %>%
+   ggplot(aes(x=as.numeric(as.character(Ttextra)), 
+              y=as.numeric(as.character(r2)), colour=CvGroup)) +
+   geom_point() 
  
 # loop acros multiple TT extras
 # select best stats or simply store all (better I think) and test in next chunck
