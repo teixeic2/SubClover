@@ -213,13 +213,54 @@ vc_temp <-NULL
  df_all <-data.frame(vc_all)
  colnames(df_all) <-c("CvGroup","Ttextra", "r2","slope1","slope2","pVs1","pVs2","b")
  
- df_all %>%
-   ggplot(aes(x=as.numeric(as.character(Ttextra)), 
-              y=as.numeric(as.character(r2)), colour=CvGroup)) +
-   geom_point() 
+ 
  
 # loop acros multiple TT extras
 # select best stats or simply store all (better I think) and test in next chunck
+
+```
+
+```{r}
+#graph it 
+
+df_all %>%
+   ggplot(aes(x=as.numeric(as.character(Ttextra)), 
+              y=as.numeric(as.character(r2)), colour=CvGroup)) +
+   geom_point() 
+```
+
+
+```{r , warning = FALSE}
+
+# find highrest r2
+
+#graph PPat 1000TTextra 
+df_opt <- df_all %>%
+group_by(CvGroup) %>%
+filter(r2 ==max(as.numeric(as.character(r2))))
+
+tt_extra_opt <- df_opt$Ttextra
+
+ggg <- c("High","Low")
+
+for(gg in 1:length(ggg)) {
+for(tte in 1:length(tt_extra_opt)) {
+  
+   g <- df_Rea6 %>%
+    dplyr::filter(SensGroup == ggg[gg]) %>%
+    filter(Variable == "TTFloAdj") %>%
+    mutate(TT_target = TTSumSow + as.numeric(as.character(tt_extra_opt[tte]))) %>% #define multiple thermal time after sowing for which photoperiod needs to be retrieved 
+    rowwise() %>%
+    mutate(Pp_target = Pp_finder_func(as.character(LocationYear),TT_target)) %>%
+    ggplot(aes(x=Pp_target,y=(Value))) +
+    geom_point()+
+     facet_grid(SensGroup~.)
+   
+   print(g)
+  
+}
+
+}
 
 ```
 
