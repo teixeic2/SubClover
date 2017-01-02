@@ -191,14 +191,26 @@ for(i in 1:length(cvGroup)){
      
     #print(unique(df_s$indexLocCult))
     
-    x <- df_s$Pp_target
-    y <- df_s$Value
+    x <- as.numeric(df_s$Pp_target)
+    y <- as.numeric(df_s$Value)
   
+  # test alternative functions - all gave highest first R2 at ~ 600oCd - Not resolved
+ #  polyM <- lm(formula = y ~ poly(x, 3)) # testing simple polinomial
+ #  expM <- lm(log(y)~ x)
+ #  print(t)
+ #  print( summary(polyM)$r.squared*100)
+ #  summary(polyM)
+  # -------
   
   out.lm <-lm(Value~Pp_target,data=df_s)
   
-  o <- segmented(out.lm,seg.Z=~Pp_target,psi=list(Pp_target=c(13)),
+  o <- segmented(out.lm,seg.Z=~Pp_target,psi=list(Pp_target=13),
                    control=seg.control(display=FALSE))
+  
+  # test plot FIXME: Does not display waht we expected?
+  print(t)
+  plot(x,y, pch=16)
+  plot(o, add=T)
       
   
   # find stats
@@ -227,12 +239,10 @@ vc_temp <-NULL
   
  
  df_all <-data.frame(vc_all)
- colnames(df_all) <-c("CvGroup","Ttextra", "r2","slope1","slope2","pVs1","pVs2","b")
+ colnames(df_all) <-c("CvGroup","TTjuv", "r2","slope1","slope2","pVs1","pVs2","b")
  
+ # FIXME: The resulting model does not align with the best "visual" fit at 900oCd Tt juveline
  
- 
-# loop acros multiple TT extras
-# select best stats or simply store all (better I think) and test in next chunck
 
 ```
 
@@ -240,7 +250,7 @@ vc_temp <-NULL
 #graph it 
 
 df_all %>%
-   ggplot(aes(x=as.numeric(as.character(Ttextra)), 
+   ggplot(aes(x=as.numeric(as.character(TTjuv)), 
               y=as.numeric(as.character(r2)), colour=CvGroup)) +
    geom_point() 
 ```
@@ -250,12 +260,12 @@ df_all %>%
 
 # find highrest r2
 
-#graph PPat 1000TTextra 
+#graph PPat 1000TTjuv 
 df_opt <- df_all %>%
 group_by(CvGroup) %>%
 filter(r2==max(as.numeric(as.character(r2))))
 
-tt_extra_opt <- 800
+tt_extra_opt <- 900
 
 ggg <- c("High","Low")
 
@@ -268,8 +278,10 @@ for(tte in 1:length(tt_extra_opt)) {
     mutate(TT_target = TTSumSow + as.numeric(as.character(tt_extra_opt[tte]))) %>% #define multiple thermal time after sowing for which photoperiod needs to be retrieved 
     rowwise() %>%
     mutate(Pp_target = Pp_finder_func(as.character(LocationYear),TT_target)) %>%
-    ggplot(aes(x=Pp_target,y=(Value))) +
-    geom_point()
+    ggplot(aes(x=Pp_target,y=Value)) +
+    geom_point() + 
+    # stat_smooth(method = "lm", formula = y ~ x + I(x^2), size = 1) + 
+     stat_smooth(method = "lm", formula = y ~ poly(x, 2), size = 1)
     
 
    print(g)
@@ -278,5 +290,10 @@ for(tte in 1:length(tt_extra_opt)) {
 
 }
 
+# loop acros multiple TT extras
+# select best stats or simply store all (better I think) and test in next chunck
+
 ```
+
+
 

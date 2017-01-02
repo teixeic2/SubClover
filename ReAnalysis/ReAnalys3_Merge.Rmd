@@ -91,15 +91,16 @@ write.table(df_Rea3, "df_Rea3.txt")
 
 ```
 
-```{r, fig.height=10 , fig.width= 10}
+```{r, fig.height=5 , fig.width= 10}
 #Graph it to  check 
 
 df_Rea3 %>%
-  filter(Treatcultivar=="MtBarker") %>%
+  #filter(Treatcultivar=="MtBarker") %>%
   ggplot(aes(x=LocationYear, y=TTtoFlower))+
   geom_boxplot(alpha=0.2)+
   geom_jitter(width = 0.1, aes(colour=Treatcultivar))+
   theme(axis.text.x = element_text(angle = 90, hjust = 1))+
+  theme(legend.position="none")+
   facet_wrap(~Country)
   
 
@@ -158,7 +159,7 @@ df_ReaSlop %>%
   mutate(TT=95/Slope)%>%
   summarise(mean=mean(Slope), sd=sd(Slope),meanTT=mean(TT), sdTT=sd(TT))
   
-
+# calculate Standard error as  <- function(x) sd(x)/sqrt(smaple size(x))
 
 
 ```
