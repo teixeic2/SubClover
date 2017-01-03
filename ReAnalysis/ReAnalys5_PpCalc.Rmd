@@ -291,16 +291,17 @@ ggg <- c("High","Low")
      rowwise() %>%
     #dplyr::filter(SensGroup == ggg[gg]) %>%
     filter(Variable == "TTFloAdj") %>%
-     mutate(tt_extra_opt=as.numeric(ifelse(SensGroup=="High",1000,700)))%>%
+     mutate(tt_extra_opt=as.numeric(ifelse(SensGroup=="High",700,700)))%>%
      mutate(TT_target = TTSumSow + tt_extra_opt) %>% #define multiple thermal time after sowing for which photoperiod needs to be retrieved 
     
     mutate(Pp_target = Pp_finder_func(as.character(LocationYear),TT_target)) %>%
-    
-    ggplot(aes(x=Pp_target,y=Value)) +
+    mutate(tt_juv_toflower=Value-tt_extra_opt)%>%
+    #ggplot(aes(x=Pp_target,y=Value)) +
+     ggplot(aes(x=Pp_target,y=tt_juv_toflower)) +
     geom_point() + 
     # stat_smooth(method = "lm", formula = y ~ x + I(x^2), size = 1) + 
      stat_smooth(method = "lm", formula = y ~ poly(x, 2), size = 1)+
-     geom_abline(intercept = ifelse(df_Rea6$SensGroup=="High",1000,700), slope=0,linetype=2)+
+     geom_abline(intercept = ifelse(df_Rea6$SensGroup=="High",700,700), slope=0,linetype=2)+
      facet_wrap(~SensGroup)
 
    
