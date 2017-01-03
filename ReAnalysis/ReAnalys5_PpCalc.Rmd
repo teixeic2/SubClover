@@ -46,6 +46,20 @@ df_Rea6 <- merge(df_1, df_Gr,by=c("indexLocCult"))
 summary (df_Rea6)
 
 ```
+
+
+```{r}
+df_Rea6 %>%
+  #filter(indexLocCult=="Launceston1987_Meteora")%>%
+  ggplot(aes(x=month(SowingDate), y= Value, colour=Treatcultivar)) +
+  geom_point(shape=21) +
+ geom_smooth(se=FALSE)+
+  #theme(legend.position="none")+
+  facet_grid(Variable~., scales = "free")
+```
+
+
+
 Select two groups of cultivars : hight Pp sensitive response varies and low sensitive cultivar group (TT decreases at the end )
 
 ```{r, warning=FALSE}
@@ -207,10 +221,11 @@ for(i in 1:length(cvGroup)){
   o <- segmented(out.lm,seg.Z=~Pp_target,psi=list(Pp_target=13),
                    control=seg.control(display=FALSE))
   
-  # test plot FIXME: Does not display waht we expected?
+  # test plot FIXME: Does not display what we expected?
   print(t)
   plot(x,y, pch=16)
-  plot(o, add=T)
+  plot(o, add=T, link=TRUE)
+  
       
   
   # find stats
@@ -265,30 +280,35 @@ df_opt <- df_all %>%
 group_by(CvGroup) %>%
 filter(r2==max(as.numeric(as.character(r2))))
 
-tt_extra_opt <- 900
+#tt_extra_opt <- 700
 
 ggg <- c("High","Low")
 
-for(gg in 1:length(ggg)) {
-for(tte in 1:length(tt_extra_opt)) {
+# for(gg in 1:length(ggg)) {
+# for(tte in 1:length(tt_extra_opt)) {
   
    g <- df_Rea6 %>%
-    dplyr::filter(SensGroup == ggg[gg]) %>%
+     rowwise() %>%
+    #dplyr::filter(SensGroup == ggg[gg]) %>%
     filter(Variable == "TTFloAdj") %>%
-    mutate(TT_target = TTSumSow + as.numeric(as.character(tt_extra_opt[tte]))) %>% #define multiple thermal time after sowing for which photoperiod needs to be retrieved 
-    rowwise() %>%
+     mutate(tt_extra_opt=as.numeric(ifelse(SensGroup=="High",1000,700)))%>%
+     mutate(TT_target = TTSumSow + tt_extra_opt) %>% #define multiple thermal time after sowing for which photoperiod needs to be retrieved 
+    
     mutate(Pp_target = Pp_finder_func(as.character(LocationYear),TT_target)) %>%
+    
     ggplot(aes(x=Pp_target,y=Value)) +
     geom_point() + 
     # stat_smooth(method = "lm", formula = y ~ x + I(x^2), size = 1) + 
-     stat_smooth(method = "lm", formula = y ~ poly(x, 2), size = 1)
-    
+     stat_smooth(method = "lm", formula = y ~ poly(x, 2), size = 1)+
+     geom_abline(intercept = ifelse(df_Rea6$SensGroup=="High",1000,700), slope=0,linetype=2)+
+     facet_wrap(~SensGroup)
 
+   
    print(g)
   
-}
-
-}
+# }
+# 
+# }
 
 # loop acros multiple TT extras
 # select best stats or simply store all (better I think) and test in next chunck
