@@ -12,8 +12,6 @@ library (ggplot2)
 library(agricolae)
 library(knitr)
 library (lubridate)
-library(markdown)
-#install.packages(markdown)
 
 ```
 

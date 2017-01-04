@@ -30,6 +30,7 @@ df_Data <- read.table("RawDatabase.txt",header=TRUE)
 
 summary(df_Data)
 
+summary(df_Data$AuthorYear)
 
 
 ```
@@ -60,14 +61,16 @@ df_Data %>%
   geom_jitter(width = 0.2)+
   geom_boxplot(alpha=0.2)+
 theme(axis.text.x = element_text(angle = 90, hjust = 1))+
+  
   facet_wrap(~Country)
 ```
 
 
 ```{r}
 df_Data %>%
-  ggplot(aes(x=month(SowingDate),y=DaysToFlower))+
-  #geom_jitter(width = 0.2)+
+  ggplot(aes(x=month(SowingDate),y=DaysToFlower,colour=Location, shape=Country))+
+  
+  geom_jitter(width = 0.2)+
   geom_point(alpha=0.2)+
 #theme(axis.text.x = element_text(angle = 90, hjust = 1))+
   facet_wrap(~Country)

@@ -96,16 +96,31 @@ write.table(df_Rea3, "df_Rea3.txt")
 
 df_Rea3 %>%
   #filter(Treatcultivar=="MtBarker") %>%
-  ggplot(aes(x=LocationYear, y=TTtoFlower))+
+  ggplot(aes(x=Location, y=DaysToFlower))+
   geom_boxplot(alpha=0.2)+
-  geom_jitter(width = 0.1, aes(colour=Treatcultivar))+
+  geom_jitter(width = 0.1, aes(colour=Location))+
   theme(axis.text.x = element_text(angle = 90, hjust = 1))+
-  theme(legend.position="none")+
+  #theme(legend.position="none")+
+  labs(x=" Month", y="Days to flower")+
   facet_wrap(~Country)
   
 
 ```
 
+
+
+```{r}
+
+df_Rea3 %>%
+  #filter(Treatcultivar=="MtBarker") %>%
+  ggplot(aes(x=month(SowingDate), y=DaysToFlower))+
+  geom_boxplot(alpha=0.2)+
+  geom_jitter(width = 0.1, aes(colour=Location))+
+  #theme(axis.text.x = element_text(angle = 90, hjust = 1))+
+  #theme(legend.position="none")+
+  labs(x=" Month", y="Days to flower")+
+  facet_wrap(~Country)
+```
 
 
 
