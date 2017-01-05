@@ -14,6 +14,7 @@ library(agricolae)
 library(knitr)
 library (lubridate)
 library (segmented)
+library(hydroGOF)
 
 ```
  
@@ -51,6 +52,7 @@ summary (df_Rea6)
 ```{r}
 df_Rea6 %>%
   #filter(indexLocCult=="Launceston1987_Meteora")%>%
+  
   ggplot(aes(x=month(SowingDate), y= Value, colour=Treatcultivar)) +
   geom_point(shape=21) +
  geom_smooth(se=FALSE)+
@@ -58,16 +60,36 @@ df_Rea6 %>%
   facet_grid(Variable~., scales = "free")
 ```
 
+```{r}
+
+df_Rea6 %>%
+  #tidyr::gather("Variable", "Value",DaysToFlower,TTFloAdj) %>%
+  mutate(Month=format(as.Date(ymd(SowingDate)),"%b")) %>%
+  
+  ggplot(aes(x=reorder(Month,month(SowingDate)), y= Value, colour=Treatcultivar))+ 
+  geom_point(shape=21) +
+  labs(x=" Sowing Month", y="   oCd      Days  ")+
+  #theme(legend.position="none")+
+  geom_smooth(se=FALSE)+
+  facet_grid(Variable~., scales = "free")
+
+```
 
 
-Select two groups of cultivars : hight Pp sensitive response varies and low sensitive cultivar group (TT decreases at the end )
+
+
+
+
+Select two groups of cultivars : Late (high response) Pp sensitive response varies and early -low sensitive cultivar group (TT decreases at the end )
 
 ```{r, warning=FALSE}
 #Check data filtering indexLocCult. See r2 generated below. 
 df_Rea6 %>%
-  #filter(indexLocCult=="Launceston1987_Meteora")%>%
-  ggplot(aes(x=month(SowingDate), y= Value, colour=SensGroup)) +
+  mutate(Month=format(as.Date(ymd(SowingDate)),"%b")) %>%
+  ggplot(aes(x=reorder(Month,month(SowingDate)), y= Value, colour=SensGroup)) +
   geom_point(shape=21) +
+  geom_point(aes(shape = factor(SensGroup)))+
+  labs(x=" Sowing Month", y="   oCd      Days  ")+
  #geom_smooth(se=FALSE)+
   #theme(legend.position="none")+
   facet_grid(Variable~., scales = "free")
@@ -81,10 +103,11 @@ df_Rea6 %>%
   filter(Variable=="TTFloAdj")%>%
   ggplot(aes(x=Pp, y= Value, colour=SensGroup)) +
   geom_point(shape=21) +
+  labs(x="Photoperiod at sowing (hours)", y="Thermal Time to flower (degree days)")+
  #geom_smooth(se=FALSE)+
   #theme(legend.position="none")+
-  facet_grid(Variable~., scales = "free")
-
+  #facet_grid(Variable~., scales = "free")
+facet_wrap(~SensGroup)
 
 ```
 
@@ -167,22 +190,30 @@ Create the loop to identify each combination of indexLocCult - isolate and calcu
 
 ```{r}
 
-#Flowering reference = Floref
-floref <- 50
+#FIXME: use RMSE instrad of R2 to find best fit
+
+#Flowering reference = flowRefPerc
+flowRefPerc <- 50
 
 TTpercflo <- 2.6 # degree days from 5 to full (100) flowering 
 #value calculated from DearEtAL1993_Reanalysis3 script
 
+# find max value of TTjuv possible per crop group
+ ttJuvMax <- df_Rea6 %>%
+   filter(Variable=="TTFloAdj") %>%
+   group_by(SensGroup) %>%
+  summarise(ttJuvMax = min(Value))
 
 #loop
-
 cvGroup <- unique(df_Rea6$SensGroup)
 vc_temp <- vector()
 vc_all <- vector()
 
 for(i in 1:length(cvGroup)){
   
-  for(t in seq(0,1500, by=100)){
+  for(t in seq(0,max(ttJuvMax$ttJuvMax), by=100)){
+    
+   if(t > ttJuvMax$ttJuvMax[ttJuvMax$SensGroup==cvGroup[i]]) break # do not allow TTjuv > min of TT to flower
    
    #print(t)
   #print(i)
@@ -194,8 +225,8 @@ for(i in 1:length(cvGroup)){
   df_s <- df_Rea6 %>%
     dplyr::filter(SensGroup == cvG) %>%
     filter(Variable=="TTFloAdj") %>%
-    mutate(ttFlowZero=Value-(floref*TTpercflo)) %>% 
-    mutate(z=TTSumSow + t) %>% #define multiple tt after sowing for which Pp needs to be retrieved 
+    mutate(ttFlowZero = Value - (flowRefPerc*TTpercflo)) %>% 
+    mutate(z = TTSumSow + t) %>% #define multiple tt after sowing for which Pp needs to be retrieved 
     mutate(TT_target= ifelse (z > ttFlowZero,
                              ttFlowZero,
                              z)) %>%
@@ -282,7 +313,7 @@ filter(r2==max(as.numeric(as.character(r2))))
 
 #tt_extra_opt <- 700
 
-ggg <- c("High","Low")
+ggg <- c("Late","Early")
 
 # for(gg in 1:length(ggg)) {
 # for(tte in 1:length(tt_extra_opt)) {
@@ -291,7 +322,7 @@ ggg <- c("High","Low")
      rowwise() %>%
     #dplyr::filter(SensGroup == ggg[gg]) %>%
     filter(Variable == "TTFloAdj") %>%
-     mutate(tt_extra_opt=as.numeric(ifelse(SensGroup=="High",700,700)))%>%
+     mutate(tt_extra_opt=as.numeric(ifelse(SensGroup=="Late",900,650)))%>%
      mutate(TT_target = TTSumSow + tt_extra_opt) %>% #define multiple thermal time after sowing for which photoperiod needs to be retrieved 
     
     mutate(Pp_target = Pp_finder_func(as.character(LocationYear),TT_target)) %>%
@@ -301,7 +332,9 @@ ggg <- c("High","Low")
     geom_point() + 
     # stat_smooth(method = "lm", formula = y ~ x + I(x^2), size = 1) + 
      stat_smooth(method = "lm", formula = y ~ poly(x, 2), size = 1)+
-     geom_abline(intercept = ifelse(df_Rea6$SensGroup=="High",700,700), slope=0,linetype=2)+
+     geom_abline(intercept = ifelse(df_Rea6$SensGroup=="Late",900,650), slope=0,linetype=2)+
+     geom_vline(xintercept = 13, linetype=2)+
+     labs(x="Photoperiod at inductive phase (hours)", y="Thermal Time to flower (degree days)")+
      facet_wrap(~SensGroup)
 
    

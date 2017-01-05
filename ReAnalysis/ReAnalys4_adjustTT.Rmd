@@ -83,7 +83,8 @@ plot TTadj vs. sowing date
 df_Rea4  %>% 
   filter(Treatcultivar=="Trikkala"|
          Treatcultivar=="Dalkeith"|
-           Treatcultivar=="Woogenellup") %>%
+           Treatcultivar=="Woogenellup"| 
+           Treatcultivar=="MtBarker") %>%
 ggplot(aes(x=month(SowingDate), y= TTFloAdj, colour=Treatcultivar)) +
     geom_point(shape=21) +
   scale_x_continuous(breaks = c(2,4,6,8,10,12))+
@@ -110,17 +111,68 @@ df_Rea4  %>%
 
 ```
 
-```{r}
+Then select Contrasting cultivars to compare : eg: Trikkala, Tallarook, MtBarker
+
+```{r,fig.height=5, fig.width=10}
+
+library(scales)
 df_Rea4  %>% 
   tidyr::gather("Variable", "Value",DaysToFlower,TTFloAdj) %>%
-  ggplot(aes(x=month(SowingDate), y= Value, colour=Treatcultivar)) +
+  filter(Treatcultivar=="Trikkala"| 
+           Treatcultivar=="Nungarin"|
+           Treatcultivar=="Denmark"|
+           Treatcultivar=="MtBarker"|
+           Treatcultivar=="Bena"|
+           Treatcultivar=="Tallarook"|
+           Treatcultivar=="Dalkeith") %>%
+  ggplot(aes(x=Location, y= Value, colour=Treatcultivar)) +
   geom_point(shape=21) +
- theme(legend.position="none")+
+  theme(axis.text.x = element_text(angle = 90, hjust = 1))+
+ #theme(legend.position="none")+
+  labs(x=" Sowing Month", y="    oCd        Days")+
+  facet_grid(Variable~Country, scales = "free")
+
+
+
+```
+
+
+```{r, fig.height=5, fig.width=10}
+df_Rea4  %>% 
+  tidyr::gather("Variable", "Value",DaysToFlower,TTFloAdj) %>%
+  mutate(Month=format(as.Date(ymd(SowingDate)),"%b")) %>%
+  
+  ggplot(aes(x=reorder(Month,month(SowingDate)), y= Value, colour=Location)) +
+  labs(x=" Sowing Month", y="   oCd      Days  ")+
+  geom_boxplot(alpha=0.2)+
+  geom_jitter(alpha=0.2,width = 0.3, aes(colour=Location))+
+  labs(x=" Sowing Month", y="   oCd       Days ")+
+  #facet_wrap(~Country)
+  #geom_point(shape=21) +
+# theme(legend.position="none")+
   facet_grid(Variable~Country, scales = "free")
 ```
 
 
 
+
+```{r, fig.height=5, fig.width=10}
+df_Rea4  %>% 
+  tidyr::gather("Variable", "Value",DaysToFlower,TTFloAdj) %>%
+  filter(Treatcultivar=="MtBarker")%>%
+  mutate(Month=format(as.Date(ymd(SowingDate)),"%b")) %>%
+  ggplot(aes(x=reorder(Month,month(SowingDate)), y= Value, colour=Location)) +
+  labs(x=" Sowing Month", y="   oCd      Days  ")+
+  geom_boxplot(alpha=0.2)+
+  geom_jitter(alpha=0.2,width = 0.3, aes(colour=Location))+
+  labs(x=" Sowing Month", y="Days to flower")+
+  
+  #facet_wrap(~Country)
+  #geom_point(shape=21) +
+# theme(legend.position="none")+
+  facet_grid(Variable~Country, scales = "free")
+
+```
 
 
 

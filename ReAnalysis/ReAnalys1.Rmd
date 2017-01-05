@@ -13,7 +13,7 @@ library (ggplot2)
 library(agricolae)
 library(knitr)
 library (lubridate)
-
+library(scales)
 ```
 Here loading the database : publication, location and dates of experiments 
 
@@ -66,16 +66,32 @@ theme(axis.text.x = element_text(angle = 90, hjust = 1))+
 ```
 
 
-```{r}
-df_Data %>%
+```{r, }
+
+
+  df_Data%>%
   ggplot(aes(x=month(SowingDate),y=DaysToFlower,colour=Location, shape=Country))+
-  
   geom_jitter(width = 0.2)+
   geom_point(alpha=0.2)+
-#theme(axis.text.x = element_text(angle = 90, hjust = 1))+
+  theme(axis.text.x = element_text(angle = 90, hjust = 1))+
+  
   facet_wrap(~Country)
 ```
 
+
+```{r, fig.height=5, fig.width=10,warning=FALSE}
+
+df_Data%>% 
+  ggplot(aes(x=month(SowingDate), y=DaysToFlower))+
+  geom_boxplot()+
+  geom_jitter(width = 0.1, aes(colour=Location))+
+  theme(axis.text.x = element_text(angle = 90, hjust = 1))+
+  #theme(legend.position="none")+
+  labs(x=" Month", y="Days to flower")+
+  facet_wrap(~Country)
+
+
+```
 
 
 Graph Box Plot 
@@ -94,6 +110,24 @@ df_Data %>%
   
 
 ```
+
+
+```{r}
+# Graph DAS and Location by month 
+
+df_Data %>%
+  filter(Location != "Canberra"& Location != "Lismore"& Location != "Perth") %>%
+  ggplot(aes(x=month.(SowingDate), y=DaysToFlower))+
+  geom_boxplot(alpha=0.2)+
+  geom_jitter(width = 0.1, aes(colour=Location))+
+  theme(axis.text.x = element_text(angle = 90, hjust = 1))+
+  
+  #theme(legend.position="none")+
+  xlab("Month")+ ylab (expression(paste("PM(",mu, "g/", m^3,")", sep=""))) +
+     scale_x_discrete(labels=month.abb) +
+  facet_wrap(~Country)
+```
+
 
 
 ```{r}
