@@ -22,37 +22,37 @@ library (lubridate)
 ```{r loadFile}
 
 setwd("C:\\Users\\EdCarmen\\Documents\\CarmenProjects2016\\GitSubclover")
+
 getwd()
 
 #create file
 df_flower <- read.table("F_Flower_SB_PhenologyData.txt",header=TRUE)
 
-head(df_flower)
-
-summary(df_flower)
-
 colnames(df_flower)[1] <- "Cultivar" # fix bug of extra characters in name
+
 # convert to date format
 df_flower <- df_flower %>%
 mutate(Date=dmy(Date),SowingD=dmy(SowingD), 
        Percent=(S1+S2+S3+S4+S5)/5*100)
+
 str(df_flower)
 head(df_flower)
-summary(df_flower)
 tail(df_flower)
+```
+
+```{r}
+summary(df_flower)
 ```
 
 Analysis of sowing date and cultivars for Bud considering Date 
 
 ```{r GraphBoxPlotBud}
 
-head(df_flower)
  df_flower %>%
   group_by(DAS,Date, Cultivar,SowTreat,Variable)%>%
   summarise_each(funs(mean)) %>%
   select(Variable,Percent, Cultivar,Date,SowTreat)%>%
   filter(Variable == "Bud") %>%
-   
   ggplot(aes(x=DAS, y=Percent)) + 
   geom_line(aes(colour=Cultivar)) +
   facet_grid(SowTreat~Cultivar, scales = "free")+
@@ -62,12 +62,9 @@ head(df_flower)
 
 ```
 
-
-
-
 Analysis of Sowing dates and variables (from bud to bur4) considering DAS 
 
-```{r GraphSowingDateAndVariable}
+```{r GraphSowingDateAndVariable,fig.width=10}
 
 df_flower %>%
   #filter(SowTreat != "S6" & SowTreat != "S7")%>%
@@ -82,11 +79,8 @@ df_flower %>%
   #geom_bar(shape=1, stat="identity")
   geom_line(aes(colour=Cultivar)) +
   facet_grid(SowTreat~Variable, scales = "free") +
-  geom_abline(intercept = 50, slope = 0)+
-  
-theme(axis.text.x = element_text(angle = 90, hjust = 1))
-
-
+  geom_abline(intercept = 50, slope = 0) +
+ theme(axis.text.x = element_text(angle = 90, hjust = 1))
 
 ```
 
@@ -108,58 +102,50 @@ NZ	Iversen2_2015	30/06/2015	181	18.50	1.30	9.90	10.05867507
 #Temperatures from 24 June to 29 June included from Broadfield Niwa in excel Datalogger folder  Thermal Sum is created  in the the Thermal time project_TTCalc (R script_file) 
  
 df_TTSum <- read.table("df_CumTTiv.txt",header=TRUE)
-summary(df_TTSum)
-tail(df_TTSum)
-
-# convert to date format
-df_TTSum <- df_TTSum %>%
-mutate(Date=ymd(Date))
 
 # remove extra columns
 df_TTSum <- df_TTSum %>%
-dplyr::select(-TTday_s)%>%
-dplyr::select(-diff)
+dplyr::select(Date,SumTTday) %>%
+  mutate(Date = ymd(Date))
+ 
 #check
 head(df_TTSum)
-# summary(df_TTSum  )
-# names(df_TTSum)
-# str(df_TTSum$Date)
-# tail(df_TTSum)
 
 ```
 
+```{r}
+summary(df_TTSum)
+```
 
 Merge dfs TTSum at Measurement and Sowing Date into Flowering df
 ```{r}
 
 # Add Tt at measurement date
-df_flower <- merge(df_flower,df_TTSum,by="Date")
-head(df_flower)
+df_flower <- merge(df_flower,df_TTSum, by="Date")
 
-
+summary(df_flower)
 ```
 
 
 ```{r}
 
 
-# change name TTday to TT at measurement
+# change name SumTTday to TT at measurement
 df_flower <- df_flower %>%
-rename(TT_meas = TTday)
+rename(TT_meas = SumTTday)
 head(df_flower)
 
 # Add Tt at sowing date
 df_TTSum_mod <- df_TTSum %>%
   mutate (SowingD = Date) %>%
   dplyr::select (-Date)
-
-
+  
 
 df_flower <- merge(df_flower,df_TTSum_mod, by = "SowingD")
 
 # change name TT to TT at measurement
 df_flower <- df_flower %>%
-rename(TT_sow = TTday)
+rename(TT_sow = SumTTday)
 head(df_flower)
 
 #check
@@ -202,27 +188,30 @@ Include Photoperiod at sowing date in main df
 ```{r mergePhotoperiod}
 
 # #create file
-# df_Photo <- read.table("Photoperiod.txt",header=TRUE)
-# 
-# # convert to date format
-# df_Photo <- df_Photo %>%
-# mutate(Date=dmy(Date))
-# head(df_Photo)
-# 
-# # rename date column for merge
-# df_Photo <- df_Photo %>%
-# rename(SowingD = Date)
-# head(df_Photo)
-# 
-# #Add Pp to df_flower (merge by SowinD)
-# df_flower <- merge(df_flower,df_Photo,by="SowingD")
-# head(df_flower)
-# summary(df_flower)
-# 
+df_Photo <- read.table("Photoperiod.txt",header=TRUE)
+
+# convert to date format
+df_Photo <- df_Photo %>%
+mutate(Date=dmy(Date))
+head(df_Photo)
+
+# rename date column for merge
+df_Photo <- df_Photo %>%
+rename(SowingD = Date)
+head(df_Photo)
+
+#Add Pp to df_flower (merge by SowinD)
+df_flower <- merge(df_flower,df_Photo,by="SowingD")
+head(df_flower)
+summary(df_flower)
+
+
 # # change name PP to PP at sowing date
 df_flower <- df_flower %>%
-rename(Pp_sow = Pp.y)
+rename(Pp_sow = Pp)
 head(df_flower)
+
+
 
 ```
 
@@ -253,7 +242,6 @@ theme(axis.text.x = element_text(angle = 60, hjust = 1))+
 summary(df_flower)
 
 
-
 #by variable 
 df_flower %>%
   mutate(Variable = 
@@ -276,18 +264,12 @@ write.table(df_flower, "df_flower.txt")
 
 #Graph only Bud and Bur 4 
 
-
-
-
-
-
 ```
 
 
 Derrick's graph
 
 ```{r GraphDerrick}
-
 
 #by variable 
 df_flower %>%
@@ -305,8 +287,6 @@ df_flower %>%
   facet_grid(SowTreat~Variable, scales = "free") +
   geom_abline(intercept = 50, slope = 0)+
 theme(axis.text.x = element_text(angle = 60, hjust = 1))
-
-
 
 ```
 
