@@ -179,8 +179,9 @@ summary(df_tt_50p_flow)
 
 
 
-```{r Calculate DAys from bud to bur phases }
+```{r,  warning =FALSE }
 
+#CalculateDAys from bud to bur phases,
 df_tt_50p_flow %>%
   dplyr::select(-TT50F)  %>%
   tidyr::spread(Variable,DAS50F) %>%
@@ -222,7 +223,7 @@ theme(axis.text.x = element_text(angle = 60, hjust = 1))
 
 
 
-Now take the dataframe with 50 to flower and combine with photoperiod 
+Now take the dataframe with 50 to flower and combine with photoperiod at sowing 
 
 ```{r}
 

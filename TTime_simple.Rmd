@@ -24,7 +24,7 @@ df_file <- read.table("HistoricMeanTemp.txt", header=TRUE)
 
 head(df_file)
 
-#keep this scirpt for the real weather data
+#keep this script for the real weather data
 
 #df_Airjune <- read.table("MeanAirTMidJune.txt",header=TRUE)
 #head(df_Airjune)
