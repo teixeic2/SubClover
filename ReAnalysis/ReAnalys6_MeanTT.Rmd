@@ -1,0 +1,160 @@
+---
+title: "ReAnalysis Table"
+author: "CT"
+date: "Thursday, December  05, 2016"
+output: html_document
+note: Re analysis data and weather files : merge and graph Daysto flower vs Mean Temperature .
+---
+
+```{r loadLibraries}
+library(tidyr)
+library (dplyr)
+library (ggplot2)
+library(agricolae)
+library(knitr)
+library (lubridate)
+
+```
+ 
+
+
+```{r   loadFile}
+setwd("C:\\Users\\EdCarmen\\Documents\\CarmenProjects2016\\GitSubclover\\ReAnalysis")
+getwd()
+
+
+#get dataframe created in ReAnalysis1
+df_Data <- read.table("df_Data.txt",header=TRUE)
+
+
+#head(df_Data)
+
+summary(df_Data)
+
+```
+
+```{r}
+df_CumTT <- read.table("df_CumTT.txt",header=TRUE)
+
+summary (df_CumTT)
+
+```
+
+```{r}
+df_CumTT3 <- df_CumTT %>%
+  select(LocationYear, Date,  Tx,Tm, Pp)
+
+
+  
+df_4 <-df_CumTT3 %>%
+  mutate(Tmean=(Tx+Tm)/2)
+
+summary (df_4)
+```
+
+```{r  jointwodataframes, warning=FALSE}}
+#
+
+df_MeanT <- merge(df_Data, df_4,by.x=c("LocationYear","SowingDate"), by.y=c("LocationYear","Date"))
+
+summary(df_MeanT)
+
+```
+
+
+```{r}
+#Create Tmean at Sow
+df_MeanT1  <- df_MeanT %>%
+mutate(TMeanSow=(Tmean)) %>%
+dplyr::select(-Tmean)
+summary(df_MeanT1)
+```
+
+```{r}
+#Create Tmean at Flowering
+
+df_4.1 <- df_4%>%
+dplyr::select(LocationYear,Tmean,Date)
+
+df_MeanTFlo <- merge(df_MeanT1, df_4.1,by.x=c("LocationYear","StartFlowering"), by.y=c("LocationYear","Date"))
+
+summary(df_MeanTFlo)
+
+
+df_MeanTFlo1 <- df_MeanTFlo %>%
+mutate(TMeanFlow=(Tmean)) %>%
+dplyr::select(-Tmean)
+summary(df_MeanTFlo1)
+```
+
+
+```{r}
+
+#Now Subtract TMeanFlow Tmean sow and find Tmean experiment 
+
+df_MeanTFlo2 <- df_MeanTFlo1 %>%
+mutate(TmeanSowFlow=(TMeanFlow+TMeanSow)/2)
+
+summary(df_MeanTFlo2)
+
+# write.table(df_MeanTFlo2, "df_MeanTFlo2.txt")
+
+```
+
+
+```{r,fig.height=5, fig.width=10,warning=FALSE}
+
+df_MeanTFlo2 %>%
+  ggplot(aes(x=TmeanSowFlow,y=DaysToFlower))+
+  geom_point(aes(colour=Location, linetype=Country)) +
+  facet_wrap(~LocationYear,scale="free") +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1)) +
+  labs(x=" Mean Air Temperature (oC)", y="Days to flower")
+  #xlim(0,300)+
+  #ylim(0,5000)
+
+
+```
+
+
+```{r}
+#GRaph Mean T vs. Days to flower 
+
+
+# df_MeanT  %>% 
+# ggplot(aes(x=Tmean, y= DaysToFlower)) +
+#     geom_point(shape=21,alpha=0.2)+
+#   facet_wrap(~Country,scale="free")
+
+
+df_MeanTFlo2%>% 
+  ggplot(aes(x=TmeanSowFlow, y=DaysToFlower))+
+  geom_boxplot()+
+  geom_jitter(width = 0.1, aes(colour=Location))+
+  #theme(axis.text.x = element_text(angle = 90, hjust = 1))+
+  #theme(legend.position="none")+
+  labs(x=" Mean Temperature", y="Days to flower")+
+  xlim(0,30)+
+  #ylim(0,5000)
+  facet_wrap(~Country)
+  
+
+```
+
+
+```{r, fig.height=5, fig.width=10,warning=FALSE}
+#Create TTsum at flowering
+
+df_MeanTFlo2 %>%
+  #filter(Treatcultivar=="MtBarker") %>%
+  ggplot(aes(x=(TmeanSowFlow), y=DaysToFlower))+
+  geom_boxplot(alpha=0.2)+
+  geom_jitter(width = 0.1, aes(colour=Location, shape=Country))+
+  #theme(axis.text.x = element_text(angle = 90, hjust = 1))+
+  #theme(legend.position="none")+
+   xlim(0,30)+
+  labs(x=" Mean Temperature (oC)", y="Days to flower")+
+  facet_wrap(~Country)
+
+
+```

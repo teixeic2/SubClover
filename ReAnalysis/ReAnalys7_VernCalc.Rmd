@@ -1,0 +1,220 @@
+---
+title: "ReanalysisTT"
+author: "CT"
+date: "27 December 2016"
+output: html_document; attempt to calculate vernalisation of subs 
+---
+
+```{r setup, include=FALSE, loadlibraires}
+#knitr::opts_chunk$set(echo = TRUE)
+library(tidyr)
+library (dplyr)
+library (ggplot2)
+library(agricolae)
+library(knitr)
+library (lubridate)
+
+```
+
+
+
+```{r readData}
+setwd("C:\\Users\\EdCarmen\\Documents\\CarmenProjects2016\\GitSubclover\\ReAnalysis")
+getwd()
+
+#create file
+df_We <- read.table("RawWeather.txt",header=TRUE)
+
+#head(df_We)
+
+summary(df_We)
+```
+
+
+
+```{r changeformat, echo=FALSE}
+
+df_We$Date<-dmy(df_We$Date)
+
+str(df_We)
+
+```
+
+## Graph it 
+
+```{r, fig.height=10, fig.width=10}
+
+df_We %>%
+  tidyr::gather("Variable", "Value",Tx:Pp) %>%
+  ggplot(aes(x=Date,y=Value))+
+  geom_line(aes(colour=factor(Variable))) +
+  facet_wrap(~LocationYear,scale="free") +
+  scale_color_manual(values=c("#333333", "#9999CC", "#CC3300"))+
+  theme(axis.text.x = element_text(angle = 90, hjust = 1)) 
+
+
+```
+
+## Define Tt vernalisation temperatures
+
+Considered an overall average the following references:
+Tb: - 3
+Top range:1-9
+Tmax: 12
+REFS: need to include. 
+							
+
+
+```{r}
+
+#Create Accumulated vernalize temperatures need REF! 
+
+tt_card <- data.frame(temp=c(-3,1,10,12),TT=c(0,7,7,0))
+tt_card %>%
+  ggplot(aes(x=temp, y=TT))+
+  labs(x="Temperature")+
+  labs(y="Thermal Time") +
+  ylim(0,10)+
+  geom_line()
+  
+#FIX ME include REF Thermal time 
+```
+
+```{r}
+
+#Create and test interpolation function - Test if works 
+
+temp_ref  <- 10 # x-axes reference
+temp <- tt_card$temp # x-axes
+TT <- tt_card$TT # y-axes
+
+
+int_func <- function(temp,TT,temp_ref){
+
+  # if temp is too low or too high give extreme TT values
+ if(temp_ref>temp[length(temp)]) {
+   
+   out <- TT[length(TT)] 
+   # FIXME: approx functions seems to do that - need param
+   
+ } else if (temp_ref<temp[1]) {
+   
+   out <- TT[1]
+   
+ } else {
+   
+   # else interpolate
+   
+   tryCatch(  
+   
+  out <- approx(temp, TT, xout = temp_ref, 
+         method="linear", 
+         rule = 2)$y,
+  error = function(e) 
+  {
+  out <- NA
+  }
+) 
+  
+} # end if check
+
+  return(out)  
+  
+ }
+  
+int_func(temp,TT,temp_ref)
+
+
+```
+
+```{r}
+
+#create REF Jones CA, Ritchie JT, Kiniry JR, Godwin DC (1986) Subroutine structure.In 'CERES-Maize: A simulation model of maize growth anddevelopment'. (Eds CA Jones, JR Kiniry) pp. 49-194. (Texas A&M University Press: Texas, USA
+
+TTfunc <- function(Tmin ,Tmax){         
+ 
+  if (Tmin>Tmax){
+   print("Tmin>Tmax")
+   break
+ } 
+  
+  TTav  <- 0
+  TTsum <- 0
+  
+  for(n in 1:8){ 
+    
+    tn <- 0
+    
+    TT_tn <- 0
+    
+    tn <- ((0.931 +  0.114*n - 0.0703 * n^2
+            + 0.0053 * n^3) * (Tmax-Tmin)) + 
+      Tmin # 8-h temperature
+    
+    TT_tn <- int_func(tt_card$temp, tt_card$T,tn) 
+    
+    TTsum <- TT_tn + TTsum
+    
+    print(TT_tn)
+    
+    }
+  TTav <- TTsum/8
+  
+  return(TTav)
+  }
+
+TTfunc(10,30)
+
+```
+
+```{r ReadCalcTt}
+
+df_We_vern <- df_We %>%
+  mutate(TTday=TTfunc(Tm,Tx))
+
+
+```
+
+
+
+
+
+
+
+```{r}
+
+#Calculate accumulated Themal time 
+
+df_CumTTvern <- df_We_vern %>%
+group_by(LocationYear) %>%
+arrange(Date) %>%
+mutate(SumTTday = cumsum(TTday)) %>%
+mutate(DayCount=Date-min(Date))
+
+head(df_CumTTvern)
+
+
+```
+
+```{r, fig.height=10, fig.width=10}
+#Graph Accumulated TT 
+
+df_CumTTvern %>%
+  ggplot(aes(x=DayCount,y=SumTTday))+
+  geom_line(aes(colour=LocationYear, linetype=Country)) +
+  #facet_wrap(~LocationYear,scale="free") +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1)) +
+  xlim(0,300)+
+  ylim(0,5000)
+
+```
+
+
+
+
+```{r}
+
+write.table(df_CumTT, "df_Cumvern.txt")
+
+```
+
