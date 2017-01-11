@@ -69,15 +69,15 @@ REFS: need to include.
 
 #Create Accumulated vernalize temperatures need REF! 
 
-tt_card <- data.frame(temp=c(-3,1,10,12),TT=c(0,7,7,0))
+tt_card <- data.frame(temp=c(-3,1,10,12,25),TT=c(0,1,1,0,0))
 tt_card %>%
   ggplot(aes(x=temp, y=TT))+
   labs(x="Temperature")+
-  labs(y="Thermal Time") +
-  ylim(0,10)+
+  labs(y="Vernalization d") +
+ # ylim(0,max(tt_card$TT))
   geom_line()
   
-#FIX ME include REF Thermal time 
+#Daily increment of vernalization-days based on daily average temperature. Each daily average temperature will accumulate between 0 and 1 vernalization-days dependent on the effectiveness of the temperature on vernalization response. See text for explanation of conditions of de-vernalization when daily average temperatures are >25 °C 
 ```
 
 ```{r}
@@ -170,7 +170,7 @@ TTfunc(10,30)
 ```{r ReadCalcTt}
 
 df_We_vern <- df_We %>%
-  mutate(TTday=TTfunc(Tm,Tx))
+  mutate(VernDay=TTfunc(Tm,Tx))
 
 
 ```
@@ -183,16 +183,16 @@ df_We_vern <- df_We %>%
 
 ```{r}
 
-#Calculate accumulated Themal time 
+#Calculate accumulated Vern day
 
 df_CumTTvern <- df_We_vern %>%
 group_by(LocationYear) %>%
 arrange(Date) %>%
-mutate(SumTTday = cumsum(TTday)) %>%
+mutate(SumVernDay = cumsum(VernDay)) %>%
 mutate(DayCount=Date-min(Date))
 
 head(df_CumTTvern)
-
+summary(df_CumTTvern)
 
 ```
 
@@ -200,12 +200,12 @@ head(df_CumTTvern)
 #Graph Accumulated TT 
 
 df_CumTTvern %>%
-  ggplot(aes(x=DayCount,y=SumTTday))+
-  geom_line(aes(colour=LocationYear, linetype=Country)) +
+  ggplot(aes(x=DayCount,y=SumVernDay))+
+  geom_line(aes(colour=LocationYear, linetype=Country)) 
   #facet_wrap(~LocationYear,scale="free") +
-  theme(axis.text.x = element_text(angle = 90, hjust = 1)) +
-  xlim(0,300)+
-  ylim(0,5000)
+  # theme(axis.text.x = element_text(angle = 90, hjust = 1)) 
+  # xlim(0,300)+
+  # ylim(0,5000)
 
 ```
 
@@ -214,7 +214,7 @@ df_CumTTvern %>%
 
 ```{r}
 
-write.table(df_CumTT, "df_Cumvern.txt")
+write.table(df_CumTT, "df_CumVern.txt")
 
 ```
 
