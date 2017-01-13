@@ -98,48 +98,49 @@ head(df_y)
 #Graph2 Bars         
   #Graph         
   df_y %>%  group_by(Cultivar, Sowtreat, DAS) %>%
-    ggplot(aes(x=SowingDate, y=DWSubcloverkgha)) + 
+  summarise_each(funs(mean)) %>%
+  ggplot(aes(x=SowingDate, y=DWSubcloverkgha)) + 
   geom_bar(stat = "identity")+
-  #geom_point(alpha=0.2)+
+  
   facet_wrap(~Cultivar,ncol=3, scales = "free")+
-  theme(axis.text.x = element_text(angle = 90, hjust = 1))+
-  theme_bw()+
-  labs(y="yield clover",x="Sowing date") 
-
+    theme_bw()+
+  labs(y="yield clover",x="Sowing date") +
+theme(axis.text.x = element_text(angle = 90, hjust = 1))+
+  ylim(0,22000)
    
   #+geom_abline(intercept = 50, slope = 0)
 ```
 
-Merge the dataframes 
+Add Error bars  
 
 ```{r}
 
-# Merge Tt at measurement date
-df_emerg_perc_TT <- NULL
-df_emerg_perc_TT <- merge(df_emerg_perc,df_SoilTT,by.x="ReadingDate",by.y="Date")
-df_emerg_perc_TT <- merge(df_emerg_perc_TT,df_SoilTT,by.x="SowingDate",by.y="Date")
-df_emerg_perc_TT$TT_to_emerg <- df_emerg_perc_TT$TT.x-df_emerg_perc_TT$TT.y
-summary(df_emerg_perc_TT)
+#graph bar
+df_y %>%
+  group_by(Cultivar, Sowtreat,SowingDate) %>%
+  summarise_each(funs(mean,sd)) %>%
+  # mutate(colPal = ifelse(Cultivar=="Antas","Brachy",ifelse(Cultivar=="Monti","Brachy","Yanny"))) %>%
+  ggplot(aes(x=SowingDate, y=(DWSubcloverkgha_mean))) +
+  geom_bar(stat="identity") +
+  geom_errorbar(aes(ymin=DWSubcloverkgha_mean-DWSubcloverkgha_sd/2, ymax=DWSubcloverkgha_mean+DWSubcloverkgha_sd/2),
+                width=0.25, size=0.3)   +
+  theme_grey(base_size = 16) +
+  facet_wrap(~Cultivar,ncol=3, scales = "free")+
+    theme_bw()+
+ labs(y="DM clover yield (kg/ha)") +
+ theme(axis.text.x=element_text(angle = +89, hjust = 0.95))+
+  ylim(0,22000)
 
-#save as table 
-write.table(df_emerg_perc_TT, "df_emerg_perc_soilTT.txt")
-head(df_emerg_perc_TT )
 
-# graph emerg x tt
-df_emerg_perc_TT %>%
-  group_by(Cultivar, SowTreat, TT_to_emerg) %>%
-  #dplyr::select(-SowingDate, - ReadingDate) %>%
-#  filter(Cultivar =="Narrikup") %>%
-  summarise_each(funs(mean)) %>%
-  ggplot(aes(x=TT_to_emerg, y=PercEmerg,colour=Cultivar)) + 
-  geom_point() +
-  geom_line() +
-  #facet_grid (Cultivar~., scales = "free")+
-  geom_abline(intercept = 50, slope = 0) +
-  facet_wrap (~SowTreat,ncol=4, scales = "free")+
-  theme_bw() +
-  xlab("Thermal-time from sowing") +
-  ylab("Percentage emergence")
 
 
 ```
+
+
+```{r}
+#STats 
+
+
+```
+
+
