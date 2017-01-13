@@ -1,0 +1,155 @@
+---
+title: "ReAnalysis Table"
+author: "CT"
+date: "Thursday, December  05, 2016"
+output: html_document
+note: Re analysis data and weather files : sum Vernalization .
+---
+
+```{r loadLibraries}
+library(tidyr)
+library (dplyr)
+library (ggplot2)
+library(agricolae)
+library(knitr)
+library (lubridate)
+
+```
+ 
+
+
+```{r   loadFile}
+setwd("C:\\Users\\EdCarmen\\Documents\\CarmenProjects2016\\GitSubclover\\ReAnalysis")
+getwd()
+
+
+#get dataframe created in ReAnalysis1
+df_Data <- read.table("df_Data.txt",header=TRUE)
+
+
+#head(df_Data)
+
+summary(df_Data)
+
+```
+
+```{r}
+df_CumTTvern <- read.table("df_CumVern.txt",header=TRUE)
+
+summary (df_CumTTvern)
+
+```
+
+```{r}
+df_CumTTvern2 <- df_CumTTvern %>%
+  select(LocationYear, Date, SumVernDay,Pp)
+
+  summary (df_CumTTvern2)
+```
+
+```{r  jointwodataframes, warning=FALSE}}
+#
+
+df_Ver <- merge(df_Data, df_CumTTvern2,by.x=c("LocationYear","SowingDate"), by.y=c("LocationYear","Date"))
+
+summary(df_Ver)
+
+```
+
+```{r}
+#Create Vernalisation at Sow
+df_Ver1 <- df_Ver %>%
+mutate(VerSumSow=(SumVernDay)) %>%
+dplyr::select(-SumVernDay)
+summary(df_Ver1)
+
+```
+
+
+```{r}
+#Create TTsum at flowering
+
+df_Ver2 <- df_CumTTvern %>%
+dplyr::select(LocationYear,SumVernDay,Date)
+
+df_Ver3 <- merge(df_Ver1, df_Ver2,by.x=c("LocationYear","StartFlowering"), by.y=c("LocationYear","Date"))
+
+summary(df_Ver3)
+```
+
+
+```{r}
+#Create VErn sum at flowering 
+df_Ver4 <- df_Ver3 %>%
+mutate(VernSumFlower=(SumVernDay)) %>%
+dplyr::select(-SumVernDay) %>%
+mutate(VerntoFlower=VernSumFlower-VerSumSow)
+
+summary(df_Ver4)
+
+
+
+```
+
+```{r, fig.height=5 , fig.width= 10}
+#Graph it to  check 
+
+df_Ver4 %>%
+  #filter(Treatcultivar=="MtBarker") %>%
+  ggplot(aes(x=Location, y=DaysToFlower))+
+  geom_boxplot(alpha=0.2)+
+  geom_jitter(width = 0.1, aes(colour=Location))+
+  theme(axis.text.x = element_text(angle = 90, hjust = 1))+
+  #theme(legend.position="none")+
+  labs(x=" Month", y="Days to flower")+
+  facet_wrap(~Country)
+  
+
+```
+
+
+
+```{r}
+# 
+# df_Ver4 %>%
+#   mutate(Month=format(as.Date(ymd(SowingDate)),"%b")) %>%
+#   ggplot(aes(x=reorder(Month,month(SowingDate)), y=DaysToFlower)) +
+#   geom_boxplot(alpha=0.2)+
+#   geom_jitter(alpha=0.2,width = 0.3, aes(colour=Location))+
+#   labs(x=" Sowing Month", y="Days to flower")+
+#   facet_wrap(~Country)
+```
+
+
+
+```{r , fig.height=5 , fig.width= 10}
+#Subset of DeatetAl (Waggaw1985 to normalise flowering 50% )
+
+df_Ver4 %>%
+  mutate(Month=format(as.Date(ymd(SowingDate)),"%b")) %>%
+  ggplot(aes(x=reorder(Month,month(SowingDate)), y= VerntoFlower, colour=Treatcultivar)) +
+  geom_point(shape=21) +
+  geom_point(aes(size = factor(VerntoFlower)))+
+  labs(x=" Sowing Month", y="   Vernalization  Days  ")+
+  
+  #geom_line()+
+  #geom_smooth(method ="lm",se=FALSE)+
+  theme(legend.position="none") +
+  facet_grid(.~Country, scales = "free")
+#write loop to calculate slope of individual cultivars 
+
+
+
+```
+
+```{r}
+
+#take temp to script 5
+df_tempVern <- df_Ver4%>%
+  dplyr::select(AuthorYear, Location, Treatcultivar,VerntoFlower)
+
+write.table(df_tempVern, "df_tempVern.txt")
+
+
+```
+

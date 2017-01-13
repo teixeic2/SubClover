@@ -2,7 +2,10 @@
 title: "Emergence seedlings I2"
 author: "CT"
 date: "Thursday, December 31, 2015"
-output: html_document
+output:
+  pdf_document: default
+  html_document: default
+  word_document: default
 ---
 
 Purpose:
@@ -47,19 +50,34 @@ tail(df_emerg)
 
 df_emerg %>% filter(Plot ==1) %>% summary()
 
+
+```
+
+```{r, fig.height= 5, fig.width= 10}
+# Graph it 
+
+
 #Graph         
   df_emerg %>%  group_by(Cultivar, SowTreat, DAS) %>%
-#  filter(Cultivar =="Monti") %>%
+  #filter(SowTreat =="S2"& SowTreat =="S4")%>%
   #dplyr::select(-SowingDate, - ReadingDate) %>%
   summarise_each(funs(mean)) %>%
   ggplot(aes(x=DAS, y=PlantPop)) + 
-  geom_point(aes(colour=Cultivar)) +
+  geom_point(aes(colour=Cultivar,shape=Cultivar)) +
   geom_line(aes(colour=Cultivar)) +
-  facet_wrap (~SowTreat,ncol=4, scales = "free")+
+  #add error bar
+  geom_errorbar(aes(x=20,ymin=200,ymax=300,width=0.2))+
+  facet_wrap(~SowTreat,ncol=4, scales = "free")+
+  theme_bw()+
   labs(y="Number of seedlings per m2",x="Days after sowing") 
   #+geom_abline(intercept = 50, slope = 0)
 
+
+
 ```
+
+
+
 
 
 ```{r CalculatePercentageEmergence }
@@ -85,6 +103,7 @@ df_emerg_perc %>%  filter(Plot=="2")
   ggplot(aes(x=DAS, y=PercEmerg)) + 
   geom_point(aes(colour=Cultivar)) +
   geom_line(aes(colour=Cultivar)) +
+    theme_bw()+
   facet_wrap (~SowTreat,ncol=4, scales = "free")+
   labs(y="Percentage  of Seedling emergence",x="Days after sowing") +
   geom_abline(intercept = 50, slope = 0)
@@ -206,7 +225,7 @@ df_SoilTT <- as.data.frame(df_SoilTT) %>%
 
 # check
 head(df_SoilTT)
-
+summary (df_SoilTT)
 
 ```
 
@@ -237,6 +256,7 @@ df_emerg_perc_TT %>%
   #facet_grid (Cultivar~., scales = "free")+
   geom_abline(intercept = 50, slope = 0) +
   facet_wrap (~SowTreat,ncol=4, scales = "free")+
+  theme_bw() +
   xlab("Thermal-time from sowing") +
   ylab("Percentage emergence")
 

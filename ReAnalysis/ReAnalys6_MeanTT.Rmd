@@ -108,7 +108,7 @@ df_MeanTFlo2 %>%
   ggplot(aes(x=TmeanSowFlow,y=DaysToFlower))+
   geom_point(aes(colour=Location, linetype=Country)) +
   facet_wrap(~LocationYear,scale="free") +
-  theme(axis.text.x = element_text(angle = 90, hjust = 1)) +
+  #theme(axis.text.x = element_text(angle = 90, hjust = 1)) +
   labs(x=" Mean Air Temperature (oC)", y="Days to flower")
   #xlim(0,300)+
   #ylim(0,5000)

@@ -1,0 +1,145 @@
+---
+title: "Dry matter I2"
+author: "CT"
+date: " December 31, 2016"
+output:
+  pdf_document: default
+  html_document: default
+  word_document: default
+---
+
+Purpose:
+
+-DM yield of selected sowing dates (S2, 4, 6 and 8) 
+
+
+
+```{r loadLibraries}
+library(tidyr)
+library (dplyr)
+library (ggplot2)
+library(agricolae)
+library(knitr)
+library (lubridate)
+library(mosaic)
+library(lattice)
+```
+
+
+```{r loadFile}
+setwd("C:\\Users\\EdCarmen\\Documents\\CarmenProjects2016\\GitSubclover\\DMYield")
+getwd()
+
+#create file
+df_y <- read.table("DMYield.txt",header=TRUE)
+
+# define factors for the ones that "look like" values
+df_y$Plot <- as.factor(df_y$Plot)
+df_y$Block <- as.factor(df_y$Block)
+
+ df_y <- df_y %>%
+  mutate(SowingDate = dmy(SowingDate), 
+         Date = dmy(Date))
+
+str(df_y)
+
+head(df_y)
+
+
+
+
+```
+
+```{r, fig.height= 5, fig.width= 10}
+# Graph it 
+
+
+#Graph         
+  df_y %>%  group_by(Cultivar, Sowtreat, DAS) %>%
+  #filter(SowTreat =="S2"& SowTreat =="S4")%>%
+  #dplyr::select(-SowingDate, - ReadingDate) %>%
+  summarise_each(funs(mean)) %>%
+  ggplot(aes(x=Sowtreat, y=DWSubcloverkgha)) + 
+  geom_point(aes(colour=Sowtreat)) +
+  #geom_line(aes(colour=Cultivar)) +
+  facet_wrap(~Cultivar,ncol=3, scales = "free")+
+  theme_bw()+
+  labs(y="yield clover",x="Days after sowing") 
+  #+geom_abline(intercept = 50, slope = 0)
+
+
+```
+
+
+
+
+
+```{r Yield as box plot }
+#Graph         
+  df_y %>%  group_by(Cultivar, Sowtreat, DAS) %>%
+  ggplot(aes(x=SowingDate, y=DWSubcloverkgha)) + 
+  geom_jitter(width = 0.2)+
+  geom_point(alpha=0.2)+
+  facet_wrap(~Cultivar,ncol=3, scales = "free")+
+  theme_bw()+
+  labs(y="yield clover",x="Sowing date") 
+  
+  
+  #+geom_abline(intercept = 50, slope = 0)
+
+
+
+
+```
+
+
+```{r }
+
+#Graph2 Bars         
+  #Graph         
+  df_y %>%  group_by(Cultivar, Sowtreat, DAS) %>%
+    ggplot(aes(x=SowingDate, y=DWSubcloverkgha)) + 
+  geom_bar(stat = "identity")+
+  #geom_point(alpha=0.2)+
+  facet_wrap(~Cultivar,ncol=3, scales = "free")+
+  theme(axis.text.x = element_text(angle = 90, hjust = 1))+
+  theme_bw()+
+  labs(y="yield clover",x="Sowing date") 
+
+   
+  #+geom_abline(intercept = 50, slope = 0)
+```
+
+Merge the dataframes 
+
+```{r}
+
+# Merge Tt at measurement date
+df_emerg_perc_TT <- NULL
+df_emerg_perc_TT <- merge(df_emerg_perc,df_SoilTT,by.x="ReadingDate",by.y="Date")
+df_emerg_perc_TT <- merge(df_emerg_perc_TT,df_SoilTT,by.x="SowingDate",by.y="Date")
+df_emerg_perc_TT$TT_to_emerg <- df_emerg_perc_TT$TT.x-df_emerg_perc_TT$TT.y
+summary(df_emerg_perc_TT)
+
+#save as table 
+write.table(df_emerg_perc_TT, "df_emerg_perc_soilTT.txt")
+head(df_emerg_perc_TT )
+
+# graph emerg x tt
+df_emerg_perc_TT %>%
+  group_by(Cultivar, SowTreat, TT_to_emerg) %>%
+  #dplyr::select(-SowingDate, - ReadingDate) %>%
+#  filter(Cultivar =="Narrikup") %>%
+  summarise_each(funs(mean)) %>%
+  ggplot(aes(x=TT_to_emerg, y=PercEmerg,colour=Cultivar)) + 
+  geom_point() +
+  geom_line() +
+  #facet_grid (Cultivar~., scales = "free")+
+  geom_abline(intercept = 50, slope = 0) +
+  facet_wrap (~SowTreat,ncol=4, scales = "free")+
+  theme_bw() +
+  xlab("Thermal-time from sowing") +
+  ylab("Percentage emergence")
+
+
+```

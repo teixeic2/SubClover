@@ -270,7 +270,8 @@ for(i in 1:length(cvGroup)){
       s <- slope(o)$Pp[,1]    
       interc <- intercept(o)
     
-      r2 <- round(summary.segmented(o)$adj.r.squared*100,digits=5)
+    #  r2 <- round(summary.segmented(o)$adj.r.squared*100,digits=5)
+      r2 <- round(summary.segmented(o)$r.squared*100,digits=5)
       slope1 <- round(s[1], digits = 4)
       slope2 <- round(s[2], digits = 4)
       pVs1 <- summary.segmented(o)$coefficients[14]#pvalue slope1
@@ -309,10 +310,17 @@ df_all %>%
    geom_point() 
 ```
 
+```{r}
+
+summary(df_Rea6)
+#need to write a table for script 8 - vernalization
+write.table(df_Rea6, "df_Rea6.txt")
+```
+
 
 ```{r , warning = FALSE}
 
-# find highrest r2
+# find highest r2
 
 #graph PPat 1000TTjuv 
 df_opt <- df_all %>%
@@ -341,7 +349,7 @@ ggg <- c("Late","Early")
     # stat_smooth(method = "lm", formula = y ~ x + I(x^2), size = 1) + 
      stat_smooth(method = "lm", formula = y ~ poly(x, 2), size = 1)+
      geom_abline(intercept = ifelse(df_Rea6$SensGroup=="Late",900,700), slope=0,linetype=2)+
-     geom_vline(xintercept = 13, linetype=2)+
+     geom_vline(xintercept = 14, linetype=2)+
      labs(x="Photoperiod at inductive phase (hours)", y="Thermal Time to flower (degree days)")+
      facet_wrap(~SensGroup)
 
@@ -354,6 +362,85 @@ ggg <- c("Late","Early")
 
 # loop acros multiple TT extras
 # select best stats or simply store all (better I think) and test in next chunck
+
+```
+
+
+Now bring data vernalization from Reanalysis 8
+
+
+```{r}
+
+#from Vernalization calc
+df_tempVern <- read.table("df_tempVern.txt",header=TRUE)
+
+summary(df_tempVern)
+
+
+
+
+```
+
+```{r}
+#merge with df_Rea6
+
+df_ReaVerna <- merge(df_Rea6, df_tempVern,by=c("AuthorYear","Location","Treatcultivar","SowingDate"))
+
+str(df_ReaVerna)
+
+summary(df_ReaVerna)
+df_ReaVern <-df_ReaVerna %>%
+  mutate(SensGroup=(SensGroup.y)) %>%
+ dplyr::select(-SensGroup.x)
+
+summary(df_ReaVern)
+
+```
+
+
+
+```{r, fig.height=5, fig.width= 10}
+
+# find highrest r2
+
+#graph PPat 1000TTjuv 
+df_opt <- df_all %>%
+group_by(CvGroup) %>%
+filter(r2==max(as.numeric(as.character(r2))))
+
+#tt_extra_opt <- 700
+
+ggg <- c("Late","Early")
+
+# for(gg in 1:length(ggg)) {
+# for(tte in 1:length(tt_extra_opt)) {
+  
+   h <- df_ReaVern %>%
+     rowwise() %>%
+    #dplyr::filter(SensGroup == ggg[gg]) %>%
+    filter(Variable == "TTFloAdj") %>%
+     mutate(tt_extra_opt=as.numeric(ifelse(SensGroup=="Late",900,700)))%>%
+     mutate(TT_target = TTSumSow + tt_extra_opt) %>% #define multiple thermal time after sowing for which photoperiod needs to be retrieved 
+    mutate(Pp_target = Pp_finder_func(as.character(LocationYear),TT_target)) %>%
+    mutate(tt_juv_toflower=Value-tt_extra_opt)
+    
+     h %>%
+     ggplot(aes(x=Pp_target,y=Value)) +
+     #ggplot(aes(x=Pp_target,y=tt_juv_toflower)) + #test Pp versus the TTdiferential form Juvenile to flower
+     geom_point(aes(shape=factor(SeasonYear), 
+                    size=as.numeric(VerntoFlower)
+                  #  size=reorder(Month, month(SowingDate))
+                  )) +
+    # stat_smooth(method = "lm", formula = y ~ x + I(x^2), size = 1) + 
+     stat_smooth(method = "lm", formula = y ~ poly(x, 2), size = 1)+
+     geom_abline(intercept = ifelse(df_Rea6$SensGroup=="Late",900,700), slope=0,linetype=2)+
+     geom_vline(xintercept = 14, linetype=2)+
+     labs(x="Photoperiod at inductive phase (hours)", y="Thermal Time to flower (degree days)")+
+     facet_grid(.~SensGroup)
+
+   print(h)
+  
+
 
 ```
 

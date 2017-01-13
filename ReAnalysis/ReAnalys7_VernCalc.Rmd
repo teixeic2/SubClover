@@ -214,7 +214,7 @@ df_CumTTvern %>%
 
 ```{r}
 
-write.table(df_CumTT, "df_CumVern.txt")
+write.table(df_CumTTvern, "df_CumVern.txt")
 
 ```
 
