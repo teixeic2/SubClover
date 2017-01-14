@@ -115,21 +115,27 @@ Add Error bars
 
 ```{r}
 
-#graph bar
-df_y %>%
+#graph bar yield t /ha
+df_k <-df_y %>%
+  
+  mutate(DMClovertha=DWSubcloverkgha/1000)
+
+summary(df_k)
+
+df_k %>%
   group_by(Cultivar, Sowtreat,SowingDate) %>%
   summarise_each(funs(mean,sd)) %>%
   # mutate(colPal = ifelse(Cultivar=="Antas","Brachy",ifelse(Cultivar=="Monti","Brachy","Yanny"))) %>%
-  ggplot(aes(x=SowingDate, y=(DWSubcloverkgha_mean))) +
+  ggplot(aes(x=SowingDate, y=(DMClovertha_mean))) +
   geom_bar(stat="identity") +
-  geom_errorbar(aes(ymin=DWSubcloverkgha_mean-DWSubcloverkgha_sd/2, ymax=DWSubcloverkgha_mean+DWSubcloverkgha_sd/2),
+  geom_errorbar(aes(ymin=DMClovertha_mean-DMClovertha_sd/2, ymax=DMClovertha_mean+DMClovertha_sd/2),
                 width=0.25, size=0.3)   +
   theme_grey(base_size = 16) +
   facet_wrap(~Cultivar,ncol=3, scales = "free")+
     theme_bw()+
- labs(y="DM clover yield (kg/ha)") +
+ labs(y="DM clover yield (t/ha)") +
  theme(axis.text.x=element_text(angle = +89, hjust = 0.95))+
-  ylim(0,22000)
+  ylim(0,25)
 
 
 
@@ -140,7 +146,106 @@ df_y %>%
 ```{r}
 #STats 
 
+#data transformation
+df_y$transf_no <- 1*(df_y$DWSubcloverkgha)
+df_y$transf_sqr <- sqrt(df_y$DWSubcloverkgha)
+df_y$transf_log <- log(df_y$DWSubcloverkgha)
 
+
+head(df_y)
+
+file <- df_y
+
+x <- c( "df_y$transf_no',transf_sqr", "transf_log", "df_y$transf_no")
+colsSelec <- match(x,colnames(file))
+# 
+# file %>%
+#   tidyr::gather("transformation","value",colsSelec) %>%
+#   ggplot(aes(value)) + 
+#   geom_histogram() +
+#   facet_grid(.~transformation, scales="free")
+
+head(file)
+
+#normality test
+
+shapiro.test(file$transf_no)
+
+#QQplot
+var<-file$transf_no
+qqnorm(var)
+qqline(var, col = 2)
+qqplot(var, rt(30000))
+
+#-------------------------------------------------
+
+#ANOVA DW clover t /ha 
+
+file.subset <- file 
+
+head(file.subset, 50)
+summary(file.subset)
+my.anova <- aov(transf_no ~ Cultivar*Sowtreat + Block, data = file.subset)
+---
+
+
+
+#STats t/ha
+
+#data transformation
+df_k$transf_no <- 1*(df_k$DMClovertha)
+df_k$transf_sqr <- sqrt(df_k$DMClovertha)
+df_k$transf_log <- log(df_k$DMClovertha)
+
+
+head(df_k)
+
+file <- df_k
+
+x <- c( "df_y$transf_no',transf_sqr", "transf_log")
+colsSelec <- match(x,colnames(file))
+# 
+# file %>%
+#   tidyr::gather("transformation","value",colsSelec) %>%
+#   ggplot(aes(value)) + 
+#   geom_histogram() +
+#   facet_grid(.~transformation, scales="free")
+
+head(file)
+
+#normality test
+
+shapiro.test(file$transf_no)
+
+#QQplot
+var<-file$transf_no
+qqnorm(var)
+qqline(var, col = 2)
+qqplot(var, rt(3000))
+
+#-------------------------------------------------
+# ANOVA (selecing by hand FIXME: do loop)
+# file.subset <- file %>% subset(SowTreat == "S2" & round==1)
+file.subset <- file 
+
+head(file.subset, 50)
+summary(file.subset)
+my.anova <- aov(transf_no ~ Cultivar*Sowtreat + Block, data = file.subset)
+
+summary(my.anova)
+TukeyHSD(my.anova)
+
+#Means separation 
+(LSD.test(my.anova, "Cultivar", alpha= 0.05, p.adj="none")) 
+```
+
+
+
+summary(my.anova)
+TukeyHSD(my.anova)
+
+#Means separation 
+(LSD.test(my.anova, "Cultivar", alpha= 0.05, p.adj="none")) 
 ```
 
 
