@@ -126,6 +126,7 @@ df_Ver4 %>%
 #Subset of DeatetAl (Waggaw1985 to normalise flowering 50% )
 
 df_Ver4 %>%
+  filter(LocationYear=="Launceston1987"| LocationYear=="Katanning1990"| LocationYear=="Condobolin1986"| LocationYear=="Melbourne1969" ) %>%
   mutate(Month=format(as.Date(ymd(SowingDate)),"%b")) %>%
   ggplot(aes(x=reorder(Month,month(SowingDate)), y= VerntoFlower, colour=Treatcultivar)) +
   geom_point(shape=21) +
@@ -146,7 +147,7 @@ df_Ver4 %>%
 
 #take temp to script 5
 df_tempVern <- df_Ver4%>%
-  dplyr::select(AuthorYear, Location, Treatcultivar,VerntoFlower)
+  dplyr::select(AuthorYear, Location, Treatcultivar,VerntoFlower,SowingDate)
 
 write.table(df_tempVern, "df_tempVern.txt")
 

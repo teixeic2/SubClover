@@ -25,7 +25,7 @@ setwd("C:\\Users\\EdCarmen\\Documents\\CarmenProjects2016\\GitSubclover\\ReAnaly
 
 getwd()
 
-#get dataframe created in ReAnalysis4
+#get dataframe created in ReAnalysis4 which is Rea6
 df_1 <- read.table("df_Rea6.txt",header=TRUE)
 
 df_1 <- df_1 %>%
@@ -49,27 +49,27 @@ df_Gr <- read.table("CultivarGroup.txt",header=TRUE)
 
 #now merge the two df 
 
-df_Rea6 <- merge(df_1, df_Gr,by=c("indexLocCult"))
+df_Rea7 <- merge(df_1, df_Gr,by=c("indexLocCult"))
 
-summary (df_Rea6)
+summary (df_Rea7)
 
 ```
 
 
 ```{r}
-df_Rea6 %>%
+df_Rea7 %>%
   #filter(indexLocCult=="Launceston1987_Meteora")%>%
-  
-  ggplot(aes(x=month(SowingDate), y= Value, colour=Treatcultivar)) +
+  ggplot(aes(x=month(as.Date(SowingDate)), y= Value, colour=Treatcultivar)) +
   geom_point(shape=21) +
  geom_smooth(se=FALSE)+
   #theme(legend.position="none")+
   facet_grid(Variable~., scales = "free")
+
 ```
 
 ```{r}
 
-df_Rea6 %>%
+df_Rea7 %>%
   #tidyr::gather("Variable", "Value",DaysToFlower,TTFloAdj) %>%
   mutate(Month=format(as.Date(ymd(SowingDate)),"%b")) %>%
   
@@ -91,7 +91,7 @@ Select two groups of cultivars : Late (high response) Pp sensitive response vari
 
 ```{r, warning=FALSE}
 #Check data filtering indexLocCult. See r2 generated below. 
-df_Rea6 %>%
+df_Rea7 %>%
   mutate(Month=format(as.Date(ymd(SowingDate)),"%b")) %>%
   ggplot(aes(x=reorder(Month,month(SowingDate)), y= Value, colour=SensGroup)) +
   geom_point(shape=21) +
@@ -106,7 +106,7 @@ df_Rea6 %>%
 ```{r}
 
 #Check data filtering indexLocCult. See r2 generated below. 
-df_Rea6 %>%
+df_Rea7 %>%
   filter(Variable=="TTFloAdj")%>%
   ggplot(aes(x=Pp, y= Value, colour=SensGroup)) +
   geom_point(shape=21) +
@@ -126,7 +126,7 @@ facet_wrap(~SensGroup)
 ```{r, warning=FALSE}
 
 #Check cvs 
-df_Rea6 %>%
+df_Rea7 %>%
 dplyr::filter(Treatcultivar=="Nungarin"|
          Treatcultivar=="SeatonPark"|
            Treatcultivar=="Trikkala"|
@@ -206,13 +206,13 @@ TTpercflo <- 2.6 # degree days from 5 to full (100) flowering
 #value calculated from DearEtAL1993_Reanalysis3 script
 
 # find max value of TTjuv possible per crop group
- ttJuvMax <- df_Rea6 %>%
+ ttJuvMax <- df_Rea7 %>%
    filter(Variable=="TTFloAdj") %>%
    group_by(SensGroup) %>%
   summarise(ttJuvMax = min(Value))
 
 #loop
-cvGroup <- unique(df_Rea6$SensGroup)
+cvGroup <- unique(df_Rea7$SensGroup)
 vc_temp <- vector()
 vc_all <- vector()
 
@@ -229,7 +229,7 @@ for(i in 1:length(cvGroup)){
   
   #print(s) 
   
-  df_s <- df_Rea6 %>%
+  df_s <- df_Rea7 %>%
     dplyr::filter(SensGroup == cvG) %>%
     filter(Variable=="TTFloAdj") %>%
     mutate(ttFlowZero = Value - (flowRefPerc*TTpercflo)) %>% 
@@ -311,10 +311,9 @@ df_all %>%
 ```
 
 ```{r}
-
-summary(df_Rea6)
-#need to write a table for script 8 - vernalization
-write.table(df_Rea6, "df_Rea6.txt")
+# summary(df_Rea7)
+# #need to write a table for script 8 - vernalization
+# write.table(df_Rea7, "df_Rea8.txt")
 ```
 
 
@@ -334,7 +333,7 @@ ggg <- c("Late","Early")
 # for(gg in 1:length(ggg)) {
 # for(tte in 1:length(tt_extra_opt)) {
   
-   g <- df_Rea6 %>%
+   g <- df_Rea7 %>%
      rowwise() %>%
     #dplyr::filter(SensGroup == ggg[gg]) %>%
     filter(Variable == "TTFloAdj") %>%
@@ -348,7 +347,7 @@ ggg <- c("Late","Early")
     geom_point(aes(shape=factor(SeasonYear),colour=reorder(Month, month(SowingDate)))) + 
     # stat_smooth(method = "lm", formula = y ~ x + I(x^2), size = 1) + 
      stat_smooth(method = "lm", formula = y ~ poly(x, 2), size = 1)+
-     geom_abline(intercept = ifelse(df_Rea6$SensGroup=="Late",900,700), slope=0,linetype=2)+
+     geom_abline(intercept = ifelse(df_Rea7$SensGroup=="Late",900,700), slope=0,linetype=2)+
      geom_vline(xintercept = 14, linetype=2)+
      labs(x="Photoperiod at inductive phase (hours)", y="Thermal Time to flower (degree days)")+
      facet_wrap(~SensGroup)
@@ -372,11 +371,14 @@ Now bring data vernalization from Reanalysis 8
 ```{r}
 
 #from Vernalization calc
-df_tempVern <- read.table("df_tempVern.txt",header=TRUE)
+df_temp <- read.table("df_tempVern.txt",header=TRUE)
+
+df_tempVern <- df_temp %>%
+  mutate(SowingDate = ymd(as.Date(SowingDate)))
 
 summary(df_tempVern)
 
-
+str(df_tempVern)
 
 
 ```
@@ -384,17 +386,20 @@ summary(df_tempVern)
 ```{r}
 #merge with df_Rea6
 
-df_ReaVerna <- merge(df_Rea6, df_tempVern,by=c("AuthorYear","Location","Treatcultivar","SowingDate"))
+df_Rea7$SowingDate <- ymd(as.Date(df_Rea7$SowingDate))
+df_tempVern$SowingDate <- ymd(as.Date(df_tempVern$SowingDate))
+
+
+df_ReaVerna <- merge(df_Rea7, df_tempVern, by=c("AuthorYear","Location","Treatcultivar","SowingDate"))
 
 str(df_ReaVerna)
 
+
+
+```
+
+```{r}
 summary(df_ReaVerna)
-df_ReaVern <-df_ReaVerna %>%
-  mutate(SensGroup=(SensGroup.y)) %>%
- dplyr::select(-SensGroup.x)
-
-summary(df_ReaVern)
-
 ```
 
 
@@ -415,7 +420,7 @@ ggg <- c("Late","Early")
 # for(gg in 1:length(ggg)) {
 # for(tte in 1:length(tt_extra_opt)) {
   
-   h <- df_ReaVern %>%
+   h <- df_ReaVerna %>%
      rowwise() %>%
     #dplyr::filter(SensGroup == ggg[gg]) %>%
     filter(Variable == "TTFloAdj") %>%
@@ -433,7 +438,7 @@ ggg <- c("Late","Early")
                   )) +
     # stat_smooth(method = "lm", formula = y ~ x + I(x^2), size = 1) + 
      stat_smooth(method = "lm", formula = y ~ poly(x, 2), size = 1)+
-     geom_abline(intercept = ifelse(df_Rea6$SensGroup=="Late",900,700), slope=0,linetype=2)+
+     geom_abline(intercept = ifelse(df_Rea7$SensGroup=="Late",900,700), slope=0,linetype=2)+
      geom_vline(xintercept = 14, linetype=2)+
      labs(x="Photoperiod at inductive phase (hours)", y="Thermal Time to flower (degree days)")+
      facet_grid(.~SensGroup)
