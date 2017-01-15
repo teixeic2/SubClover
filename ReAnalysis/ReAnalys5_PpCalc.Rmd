@@ -424,7 +424,7 @@ ggg <- c("Late","Early")
      rowwise() %>%
     #dplyr::filter(SensGroup == ggg[gg]) %>%
     filter(Variable == "TTFloAdj") %>%
-     mutate(tt_extra_opt=as.numeric(ifelse(SensGroup=="Late",900,700)))%>%
+     mutate(tt_extra_opt=as.numeric(ifelse(SensGroup=="Late",250,250)))%>%
      mutate(TT_target = TTSumSow + tt_extra_opt) %>% #define multiple thermal time after sowing for which photoperiod needs to be retrieved 
     mutate(Pp_target = Pp_finder_func(as.character(LocationYear),TT_target)) %>%
     mutate(tt_juv_toflower=Value-tt_extra_opt)
@@ -433,8 +433,8 @@ ggg <- c("Late","Early")
      ggplot(aes(x=Pp_target,y=Value)) +
      #ggplot(aes(x=Pp_target,y=tt_juv_toflower)) + #test Pp versus the TTdiferential form Juvenile to flower
      geom_point(aes(shape=factor(SeasonYear), 
-                    size=as.numeric(VerntoFlower)
-                  #  size=reorder(Month, month(SowingDate))
+                    size=as.numeric(VerntoFlower),
+                    colour=reorder(Month, month(SowingDate))
                   )) +
     # stat_smooth(method = "lm", formula = y ~ x + I(x^2), size = 1) + 
      stat_smooth(method = "lm", formula = y ~ poly(x, 2), size = 1)+

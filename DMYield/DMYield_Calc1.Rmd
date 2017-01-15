@@ -1,5 +1,5 @@
 ---
-title: "Dry matter I2"
+title: "Dry matter I2" 
 author: "CT"
 date: " December 31, 2016"
 output:
@@ -23,6 +23,7 @@ library(knitr)
 library (lubridate)
 library(mosaic)
 library(lattice)
+library(reshape2)
 ```
 
 
@@ -111,14 +112,17 @@ theme(axis.text.x = element_text(angle = 90, hjust = 1))+
   #+geom_abline(intercept = 50, slope = 0)
 ```
 
+
+
 Add Error bars  
 
 ```{r}
 
-#graph bar yield t /ha
+#graph bar yield t /ha 
 df_k <-df_y %>%
   
-  mutate(DMClovertha=DWSubcloverkgha/1000)
+  mutate(DMClovertha=DWSubcloverkgha/1000)%>%
+  mutate (DMWeedtha=DWWeedskgha/1000)
 
 summary(df_k)
 
@@ -135,7 +139,7 @@ df_k %>%
     theme_bw()+
  labs(y="DM clover yield (t/ha)") +
  theme(axis.text.x=element_text(angle = +89, hjust = 0.95))+
-  ylim(0,25)
+  ylim(0,25) 
 
 
 
@@ -144,7 +148,7 @@ df_k %>%
 
 
 ```{r}
-#STats 
+#STats of Kg /ha 
 
 #data transformation
 df_y$transf_no <- 1*(df_y$DWSubcloverkgha)
@@ -169,13 +173,13 @@ head(file)
 
 #normality test
 
-shapiro.test(file$transf_no)
+shapiro.test(file$transf_log)
 
 #QQplot
-var<-file$transf_no
+var<-file$transf_log
 qqnorm(var)
 qqline(var, col = 2)
-qqplot(var, rt(30000))
+qqplot(var, rt(3000))
 
 #-------------------------------------------------
 
@@ -183,7 +187,7 @@ qqplot(var, rt(30000))
 
 file.subset <- file 
 
-head(file.subset, 50)
+head(file.subset,50)
 summary(file.subset)
 my.anova <- aov(transf_no ~ Cultivar*Sowtreat + Block, data = file.subset)
 ---
@@ -215,7 +219,7 @@ head(file)
 
 #normality test
 
-shapiro.test(file$transf_no)
+shapiro.test(file$transf_log)
 
 #QQplot
 var<-file$transf_no
@@ -230,7 +234,7 @@ file.subset <- file
 
 head(file.subset, 50)
 summary(file.subset)
-my.anova <- aov(transf_no ~ Cultivar*Sowtreat + Block, data = file.subset)
+my.anova <- aov(transf_log ~ Cultivar*Sowtreat + Block, data = file.subset)
 
 summary(my.anova)
 TukeyHSD(my.anova)
@@ -240,12 +244,83 @@ TukeyHSD(my.anova)
 ```
 
 
+```{r}
+
+#Graph weeds 
+
+summary(df_k)
+
+df_k %>%
+  group_by(Cultivar, Sowtreat,SowingDate) %>%
+  summarise_each(funs(mean,sd)) %>%
+  # mutate(colPal = ifelse(Cultivar=="Antas","Brachy",ifelse(Cultivar=="Monti","Brachy","Yanny"))) %>%
+  ggplot(aes(x=SowingDate, y=( DMWeedtha_mean))) +
+  geom_bar(stat="identity") +
+  geom_errorbar(aes(ymin= DMWeedtha_mean-DMWeedtha_sd/2, ymax= DMWeedtha_mean+ DMWeedtha_sd/2),
+                width=0.25, size=0.3)   +
+  theme_grey(base_size = 16) +
+  facet_wrap(~Cultivar,ncol=3, scales = "free")+
+    theme_bw()+
+ labs(y="DM Weed yield (t/ha)") +
+ theme(axis.text.x=element_text(angle = +89, hjust = 0.95))+
+  ylim(0,1.5) 
+
+
+
+```
+
+```{r}
+# Stats Weed yield 
+
+# STats kg/ha data transformation
+
+df_k$transf_no <- 1*(df_k$DWWeedskgha)
+df_k$transf_sqr <- sqrt(df_k$DWWeedskgha)
+df_k$transf_log <- log(df_k$DWWeedskgha)
+df_k$transf_acos <- acos(df_k$DWWeedskgha)
+
+
+head(df_k)
+
+file <- df_k
+
+x <- c( "df_y$transf_no',transf_sqr", "transf_log","transf_acos")
+colsSelec <- match(x,colnames(file))
+# 
+# file %>%
+#   tidyr::gather("transformation","value",colsSelec) %>%
+#   ggplot(aes(value)) + 
+#   geom_histogram() +
+#   facet_grid(.~transformation, scales="free")
+
+head(file)
+
+#normality test
+
+shapiro.test(file$transf_log)
+
+#QQplot
+var<-file$transf_log
+qqnorm(var)
+qqline(var, col = 2)
+qqplot(var, rt(3000))
+
+#-------------------------------------------------
+# ANOVA (selecing by hand FIXME: do loop)
+# file.subset <- file %>% subset(SowTreat == "S2" & round==1)
+file.subset <- file 
+
+head(file.subset, 50)
+summary(file.subset)
+my.anova <- aov(transf_log ~ Cultivar*Sowtreat + Block, data = file.subset)
 
 summary(my.anova)
 TukeyHSD(my.anova)
 
 #Means separation 
 (LSD.test(my.anova, "Cultivar", alpha= 0.05, p.adj="none")) 
+
+
 ```
 
 
