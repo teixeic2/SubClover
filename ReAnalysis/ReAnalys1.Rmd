@@ -117,7 +117,7 @@ df_Data %>%
 
 df_Data %>%
   filter(Location != "Canberra"& Location != "Lismore"& Location != "Perth") %>%
-  ggplot(aes(x=month.(SowingDate), y=DaysToFlower))+
+  ggplot(aes(x=month(SowingDate), y=DaysToFlower))+
   geom_boxplot(alpha=0.2)+
   geom_jitter(width = 0.1, aes(colour=Location))+
   theme(axis.text.x = element_text(angle = 90, hjust = 1))+

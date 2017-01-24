@@ -45,6 +45,7 @@ str(df_We)
 ```{r, fig.height=10, fig.width=10}
 
 df_We %>%
+  filter(LocationYear != "Mininera2005") %>%
   tidyr::gather("Variable", "Value",Tx:Pp) %>%
   ggplot(aes(x=Date,y=Value))+
   geom_line(aes(colour=factor(Variable))) +

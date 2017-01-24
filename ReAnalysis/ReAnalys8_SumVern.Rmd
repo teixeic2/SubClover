@@ -96,12 +96,12 @@ summary(df_Ver4)
 
 df_Ver4 %>%
   #filter(Treatcultivar=="MtBarker") %>%
-  ggplot(aes(x=Location, y=DaysToFlower))+
+  ggplot(aes(x=Location, y=VerntoFlower))+
   geom_boxplot(alpha=0.2)+
   geom_jitter(width = 0.1, aes(colour=Location))+
   theme(axis.text.x = element_text(angle = 90, hjust = 1))+
   #theme(legend.position="none")+
-  labs(x=" Month", y="Days to flower")+
+  labs(x=" Month", y="Vernalisation days")+
   facet_wrap(~Country)
   
 
@@ -128,7 +128,8 @@ df_Ver4 %>%
 df_Ver4 %>%
   filter(LocationYear=="Launceston1987"| LocationYear=="Katanning1990"| LocationYear=="Condobolin1986"| LocationYear=="Melbourne1969" ) %>%
   mutate(Month=format(as.Date(ymd(SowingDate)),"%b")) %>%
-  ggplot(aes(x=reorder(Month,month(SowingDate)), y= VerntoFlower, colour=Treatcultivar)) +
+  ggplot(aes(x=reorder(Month,month(SowingDate)), y= VerntoFlower)) +
+            #colour=Treatcultivar)) +
   geom_point(shape=21) +
   geom_point(aes(size = factor(VerntoFlower)))+
   labs(x=" Sowing Month", y="   Vernalization  Days  ")+
