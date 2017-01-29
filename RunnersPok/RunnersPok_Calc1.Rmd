@@ -7,7 +7,8 @@ output: html_document
 
 Purpose:
 
--Analysis of runner extension (branching)  
+-Analysis of runner extension (branching) 
+last :updated 18 Jan 2017
  
 
 
@@ -29,46 +30,48 @@ setwd("C:\\Users\\EdCarmen\\Documents\\CarmenProjects2016\\GitSubclover\\Runners
 getwd()
 
 #create file
-df_trifo <- read.table("RunnersPok.txt",header=TRUE)
-head(df_trifo)
+df_run <- read.table("RunnersPok.txt",header=TRUE)
+head(df_run)
 
 # define factors for the ones that "look like" values
-df_trifo$Plot <- as.factor(df_trifo$Plot)
-df_trifo$Block <- as.factor(df_trifo$Block)
+df_run$Plot <- as.factor(df_run$Plot)
+df_run$Block <- as.factor(df_run$Block)
 
- df_trifo <- df_trifo %>%
+ df_run <- df_run %>%
   mutate(SowingDate = dmy(SowingDate), 
          ReadingDate = dmy(ReadingDate),
          Runner = (s1+s2+s3+s4+s5+s6+s7+s8+s9+s10)/10)
 
-str(df_trifo)
-head(df_trifo)
-tail(df_trifo)
+str(df_run)
+head(df_run)
+tail(df_run)
 
 
-df_trifo %>% filter(Plot ==1) %>% summary()
+df_run %>% filter(Plot ==1) %>% summary()
+
+
+
+```
+
+
+```{r, fig.height=5, fig.width= 10 }
 
 #Graph         
-  df_trifo %>%  group_by(Cultivar, SowTreat, DAS) %>%
+  df_run %>%  group_by(Cultivar, SowTreat, DAS) %>%
   summarise_each(funs(mean)) %>%
   ggplot(aes(x=DAS, y=Runner)) + 
   geom_point(aes(colour=Cultivar)) +
   geom_line(aes(colour=Cultivar)) +
-  facet_grid (SowTreat~., scales = "free")+
+  #facet_grid (SowTreat~., scales = "free")+
+  facet_wrap (~SowTreat,ncol=4, scales = "free")+
+  theme_bw()+
   labs(y="Proportion of Runners",x="Days after sowing")+
     geom_abline(intercept = 0.5, slope = 0)
 
-```
-
-Stop here !!!
-
-```{r CalculatePercentageEmergence }
-
-
-
 
 ```
 
+Stop here !!!not finished
 
 ```{r ANOVAMaxPlantPop}
 

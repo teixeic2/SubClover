@@ -7,7 +7,7 @@ output: html_document
 
 Purpose:
 
--Analysis of trifoliate expansion 
+-Analysis of trifoliate expansion last update 18 Jan 2017
  
 
 
@@ -24,7 +24,7 @@ library(lattice)
 ```
 
 
-```{r loadFile}
+```{r loadFile, fig.height=5, fig.width=10}
 setwd("C:\\Users\\EdCarmen\\Documents\\CarmenProjects2016\\GitSubclover\\TrifoPok")
 getwd()
 
@@ -54,8 +54,9 @@ df_trifo %>% filter(Plot ==1) %>% summary()
   ggplot(aes(x=DAS, y=Trifo)) + 
   geom_point(aes(colour=Cultivar)) +
   geom_line(aes(colour=Cultivar)) +
-  facet_grid (SowTreat~., scales = "free")+
+  facet_wrap (~SowTreat,ncol=4, scales = "free")+
   labs(y="Number of trifoliates",x="Days after sowing")+
+    theme_bw()+
     geom_abline(intercept = 10, slope = 0)
 
 ```
@@ -72,7 +73,7 @@ Stop here !!!
 
 ```{r ANOVAMaxPlantPop}
 
-#compare max plant population among Sowing dates and cultivars
+#not finished!
 
 df_emerg_perc3 <- df_emerg %>%
 group_by(Plot) %>%
@@ -111,11 +112,11 @@ file %>%
 head(file)
 
 
-#QQplot
-var<-file$transf_no
-qqnorm(var)
-qqline(var, col = 2)
-qqplot(var, rt(300))
+# #QQplot
+# var<-file$transf_no
+# qqnorm(var)
+# qqline(var, col = 2)
+# qqplot(var, rt(300))
 
 #-------------------------------------------------
 # ANOVA (selecing by hand FIXME: do loop)

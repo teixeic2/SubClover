@@ -247,6 +247,8 @@ df_seed %>%
 
 head(df_seed)
 
+summary(df_seed)
+
 ```
 
 
@@ -304,13 +306,13 @@ head(file)
 head(df_seedANOVA)
 #normality test
 #tranform log was the best histogram so continue with it 
-shapiro.test(file$transf_acos)
+shapiro.test(file$transf_no)
 
-#QQplot
-var<-file$transf_acos
-qqnorm(var)
-qqline(var, col = 2)
-qqplot(var, rt(300))
+# #QQplot
+# var<-file$transf_no
+# qqnorm(var)
+# qqline(var, col = 2)
+# qqplot(var, rt(300))
 
 #-------------------------------------------------
 
@@ -319,7 +321,7 @@ file.subset <- file
 
 head(file.subset, 50)
 summary(file.subset)
-my.anova <- aov(transf_acos ~ Cultivar*SowTreat + Block, data = file.subset)
+my.anova <- aov(transf_no ~ Cultivar*SowTreat + Block, data = file.subset)
 
 summary(my.anova)
 TukeyHSD(my.anova)

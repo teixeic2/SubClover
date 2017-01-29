@@ -68,7 +68,7 @@ Re start
 
 ```{r}
 
-#barplot 
+#barplot for seed density  
 #The palette with grey:
 cbPalette <- c("#999999", "#666666", "#56B4E9", "#009E73", "#D55E00", "#0072B2","#999999", "#E69F00", "#56B4E9", "#009E73", "#D55E00", "#0072B2","#56B4E9", "#009E73")
 
@@ -80,7 +80,7 @@ dodge_x <- position_dodge(width = 0.9)
   df %>%
   #tidyr::spread(Layer,SeedsNo_m2) %>%
   #mutate(SeedsNo_m2= Down/(Down+Up)*100) %>%
-  group_by(Cultivar, SowTreat) %>%
+  group_by(Cultivar, SowTreat,Layer) %>%
   summarise_each(funs(mean,sd)) %>%
   ggplot(aes(x=Cultivar, y=(SeedsNo_m2_mean))) +
   geom_bar(stat="identity",position = dodge_x) +
@@ -89,7 +89,7 @@ dodge_x <- position_dodge(width = 0.9)
                 width=0.25, size=0.3,position=dodge_x)   +
   theme_grey(base_size = 16) +
     theme_bw()+
-  facet_grid(.~SowTreat, scales="free") +
+  facet_grid(Layer~SowTreat, scales="free") +
     labs(y= "Seed Number per m2")+
 theme(axis.text.x=element_text(angle = +90, hjust = 0))
 
@@ -103,15 +103,13 @@ theme(axis.text.x=element_text(angle = +90, hjust = 0))
 head (file)
 
 df1<- file %>%
-  dplyr::select(Cultivar,SowTreat,sample_area_m2,Block,
+  dplyr::select(Cultivar, SowingD, SowTreat,sample_area_m2,Block,
                 Layer,bur_total_weight_g,
                 bur_no_subSample,
                 bur_weight_subSample_g,seed_weight_g) %>%
   #stop here calculate kg seed / ha
   mutate(Seedskg_ha = (((seed_weight_g/bur_weight_subSample_g)*
-           bur_total_weight_g)/sample_area_m2)*10 ) %>%
-  dplyr::select(Cultivar,SowTreat,
-                Layer,Block,Seedskg_ha)
+           bur_total_weight_g)/sample_area_m2)*10 ) 
 
   df1 <- as.data.frame(df1)
 summary(df1)
@@ -134,16 +132,16 @@ dodge_x <- position_dodge(width = 0.9)
   df1 %>%
   #tidyr::spread(Layer,SeedsNo_m2) %>%
   #mutate(SeedsNo_m2= Down/(Down+Up)*100) %>%
-  group_by(Cultivar, SowTreat) %>%
+  group_by(Cultivar, SowTreat,Layer) %>%
   summarise_each(funs(mean,sd)) %>%
-  ggplot(aes(x=Cultivar, y=(Seedskg_ha_mean))) +
+  ggplot(aes(x=SowTreat, y=(Seedskg_ha_mean))) +
   geom_bar(stat="identity",position = dodge_x) +
   geom_errorbar(aes(ymin=Seedskg_ha_mean-Seedskg_ha_sd/2,
                     ymax=Seedskg_ha_mean+Seedskg_ha_sd/2),
                 width=0.25, size=0.3,position=dodge_x)   +
   theme_grey(base_size = 16) +
-    theme_bw()+
-  facet_grid(.~SowTreat, scales="free") +
+  theme_bw()+
+  facet_grid(Layer~Cultivar, scales="free") +
     labs(y= "Seed yield (kg/ha)")+
 theme(axis.text.x=element_text(angle = +90, hjust = 0))
 
@@ -152,5 +150,22 @@ theme(axis.text.x=element_text(angle = +90, hjust = 0))
 
 
 
+```{r, gig.height=15, fig.width=15, warning=FALSE}
+
+  df1 %>%
+  group_by(Cultivar, SowingD, Layer) %>%
+  dplyr::select(Seedskg_ha) %>%
+  summarise_each(funs(mean,sd)) %>%
+  ggplot(aes(x=SowingD, y=(mean))) +
+  geom_point(aes(colour=Cultivar), size=4) +
+  geom_line(aes(colour=Cultivar)) +
+  geom_errorbar(aes(ymin=mean-sd/2,
+                    ymax=mean+sd/2), width=0.2)   +
+#  theme_grey(base_size = 16) +
+#  theme_bw()+
+  facet_grid(Layer~., scales="free") +
+    labs(y= "Seed yield (kg/ha)")
+
+```
 
 
