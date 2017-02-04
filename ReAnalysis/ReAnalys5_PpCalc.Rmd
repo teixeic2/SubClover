@@ -429,7 +429,7 @@ ggg <- c("Late","Early")
      rowwise() %>%
     #dplyr::filter(SensGroup == ggg[gg]) %>%
     filter(Variable == "TTFloAdj") %>%
-     mutate(tt_extra_opt=as.numeric(ifelse(SensGroup=="Late",0,0)))%>%
+     mutate(tt_extra_opt=as.numeric(ifelse(SensGroup=="Late",900,700)))%>%
      mutate(TT_target = TTSumSow + tt_extra_opt) %>% #define multiple thermal time after sowing for which photoperiod needs to be retrieved 
     mutate(Pp_target = Pp_finder_func(as.character(LocationYear),TT_target)) %>%
     mutate(tt_juv_toflower=Value-tt_extra_opt)
@@ -443,7 +443,7 @@ ggg <- c("Late","Early")
                   )) +
     # stat_smooth(method = "lm", formula = y ~ x + I(x^2), size = 1) + 
      stat_smooth(method = "lm", formula = y ~ poly(x, 2), size = 1)+
-     geom_abline(intercept = ifelse(df_Rea7$SensGroup=="Late",0,0), slope=0,linetype=2)+
+     geom_abline(intercept = ifelse(df_Rea7$SensGroup=="Late",900,700), slope=0,linetype=2)+
      geom_vline(xintercept = 14, linetype=2)+
      labs(x="Photoperiod at inductive phase (hours)", y="Thermal Time to flower (degree days)")+
       theme(legend.position="top") +

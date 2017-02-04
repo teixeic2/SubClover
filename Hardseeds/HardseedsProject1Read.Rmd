@@ -2,7 +2,9 @@
 title: "Hardseeds 6CV"
 author: "CT"
 date: "Thursday, FEbruary 3, 2015"
-output: pdf_document
+output:
+  word_document: default
+  pdf_document: default
 ---
 
 ```{r loadLibraries}
@@ -12,7 +14,7 @@ library (ggplot2)
 library(agricolae)
 library(knitr)
 library (lubridate)
-
+library(rgr)
 ```
 
 
@@ -48,7 +50,7 @@ df_seed %>%
 ```
 
 
-```{r}
+```{r, warning=FALSE}
 
 g1 <- df_seed %>%
   dplyr::select(-Date) %>% #
@@ -260,7 +262,7 @@ summary(df_seed)
 ```{r, fig.height=5, fig.width=10 }
  
 
-#graph effect of swoing date only 
+#graph effect of sowing date only 
 df_seed %>%
   mutate(hardSeed = 100-PropSoft) %>%
   mutate(SowingD = dmy(SowingD)) %>%
@@ -305,6 +307,23 @@ write.table(dftable, "dftablehardseeds.txt", row.names=FALSE)
 ```
 
 
+```{r}
+
+#write a table with all data to do stats 
+dftable1 <- df_seed %>%
+  mutate(hardSeed = 100-PropSoft) %>%
+  mutate(SowingD = dmy(SowingD)) %>%
+    filter(Round == 1) %>%  #need to keep filter to get first and max hardseed percent
+  #mutate(Depth = factor(Depth,levels=c( "surface","buried"))) %>%
+  group_by(Cultivar,SowingD, Block, Depth) %>%
+  dplyr::select(hardSeed) 
+  #summarise_each(funs(mean,sd)) 
+
+summary (dftable1)
+write.table(dftable1, "dftablehardseeds1.txt", row.names=FALSE)
+
+
+```
 
 
 
@@ -331,24 +350,21 @@ filter(Round == 1)
 head(df_seedANOVA)
 
 
-
 #ANOVA
 
-#data transformation
+#data transformation many possibilities but logit worked well 
 df_seedANOVA$transf_no <- 1*(df_seedANOVA$hardSeed)
-df_seedANOVA$transf_sqr <- sqrt(df_seedANOVA$hardSeed)
-df_seedANOVA$transf_log <- log(df_seedANOVA$hardSeed)
-df_seedANOVA$transf_acos <- acos(df_seedANOVA$hardSeed/100)
-df_seedANOVA$transf_power3 <- (df_seedANOVA$hardSeed)^3
-
-
-
+# df_seedANOVA$transf_sqr <- sqrt(df_seedANOVA$hardSeed)
+# df_seedANOVA$transf_log <- log(df_seedANOVA$hardSeed)
+# df_seedANOVA$transf_acos <- acos(df_seedANOVA$hardSeed/100)
+# df_seedANOVA$transf_power3 <- (df_seedANOVA$hardSeed)^3
+df_seedANOVA$transf_logit <- logit(df_seedANOVA$hardSeed/100)
 
 write.table(df_seedANOVA,"df_seedANOVA.txt")
 file <- df_seedANOVA
 
-x <- c( "transf_no",  "transf_sqr", "transf_log", "transf_acos", "transf_power3")
-
+#x <- c( "transf_no",  "transf_sqr", "transf_log", "transf_acos", "transf_power3")
+x <- c( "transf_no",  "transf_logit")
 colsSelec <- match(x,colnames(file))
 
 file %>%
@@ -361,7 +377,7 @@ head(file)
 head(df_seedANOVA)
 #normality test
 #tranform log was the best histogram so continue with it 
-shapiro.test(file$transf_no)
+shapiro.test(file$transf_logit)
 
 # #QQplot
 # var<-file$transf_no
@@ -376,7 +392,7 @@ file.subset <- file
 
 head(file.subset, 50)
 summary(file.subset)
-my.anova <- aov(transf_no ~ Cultivar*SowTreat + Block, data = file.subset)
+my.anova <- aov(transf_logit ~ Cultivar*SowTreat + Block, data = file.subset)
 
 summary(my.anova)
 TukeyHSD(my.anova)
