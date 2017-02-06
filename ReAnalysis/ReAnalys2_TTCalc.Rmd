@@ -13,6 +13,7 @@ library (ggplot2)
 library(agricolae)
 library(knitr)
 library (lubridate)
+library(scales)
 
 ```
 
@@ -30,28 +31,22 @@ df_We <- read.table("RawWeather.txt",header=TRUE)
 summary(df_We)
 ```
 
-
-
-```{r changeformat, echo=FALSE}
-
-df_We$Date<-dmy(df_We$Date)
-
-str(df_We)
-
-```
-
 ## Graph it 
 
 ```{r, fig.height=10, fig.width=10}
 
 df_We %>%
+  mutate(Date=dmy(df_We$Date)) %>%
   filter(LocationYear != "Mininera2005") %>%
   tidyr::gather("Variable", "Value",Tx:Pp) %>%
+ # mutate(Month=format(as.Date(dmy(as.character(Date))),"%b")) %>%
   ggplot(aes(x=Date,y=Value))+
   geom_line(aes(colour=factor(Variable))) +
   facet_wrap(~LocationYear,scale="free") +
+  labs(x=" Date", y=" degree Celsius/hours  ")+
   scale_color_manual(values=c("#333333", "#9999CC", "#CC3300"))+
-  theme(axis.text.x = element_text(angle = 90, hjust = 1)) 
+  theme(axis.text.x = element_text(angle = 90, hjust = 1)) +
+  scale_x_date(labels = date_format("%b-%Y"))
 
 
 ```
