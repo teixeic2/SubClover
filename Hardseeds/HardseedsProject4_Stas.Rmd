@@ -1,0 +1,100 @@
+---
+title: "Hardseeds 6CV Follow up Stats; logit transformed data from maximum (total )hardseeds (round 1)  "
+author: "CT"
+date: "Thursday, FEbruary 3, 2016"
+output:
+  word_document: default
+  pdf_document: default
+  
+---
+
+```{r loadLibraries}
+library(tidyr)
+library (dplyr)
+library (ggplot2)
+library(agricolae)
+library(knitr)
+library (lubridate)
+library(rgr)
+```
+
+
+```{r loadFile}
+setwd("C:\\Users\\EdCarmen\\Documents\\CarmenProjects2016\\Gitsubclover\\Hardseeds")
+getwd()
+
+#create file dftablehardseeds1 is created in HardseedsProject1 script
+
+df_seedH <- read.table("dftablehardseeds1.txt",header=TRUE)
+head(df_seedH)
+summary(df_seedH)
+
+
+```
+
+
+
+ 
+
+```{r}
+
+
+#ANOVA
+
+#data transformation many possibilities but logit worked well 
+df_seedH$transf_no <- 1*(df_seedH$hardSeed)
+# df_seedH$transf_sqr <- sqrt(df_seedH$hardSeed)
+# df_seedH$transf_log <- log(df_seedH$hardSeed)
+# df_seedH$transf_acos <- acos(df_seedH$hardSeed/100)
+# df_seedH$transf_power3 <- (df_seedH$hardSeed)^3
+df_seedH$transf_logit <- logit(df_seedH$hardSeed/100)
+
+write.table(df_seedH,"df_seedHanova.txt")
+file <- df_seedH
+
+#x <- c( "transf_no",  "transf_sqr", "transf_log", "transf_acos", "transf_power3")
+x <- c( "transf_no",  "transf_logit")
+colsSelec <- match(x,colnames(file))
+
+file %>%
+  tidyr::gather("transformation" ,"value",colsSelec) %>%
+  ggplot(aes(value)) + 
+  geom_histogram() +
+  facet_grid(.~transformation, scales="free" )
+
+head(file)
+head(df_seedH)
+#normality test
+#tranform log was the best histogram so continue with it 
+shapiro.test(file$transf_logit)
+
+#QQplot
+# var<-file$transf_logit
+# qqnorm(var, ylim = 1)
+# qqline(var, col = 2)
+# qqplot(var, rt(300))
+
+#-------------------------------------------------
+
+# Chosen transform log to do anova 
+file.subset <- file 
+
+head(file.subset, 50)
+summary(file.subset)
+my.anova <- aov(transf_logit ~ Cultivar*SowingD + Block, data = file.subset)
+
+summary(my.anova)
+TukeyHSD(my.anova)
+
+#Means separation 
+(LSD.test(my.anova, c("Cultivar","SowingD"), alpha= 0.05, p.adj="none")) 
+
+
+```
+
+
+```{r}
+
+```
+
+
