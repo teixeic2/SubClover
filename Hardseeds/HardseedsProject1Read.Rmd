@@ -64,7 +64,7 @@ df_seed %>%
   ggplot(aes(x=SowingD, y=mean, colour=factor(Cultivar), shape=factor(Cultivar))) +
   geom_point() +
   geom_line() +
- facet_grid(Depth ~ Cultivar) +
+ facet_grid(.~Depth) +
   labs(x="Sowing Date",y="Maximum Percentage of Hardseeds") +
   theme(axis.text.x = element_text(angle = 90, hjust = 1))+
   geom_errorbar(aes(ymin=mean-sd/2,
