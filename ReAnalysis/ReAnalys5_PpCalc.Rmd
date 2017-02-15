@@ -152,8 +152,10 @@ Create function for retrieving photoperiod as a function of TT after sowing
 
 df_weather <- read.table("df_CumTT.txt",header=TRUE)
 
-df_weather <-df_weather %>%
-  select(LocationYear,Date, Pp, SumTTday)
+summary (df_weather)
+df_weather <- df_weather %>%
+  
+select(LocationYear,Date, Pp, SumTTday)
 
 summary(df_weather)
 

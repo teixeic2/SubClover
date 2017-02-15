@@ -72,8 +72,8 @@ REFS: need to include.
 tt_card <- data.frame(temp=c(-3,1,10,12,25),TT=c(0,1,1,0,0))
 tt_card %>%
   ggplot(aes(x=temp, y=TT))+
-  labs(x="Temperature")+
-  labs(y="Vernalization d") +
+  labs(x="Temperature (degree Celsius) ")+
+  labs(y="Vernalization (day) ") +
  # ylim(0,max(tt_card$TT))
   geom_line()
   

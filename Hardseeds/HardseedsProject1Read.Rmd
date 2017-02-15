@@ -8,12 +8,12 @@ output:
 ---
 
 ```{r loadLibraries}
+library (lubridate)
 library(tidyr)
 library (dplyr)
 library (ggplot2)
 library(agricolae)
 library(knitr)
-library (lubridate)
 library(rgr)
 ```
 
@@ -48,6 +48,36 @@ df_seed %>%
   filter(Plot==1)
 
 ```
+
+Graph the potential Hardseededness 
+
+
+```{r, fig.height=5, fig.width=10}
+df_seed %>%
+  mutate(hardSeed = 100-PropSoft) %>%
+  mutate(SowingD = dmy(SowingD)) %>%
+    filter(Round == 1) %>%  #need to keep filter to get first and max hardseed percent
+  mutate(Depth = factor(Depth,levels=c( "surface","buried"))) %>%
+  group_by(Cultivar,SowingD,Depth) %>%
+  dplyr::select(hardSeed) %>%
+  summarise_each(funs(mean,sd)) %>%
+  ggplot(aes(x=SowingD, y=mean, colour=factor(Cultivar), shape=factor(Cultivar))) +
+  geom_point() +
+  geom_line() +
+ facet_grid(Depth ~ Cultivar) +
+  labs(x="Sowing Date",y="Maximum Percentage of Hardseeds") +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1))+
+  geom_errorbar(aes(ymin=mean-sd/2,
+                    ymax=mean+sd/2))+
+  theme_bw()+
+  ylim(0,100)
+
+head(df_seed)
+
+summary(df_seed)
+
+```
+
 
 
 ```{r, warning=FALSE}
