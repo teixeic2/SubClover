@@ -130,15 +130,16 @@ shapiro.test(df_emerg_perc3$FinalPop)
 #data transformation
 file <- df_emerg_perc3
 
-file$transf_sqr <- sqrt(df_emerg_perc3$FinalPop)
-file$transf_log <- log(df_emerg_perc3$FinalPop)
-file$transf_log1 <- log(df_emerg_perc3$FinalPop+1)
+# file$transf_sqr <- sqrt(df_emerg_perc3$FinalPop)
+# file$transf_log <- log(df_emerg_perc3$FinalPop)
+# file$transf_log1 <- log(df_emerg_perc3$FinalPop+1)
 file$transf_no <- 1*(df_emerg_perc3$FinalPop)
+file$transf_logit <- logit(df_emerg_perc3$FinalPop/10000)
 head(file)
 
+shapiro.test(file$transf_logit)
 
-
-x <- c("transf_sqr", "transf_log","transf_log1", "transf_no")
+x <- c("transf_logit", "transf_no")
 colsSelec <- match(x,colnames(file))
 
 file %>%

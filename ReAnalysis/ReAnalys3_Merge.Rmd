@@ -116,6 +116,7 @@ df_Rea3 %>%
   ggplot(aes(x=reorder(Month,month(SowingDate)), y=DaysToFlower)) +
   geom_point(alpha=0.2)+
   geom_jitter(alpha=0.2,width = 0.3, aes(colour=Location))+
+  geom_boxplot(alpha=0.2)+
   labs(x=" Sowing Month", y="Days to flower")+
   facet_wrap(~Country)
 ```

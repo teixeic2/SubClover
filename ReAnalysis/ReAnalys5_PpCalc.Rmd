@@ -89,19 +89,43 @@ df_Rea7 %>%
 
 Select two groups of cultivars : Late (high response) Pp sensitive response varies and early -low sensitive cultivar group (TT decreases at the end )
 
-```{r, warning=FALSE}
+```{r, fig.width= 12,fig.height=5, warning=FALSE}
 #Check data filtering indexLocCult. See r2 generated below. 
 df_Rea7 %>%
   mutate(Month=format(as.Date(ymd(SowingDate)),"%b")) %>%
-  ggplot(aes(x=reorder(Month,month(SowingDate)), y= Value, colour=Treatcultivar)) +
-  geom_point(aes(shape = factor(SensGroup)),size=1.9  )+
+  #ggplot(aes(x=reorder(Month,month(SowingDate)), y= Value, colour=Treatcultivar)) +
+  ggplot(aes(x=ymd(SowingDate), y= Value,colour=Treatcultivar))+
+  geom_point(aes(shape = factor(SensGroup),colour=Treatcultivar),size=1.9)+
+  geom_line(aes(colour=Treatcultivar))+
   labs(x=" Sowing Month", y=" oCd            Days  ")+
-  theme_bw()+
+    theme_bw()+
  #geom_smooth(se=FALSE)+
   #theme(legend.position="none")+
-  labs(shape="Maturity Group", colour="Cultivar")+
-  facet_grid(Variable~., scales = "free")
+  labs(shape="Maturity Group")+
+  facet_grid(Variable~Location, scales = "free")
 ```
+
+Try same graph but with x = date (continuous)
+
+
+```{r, warning=FALSE}
+
+#Check data filtering indexLocCult. See r2 generated below. 
+df_Rea7 %>%
+  #mutate(Month=format(as.Date(ymd(SowingDate)),"%b")) %>%
+  ggplot(aes(x=month(SowingDate), y= Value, colour=Treatcultivar)) +
+  geom_point(aes(shape = factor(SensGroup)),size=1.9)+
+  labs(x=" Sowing Month", y=" oCd            Days  ")+
+  theme_bw()+
+ geom_line()+
+  #theme(legend.position="none")+
+  labs(shape="Maturity Group", colour="Cultivar")+
+  facet_grid(Variable~Location, scales = "free")
+```
+
+
+
+
 
 
 ```{r}
