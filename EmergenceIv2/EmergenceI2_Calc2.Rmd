@@ -24,7 +24,7 @@ library(lattice)
 
 
 ```{r loadFile}
-setwd("C:\\Users\\EdCarmen\\Documents\\CarmenProjects2016\\GitSubclover")
+setwd("C:\\Users\\EdCarmen\\Documents\\CarmenProjects2016\\GitSubclover\\EmergenceIv2")
 getwd()
 
 #create file
@@ -194,7 +194,7 @@ df_tt_50p_emerg <- merge(df_tt_50p_emerg, sdLookup, by="SowTreat")
 
 df_tt_50p_emerg %>%
   group_by(SowTreat, Cultivar) %>%
-  summarise_each(funs(mean)) %>%
+  summarise_each(funs(mean,sd)) %>%
  # filter( SowTreat != "S6" & SowTreat != "S7")%>%
   ggplot(aes(x=SowingDate,y=DAS50E, shape=Cultivar, colour=Cultivar))+
   geom_point() +
@@ -202,17 +202,24 @@ df_tt_50p_emerg %>%
  # facet_grid(Variable~.)+
   geom_line()
 
+
+
+
+```
+
+
+graph with TT50E 
+
+```{r}
 df_tt_50p_emerg %>%
-  group_by(SowTreat, Cultivar) %>%
+  group_by(SowTreat, Cultivar,SowingDate) %>%
   summarise_each(funs(mean)) %>%
  # filter( SowTreat != "S6" & SowTreat != "S7")%>%
-  ggplot(aes(x=SowingDate,y=TT50E, shape=Cultivar, colour=Cultivar))+
+  ggplot(aes(x=(SowingDate),y=TT50E, shape=Cultivar, colour=Cultivar))+
   geom_point() +
   geom_line() +
  # facet_grid(Variable~.)+
   geom_line()
-
-
 ```
 
 

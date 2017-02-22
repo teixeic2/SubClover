@@ -6,6 +6,8 @@ output:
   word_document: default
   pdf_document: default
   
+  This script does,
+  reads the table generated in 
 ---
 
 ```{r loadLibraries}
@@ -38,7 +40,6 @@ summary(df_seedH)
 
 ```{r}
 
-
 #ANOVA
 
 #data transformation many possibilities but logit worked well 
@@ -66,22 +67,22 @@ head(file)
 head(df_seedH)
 #normality test
 #tranform log was the best histogram so continue with it 
-shapiro.test(file$transf_logit)
+shapiro.test(file$transf_no)
 
 #QQplot
 # var<-file$transf_logit
 # qqnorm(var, ylim = 1)
 # qqline(var, col = 2)
-# qqplot(var, rt(300))
+# qqplot(var, rt(3000))
 
 #-------------------------------------------------
 
 # Chosen transform log to do anova 
 file.subset <- file 
 
-head(file.subset, 50)
+head(file.subset)
 summary(file.subset)
-my.anova <- aov(transf_logit ~ Cultivar*SowingD + Block, data = file.subset)
+my.anova <- aov(transf_no ~ Cultivar*SowingD + Block, data = file.subset)
 
 summary(my.anova)
 TukeyHSD(my.anova)

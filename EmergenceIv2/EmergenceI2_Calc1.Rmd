@@ -28,7 +28,7 @@ library(lattice)
 
 
 ```{r loadFile}
-setwd("C:\\Users\\EdCarmen\\Documents\\CarmenProjects2016\\GitSubclover")
+setwd("C:\\Users\\EdCarmen\\Documents\\CarmenProjects2016\\GitSubclover\\EmergenceIv2")
 getwd()
 
 #create file
@@ -78,8 +78,6 @@ df_emerg %>% filter(Plot ==1) %>% summary()
 
 
 
-
-
 ```{r CalculatePercentageEmergence }
 
 df_emerg_perc <- df_emerg %>%
@@ -92,10 +90,10 @@ tail(df_emerg_perc)
 df_emerg_perc %>%  filter(Plot=="2")
 
 
+```
 
-
-
- #Graph         
+```{r}
+#Graph         
   df_emerg_perc %>%  group_by(Cultivar, SowTreat, DAS) %>%
 #  filter(Cultivar =="Monti") %>%
   dplyr::select(-SowingDate, - ReadingDate) %>%
@@ -107,7 +105,6 @@ df_emerg_perc %>%  filter(Plot=="2")
   facet_wrap (~SowTreat,ncol=4, scales = "free")+
   labs(y="Percentage  of Seedling emergence",x="Days after sowing") +
   geom_abline(intercept = 50, slope = 0)
-
 ```
 
 
@@ -122,6 +119,13 @@ mutate(FinalPop= round(max(PlantPop)*1,digits=2))
 head(df_emerg_perc3)
 summary (df_emerg_perc3)
 
+write.table(df_emerg_perc3, "df_emerg_perc3.txt")
+```
+
+
+Transform 
+
+```{r}
 
 #normality test
 shapiro.test(df_emerg_perc3$FinalPop)
@@ -156,7 +160,7 @@ head(file)
 var<-file$transf_no
 qqnorm(var)
 qqline(var, col = 2)
-qqplot(var, rt(300))
+qqplot(var, rt(3000))
 
 #-------------------------------------------------
 # ANOVA (selecing by hand FIXME: do loop)
@@ -177,16 +181,14 @@ TukeyHSD(my.anova)
 (LSD.test(my.anova, c("Cultivar"), alpha= 0.05, p.adj="none") )
 (LSD.test(my.anova, c("SowTreat","Cultivar"), alpha= 0.05, p.adj="none"))
 
-
 ```
-
 
 
 
 Create Graph Percent emergence with Mean Soil Temperature 
 ```{r}
 
-setwd("C:\\Users\\EdCarmen\\Documents\\CarmenProjects2016\\GitSubclover")
+setwd("C:\\Users\\EdCarmen\\Documents\\CarmenProjects2016\\GitSubclover\\EmergenceIv2")
 getwd()
 
 

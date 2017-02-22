@@ -23,7 +23,7 @@ library(lattice)
 
 
 ```{r loadFile}
-setwd("C:\\Users\\EdCarmen\\Documents\\CarmenProjects2016\\GitSubclover")
+setwd("C:\\Users\\EdCarmen\\Documents\\CarmenProjects2016\\GitSubclover\\EmergenceIv2")
 getwd()
 
 #create file
@@ -61,10 +61,13 @@ file$transf_no <- 1*(df_emerg1$DAS50E)
 head(file)
 
 
-
 x <- c("transf_sqr", "transf_log","transf_log1", "transf_no")
 colsSelec <- match(x,colnames(file))
 
+
+```
+
+```{r}
 file %>%
   tidyr::gather("transformation","value",colsSelec) %>%
   ggplot(aes(value)) + 
@@ -77,11 +80,17 @@ head(file)
 #normality test
 #shapiro.test(file$transf_ln)
 
+
+```
+
+then 
+
+```{r}
 #QQplot
 var<-file$transf_no
 qqnorm(var)
 qqline(var, col = 2)
-qqplot(var, rt(300))
+qqplot(var, rt(3000))
 
 #-------------------------------------------------
 # ANOVA (selecing by hand FIXME: do loop)
@@ -103,8 +112,6 @@ TukeyHSD(my.anova)
 (LSD.test(my.anova, c("SowTreat","Cultivar"), alpha= 0.05, p.adj="none"))
 
 #loop trough each combination of factor levels
-
-
 ```
 
 ANOVA TT50E
