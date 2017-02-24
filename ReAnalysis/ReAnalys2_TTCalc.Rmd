@@ -39,7 +39,7 @@ df_We %>%
   mutate(Date=dmy(df_We$Date)) %>%
   filter(LocationYear != "Mininera2005") %>%
   tidyr::gather("Variable", "Value",Tx:Pp) %>%
- # mutate(Month=format(as.Date(dmy(as.character(Date))),"%b")) %>%
+ #mutate(Month=format(as.Date(dmy(as.character(Date))),"%b")) %>%
   ggplot(aes(x=Date,y=Value))+
   geom_line(aes(colour=factor(Variable))) +
   facet_wrap(~LocationYear,scale="free") +

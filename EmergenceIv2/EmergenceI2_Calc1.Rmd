@@ -53,7 +53,7 @@ df_emerg %>% filter(Plot ==1) %>% summary()
 
 ```
 
-```{r, fig.height= 5, fig.width= 10}
+```{r, fig.height= 7, fig.width= 10}
 # Graph it 
 
 
@@ -69,6 +69,7 @@ df_emerg %>% filter(Plot ==1) %>% summary()
   geom_errorbar(aes(x=20,ymin=200,ymax=300,width=0.2))+
   facet_wrap(~SowTreat,ncol=4, scales = "free")+
   theme_bw()+
+  ylim(0, 2200)+
   labs(y="Number of seedlings per m2",x="Days after sowing") 
   #+geom_abline(intercept = 50, slope = 0)
 
@@ -92,14 +93,14 @@ df_emerg_perc %>%  filter(Plot=="2")
 
 ```
 
-```{r}
+```{r, fig.width= 10, fig.height=7}
 #Graph         
   df_emerg_perc %>%  group_by(Cultivar, SowTreat, DAS) %>%
 #  filter(Cultivar =="Monti") %>%
   dplyr::select(-SowingDate, - ReadingDate) %>%
   summarise_each(funs(mean)) %>%
   ggplot(aes(x=DAS, y=PercEmerg)) + 
-  geom_point(aes(colour=Cultivar)) +
+  geom_point(aes(colour=Cultivar,shape=Cultivar)) +
   geom_line(aes(colour=Cultivar)) +
     theme_bw()+
   facet_wrap (~SowTreat,ncol=4, scales = "free")+
@@ -247,6 +248,13 @@ summary(df_emerg_perc_TT)
 write.table(df_emerg_perc_TT, "df_emerg_perc_soilTT.txt")
 head(df_emerg_perc_TT )
 
+
+  
+
+
+```
+
+```{r, fig.width=10, fig.height=7}
 # graph emerg x tt
 df_emerg_perc_TT %>%
   group_by(Cultivar, SowTreat, TT_to_emerg) %>%
@@ -260,8 +268,8 @@ df_emerg_perc_TT %>%
   geom_abline(intercept = 50, slope = 0) +
   facet_wrap (~SowTreat,ncol=4, scales = "free")+
   theme_bw() +
+  theme(text = element_text(size = 10))+
   xlab("Thermal-time from sowing") +
   ylab("Percentage emergence")
-
-
 ```
+

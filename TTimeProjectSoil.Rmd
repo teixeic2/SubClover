@@ -16,10 +16,10 @@ library (lubridate)
 
 Note: the file is called HistoricMeanTemp but actually contains the hobologger data Iversen 2
 
-```{rload file}
-setwd("C:\\Users\\EdCarmen\\Documents\\CarmenProjects2016\\GitSubclover")
-getwd()
+```{r, load file}
 
+setwd("C:\\Users\\EdCarmen\\Documents\\CarmenProjects2016\\GitSubclover\\EmergenceIv2")
+getwd()
 
 df_file <- read.table("SoilTemp.txt", header=TRUE)
 

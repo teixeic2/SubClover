@@ -144,7 +144,7 @@ Show genotype effect (need to fix it)
 ```{r,fig.height=5, fig.width=10}
 
 library(scales)
-df_Rea4  %>% 
+df_Rea41 <- df_Rea4  %>% 
   mutate(Month=format(as.Date(ymd(SowingDate)),"%b")) %>%
   tidyr::gather("Variable", "Value",DaysToFlower,TTFloAdj) %>%
   filter(Treatcultivar=="Trikkala"| 
@@ -153,17 +153,16 @@ df_Rea4  %>%
            Treatcultivar=="MtBarker"|
            Treatcultivar=="Bena"|
            Treatcultivar=="Tallarook"|
-           Treatcultivar=="Dalkeith") %>%
+           Treatcultivar=="Dalkeith") 
+  df_Rea41 %>%
   ggplot(aes(x=Location, y= Value, colour=Treatcultivar)) +
   geom_boxplot(alpha=0.2)+
   geom_jitter(width = 0.1, aes(colour=Treatcultivar))+
   theme(axis.text.x = element_text(angle = 45, hjust = 1))+
  #theme(legend.position="none")+
   labs(x=" Location", y="    oCd        Days")+
-  #facet_wrap(~sowingDate, scales = "free")
-facet_grid(Variable~SowingDate,scale="free") 
-
-
+  facet_wrap(~Month, ncol= 5, scales = "free")
+#facet_grid(Variable~.,scale="free") 
 
 
 
