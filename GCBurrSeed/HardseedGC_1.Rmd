@@ -82,12 +82,12 @@ df_hardmax %>%
   summarise_each(funs(mean,sd)) %>%
   ggplot(aes(x=Round, y=mean, colour=factor(Cultivar), shape=factor(Cultivar))) +
   geom_point() +
-  geom_boxplot() +
+  geom_line() +
  facet_grid(.~FlowerStage) +
   labs(x="Round",y="Maximum Percentage of Hardseeds") +
   theme(axis.text.x = element_text(angle = 90, hjust = 1))+
   geom_errorbar(aes(ymin=mean-sd/2,
-                    ymax=mean+sd/2))+
+                    ymax=mean+sd/2), width=0.2)+
   theme_bw()+
   ylim(0,100)
 
@@ -97,165 +97,6 @@ df_hardmax %>%
 
 
 Stoped here!!
-
-
-```{r}
-
-#Graph the maximum percentage of Live hardseeds!!! 
-
-  df_hardmax %>%
-  filter(Round == 1) %>%
-  group_by(Cultivar,Round, FlowerStage) %>%
-  dplyr::select(CumSoft) %>%
-  summarise_each(funs(mean,sd)) %>%
-  ggplot(aes(x=SowingD, y=mean, colour=factor(Cultivar), shape=factor(Cultivar))) +
-  geom_point() +
-  geom_line() +
- facet_grid(Depth~Cultivar) +
-  labs(x="Sowing Date",y="Maximum Percentage of LiveHardseeds") +
-  theme(axis.text.x = element_text(angle = 90, hjust = 1))+
-  geom_errorbar(aes(ymin=mean-sd/2,
-                    ymax=mean+sd/2))+
-  ylim(0,100)
-
-
-
-
-
-
-
-
-```
-
-
-
-
-```{r}
-
-  
-#Now need to correct the hardseed breakdown for the number of living seeds : use softLive and Total live
-
-  
-  
-df_soft_live <- df_hard_live_max  %>%
-  #dplyr::select(-Date) %>%
-  group_by(SowTreat,Cultivar,Depth, Plot) %>% # need to keep level in which cumulation occurs
-  arrange(Round) %>% # need to tell which factor to accumulate within
-  mutate(CumSoft_live = cumsum(Soft_live)) %>%
- mutate(HardLive_perc = round(100-(CumSoft_live/Total_live*100),2))
-
-head (df_soft_live)
-  summary (df_soft_live)
-
-
-#Graph Breakdown Living hard seeds 
-
-df_soft_live %>%
-  mutate(SowingD = dmy(SowingD)) %>%
-  #filter(Round == 1) %>%
-  group_by(Cultivar,SowingD, SowTreat, Depth, Round) %>%
-  dplyr::select(HardLive_perc) %>%
-  summarise_each(funs(mean)) %>%
-  ggplot(aes(x=Round, y=mean, colour=factor(Cultivar), shape=factor(Cultivar))) +
-  geom_point() +
-  geom_line() +
-  ylim(0,100)+
- facet_grid(.~Depth) +
-  labs(x="Round",y="Percentage of LiveHardseeds") +
-  theme(axis.text.x = element_text(angle = 90, hjust = 1))
-
-#Calculate slopes not working 
-
-plots <- unique(df_soft_plot$Plot)
-depth <- unique(df_soft_plot$Depth)
-all.data <- NULL
-for(p in 1:length(plots)) {
-  for(d in 1:length(depth)) {
-  
-  df_sub <- subset(df_soft_plot, (df_soft_plot$Plot==plots[p] & Depth == depth[d]))
-  
-  x <- df_sub$Round
-  y <- 1-df_sub$PercSoftCum
-  
-  print(data.frame(x=x,y=y))
-  
-  
-  fit <- NULL
-  fit <- lm(y ~ x)
-  
-  intercept <- round(fit$coefficients[[1]],2)
-  slope <- round(fit$coefficients[[2]],3)
-  r2 <- round(summary(fit)$r.squared * 100,2)
-  # summary(fit)$adj.r.squared
-  block <- df_sub$Block[1]
-  cv <- as.character(df_sub$Cultivar[1])
-  sow <- as.character(df_sub$SowTreat[1])
-  sd <- dmy(df_sub$SowingD[1])
-  
-  
-  buf <- c(sow,cv,block, plots[p],  depth[d], intercept, slope, r2, nrow(df_sub))
-  print(buf)
-  
-    if (p==1 & d==1) {
-    all.data <- data.frame(
-    sow = sow,
-    cv = cv,
-    block = block, 
-    plot = plots[p],  
-    depth = depth[d], 
-    int = intercept, 
-    slope = slope, 
-    r2 = r2,
-   n= nrow(df_sub)
-    ) } else{
-    all.data <- rbind(all.data, buf)
-  }
-  
-  
-
-  }
-  
-}
-
-summary(all.data)
-
-```
-
-
-Graph date Propsoft  
-
-```{r Graph}
-
-
-
-df_seed %>%
-  select(SowTreat, Date,Block, Cultivar,PropSoft) %>%
-  ggplot (aes(x=SowTreat,y=PropSoft)) +
-  geom_point(aes(colour = Block)) +
-  facet_grid(Block ~ Cultivar)
-  
-#Graph seedsoft for S1, rounds 1 2 and 3
-head(df_seed)
-  df_seed %>%
-  select(SowTreat, Date,Block, Cultivar,Round, PropSoft)%>%
-  ggplot (aes(x=Round,y=PropSoft)) +
-  geom_point(aes(colour = SowTreat)) +
-  facet_grid(Block ~ Cultivar)
-  
-  
-```
-
-
-```{r}
-#Sum up the PropSoft starting form Round 1 (minimum soft) then round 2 and 3 
-#Fix here 
-
-head(df_seed)
-  df_seed %>%c
-  mutate(SumPropSoft = cumsum(PropSoft))
-  
-```
-
 
 
 
