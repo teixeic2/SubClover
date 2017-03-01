@@ -36,7 +36,7 @@ summary(df_seedH)
 
 
 
- 
+ Here suggestion first suggestion of Dean transform (2016!)
 
 ```{r}
 
@@ -93,9 +93,46 @@ TukeyHSD(my.anova)
 
 ```
 
+Here ANOVA according S. Saville advice : LSD test unprotected by sowing date 
 
 ```{r}
+#Filter  S1, S2, S3, S6 , S7 
+summary(df_seedH)
 
+df_seedHS6 <- df_seedH %>%
+  #filter(SowingD=="2015-06-24")
+  #filter(SowingD=="2015-07-28")
+  #filter(SowingD=="2015-09-15")
+  filter(SowingD=="2015-11-05")
+  #filter(SowingD=="2016-02-17")
+  #filter(SowingD=="2016-03-15")
+
+#data transformation many possibilities but logit worked well, however little difference between real and transformed numbers 
+
+#-------------------------------------------------
+# anova 
+file <- df_seedHS6
+
+
+file.subset <- file 
+
+head(file.subset)
+summary(file.subset)
+
+
+```
+
+```{r}
+#ANOVA
+my.anova <- aov(hardSeed ~ Cultivar + Block, data = file.subset)
+
+summary(my.anova)
+```
+
+Then use multiple comparisons of means
+```{r}
+#Means separation after ANOVA
+(LSD.test(my.anova, c("Cultivar"), alpha= 0.05, p.adj="none")) 
 ```
 
 

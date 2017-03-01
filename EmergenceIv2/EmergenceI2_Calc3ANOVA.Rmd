@@ -90,7 +90,7 @@ then
 var<-file$transf_no
 qqnorm(var)
 qqline(var, col = 2)
-qqplot(var, rt(3000))
+# qqplot(var, rt(3000))
 
 #-------------------------------------------------
 # ANOVA (selecing by hand FIXME: do loop)

@@ -1,0 +1,176 @@
+---
+title: "Compare FIsher test"
+author: "CT"
+date: "Thursday, December 31, 2015"
+output:
+  pdf_document: default
+  html_document: default
+  word_document: default
+---
+
+Purpose:
+
+-compare stats methods  
+ 
+
+
+
+```{r loadLibraries}
+library(tidyr)
+library (dplyr)
+library (ggplot2)
+library(agricolae)
+library(knitr)
+library (lubridate)
+library(mosaic)
+library(lattice)
+```
+
+
+```{r loadFile}
+setwd("C:\\Users\\EdCarmen\\Documents\\CarmenProjects2016\\GitSubclover")
+getwd()
+
+#create file
+df_emerg <- read.table("HardseedCompare.txt",header=TRUE)
+
+# define factors for the ones that "look like" values
+#df_emerg$Plot <- as.factor(df_emerg$Plot)
+df_emerg$Block <- as.factor(df_emerg$Block)
+
+
+
+str(df_emerg)
+head(df_emerg)
+tail(df_emerg)
+
+
+df_emerg %>% filter(Block ==1) %>% summary()
+
+
+```
+
+```{r, fig.height= 5, fig.width= 10}
+
+
+```
+
+
+
+
+Run ANOVA pure numbers 
+
+```{r}
+#data transf
+file <- df_emerg
+file$transf_no <- 1*(df_emerg$buriedhseed)
+head(file)
+
+#-------------------------------------------------
+# ANOVA 
+file.subset <- file 
+
+head(file.subset, 50)
+summary(file.subset)
+my.anova <- aov(transf_no ~ Cultivar + Block, 
+                data = file.subset)
+
+summary(my.anova)
+
+#TukeyHSD(my.anova)
+
+#Means separation 
+(LSD.test(my.anova, c("Cultivar"), alpha= 0.05, p.adj="none") )
+#(LSD.test(my.anova, "Cultivar"))
+
+```
+ 
+
+
+Create Graph Percent emergence with Mean Soil Temperature 
+```{r}
+
+setwd("C:\\Users\\EdCarmen\\Documents\\CarmenProjects2016\\GitSubclover\\EmergenceIv2")
+getwd()
+
+
+df_fileSo <- read.table("SoilTemp.txt", header=TRUE)
+
+head(df_fileSo)
+
+df_fileSo <- df_fileSo %>%
+mutate(ReadingDate = dmy(Date)) %>%
+dplyr:: select(-Date)
+str(df_fileSo)
+
+head(df_emerg_perc)
+head(df_fileSo)
+
+ 
+# Merge SoilTemp and Emergence  at measurement date
+df_emerg_perc_SoilT <- NULL
+df_emerg_perc_SoilT <- merge(df_emerg_perc,df_fileSo,by="ReadingDate")
+head(df_emerg_perc_SoilT)
+
+
+```
+
+
+
+```{r SoilTemp}
+# include soil  temperature before 30 June_lysimeter  
+
+df_SoilTT <- read.table("ThermalSumSoil.txt",header=TRUE)
+head(df_SoilTT)
+
+# convert to date format
+df_SoilTT <- as.data.frame(df_SoilTT) %>%
+ mutate(Date=ymd(Date))
+
+
+# check
+head(df_SoilTT)
+summary (df_SoilTT)
+
+```
+
+Merge the dataframes 
+
+```{r}
+
+# Merge Tt at measurement date
+df_emerg_perc_TT <- NULL
+df_emerg_perc_TT <- merge(df_emerg_perc,df_SoilTT,by.x="ReadingDate",by.y="Date")
+df_emerg_perc_TT <- merge(df_emerg_perc_TT,df_SoilTT,by.x="SowingDate",by.y="Date")
+df_emerg_perc_TT$TT_to_emerg <- df_emerg_perc_TT$TT.x-df_emerg_perc_TT$TT.y
+summary(df_emerg_perc_TT)
+
+#save as table 
+write.table(df_emerg_perc_TT, "df_emerg_perc_soilTT.txt")
+head(df_emerg_perc_TT )
+
+
+  
+
+
+```
+
+```{r, fig.width=10, fig.height=7}
+# graph emerg x tt
+df_emerg_perc_TT %>%
+  group_by(Cultivar, SowTreat, TT_to_emerg) %>%
+  #dplyr::select(-SowingDate, - ReadingDate) %>%
+#  filter(Cultivar =="Narrikup") %>%
+  summarise_each(funs(mean)) %>%
+  ggplot(aes(x=TT_to_emerg, y=PercEmerg,colour=Cultivar)) + 
+  geom_point() +
+  geom_line() +
+  #facet_grid (Cultivar~., scales = "free")+
+  geom_abline(intercept = 50, slope = 0) +
+  facet_wrap (~SowTreat,ncol=4, scales = "free")+
+  theme_bw() +
+  theme(text = element_text(size = 10))+
+  xlab("Thermal-time from sowing") +
+  ylab("Percentage emergence")
+```
+
