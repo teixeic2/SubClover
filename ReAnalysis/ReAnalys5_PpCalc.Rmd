@@ -102,7 +102,8 @@ df_Rea7 %>%
  #geom_smooth(se=FALSE)+
   #theme(legend.position="none")+
   labs(shape="Maturity Group")+
-  facet_grid(Variable~Location, scales = "free")
+  facet_grid(Variable~Location, scales = "free")+
+   theme(text = element_text(size = 12))
 ```
 
 Try same graph but with x = date (continuous)
@@ -373,7 +374,7 @@ ggg <- c("Late","Early")
     mutate(tt_juv_toflower=Value-tt_extra_opt)%>%
     ggplot(aes(x=Pp_target,y=Value)) +
      #ggplot(aes(x=Pp_target,y=tt_juv_toflower)) + #test Pp versus the TTdiferential form Juvenile to flower
-    geom_point(aes(shape=factor(SeasonYear),colour=reorder(Month, month(SowingDate)))) + 
+    geom_point(aes(shape=factor(SeasonYear),colour=reorder(Month, month(SowingDate)))) +
     # stat_smooth(method = "lm", formula = y ~ x + I(x^2), size = 1) + 
      stat_smooth(method = "lm", formula = y ~ poly(x, 2), size = 1)+
      geom_abline(intercept = ifelse(df_Rea7$SensGroup=="Late",900,700), slope=0,linetype=2)+
@@ -433,7 +434,7 @@ str(df_ReaVerna)
 summary(df_ReaVerna)
 ```
 
-
+changing here 
 
 ```{r, fig.height=5, fig.width= 10}
 
@@ -455,31 +456,38 @@ ggg <- c("Late","Early")
      rowwise() %>%
     #dplyr::filter(SensGroup == ggg[gg]) %>%
     filter(Variable == "TTFloAdj") %>%
+     #use this mutate(tt_extra_opt=as.numeric(ifelse(SensGroup=="Late",900,700)))%>%
      mutate(tt_extra_opt=as.numeric(ifelse(SensGroup=="Late",900,700)))%>%
      mutate(TT_target = TTSumSow + tt_extra_opt) %>% #define multiple thermal time after sowing for which photoperiod needs to be retrieved 
     mutate(Pp_target = Pp_finder_func(as.character(LocationYear),TT_target)) %>%
     mutate(tt_juv_toflower=Value-tt_extra_opt)
     
-     h %>%
+     
+  
+
+
+```
+
+```{r,fig.height=5, fig.width= 10}
+h %>%
      ggplot(aes(x=Pp_target,y=Value)) +
      #ggplot(aes(x=Pp_target,y=tt_juv_toflower)) + #test Pp versus the TTdiferential form Juvenile to flower
      geom_point(aes(shape=factor(SeasonYear), 
                     size=as.numeric(VerntoFlower),
                     colour=reorder(Month, month(SowingDate))
                   )) +
+       scale_shape(solid = FALSE)+
     # stat_smooth(method = "lm", formula = y ~ x + I(x^2), size = 1) + 
      stat_smooth(method = "lm", formula = y ~ poly(x, 2), size = 1)+
      geom_abline(intercept = ifelse(df_Rea7$SensGroup=="Late",900,700), slope=0,linetype=2)+
      geom_vline(xintercept = 14, linetype=2)+
-     labs(x="Photoperiod at inductive phase (hours)", y="Thermal Time to flower (degree days)")+
+     labs(x="Photoperiod at inductive phase", y ="Thermal Time to flower (degree days)")+
       theme(legend.position="top") +
+       theme(text = element_text(size = 14))+
     labs(shape="Season", colour="Sowing Month", size = "Vernalisation Days")+
      facet_grid(.~SensGroup)
 
    print(h)
-  
-
-
 ```
 
 

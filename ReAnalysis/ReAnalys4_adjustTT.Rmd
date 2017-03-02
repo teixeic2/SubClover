@@ -148,19 +148,24 @@ df_Rea41 <- df_Rea4  %>%
   mutate(Month=format(as.Date(ymd(SowingDate)),"%b")) %>%
   tidyr::gather("Variable", "Value",DaysToFlower,TTFloAdj) %>%
   filter(Treatcultivar=="Trikkala"| 
+           Treatcultivar=="Dalkeith"|
+           Treatcultivar=="Karridale"|
            Treatcultivar=="Nungarin"|
            Treatcultivar=="Denmark"|
            Treatcultivar=="MtBarker"|
            Treatcultivar=="Bena"|
+           Treatcultivar=="Woogenellup"|
            Treatcultivar=="Tallarook"|
-           Treatcultivar=="Dalkeith") 
+           Treatcultivar=="Larisa") 
   df_Rea41 %>%
   ggplot(aes(x=Location, y= Value, colour=Treatcultivar)) +
   geom_boxplot(alpha=0.2)+
   geom_jitter(width = 0.1, aes(colour=Treatcultivar))+
   theme(axis.text.x = element_text(angle = 45, hjust = 1))+
  #theme(legend.position="none")+
-  labs(x=" Location", y="    oCd        Days")+
+    ylim(0, 2500)+
+  labs(x=" Location", y="    oCd  ")+
+    theme(text = element_text(size = 12))+
   facet_wrap(~Month, ncol= 5, scales = "free")
 #facet_grid(Variable~.,scale="free") 
 

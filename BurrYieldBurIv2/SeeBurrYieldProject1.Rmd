@@ -1,0 +1,284 @@
+---
+title: "BurrBurialAnalysis"
+author: "CT"
+date: "Friday, March 18, 2016"
+output: html_document
+---
+
+
+
+```{r}
+#Load libraries 
+library(tidyr)
+library (dplyr)
+library (ggplot2)
+library(agricolae)
+library(lubridate)
+```
+
+Read File 
+
+```{r, echo=FALSE}
+setwd("C:\\Users\\EdCarmen\\Documents\\CarmenProjects2016\\Gitsubclover\\BurrYieldBurIv2")
+getwd()
+file <- read.table("SeedBurrYield.txt",header=TRUE)
+head(file)
+summary(file)
+```
+
+Calculations 
+
+```{r}
+
+# define factors and formats
+file <- file %>%
+  mutate(
+    Plot = as.factor(Plot),
+    Block = as.factor(Block),
+    Cultivar = as.factor(Cultivar),
+    Date = dmy(Date),
+    SowingD = dmy(SowingD)
+  )
+
+str(file)
+summary(file)
+
+```
+
+
+```{r}
+
+df <- file %>%
+  dplyr::select(Cultivar,SowTreat,sample_area_m2,Block,
+                Depth,bur_total_weight_g,
+                bur_no_subSample,
+                bur_weight_subSample_g) %>%
+  mutate(IndBurrW = bur_weight_subSample_g/
+           bur_no_subSample,
+         BurrNumber = bur_total_weight_g/IndBurrW) %>%  
+  group_by(Cultivar, SowTreat,Depth,Block) %>%
+  summarise_each(funs(mean)) %>%
+  dplyr::select(Cultivar,SowTreat,
+                Depth,BurrNumber,Block)
+
+  df <- as.data.frame(df)
+head(df)
+
+```
+
+Re start
+
+```{r, fig.height= 5, fig.width=10 , warning=FALSE}
+
+#barplot 
+#The palette with grey:cbPalette <- c("999999"),"666666", "#56B4E9", "#009E73", "#D55E00", "#0072B2","#999999", "#E69F00", "#56B4E9", "#009E73", "#D55E00", "#0072B2","#56B4E9", "#009E73")
+
+#cbPalette <- c("#E69F00", "#56B4E9", "#009E73", "#D55E00", "#0072B2","#56B4E9")
+
+
+# define position of bar and errorbar
+dodge_x <- position_dodge(width = 0.9)
+
+# splitting and df due bug in tidyr (https://github.com/hadley/tidyr/issues/32)
+
+  df_bur <- df %>%
+  tidyr::spread(Depth,BurrNumber) %>%
+  mutate(PropBurrBuried= Below/(Below+Above)*100)
+
+
+
+
+```
+
+```{r, fig.height= 5, fig.width=10 , warning=FALSE}
+df_bur %>%
+  group_by(Cultivar, SowTreat) %>%
+  summarise_each(funs(mean,sd)) %>%
+  #mutate(colPal = ifelse(Cultivar=="Antas","Brachy",ifelse(Cultivar=="Monti","Brachy","Yanny"))) %>%
+  #ggplot(aes(x=Cultivar, y=(PropBurrBuried_mean),fill=colPal)) +
+  ggplot(aes(x=Cultivar, y=(PropBurrBuried_mean),fill=Cultivar))+
+   geom_bar(stat="identity", position = dodge_x) +
+  geom_errorbar(aes(ymin=PropBurrBuried_mean-PropBurrBuried_sd/2, ymax=PropBurrBuried_mean+PropBurrBuried_sd/2),
+                width=0.25, size=0.3,position=dodge_x)   +
+  theme_grey(base_size = 16) +
+    facet_grid(.~SowTreat) +
+    labs(y="% Buried burrs") +
+  theme_bw()+
+theme(axis.text.x=element_text(angle = +89, hjust = 0.95, size = 12))
+
+head(df_bur)
+```
+
+
+Try another style 
+
+
+```{r,  fig.height= 5, fig.width=10 , warning=FALSE}}
+
+df_bur  %>% 
+  group_by(Cultivar, SowTreat) %>%
+  summarise_each(funs(mean,sd)) %>%
+  
+  #mutate(Month=format(as.Date(ymd(SowingDate)),"%b")) %>%
+  ggplot(aes(x=Cultivar, y=(PropBurrBuried_mean),fill=Cultivar))+
+  labs(x="Cultivar", y="   % Buried burrs ")+
+  #geom_boxplot(alpha=0.2)+
+  geom_point(alpha=0.2)+
+  geom_boxplot(alpha=0.2)+
+  geom_jitter(alpha=0.2,width = 0.3, aes(colour=Cultivar))+
+  #labs(x=" Sowing Month", y="                oCd                Days ")+
+  #facet_wrap(~Country)
+  #geom_point(shape=21) +
+# theme(legend.position="none")+
+  theme_grey(base_size = 16) +
+    facet_grid(.~SowTreat) +
+  theme_bw()+
+  theme(axis.text.x=element_text(angle = +89, hjust = 0.95))
+
+
+
+```
+
+
+
+```{r, fig.height= 5, fig.width=10 , warning=FALSE}}
+df_bur %>%
+  group_by(Cultivar, SowTreat) %>%
+  summarise_each(funs(mean,sd)) %>%
+  mutate(colPal = ifelse(Cultivar=="Antas","Brachy",ifelse(Cultivar=="Monti","Brachy","Yanny"))) %>%
+  ggplot(aes(x=Cultivar, y=(PropBurrBuried_mean),fill=colPal)) +
+  geom_bar(stat="identity", position = dodge_x) +
+  geom_errorbar(aes(ymin=PropBurrBuried_mean-PropBurrBuried_sd/2, ymax=PropBurrBuried_mean+PropBurrBuried_sd/2),
+                width=0.25, size=0.3,position=dodge_x)   +
+  theme_grey(base_size = 16) +
+    facet_grid(.~SowTreat) +
+    labs(y="Percentage Buried burrs") +
+theme(axis.text.x=element_text(angle = +89, hjust = 0.95))
+head(df_bur)
+
+```
+
+Do ANOVA simple as per D. Saville 
+
+```{r}
+
+#Filter  S1, S2, S3, S4, S6 , S7 
+summary(df_bur)
+
+df_burANOVA <- df_bur #use to filter%>%
+  #filter(SowTreat=="S1")
+  #filter(SowTreat=="S2")
+  #filter(SowTreat=="S3")
+  #filter(SowTreat=="S4")
+  #filter(SowTreat=="S6")
+  #filter(SowTreat=="S7")
+
+
+#-------------------------------------------------
+# anova 
+file <- df_burANOVA
+
+
+file.subset <- file 
+
+head(file.subset)
+summary(file.subset)
+
+```
+
+
+```{r}
+
+#ANOVA
+my.anova <- aov(PropBurrBuried ~ Cultivar + Block, data = file.subset)
+
+summary(my.anova)
+```
+
+```{r}
+#Means separation after ANOVA
+(LSD.test(my.anova, c("Cultivar"), alpha= 0.05, p.adj="none")) 
+```
+
+
+The chunks below were prototypes _ Transform checks (not using it now)
+
+```{r}
+
+
+#data transformation 
+df_bur$transf_no <- 1*(df_bur$PropBurrBuried)
+# df_bur$transf_sqr <- sqrt(df_bur$PropBurrBuried)
+# df_bur$transf_log <- log(df_bur$PropBurrBuried)
+# df_bur$transf_acos <- acos(df_bur$PropBurrBuried/100)
+
+head(df_bur)
+
+ file <- df_bur
+ 
+#................................................................
+ #No need for this  
+# x <- c( "df_bur$transf_no',transf_sqr", "transf_log", "transf_acos","df_bur$transf_no")
+# colsSelec <- match(x,colnames(file))
+# 
+# file %>%
+#   tidyr::gather("transformation","value",colsSelec) %>%
+#   ggplot(aes(value)) + 
+#   geom_histogram() +
+#   facet_grid(.~transformation, scales="free")
+# 
+# head(file)
+# 
+# #normality test
+# shapiro.test(file$transf_log)
+
+# #QQplot
+# var<-file$transf_acos
+# qqnorm(var)
+# qqline(var, col = 2)
+# qqplot(var, rt(300))
+
+#-------------------------------------------------
+# ANOVA (selecing by hand FIXME: do loop)
+file.subset <- file %>%
+ #here filter the swoTreat to analyse separately
+  subset(SowTreat == "S1" )
+
+
+
+
+
+
+
+```
+
+```{r}
+
+file.subset <- file
+
+#head(file.subset, 50)
+summary(file.subset)
+my.anova <- aov(transf_no ~ Cultivar + Block, data = file.subset)
+
+summary(my.anova)
+
+```
+
+```{r}
+
+
+#Means separation 
+(LSD.test(my.anova, "Cultivar", alpha= 0.05, p.adj="none")) 
+
+#TukeyHSD(my.anova)
+```
+
+
+
+
+
+
+
+
+
+
