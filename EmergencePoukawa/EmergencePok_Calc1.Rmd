@@ -200,7 +200,7 @@ head(df_emerg_perc_SoilT)
 ```{r SoilTemp}
 # include soil  temperature before 30 June_lysimeter  
 
-df_SoilTT <- read.table("ThermalSumSoil.txt",header=TRUE)
+df_SoilTT <- read.table("df_CumTT.txt.txt",header=TRUE)
 head(df_SoilTT)
 
 # convert to date format

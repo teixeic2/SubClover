@@ -46,7 +46,7 @@ head(df_GCF)
  df_GCF %>%
   group_by(DAS, Cultivar,SowingD,Variable)%>%
   summarise_each(funs(mean)) %>%
-  select(Variable,Percent, Cultivar)%>%
+  #select(Variable,Percent, Cultivar)%>%
   filter(Variable == "Bud") %>%
   ggplot(aes(x=DAS, y=Percent)) + 
   geom_line(aes(colour=Cultivar)) +
@@ -58,17 +58,17 @@ head(df_GCF)
 ```
 
 
-```{r GraphAllVariables, fig.height=10,fig.width=7}
+```{r GraphAllVariables, fig.height=5,fig.width=8}
 
 
 df_GCF %>%
   #filter(Cultivar != "Denmark" )%>%
   mutate(Variable = 
   factor(Variable,levels = c("Bud","Early","Open",
-          "Petal","Bur1","Bur2","Bur3","Bur4" )))%>%
+          "Petal","Bur8","Bur9","Bur10","Bur12" )))%>%
   group_by(DAS,Cultivar,Variable) %>%
   summarise_each(funs(mean)) %>%
-  select(Variable,Percent, Cultivar,DAS) %>%
+  #select(Variable,Percent, Cultivar,DAS) %>%
   #filter(Cultivar == "Antas" | Cultivar =="Narrikup") %>%
   ggplot(aes(x=DAS, y=Percent)) + 
   #geom_bar(shape=1, stat="identity")
@@ -77,6 +77,7 @@ df_GCF %>%
   facet_grid(Variable~., scales = "free") +
   geom_abline(intercept = 50, slope = 0,linetype=2)+
 theme(axis.text.x = element_text(angle = 0, hjust = 0.5))+
+  theme_bw()+
 scale_x_continuous(breaks=seq(min(df_GCF$DAS),max(df_GCF$DAS),20))
   
 ```
@@ -87,10 +88,10 @@ scale_x_continuous(breaks=seq(min(df_GCF$DAS),max(df_GCF$DAS),20))
 df_GCF %>%
   filter(Cultivar =="Denmark" )%>%
   mutate(Variable = 
-  factor(Variable,levels = c("Bud","Bur3","Bur4" )))%>%
+  factor(Variable,levels = c("Bud","Bur10","Bur12" )))%>%
   group_by(DAS,Cultivar,Variable) %>%
   summarise_each(funs(mean)) %>%
-  select(Variable,Percent, Cultivar,DAS) %>%
+  #select(Variable,Percent, Cultivar,DAS) %>%
   #filter(Cultivar == "Antas" | Cultivar =="Narrikup") %>%
   ggplot(aes(x=DAS, y=Percent)) + 
   #geom_bar(shape=1, stat="identity")
@@ -159,15 +160,16 @@ summary(df_flower )
 
 df_flower %>%
   mutate(Variable = 
-  factor(Variable,levels = c("Bud","Bur3"))) %>%
+  factor(Variable,levels = c("Bud","Bur10"))) %>%
   group_by(DAS,Cultivar,Variable) %>%
   summarise_each(funs(mean)) %>%
-  select(Variable,Percent, Cultivar) %>%
+  #select(Variable,Percent, Cultivar) %>%
   #filter(Cultivar == "Narrikup" | Cultivar =="Denmark") %>%
   ggplot(aes(x=DAS, y=Percent)) + 
   geom_line(aes(colour=Cultivar)) +
   geom_point(aes(colour=Cultivar, shape=Cultivar))+
   facet_grid(.~Variable, scales = "free") +
+  theme_bw()+
   geom_abline(intercept = 50, slope = 0)+
   
 theme(axis.text.x = element_text(angle = 90, hjust = 1))
@@ -175,8 +177,6 @@ theme(axis.text.x = element_text(angle = 90, hjust = 1))
 
 
 ```{r CalculateTTAftersowing}
-
-
 
 df_flower$TTAS <- df_flower$TT_meas-df_flower$TT_sow
 head(df_flower)
@@ -189,13 +189,16 @@ df_flower %>%
           "Petal","Bur1","Bur2","Bur3","Bur4" ))) %>%
   group_by(TTAS,Cultivar,Variable,DAS) %>%
   summarise_each(funs(mean)) %>%
-  select(Variable,Percent, Cultivar,TTAS,DAS) %>%
+  #select(Variable,Percent, Cultivar,TTAS,DAS) %>%
   filter(Variable == "Bud") %>%
   ggplot(aes(x=TTAS, y=Percent)) + 
   geom_line(aes(colour=Cultivar)) +
+  #geom_smooth(aes()+
   facet_grid(.~Cultivar, scales = "free") +
   geom_abline(intercept = 50, slope = 0)+
 theme(axis.text.x = element_text(angle = 60, hjust = 1))+
+  theme_bw()+
+  xlim(200,2400)+
   labs(x="TTAS",y="Percent of Plants at floral stageBud")
 
 summary(df_flower)
@@ -210,7 +213,7 @@ df_flower %>%
           "Petal","Bur1","Bur2","Bur3","Bur4" )))%>%
   group_by(TTAS,DAS,Cultivar,Variable) %>%
   summarise_each(funs(mean)) %>%
-  select(Variable,Percent, Cultivar,DAS,TTAS) %>%
+  #select(Variable,Percent, Cultivar,DAS,TTAS) %>%
   #filter(Cultivar == "Antas" | Cultivar =="Narrikup") %>%
   ggplot(aes(x=TTAS, y=Percent)) + 
   #geom_bar(shape=1, stat="identity")
@@ -218,6 +221,7 @@ df_flower %>%
    geom_point(aes(colour=Cultivar, shape=Cultivar))+
   facet_grid(Variable~., scales = "free") +
   geom_abline(intercept = 50, slope = 0,linetype=2)+
+  theme_bw()+
 theme(axis.text.x = element_text(angle = 0, hjust = 0.5))#+
 #scale_x_continuous(breaks=seq(min(df_flower$TTAS),max(df_flower$TTAS),1200))
 

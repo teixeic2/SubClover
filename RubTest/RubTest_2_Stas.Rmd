@@ -1,0 +1,90 @@
+---
+title: "Stats for Rub test  "
+author: "CT"
+date: "June 5, 2016"
+output:
+  word_document: default
+  pdf_document: default
+  
+ 
+---
+
+```{r loadLibraries}
+library(tidyr)
+library (dplyr)
+library (ggplot2)
+library(agricolae)
+library(knitr)
+library (lubridate)
+library(rgr)
+```
+
+
+```{r loadFile}
+setwd("C:\\Users\\EdCarmen\\Documents\\CarmenProjects2016\\Gitsubclover\\RubTest")
+getwd()
+file <- read.table("RubTest.txt",header=TRUE)
+head(file)
+summary(file)
+
+
+```
+
+```{r}
+# define factors and formats
+file <- file %>%
+  mutate(
+    Treat = as.factor(Treat),
+    Rep = as.factor(Rep),
+    CV = as.factor(CV))
+    
+
+str(file)
+summary(file)
+head(file)
+```
+
+
+```{r}
+df<- file %>%
+  mutate(HardSeedsPercent = 100-((Softseeds/Seeds)*100)) %>%
+  dplyr::select(CV,Treat,
+                Rep,HardSeedsPercent)
+
+  df <- as.data.frame(df)
+head(df)
+```
+
+
+Here ANOVA according S. Saville advice : LSD test unprotected 
+
+```{r}
+summary(df)
+
+#df <- df %>%
+  #filter(SowingD=="2015-06-24")
+  #-------------------------------------------------
+# anova 
+file <- df
+file.subset <- file 
+
+head(file.subset)
+summary(file.subset)
+
+
+```
+
+```{r}
+#ANOVA
+my.anova <- aov(HardSeedsPercent ~ Treat*CV + Rep, data = file.subset)
+
+summary(my.anova)
+```
+
+Then use multiple comparisons of means
+```{r}
+#Means separation after ANOVA
+(LSD.test(my.anova, c("CV"), alpha= 0.05, p.adj="none")) 
+```
+
+

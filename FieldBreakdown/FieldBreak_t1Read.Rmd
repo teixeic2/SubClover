@@ -1,7 +1,7 @@
 ---
-title: "Hardseeds 6CV"
+title: "Hardseeds breakdown field"
 author: "CT"
-date: "Thursday, FEbruary 3, 2015"
+date: September,7 2016"
 output:
   word_document: default
   
@@ -18,12 +18,12 @@ library(rgr)
 ```
 
 
-```{r loadFile}
-setwd("C:\\Users\\EdCarmen\\Documents\\CarmenProjects2016\\Gitsubclover\\Hardseeds")
+```{r, loadFile}
+setwd("C:\\Users\\EdCarmen\\Documents\\CarmenProjects2016\\Gitsubclover\\FieldBreakdown")
 getwd()
 
 #create file
-df_seed <- read.table("HardseedsData.txt",header=TRUE)
+df_seed <- read.table("FieldBreakData.txt",header=TRUE)
 head(df_seed)
 summary(df_seed)
 
@@ -31,13 +31,13 @@ df_seed %>%
   filter(Plot==1)
 
 # Jeito 1 de trocar formato (usando base R)
-df_seed$Date <- dmy(df_seed$Date)
+#df_seed$Date <- dmy(df_seed$Date)
 
 # jeito 2 de trocar formato (usando dplyr)
 df_seed <- df_seed %>%
   mutate(Plot = as.factor(Plot), Block = as.factor(Block)) %>%
 #  mutate(Soft = as.numeric(Soft)) %>%
-  mutate(PropSoft = round(Soft/max(SeedNumber)*100,digits=2))
+  mutate(PropSoft = round(Germinated/NumberSeedsPerBag*100,digits=2))
 
 summary(df_seed) # explore values
 str(df_seed) # check formats
@@ -50,22 +50,22 @@ df_seed %>%
 ```
 
 Graph the potential Hardseededness 
-good ref font size control :http://stackoverflow.com/questions/25061822/ggplot-geom-text-font-size-control
+
 
 ```{r, fig.height=5, fig.width=10}
 df_seed %>%
   mutate(hardSeed = 100-PropSoft) %>%
-  mutate(SowingD = dmy(SowingD)) %>%
-    filter(Round == 14) %>%  #need to keep filter to get first and max hardseed percent
-  mutate(Depth = factor(Depth,levels=c( "Above","Below"))) %>%
-  group_by(Cultivar,SowingD,Depth) %>%
+  #mutate(SowingD = dmy(SowingD)) %>%
+    filter(DAB == 111) %>%  #need to keep filter to get first and max hardseed percent
+  #mutate(Depth = factor(Depth,levels=c( "Above","Below"))) %>%
+  group_by(Cultivar) %>%
   dplyr::select(hardSeed) %>%
   summarise_each(funs(mean,sd)) %>%
-  ggplot(aes(x=SowingD, y=mean, colour=factor(Cultivar), shape=factor(Cultivar))) +
+  ggplot(aes(x=Cultivar, y=mean, colour=factor(Cultivar), shape=factor(Cultivar))) +
   geom_point() +
   geom_line() +
- facet_grid(.~Depth) +
-  labs(x="Sowing Date",y="Maximum Percentage of Hardseeds") +
+ #facet_grid(.~Depth) +
+  labs(x="DAB",y="Maximum Percentage of Hardseeds") +
   theme(axis.text.x = element_text(angle = 90, hjust = 1))+
   geom_errorbar(aes(ymin=mean-sd/2,
                     ymax=mean+sd/2))+
@@ -83,42 +83,34 @@ summary(df_seed)
 ```{r, warning=FALSE}
 
 g1 <- df_seed %>%
-  dplyr::select(-Date) %>% #
-  group_by(SowTreat,Cultivar,Depth, Plot) %>% # need to keep level in which cumulation occurs
-  arrange(Round) %>% # need to tell which factor to accumulate within
-  mutate(Soft_cum = cumsum(Soft)) %>%
-  mutate(PercSoftCum=Soft_cum/max(SeedNumber))%>%
-  group_by(SowTreat,Cultivar,Depth, Round) %>%
+  dplyr::select(-SowingDate) %>% #
+  group_by(Cultivar, Plot) %>% # need to keep level in which cumulation occurs
+  arrange(DAB) %>% # need to tell which factor to accumulate within
+  mutate(Germ_cum = cumsum(Germinated)) %>%
+  mutate(PercSoftCum=Germ_cum/NumberSeedsPerBag)%>%
+  group_by(Cultivar, DAB) %>%
   summarise_each(funs(mean)) 
 ```
 
 
 
 
-```{r CreatePercentSoft}
+```{r ,CreatePercentHard}
 
-g1 <- df_seed %>%
-  dplyr::select(-Date) %>% #
-  group_by(SowTreat,Cultivar,Depth, Plot) %>% # need to keep level in which cumulation occurs
-  arrange(Round) %>% # need to tell which factor to accumulate within
-  mutate(Soft_cum = cumsum(Soft)) %>%
-  mutate(PercSoftCum=Soft_cum/max(SeedNumber))%>%
-  group_by(SowTreat,Cultivar,Depth, Round) %>%
-  summarise_each(funs(mean)) 
+summary (g1)
 
 # per round
 g1 %>%
   ungroup() %>%
-mutate(Depth = factor(Depth,levels=c( "Above","Below"))) %>%
-ggplot(aes(x=Round, y=100*(1-PercSoftCum), colour=Cultivar, shape=Cultivar)) +
+#mutate(Depth = factor(Depth,levels=c( "Above","Below"))) %>%
+ggplot(aes(x=DAB, y=100*(1-PercSoftCum), colour=Cultivar, shape=Cultivar)) +
   geom_point() +
   geom_line() +
-  facet_grid(Depth~SowTreat) +
+  #facet_grid(Depth~SowTreat) +
   theme_bw()+
-  # changes axis labels
-  theme(axis.text = element_text(size = 8))+ 
-  geom_vline(xintercept = 98, linetype=2)+
-   labs(x="Days ",y="Cumulative Proportion Hardseeds")
+  ylim(0,100)+
+  #geom_vline(xintercept = 5, linetype=2)+
+   labs(x="Days",y="Cumulative Proportion Hardseeds")
 
 
 
@@ -129,8 +121,31 @@ ggplot(aes(x=Round, y=100*(1-PercSoftCum), colour=Cultivar, shape=Cultivar)) +
 
 ```{r}
 
-summary(g1)
-#xy up down comparison
+summary (g1)
+
+g2 <- g1 %>%
+ mutate(CumhardSeed = 100*(1-PercSoftCum)) %>%
+group_by(Cultivar) %>%
+  dplyr::select(CumhardSeed, DAB) %>%
+  summarise_each(funs(mean,sd)) 
+
+summary (g2) 
+
+  ggplot(aes(x=DAB, y=CumhardSeed_mean, colour=factor(Cultivar), shape=factor(Cultivar))) +
+  geom_point() +
+  geom_line() +
+ #facet_grid(.~Depth) +
+  labs(x="DAB",y=" Percentage of Hardseeds") +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1))+
+  geom_errorbar(aes(ymin=CumhardSeed_sd/2,
+                    ymax=CumhardSeed_sd/2))+
+  theme_bw()+
+  ylim(0,100)
+
+
+
+
+
 g1 %>%
   dplyr::select(Plot,PercSoftCum,Depth,Round) %>%
   tidyr::spread(Depth, PercSoftCum) %>%
@@ -367,7 +382,7 @@ Calculate the mean and stdev
 df_Hard <-df_seed %>%
   mutate(hardSeed = 100-PropSoft) %>%
   mutate(SowingD = dmy(SowingD)) %>%
-  filter(Round == 14) %>%
+  filter(Round == 1) %>%
   group_by(Cultivar,SowingD) %>%
   dplyr::select(hardSeed) %>%
   summarise_each(funs(mean,sd))

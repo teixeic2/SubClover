@@ -158,23 +158,33 @@ summary(df_tt_50p_flow)
 ```{r GraphResults}
 
 df_tt_50p_flow %>%
-  #filter( SowTreat != "S6" & SowTreat != "S7")%>%
-  ggplot(aes(x=SowingD,y=DAS50F,colour=Cultivar))+
+  #use filter to check single variables
+  filter( Variable== "Bud") %>%
+  ggplot(aes(x=SowingD,y=TT50F,colour=Cultivar))+
   geom_point()+
-  facet_grid(Variable~.)+
-  geom_line()
+  geom_line()+
+  #facet_grid(Variable~.)+
+  theme_bw()+
+  xlab("Sowing Month")+
+  ylab("Thermal Time (degree days)")
+  
 
+
+
+
+
+```
+
+```{r}
 df_tt_50p_flow %>%
     #filter( SowTreat != "S6" & SowTreat != "S7")%>%
   ggplot(aes(x=SowingD,y=TT50F,colour=Cultivar))+
   geom_point()+
   facet_grid(Variable~.)+
+  theme_bw()+
   geom_line()
 
 summary(df_tt_50p_flow)
-
-
-
 ```
 
 

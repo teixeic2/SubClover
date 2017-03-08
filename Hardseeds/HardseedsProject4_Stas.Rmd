@@ -48,7 +48,7 @@ df_seedH$transf_no <- 1*(df_seedH$hardSeed)
 # df_seedH$transf_log <- log(df_seedH$hardSeed)
 # df_seedH$transf_acos <- acos(df_seedH$hardSeed/100)
 # df_seedH$transf_power3 <- (df_seedH$hardSeed)^3
-df_seedH$transf_logit <- logit(df_seedH$hardSeed/100)
+#df_seedH$transf_logit <- logit(df_seedH$hardSeed/100)
 
 write.table(df_seedH,"df_seedHanova.txt")
 file <- df_seedH

@@ -102,6 +102,8 @@ Graph days to Flower and TTAdj vs. Location
 library(scales)
 df_Rea4  %>% 
   tidyr::gather("Variable", "Value",DaysToFlower,TTFloAdj) %>%
+  #use this filter to analyse single locations
+  #filter (Location=="Whatawhata")%>%
   ggplot(aes(x=Location, y= Value, colour=Treatcultivar)) +
   geom_point(shape=21) +
   theme(axis.text.x = element_text(angle = 90, hjust = 1))+
