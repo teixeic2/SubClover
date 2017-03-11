@@ -79,6 +79,9 @@ df_emerg %>% filter(Plot ==1) %>% summary()
 
 
 
+
+
+
 ```{r CalculatePercentageEmergence }
 
 df_emerg_perc <- df_emerg %>%
