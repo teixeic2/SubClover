@@ -77,6 +77,8 @@ df_GCF %>%
   facet_grid(Variable~., scales = "free") +
   geom_abline(intercept = 50, slope = 0,linetype=2)+
 theme(axis.text.x = element_text(angle = 0, hjust = 0.5))+
+  labs(y= "Percent of plants")+
+  labs(x="Days after sowing")+
   theme_bw()+
 scale_x_continuous(breaks=seq(min(df_GCF$DAS),max(df_GCF$DAS),20))
   
@@ -199,7 +201,7 @@ df_flower %>%
 theme(axis.text.x = element_text(angle = 60, hjust = 1))+
   theme_bw()+
   xlim(200,2400)+
-  labs(x="TTAS",y="Percent of Plants at floral stageBud")
+  labs(x="TTAS",y="Percent of Plants with floral Bud")
 
 summary(df_flower)
 

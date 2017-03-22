@@ -140,8 +140,8 @@ df_bud_flow_bur_simple %>%
   #facet_grid(Cultivar~SowTreat, scales = "free") +
   facet_grid(SowTreat~Cultivar, scales = "free") +
   geom_abline(intercept = 50, slope = 0) +
-  ylab("Percent of Bud (%)") +
-   xlab("DAS")+
+  ylab("Percent of plants with floral Bud (%)") +
+   xlab("Days after sowing")+
   #xlab("Thermal-time from sowing (oCd)")+
 theme(axis.text.x = element_text(angle = 60, hjust = 1))
 ```

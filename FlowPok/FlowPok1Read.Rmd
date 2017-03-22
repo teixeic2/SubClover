@@ -56,6 +56,7 @@ df_flower %>%
    #facet_wrap (~SowTreat,ncol=4, scales = "free")+
   geom_abline(intercept = 50, slope = 0) +
   labs(y="Percent Floral Bud")+
+  labs(x="Days after sowing")+
   theme_bw()+
   theme(axis.text.x = element_text(angle = 90, hjust = 1))
 
@@ -78,8 +79,8 @@ Analysis of sowing date and cultivars for Bud considering Date
   #facet_grid(Cultivar~., scales = "free")+
    #facet_wrap (~SowTreat,ncol=4, scales = "free")+
   geom_abline(intercept = 50, slope = 0) +
-  labs(y="Percent Floral Bud")+
-  
+  labs(y="Percent plants with floral Bud")+
+  labs(x="Days after sowing")+
   theme_bw()+
   theme(axis.text.x = element_text(angle = 90, hjust = 1))
  
