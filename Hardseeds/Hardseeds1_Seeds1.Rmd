@@ -1,20 +1,19 @@
 ---
-title: "Hardseeds 6CV"
+title: "Hardseeds Total Max 6CV"
 author: "CT"
-date: "Thursday, FEbruary 3, 2015"
-output:
-  word_document: default
-  
+date: "Thursday, 22 September , 2015"
+output: pdf_document
 ---
 
 ```{r loadLibraries}
-library (lubridate)
 library(tidyr)
 library (dplyr)
 library (ggplot2)
 library(agricolae)
 library(knitr)
-library(rgr)
+library (lubridate)
+
+
 ```
 
 
@@ -25,15 +24,10 @@ getwd()
 #create file
 df_seed <- read.table("HardseedsData.txt",header=TRUE)
 head(df_seed)
-summary(df_seed)
-
-df_seed %>%
-  filter(Plot==1)
-
-# Jeito 1 de trocar formato (usando base R)
+# change date format ( base R)
 df_seed$Date <- dmy(df_seed$Date)
 
-# jeito 2 de trocar formato (usando dplyr)
+# change formats with dplyr
 df_seed <- df_seed %>%
   mutate(Plot = as.factor(Plot), Block = as.factor(Block)) %>%
 #  mutate(Soft = as.numeric(Soft)) %>%
@@ -47,18 +41,26 @@ tail(df_seed)
 df_seed %>%
   filter(Plot==1)
 
+
 ```
+
+
+
 
 Graph the potential Hardseededness 
 good ref font size control :http://stackoverflow.com/questions/25061822/ggplot-geom-text-font-size-control
 
+
 ```{r, fig.height=5, fig.width=10}
+
 df_seed %>%
   mutate(hardSeed = 100-PropSoft) %>%
   mutate(SowingD = dmy(SowingD)) %>%
-    filter(Round == 14) %>%  #need to keep filter to get first and max hardseed percent
+    filter(Round == 14) %>%  #need to keep filter to get first and max hardseed percen
   mutate(Depth = factor(Depth,levels=c( "Above","Below"))) %>%
   group_by(Cultivar,SowingD,Depth) %>%
+  #cultivars filtered for power point 
+  filter(Cultivar == "Antas"| Cultivar == "Monti") %>%
   dplyr::select(hardSeed) %>%
   summarise_each(funs(mean,sd)) %>%
   ggplot(aes(x=SowingD, y=mean, colour=factor(Cultivar), shape=factor(Cultivar))) +
@@ -76,11 +78,15 @@ head(df_seed)
 
 summary(df_seed)
 
+
+
 ```
 
 
-
 ```{r, warning=FALSE}
+
+
+
 
 g1 <- df_seed %>%
   dplyr::select(-Date) %>% #
@@ -90,12 +96,55 @@ g1 <- df_seed %>%
   mutate(PercSoftCum=Soft_cum/max(SeedNumber))%>%
   group_by(SowTreat,Cultivar,Depth, Round) %>%
   summarise_each(funs(mean)) 
+
+
+
+```
+
+here looking cultivars individually 
+
+```{r, fig.height=5, fig.width=10}
+
+
+head(df_seed)
+  df_seed %>%
+  mutate(SumPropSoft = cumsum(PropSoft))
+  
+  
+  
+  df_seed %>%
+  mutate(hardSeed = 100-PropSoft) %>%
+  mutate(SowingD = dmy(SowingD)) %>%
+    filter(Round == 14) %>%  #need to keep filter to get first and max hardseed percent
+  mutate(Depth = factor(Depth,levels=c( "Above","Below"))) %>%
+  group_by(Cultivar,SowingD,Depth) %>%
+  dplyr::select(hardSeed) %>%
+  summarise_each(funs(mean,sd)) %>%
+  ggplot(aes(x=SowingD, y=mean, colour=factor(Cultivar), shape=factor(Cultivar))) +
+  geom_point() +
+  geom_line() +
+ facet_grid(Depth ~ Cultivar) +
+  labs(x="Sowing Date",y="Maximum Percentage of Hardseeds") +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1))+
+  geom_errorbar(aes(ymin=mean-sd/2,
+                    ymax=mean+sd/2))+
+  theme_bw()+
+  ylim(0,100)
+
+#head(df_seed)
+
+#summary(df_seed)
+
 ```
 
 
 
 
-```{r CreatePercentSoft}
+
+
+```{r, r, fig.height=4, fig.width=10}
+
+  # Create percent soft seeds 
 
 g1 <- df_seed %>%
   dplyr::select(-Date) %>% #
@@ -110,6 +159,7 @@ g1 <- df_seed %>%
 g1 %>%
   ungroup() %>%
 mutate(Depth = factor(Depth,levels=c( "Above","Below"))) %>%
+ filter(Cultivar == "Antas"| Cultivar == "Monti") %>%
 ggplot(aes(x=Round, y=100*(1-PercSoftCum), colour=Cultivar, shape=Cultivar)) +
   geom_point() +
   geom_line() +
@@ -122,39 +172,32 @@ ggplot(aes(x=Round, y=100*(1-PercSoftCum), colour=Cultivar, shape=Cultivar)) +
 
 
 
+
+
 ```
 
 
-
+ 
 
 ```{r}
+
 
 summary(g1)
 #xy up down comparison
 g1 %>%
   dplyr::select(Plot,PercSoftCum,Depth,Round) %>%
   tidyr::spread(Depth, PercSoftCum) %>%
-  ggplot(aes(x=buried,y=surface))+
+  ggplot(aes(x=Below,y=Above))+
   geom_point(aes(colour=factor(Cultivar))) +
   stat_smooth(method = "lm") +
   facet_grid(SowTreat~.)
 
-
-#Check for outliers _Boxplot 
-# df_seed %>%
-#   ggplot(aes(x=Cultivar, y=Soft, colour=factor(SowTreat)))+
-#   geom_boxplot() +
-#   geom_jitter() +
-#   theme(axis.text.x=element_text(angle = +90, hjust = 0))+
-#   facet_grid(SowTreat~Depth+Round)
-
-
+  
+  
 ```
 
 
-
 ```{r}
-#CumulativePercentage of Soft Seeds
 
 df_soft_plot <- df_seed %>%
   dplyr::select(-Date) %>%
@@ -224,117 +267,34 @@ for(p in 1:length(plots)) {
 
 summary(all.data)
 
-```
 
 
-Graph date Propsoft  
 
-```{r Graph}
-
-# 
-# df_seed %>%
-#   select(SowTreat, Date,Block, Cultivar,PropSoft) %>%
-#   ggplot (aes(x=SowTreat,y=PropSoft)) +
-#   geom_point(aes(colour = Block)) +
-#   facet_grid(Block ~ Cultivar)
-#   
-# #Graph seedsoft for S1, rounds 1 2 and 3
-# head(df_seed)
-#   df_seed %>%
-#   select(SowTreat, Date,Block, Cultivar,Round, PropSoft)%>%
-#   ggplot (aes(x=Round,y=PropSoft)) +
-#   geom_point(aes(colour = SowTreat)) +
-#   facet_grid(Block ~ Cultivar)
-  
   
 ```
-
-
-```{r}
-#Sum up the PropSoft starting form Round 1 (minimum soft) then round 2 and 3 
-#Fix here 
-
-head(df_seed)
-  df_seed %>%
-  mutate(SumPropSoft = cumsum(PropSoft))
-  
-```
-
-
-
-```{r, fig.height=5, fig.width=10}
-df_seed %>%
-  mutate(hardSeed = 100-PropSoft) %>%
-  mutate(SowingD = dmy(SowingD)) %>%
-    filter(Round == 14) %>%  #need to keep filter to get first and max hardseed percent
-  mutate(Depth = factor(Depth,levels=c( "surface","buried"))) %>%
-  group_by(Cultivar,SowingD,Depth) %>%
-  dplyr::select(hardSeed) %>%
-  summarise_each(funs(mean,sd)) %>%
-  ggplot(aes(x=SowingD, y=mean, colour=factor(Cultivar), shape=factor(Cultivar))) +
-  geom_point() +
-  geom_line() +
- facet_grid(Depth ~ Cultivar) +
-  labs(x="Sowing Date",y="Maximum Percentage of Hardseeds") +
-  theme(axis.text.x = element_text(angle = 90, hjust = 1))+
-  geom_errorbar(aes(ymin=mean-sd/2,
-                    ymax=mean+sd/2))+
-  theme_bw()+
-  ylim(0,100)
-
-head(df_seed)
-
-summary(df_seed)
-
-```
-
-
-```{r, fig.height=5, fig.width=10 }
- 
-
-#graph effect of sowing date only 
-df_seed %>%
-  mutate(hardSeed = 100-PropSoft) %>%
-  mutate(SowingD = dmy(SowingD)) %>%
-    filter(Round == 14) %>%  #need to keep filter to get first and max hardseed percent
-  #mutate(Depth = factor(Depth,levels=c( "surface","buried"))) %>%
-  group_by(Cultivar,SowingD) %>%
-  dplyr::select(hardSeed) %>%
-  summarise_each(funs(mean,sd)) %>%
-  ggplot(aes(x=SowingD, y=mean, colour=factor(Cultivar), shape=factor(Cultivar))) +
-  geom_point() +
-  geom_line() +
- #facet_grid(.~ Cultivar) +
-  labs(x="Sowing Date",y="Maximum Percentage of Hardseeds") +
-  theme(axis.text.x = element_text(angle = 90, hjust = 1))+
-  geom_errorbar(aes(ymin=mean-sd/2,
-                    ymax=mean+sd/2))+
-  theme_bw()+
-  ylim(0,100)
-
-
-
-```
-
-
 
 
 
 ```{r}
-#write a summary table 
-dftable <- df_seed %>%
+
+#just get the means and stdv of Hardseeds for cultivars in 4 SowD
+
+df_Hard <-df_seed %>%
   mutate(hardSeed = 100-PropSoft) %>%
   mutate(SowingD = dmy(SowingD)) %>%
-    filter(Round == 14) %>%  #need to keep filter to get first and max hardseed percent
-  #mutate(Depth = factor(Depth,levels=c( "surface","buried"))) %>%
+  filter(Round == 14) %>%
   group_by(Cultivar,SowingD) %>%
   dplyr::select(hardSeed) %>%
-  summarise_each(funs(mean,sd)) 
+  summarise_each(funs(mean,sd))
+head(df_Hard)
 
-summary (dftable)
-write.table(dftable, "dftablehardseeds.txt", row.names=FALSE)
 
 ```
+
+
+
+
+Calculate the mean and error bars for each cultivar 
 
 
 ```{r}
@@ -358,17 +318,8 @@ write.table(dftable1, "dftablehardseeds1.txt", row.names=FALSE)
 
 
 
-Calculate the mean and stdev  
+
 
 ```{r}
 
-#just get the means and stdv of Hardseeds for cultivars in 4 SowD
-
-df_Hard <-df_seed %>%
-  mutate(hardSeed = 100-PropSoft) %>%
-  mutate(SowingD = dmy(SowingD)) %>%
-  filter(Round == 14) %>%
-  group_by(Cultivar,SowingD) %>%
-  dplyr::select(hardSeed) %>%
-  summarise_each(funs(mean,sd))
-head(df_Hard)
+  

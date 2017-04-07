@@ -1,5 +1,5 @@
 ---
-title: "Spectrum Average  Test"
+title: "compilation  Test"
 author: "CT"
 date: "22 March 2017"
 output: html_document. This script reads the average spectra txt and build panels 
@@ -21,32 +21,44 @@ library(scales)
 
 
 ```{r readData}
-setwd("C:\\Users\\EdCarmen\\Documents\\CarmenProjects2016\\GitSubclover\\Spectra")
-getwd()
 
-#create file
-df_sp <- read.table("AverageSpectra.txt",header=TRUE)
+filePath <- ("C:\\Users\\EdCarmen\\Documents\\CarmenProjects2016\\GitSubclover\\Spectra\\testMicro")
 
-#head(df_sp)
+# Test if there are not scraps of .csv files in folder
+micro.files <- list.files(filePath,
+                        pattern = '*.0', full.names=TRUE, 
+                        recursive = TRUE, include.dirs = F) # if true gets path
+
+all.the.data <- lapply(micro.files, read.table, header=FALSE, sep=",")
+DATA <- do.call("rbind", all.the.data)
+
+colnames(DATA) <- c("Wavelength", "Absorbance")
+
+summary(DATA)
+
+head(DATA, 10)
+
 
 summary(df_sp)
 ```
 
 ## Graph it 
 
-```{r, fig.height=10, fig.width=10}
+```{r, fig.height=5, fig.width=10}
 
 df_sp %>%
   ggplot(aes(x=Wavelenght,y=Absorbance))+
   #geom_line()+
   geom_line(aes(colour=Absorbance))+
   theme_bw()+
-scale_x_continuous(breaks=seq(min(df_sp$Wavelenght),max(df_sp$Wavelenght),400))+
-  facet_wrap(~Cultivar,scale="free")+
+scale_x_continuous(breaks=seq(min(df_sp$Wavelenght),max(df_sp$Wavelenght),500))+
+  #facet_wrap(~Cultivar,scale="free")+
   #labs(x=" Wavelenght", y=" Absorbance")+
   #scale_color_manual(values=c("#333333", "#9999CC", "#CC3300"))+
   theme(axis.text.x = element_text(angle = 90, hjust = 1)) +
   expand_limits(y=c(0,0.2)) +
+  expand_limits(x=c(640,4000)) +
+   scale_x_reverse()+
   geom_abline(intercept = 0.1, slope = 0)
   #scale_x_date(labels = date_format("%b-%Y"))
 
