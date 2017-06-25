@@ -48,6 +48,12 @@ tail(df_emerg)
 
 df_emerg %>% filter(Plot ==1) %>% summary()
 
+
+
+```
+
+```{r,fig.height=10, fig.width=10}}
+
 #Graph         
   df_emerg %>%  group_by(Cultivar, SowTreat, DAS) %>%
 #  filter(Cultivar =="Monti") %>%
@@ -63,6 +69,9 @@ df_emerg %>% filter(Plot ==1) %>% summary()
   #+geom_abline(intercept = 50, slope = 0)
 
 ```
+
+
+
 
 
 ```{r CalculatePercentageEmergence, fig.height=5, fig.width= 10 }

@@ -36,17 +36,17 @@ summary(df_sp)
 ```{r, fig.height=5, fig.width=10}
 
 df_sp %>%
-  ggplot(aes(x=Wavelenght,y=Absorbance))+
+  ggplot(aes(x=Wavelength,y=Absorbance))+
   geom_line(aes(colour=Cultivar))+
   theme_bw()+
-scale_x_continuous(breaks=seq(min(df_sp$Wavelenght),max(df_sp$Wavelenght),100))+
-  #labs(x=" Wavelenght", y=" Absorbance")+
+scale_x_continuous(breaks=seq(min(df_sp$Wavelength),max(df_sp$Wavelength),100))+
+  #labs(x=" Wavelength", y=" Absorbance")+
   #scale_color_manual(values=c("#333333", "#9999CC", "#CC3300"))+
   #facet_wrap(~IncubationDays,scale="free")+
   #facet_wrap(~Cultivar,scale="free")+
   facet_grid(IncubationDays ~.) +
   theme_bw()+
-scale_x_continuous(breaks=seq(min(df_sp$Wavelenght),max(df_sp$Wavelenght),400))+
+scale_x_continuous(breaks=seq(min(df_sp$Wavelength),max(df_sp$Wavelength),400))+
   scale_x_reverse()+
  # scale_x_reverse(lim=c(650,4000))+
   theme(axis.text.x = element_text(angle = 90, hjust = 1)) +
@@ -65,17 +65,17 @@ Graph the effect of temperature
 ```{r, fig.height=5, fig.width=10}
 
 df_sp %>%
-  ggplot(aes(x=Wavelenght,y=Absorbance))+
+  ggplot(aes(x=Wavelength,y=Absorbance))+
   geom_line(aes(colour=factor(IncubationDays)))+
   theme_bw()+
-scale_x_continuous(breaks=seq(min(df_sp$Wavelenght),max(df_sp$Wavelenght),100))+
-  #labs(x=" Wavelenght", y=" Absorbance")+
+scale_x_continuous(breaks=seq(min(df_sp$Wavelength),max(df_sp$Wavelength),100))+
+  #labs(x=" Wavelength", y=" Absorbance")+
   #scale_color_manual(values=c("#333333", "#9999CC", "#CC3300"))+
   #facet_wrap(~IncubationDays,scale="free")+
   #facet_wrap(~Cultivar,scale="free")+
   facet_grid(Cultivar ~.) +
   theme_bw()+
-scale_x_continuous(breaks=seq(min(df_sp$Wavelenght),max(df_sp$Wavelenght),400))+
+scale_x_continuous(breaks=seq(min(df_sp$Wavelength),max(df_sp$Wavelength),400))+
   scale_x_reverse()+
  # scale_x_reverse(lim=c(650,4000))+
   theme(axis.text.x = element_text(angle = 90, hjust = 1)) +
@@ -90,12 +90,12 @@ scale_x_continuous(breaks=seq(min(df_sp$Wavelenght),max(df_sp$Wavelenght),400))+
 
 df_sp %>%
   
-  ggplot(aes(x=Wavelenght,y=Absorbance))+
+  ggplot(aes(x=Wavelength,y=Absorbance))+
   geom_line(aes(colour=IncubationDays))+
   #geom_line(aes(colour= factor(IncubationDays)))+
   scale_colour_gradient(low="red")+
     theme_bw()+
-   #scale_x_continuous(breaks=seq(min(df_sp$Wavelenght),max(df_sp$Wavelenght),400))+
+   #scale_x_continuous(breaks=seq(min(df_sp$Wavelength),max(df_sp$Wavelength),400))+
   scale_x_reverse()+
  # scale_x_reverse(lim=c(650,4000))+
   theme(axis.text.x = element_text(angle = 90, hjust = 1)) +

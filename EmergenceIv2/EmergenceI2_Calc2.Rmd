@@ -11,7 +11,7 @@ This script does this:
 - Calculate the DAS and TT for the 50% emergence by a loop interpolating points
 
 
-```{r loadLibraries}
+```{r loadLibraries, warning=FALSE}
 library(tidyr)
 library (dplyr)
 library (ggplot2)
@@ -199,32 +199,78 @@ summary(df_tt_50p_emerg)
 
 ```
 
-```{r}
+```{r, fig.height=5, fig.width=10}
+
+#Here just to check means 
+
+
+# mean <-df_tt_50p_emerg %>%
+#   group_by(SowTreat, SowingDate, Cultivar,DAS50E) %>%
+#   summarise_each(funs(mean,sd))
+# summary (mean)
+
 
 df_tt_50p_emerg %>%
-  group_by(SowTreat, SowingDate, Cultivar,DAS50E) %>%
+  group_by(SowingDate, Cultivar) %>%
+  dplyr::select(DAS50E) %>%
   summarise_each(funs(mean,sd)) %>%
- # filter( SowTreat != "S6" & SowTreat != "S7")%>%
-  ggplot(aes(x=SowingDate,y=DAS50E, shape=Cultivar, colour=Cultivar))+
+  
+  # if needed to exclude cultivars for analysis use filter 
+  # filter( Cultivar != "Woogenellup" &
+  #        Cultivar != "Monti" &
+  #        Cultivar != "Antas" &
+  #        Cultivar != "Denmark" &
+  #        Cultivar != "Leura") %>%
+         
+ 
+  
+ggplot(aes(x=SowingDate, y=mean, colour=factor(Cultivar), shape=factor(Cultivar))) +
   geom_point() +
   geom_line() +
-  theme_bw() +
-  geom_line()
+  labs(x="Sowing Date",y="Days to 50% emergence ") +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1))+
+  geom_errorbar(aes(ymin=mean-sd/2,
+  ymax=mean+sd/2))+
+  theme_bw()
+ 
+
+
 ```
+
+
+
+
 
 
 graph with TT50E 
 
-```{r}
+```{r, fig.height=5, fig.width=10}
+
+
 df_tt_50p_emerg %>%
-  group_by(SowTreat, Cultivar, SowingDate, TT50E) %>%
-  summarise_each(funs(mean)) %>%
- # filter( SowTreat != "S6" & SowTreat != "S7")%>%
-  ggplot(aes(x=SowingDate,y=TT50E, shape=Cultivar, colour=Cultivar))+
+  group_by(SowingDate, Cultivar) %>%
+  dplyr::select(TT50E) %>%
+  summarise_each(funs(mean,sd)) %>%
+  
+  # if needed to exclude cultivars for analysis use filter 
+  # filter( Cultivar != "Woogenellup" &
+  #        Cultivar != "Monti" &
+  #        Cultivar != "Antas" &
+  #        Cultivar != "Denmark" &
+  #        Cultivar != "Leura") %>%
+         
+ 
+  
+ggplot(aes(x=SowingDate, y=mean, colour=factor(Cultivar), shape=factor(Cultivar))) +
   geom_point() +
   geom_line() +
-  theme_bw() +
-  geom_line()
+  labs(x="Sowing Date",y="Thermal time to 50% emergence ") +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1))+
+  geom_errorbar(aes(ymin=mean-sd/2,
+  ymax=mean+sd/2))+
+  theme_bw()
+ 
+
 ```
 
 

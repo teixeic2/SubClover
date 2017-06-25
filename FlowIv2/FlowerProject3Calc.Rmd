@@ -16,10 +16,11 @@ library (lubridate)
 
 
 ```{r loadFile}
-setwd("C:\\Users\\EdCarmen\\Documents\\CarmenProjects2016\\GitSubclover")
+setwd("C:\\Users\\EdCarmen\\Documents\\CarmenProjects2016\\GitSubclover\\FlowIv2")
 getwd()
 
-#create file
+#create file ; this file was generated in the previous script FlowerProject2
+
 df_bud_flow_bur_simple <- read.table("df_bud_flow_bur_simple.txt",header=TRUE)
 head(df_bud_flow_bur_simple)
 # change formats
@@ -278,7 +279,7 @@ df_bur_simple %>%
                              "Bur"))) %>%
   group_by(TTAS,Cultivar,SowTreat,Variable,Pp_sow) %>%
   summarise_each(funs(mean)) %>%
-  select(Variable,Percent, Cultivar,TTAS,SowTreat,Pp_sow) %>%
+  #select(Variable,Percent, Cultivar,TTAS,SowTreat,Pp_sow) %>%
   #filter(Cultivar == "Monti" | Cultivar == "Leura" ) %>%
   #filter(Variable == "Bud") %>%
   ggplot(aes(x=TTAS, y=Percent)) + 

@@ -57,7 +57,8 @@ df_trifo %>% filter(Plot ==1) %>% summary()
   facet_wrap (~SowTreat,ncol=4, scales = "free")+
   labs(y="Number of trifoliates",x="Days after sowing")+
     theme_bw()+
-    geom_abline(intercept = 10, slope = 0)
+    #geom_abline(intercept = 6 slope = 0)
+  geom_abline(intercept = 4:6, slope = 0)
 
 ```
 

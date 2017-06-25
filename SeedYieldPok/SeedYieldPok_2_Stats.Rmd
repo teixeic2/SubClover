@@ -1,0 +1,84 @@
+---
+output:
+  word_document: default
+  html_document: default
+---
+---
+title: "Seed Number and yield   "
+author: "CT"
+date: "Thursday, FEbruary 19, 2016"
+output:
+  word_document: default
+  pdf_document: default
+  
+  #This script  reads the SeedBurrYield and tests Data first anaylsed in SeedYieldProject1
+---
+
+```{r loadLibraries}
+library(tidyr)
+library (dplyr)
+library (ggplot2)
+library(agricolae)
+library(knitr)
+library (lubridate)
+library(rgr)
+```
+
+
+```{r loadFile}
+setwd("C:\\Users\\EdCarmen\\Documents\\CarmenProjects2016\\Gitsubclover\\SeedYieldIv2")
+getwd()
+
+
+
+df_seedY <- read.table("SeedYieldIv2.txt",header=TRUE)
+head(df_seedY)
+summary(df_seedY)
+
+
+```
+
+
+Here ANOVA according S. Saville advice : LSD test unprotected by sowing date individually
+
+```{r}
+#Filter  S1, S2, S3, S6 , S7 
+summary(df_seedY)
+
+df_seedYS6 <- df_seedY #%>%
+  #filter(SowingD=="2015-06-24")
+  #filter(SowingD=="2015-07-28")
+  #filter(SowingD=="2015-09-15")
+  #filter(SowingD=="2015-11-05")
+  #filter(SowingD=="2016-02-17")
+  #filter(SowingD=="2016-03-15")
+
+#data transformation many possibilities but logit worked well, however little difference between real and transformed numbers 
+
+#-------------------------------------------------
+# anova 
+file <- df_seedYS6
+
+
+file.subset <- file 
+
+head(file.subset)
+summary(file.subset)
+
+
+```
+
+```{r}
+#ANOVA
+my.anova <- aov(Seedskg_ha ~ Cultivar + Block, data = file.subset)
+
+summary(my.anova)
+```
+
+Then use multiple comparisons of means
+```{r}
+#Means separation after ANOVA
+(LSD.test(my.anova, c("Cultivar"), alpha= 0.05, p.adj="none")) 
+```
+
+

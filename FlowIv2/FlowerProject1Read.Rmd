@@ -21,7 +21,7 @@ library (lubridate)
 
 ```{r loadFile}
 
-setwd("C:\\Users\\EdCarmen\\Documents\\CarmenProjects2016\\GitSubclover")
+setwd("C:\\Users\\EdCarmen\\Documents\\CarmenProjects2016\\GitSubclover\\FlowIv2")
 
 getwd()
 
@@ -49,9 +49,9 @@ Analysis of sowing date and cultivars for Bud considering Date
 ```{r GraphBoxPlotBud}
 
  df_flower %>%
-  group_by(DAS,Date, Cultivar,SowTreat,Variable)%>%
+  group_by(DAS,Date,Cultivar,SowTreat,Variable)%>%
   summarise_each(funs(mean)) %>%
-  select(Variable,Percent, Cultivar,Date,SowTreat)%>%
+  #select(Variable,Percent,Cultivar,Date,SowTreat)%>%
   filter(Variable == "Bud") %>%
   ggplot(aes(x=DAS, y=Percent)) + 
   geom_line(aes(colour=Cultivar)) +
@@ -73,7 +73,7 @@ df_flower %>%
           "Petal","Bur1","Bur2","Bur3","Bur4" ))) %>%
   group_by(DAS,Cultivar,SowTreat,Variable) %>%
   summarise_each(funs(mean)) %>%
-  select(Variable,Percent, Cultivar,DAS,SowTreat) %>%
+  #select(Variable,Percent, Cultivar,DAS,SowTreat) %>%
   filter(Cultivar == "Monti" | Cultivar =="Woogenellup") %>%
   ggplot(aes(x=DAS, y=Percent)) + 
   #geom_bar(shape=1, stat="identity")
@@ -170,7 +170,7 @@ df_flower %>%
   factor(Variable,levels = c("Bud","Bur3"))) %>%
   group_by(DAS,Cultivar,SowTreat,Variable) %>%
   summarise_each(funs(mean)) %>%
-  select(Variable,Percent, Cultivar,SowTreat) %>%
+  #select(Variable,Percent, Cultivar,SowTreat) %>%
   filter(Cultivar == "Monti" | Cultivar =="Woogenellup") %>%
   ggplot(aes(x=DAS, y=Percent)) + 
   #geom_bar(shape=1, stat="identity")
@@ -230,7 +230,7 @@ df_flower %>%
           "Petal","Bur1","Bur2","Bur3","Bur4" ))) %>%
   group_by(TTAS,Cultivar,SowTreat,Variable,DAS) %>%
   summarise_each(funs(mean)) %>%
-  select(Variable,Percent, Cultivar,TTAS,SowTreat,SowingD,DAS) %>%
+  #select(Variable,Percent, Cultivar,TTAS,SowTreat,SowingD,DAS) %>%
   filter(Variable == "Bud") %>%
   ggplot(aes(x=DAS, y=Percent)) + 
   geom_line(aes(colour=Cultivar)) +
@@ -242,6 +242,13 @@ theme(axis.text.x = element_text(angle = 60, hjust = 1))+
 summary(df_flower)
 
 
+
+#Graph only Bud and Bur 4 
+
+```
+
+```{r}
+
 #by variable 
 df_flower %>%
   mutate(Variable = 
@@ -249,7 +256,7 @@ df_flower %>%
           "Petal","Bur1","Bur2","Bur3","Bur4" ))) %>%
   group_by(TTAS,Cultivar,SowTreat,Variable) %>%
   summarise_each(funs(mean)) %>%
-  select(Variable,Percent, Cultivar,TTAS,SowTreat) %>%
+  #select(Variable,Percent, Cultivar,TTAS,SowTreat) %>%
   filter(Cultivar == "Monti" | Cultivar == "Leura" ) %>%
   #filter(Variable == "Bud") %>%
   ggplot(aes(x=TTAS, y=Percent)) + 
@@ -262,9 +269,10 @@ theme(axis.text.x = element_text(angle = 60, hjust = 1))
 # save final DF
 write.table(df_flower, "df_flower.txt")
 
-#Graph only Bud and Bur 4 
 
 ```
+
+
 
 
 Derrick's graph
@@ -279,7 +287,7 @@ df_flower %>%
   
   group_by(TTAS,Cultivar,SowTreat,Variable) %>%
   summarise_each(funs(mean)) %>%
-  select(Variable,Percent, Cultivar,TTAS,SowTreat) %>%
+  #select(Variable,Percent, Cultivar,TTAS,SowTreat) %>%
   filter(Cultivar == "Narrikup" | Cultivar == "Denmark" ) %>%
   filter(Variable == "Bud") %>%
   ggplot(aes(x=TTAS, y=Percent)) + 

@@ -42,7 +42,7 @@ str(df_Weiv)
 
 ## Graph it 
 
-```{r, fig.height=10, fig.width=10}
+```{r, fig.height=10, fig.width=15}
 
 df_Weiv %>%
   tidyr::gather("Variable", "Value",Tx:Pp) %>%
@@ -50,7 +50,13 @@ df_Weiv %>%
   geom_line(aes(colour=factor(Variable))) +
   #facet_wrap(~LocationYear,scale="free") +
   scale_color_manual(values=c("#8399CC","#333333", "#3355CC","#CC3300"))+
-  theme(axis.text.x = element_text(angle = 90, hjust = 1)) 
+  theme_bw()+
+  labs(x=" Date", y=" degree Celsius/hours ")+
+  theme(axis.text.y = element_text(size=18))+
+  theme(axis.title.y = element_text(size=22))+
+  theme(legend.text = element_text(size=22))+
+  theme(axis.title.x = element_text(size=22))+
+  theme(axis.text.x = element_text(angle = 90, hjust = 1, size=22)) 
 
 
 ```

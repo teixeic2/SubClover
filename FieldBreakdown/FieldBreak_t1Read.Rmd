@@ -103,14 +103,14 @@ summary (g1)
 g1 %>%
   ungroup() %>%
 #mutate(Depth = factor(Depth,levels=c( "Above","Below"))) %>%
-ggplot(aes(x=DAB, y=100*(1-PercSoftCum), colour=Cultivar, shape=Cultivar)) +
+ggplot(aes(x=DAB, y=100*(PercSoftCum), colour=Cultivar, shape=Cultivar)) +
   geom_point() +
   geom_line() +
   #facet_grid(Depth~SowTreat) +
   theme_bw()+
   ylim(0,100)+
   #geom_vline(xintercept = 5, linetype=2)+
-   labs(x="Days",y="Cumulative Proportion Hardseeds")
+   labs(x="Days",y="Cumulative Percentage of Seedlings")
 
 
 
@@ -125,20 +125,21 @@ summary (g1)
 
 g2 <- g1 %>%
  mutate(CumhardSeed = 100*(1-PercSoftCum)) %>%
-group_by(Cultivar) %>%
-  dplyr::select(CumhardSeed, DAB) %>%
+group_by(Cultivar, DAB) %>%
+  dplyr::select(CumhardSeed , DAB) %>%
   summarise_each(funs(mean,sd)) 
 
 summary (g2) 
 
-  ggplot(aes(x=DAB, y=CumhardSeed_mean, colour=factor(Cultivar), shape=factor(Cultivar))) +
+g2 %>%
+  ggplot(aes(x=DAB, y=mean, colour=factor(Cultivar), shape=factor(Cultivar))) +
   geom_point() +
   geom_line() +
  #facet_grid(.~Depth) +
-  labs(x="DAB",y=" Percentage of Hardseeds") +
+  labs(x="DAB",y="Percentage of Hardseeds") +
   theme(axis.text.x = element_text(angle = 90, hjust = 1))+
-  geom_errorbar(aes(ymin=CumhardSeed_sd/2,
-                    ymax=CumhardSeed_sd/2))+
+  geom_errorbar(aes(ymin=sd/2,
+                    ymax=sd/2))+
   theme_bw()+
   ylim(0,100)
 

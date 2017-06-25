@@ -1,8 +1,9 @@
 ---
-title: "BurrBurialAnalysis"
+title: "BurrBurialAnalysis Poukawa site"
 author: "CT"
-date: "Friday, March 18, 2016"
+date: "Friday,2, June  2017"
 output: html_document
+#This script calculates burr yields from Poukawa experimental site 
 ---
 
 
@@ -19,9 +20,9 @@ library(lubridate)
 Read File 
 
 ```{r, echo=FALSE}
-setwd("C:\\Users\\EdCarmen\\Documents\\CarmenProjects2016\\Gitsubclover\\BurrYieldBurIv2")
+setwd("C:\\Users\\EdCarmen\\Documents\\CarmenProjects2016\\Gitsubclover\\BurrYieldBurPok")
 getwd()
-file <- read.table("SeedBurrYield.txt",header=TRUE)
+file <- read.table("SeedBurrYieldPok.txt",header=TRUE)
 head(file)
 summary(file)
 ```
@@ -44,9 +45,11 @@ str(file)
 summary(file)
 
 ```
-
+Calculate the weight of individual burrs and calculate the number of total burrs 
 
 ```{r}
+
+
 
 df <- file %>%
   dplyr::select(Cultivar,SowTreat,sample_area_m2,Block,
@@ -66,18 +69,10 @@ head(df)
 
 ```
 
-Re start
+Calculate the proportion of buried burrs 
 
 ```{r, fig.height= 5, fig.width=10 , warning=FALSE}
 
-#barplot 
-#The palette with grey:cbPalette <- c("999999"),"666666", "#56B4E9", "#009E73", "#D55E00", "#0072B2","#999999", "#E69F00", "#56B4E9", "#009E73", "#D55E00", "#0072B2","#56B4E9", "#009E73")
-
-#cbPalette <- c("#E69F00", "#56B4E9", "#009E73", "#D55E00", "#0072B2","#56B4E9")
-
-
-# define position of bar and errorbar
-dodge_x <- position_dodge(width = 0.9)
 
 # splitting and df due bug in tidyr (https://github.com/hadley/tidyr/issues/32)
 
@@ -85,8 +80,10 @@ dodge_x <- position_dodge(width = 0.9)
   tidyr::spread(Depth,BurrNumber) %>%
   mutate(PropBurrBuried= Below/(Below+Above)*100)
 
+summary(df_bur)
 
-
+# define position of bar and errorbar; do not remove this line !
+dodge_x <- position_dodge(width = 0.9)
 
 ```
 
@@ -139,7 +136,7 @@ df_bur  %>%
 
 ```
 
-
+Need to fix this graph !!! colour does not match ! 
 
 ```{r, fig.height= 5, fig.width=10 , warning=FALSE}}
 df_bur %>%

@@ -1,0 +1,124 @@
+---
+title: "Spectrum Suberin Test"
+author: "CT"
+date: "21 March 2017"
+output: html_document
+#here i tested baseline correction using hyperSpec
+---
+
+
+```{r setup, include=FALSE, loadlibraires}
+#knitr::opts_chunk$set(echo = TRUE)
+library(tidyr)
+library (dplyr)
+library (ggplot2)
+library(agricolae)
+library(knitr)
+library (lubridate)
+library(scales)
+library(hyperSpec)
+
+```
+
+
+
+```{r}
+#package installed
+
+ #install.packages ("hyperSpec")
+```
+
+
+
+```{r readData}
+setwd("C:\\Users\\EdCarmen\\Documents\\CarmenProjects2016\\GitSubclover\\Spectra")
+getwd()
+file <- read.table ("suberin.txt",  header = TRUE, dec = ".",sep = "\t" )
+
+#file <- new ("hyperSpec", file, wavelength, data,label)
+
+#read.txt.long("suberin.txt")
+
+
+file <- read.table ("C:\\Users\\EdCarmen\\Documents\\CarmenProjects2016\\GitSubclover\\Spectra\\AverageSpectra - Copy.txt",  header = TRUE, dec = ".",sep = "\t" )
+
+
+suberin <- new ("hyperSpec", spc = data,
+                + data = data.frame (x, y), wavelength = wavelength)
+
+
+suberin <- new("hyperSpec", 
+               wavelength = file[,2], 
+               spc= file[,3],
+             #  data = ,
+               label= file[,1])
+
+summary(suberin)
+
+plot(suberin[1])
+
+
+# #create file
+# df_sp <- read.table("suberin.txt",header=TRUE)
+# 
+# #head(df_sp)
+# 
+# summary(df_sp)
+```
+
+## Graph it 
+
+```{r, fig.height=5, fig.width=10}
+
+df_sp %>%
+
+  ggplot(aes(x=Wavelength,y=Absorbance))+
+  geom_line(aes(colour=Absorbance))+
+  theme_bw()+
+scale_x_continuous(breaks=seq(min(df_sp$Wavelength),max(df_sp$Wavelength),400))+
+  scale_x_reverse()+
+ # scale_x_reverse(lim=c(650,4000))+
+  theme(axis.text.x = element_text(angle = 90, hjust = 1)) +
+  expand_limits(y=c(0,0.2)) +
+  geom_abline(intercept = 0.1, slope = 0)
+
+
+```
+
+
+
+```{r}
+
+#now perform a spectra normalization using The rubberband baseline correction which is already implemented  (function spc.rubberband)
+
+
+setwd("C:\\Users\\EdCarmen\\Documents\\CarmenProjects2016\\GitSubclover\\Spectra")
+
+file <- read.table ("suberin.txt",  header = TRUE)
+
+summary(file)
+
+colnames(file)
+
+
+spc <- matrix (t(file$spc), ncol = NROW(file$spc))
+#spc <- matrix (t(file[1,]), ncol = length(colnames(file)))
+colnames (spc) <- t(file$wavelength)
+
+wl <- as.numeric(as.character(file$wavelength))
+
+summary(wl)
+
+h <- new("hyperSpec", spc = spc, wavelength = wl)
+plot(h)
+
+bl <- spc.rubberband(h[,, 400 ~ 4400], noise = 300, df = 200) # note obj has 3 dimensions
+plot(bl, add = TRUE, col = 2)
+
+plot (h[,, 400 ~ 4400] - bl)
+
+
+```
+
+
+#

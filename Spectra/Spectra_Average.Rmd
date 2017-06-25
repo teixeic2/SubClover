@@ -37,16 +37,18 @@ summary(df_sp)
 ```{r, fig.height=10, fig.width=10}
 
 df_sp %>%
-  ggplot(aes(x=Wavelenght,y=Absorbance))+
+  ggplot(aes(x=Wavelength,y=Absorbance))+
   #geom_line()+
   geom_line(aes(colour=Absorbance))+
   theme_bw()+
-scale_x_continuous(breaks=seq(min(df_sp$Wavelenght),max(df_sp$Wavelenght),400))+
+scale_x_continuous(breaks=seq(min(df_sp$Wavelength),max(df_sp$Wavelength),400))+
+  scale_x_reverse()+
   facet_wrap(~Cultivar,scale="free")+
-  #labs(x=" Wavelenght", y=" Absorbance")+
+  #labs(x=" Wavelength", y=" Absorbance")+
   #scale_color_manual(values=c("#333333", "#9999CC", "#CC3300"))+
   theme(axis.text.x = element_text(angle = 90, hjust = 1)) +
   expand_limits(y=c(0,0.2)) +
+  expand_limits(x=c(600,4000))+
   geom_abline(intercept = 0.1, slope = 0)
   #scale_x_date(labels = date_format("%b-%Y"))
 
@@ -61,16 +63,25 @@ scale_x_continuous(breaks=seq(min(df_sp$Wavelenght),max(df_sp$Wavelenght),400))+
 
 ```{r}
 
-#Create Thermal time cardinal temperatures need REF! 
-
-tt_card <- data.frame(temp=c(0,18,25,40),TT=c(0,18,18,0))
-tt_card %>%
-  ggplot(aes(x=temp, y=TT))+
-  labs(x="Temperature (degree Celsius)")+
-  labs(y="Thermal Time (oCd)") +
-  geom_line()
-  
-#FIX ME include REF Thermal time 
+df_sp %>%
+  ggplot(aes(x=Wavelength,y=Absorbance))+
+  geom_line(aes(colour=Cultivar))+
+  theme_bw()+
+scale_x_continuous(breaks=seq(min(df_sp$Wavelength),max(df_sp$Wavelength),100))+
+  #labs(x=" Wavelength", y=" Absorbance")+
+  #scale_color_manual(values=c("#333333", "#9999CC", "#CC3300"))+
+  #facet_wrap(~IncubationDays,scale="free")+
+  #facet_wrap(~Cultivar,scale="free")+
+  #facet_grid(IncubationDays ~.) +
+  theme_bw()+
+scale_x_continuous(breaks=seq(min(df_sp$Wavelength),max(df_sp$Wavelength),400))+
+  scale_x_reverse()+
+ # scale_x_reverse(lim=c(650,4000))+
+  theme(axis.text.x = element_text(angle = 90, hjust = 1)) +
+  expand_limits(y=c(0,0.2)) +
+  geom_abline(intercept = 0.1, slope = 0)
+  #geom_vline(intercept = 1000, slope = 0)
+    #scale_x_date(labels = date_format("%b-%Y"))
 ```
 
 ```{r}

@@ -1,0 +1,137 @@
+---
+title: "HyperSpec Test"
+author: "CT"
+date: "12 June 2017"
+output: html_document
+---
+
+```{r setup, include=FALSE, loadlibraires}
+#knitr::opts_chunk$set(echo = TRUE)
+library(tidyr)
+library(tidyr)
+library(dplyr)
+library(ggplot2)
+library(hyperSpec)
+
+```
+
+
+
+```{r readData}
+#loc <- "C:\\Users\\EdCarmen\\Documents\\CarmenProjects2016\\GitSubclover\\Spectra\\suberin.txt"
+
+loc <- "C:\\Users\\EdCarmen\\Documents\\CarmenProjects2016\\GitSubclover\\Spectra\\AverageSpectra - Copy.txt"
+
+thisFile <- read.table(loc,header=TRUE)
+
+summary(thisFile)
+
+head(thisFile)
+
+unique(thisFile$Wavelenght)
+
+# test matrix format
+  # thisFile_w <- thisFile %>%
+  # group_by(Cultivar) %>%
+  # arrange(Wavelenght,Absorbance) %>%
+  # mutate(Wavelenght = as.factor(Wavelenght)) %>%
+  # tidyr::spread(Wavelenght,Absorbance) %>%
+  # as.matrix()
+  # 
+  # View(thisFile_w)
+  
+# Here we go -----
+
+# create parameters
+  WL <- as.numeric(unique(thisFile$Wavelenght))
+  
+  SPC <- matrix( 
+      thisFile$Absorbance, # the data elements 
+      nrow=length(unique(thisFile$Cultivar)),             # number of rows 
+      ncol=length(unique(thisFile$Wavelenght)),           # number of columns 
+      byrow = TRUE)                                      # fill matrix by ROW 
+  
+  DATA <- data.frame(sample = unique(thisFile$Cultivar)) # factors
+  
+  View(SPC)
+  
+  # create hyperspect object with parameters
+  
+  hso <- new ("hyperSpec", 
+              wavelength = WL, 
+              spc = SPC, 
+              data = DATA, 
+              labels = list (.wavelength = expression (2 * theta / degree), spc = "I / a.u.")) 
+ 
+  
+```
+
+```{r}
+ 
+  # test
+
+  hso
+  
+```
+```{r}
+plot(hso)
+bl <- spc.rubberband(hso[,, 1000 ~ 4000], noise = 300, df = 20) # note obj has 3 dimensions
+plot (bl, add = TRUE, col = 2)
+
+plot (hso[,, 1000 ~ 4000] - bl)
+```
+
+
+```{r}
+# example 
+ad<- "C:\\Users\\EdCarmen\\Documents\\Hyperspec\\fileio\\fileio\\txt.t\\Triazine 5_31.txt"
+
+file <- read.table (ad, header = TRUE, dec = ",", sep = "\t") 
+
+View(file)
+
+triazine <- new ("hyperSpec", wavelength = file [,1], spc = t (file [, -1]), data = data.frame (sample = colnames (file [, -1])), labels = list (.wavelength = expression (2 * theta / degree), spc = "I / a.u.")) 
+
+triazine
+
+```
+
+
+```{r}
+plot (triazine [1])
+
+plot (triazine [3])
+```
+
+
+
+
+```{r}
+
+spc <- thisFile[,3]
+
+# spc <- matrixF
+
+# df <- data.frame(pos = thisFile[,1])
+# summary(df)
+
+h <- new ("hyperSpec", spc = spc, 
+         # data = df, # no idea what data is here
+          wavelength = thisFile[,2],
+          label = list (spc = "test",
+                        .wavelength = "test2",
+                        pos = "test3")
+          )
+
+plot (h)
+
+bl <- spc.rubberband(h[,, 1000 ~ 4000], noise = 300, df = 20) # note obj has 3 dimensions
+plot (bl, add = TRUE, col = 2)
+
+plot (h[,, 1000 ~ 4000] - bl)
+
+
+```
+
+
+

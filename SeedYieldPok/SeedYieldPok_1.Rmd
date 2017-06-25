@@ -1,0 +1,178 @@
+---
+title: "Seed Yield Analysis"
+author: "CT"
+date: "Friday, June 2, 2017"
+output: html_document
+---
+This script :
+reads the file with burrs and seeds quantification form Poukawa site 
+
+
+
+```{r}
+#Load libraries 
+library(tidyr)
+library (dplyr)
+library (ggplot2)
+library(agricolae)
+library(lubridate)
+```
+
+Read File 
+
+```{r, echo=FALSE}
+
+setwd("C:\\Users\\EdCarmen\\Documents\\CarmenProjects2016\\Gitsubclover\\SeedYieldPok")
+getwd()
+file <- read.table("SeedBurrYieldPok.txt",header=TRUE)
+head(file)
+summary(file)
+```
+
+Calculations 
+
+```{r}
+
+# define factors and formats
+file <- file %>%
+  mutate(
+    Plot = as.factor(Plot),
+    Block = as.factor(Block),
+    Cultivar = as.factor(Cultivar),
+    Depth = as.factor (Depth),
+    Date = dmy(Date),
+    SowingD = dmy(SowingD)
+  )
+
+str(file)
+summary(file)
+head(file)
+
+```
+
+
+```{r}
+
+df<- file %>%
+  dplyr::select(Cultivar,SowTreat,sample_area_m2,Block,
+                Depth,bur_total_weight_g,
+                bur_no_subSample,
+                bur_weight_subSample_g,seedNo) %>%
+  mutate(SeedsNo_m2 = ((seedNo/bur_weight_subSample_g)*
+           bur_total_weight_g)/sample_area_m2) %>%
+  dplyr::select(Cultivar,SowTreat,
+                Depth,Block,SeedsNo_m2)
+
+  df <- as.data.frame(df)
+head(df)
+
+```
+Re start
+
+```{r}
+
+#barplot for seed density  
+#The palette with grey:
+cbPalette <- c("#999999", "#666666", "#56B4E9", "#009E73", "#D55E00", "#0072B2","#999999", "#E69F00", "#56B4E9", "#009E73", "#D55E00", "#0072B2","#56B4E9", "#009E73")
+
+
+# define position of bar and errorbar
+dodge_x <- position_dodge(width = 0.9)
+
+# splitting and df due bug in tidyr (https://github.com/hadley/tidyr/issues/32)
+  df %>%
+  #tidyr::spread(Depth,SeedsNo_m2) %>%
+  #mutate(SeedsNo_m2= Down/(Down+Up)*100) %>%
+  mutate(Depth = factor(Depth,levels=c( "Above","Below"))) %>%
+
+  group_by(Cultivar, SowTreat,Depth) %>%
+  summarise_each(funs(mean,sd)) %>%
+  ggplot(aes(x=Cultivar, y=(SeedsNo_m2_mean), fill=Cultivar)) +
+  geom_bar(stat="identity",position = dodge_x) +
+  geom_errorbar(aes(ymin=SeedsNo_m2_mean-SeedsNo_m2_sd/2,
+                    ymax=SeedsNo_m2_mean+SeedsNo_m2_sd/2),
+                width=0.25, size=0.3,position=dodge_x)   +
+  theme_grey(base_size = 16) +
+    theme_bw()+
+  facet_grid(Depth~SowTreat, scales="free") +
+    labs(y= "Seed Number per m2")+
+theme(axis.text.x=element_text(angle = +90, hjust = 0))+
+  theme(text = element_text(size = 14))
+
+
+```
+
+
+
+```{r, fig.height=5, fig.width=10}
+#Calculate Seed yield : number g seeds per m2 and then yield kg seeds per ha
+head (file)
+
+df1<- file %>%
+  dplyr::select(Cultivar, SowingD, SowTreat,sample_area_m2,Block,
+                Depth,bur_total_weight_g,
+                bur_no_subSample,
+                bur_weight_subSample_g,seed_weight_g) %>%
+  #stop here calculate kg seed / ha
+  mutate(Seedskg_ha = (((seed_weight_g/bur_weight_subSample_g)*
+           bur_total_weight_g)/sample_area_m2)*10 ) 
+
+  df1 <- as.data.frame(df1)
+summary(df1)
+
+write.table(df1, "SeedYieldIv2.txt", row.names=FALSE)
+
+```
+
+```{r, fig.heigt=5, fig.width=10}
+# Graph Seed kg ha
+
+#barplot 
+#The palette with grey:
+cbPalette <- c("#999999", "#666666", "#56B4E9", "#009E73", "#D55E00", "#0072B2","#999999", "#E69F00", "#56B4E9", "#009E73", "#D55E00", "#0072B2","#56B4E9", "#009E73")
+
+
+# define position of bar and errorbar
+dodge_x <- position_dodge(width = 0.9)
+
+# splitting and df due bug in tidyr (https://github.com/hadley/tidyr/issues/32)
+  df1 %>%
+  #tidyr::spread(Depth,SeedsNo_m2) %>%
+  #mutate(SeedsNo_m2= Down/(Down+Up)*100) %>%
+  group_by(Cultivar, SowTreat,Depth) %>%
+  summarise_each(funs(mean,sd)) %>%
+  ggplot(aes(x= Cultivar, y=(Seedskg_ha_mean),fill= Cultivar)) +
+  geom_bar(stat="identity",position = dodge_x) +
+  geom_errorbar(aes(ymin=Seedskg_ha_mean-Seedskg_ha_sd/2,
+                    ymax=Seedskg_ha_mean+Seedskg_ha_sd/2),
+                width=0.25, size=0.3,position=dodge_x)   +
+  theme_grey(base_size = 16) +
+  theme_bw()+
+  facet_grid(Depth~SowTreat, scales="free") +
+    labs(y= "Seed yield (kg/ha)")+
+theme(axis.text.x=element_text(angle = +90, hjust = 0))+
+theme(text = element_text(size = 20))
+```
+
+
+
+```{r, gig.height=15, fig.width=15, warning=FALSE}
+
+  df1 %>%
+  group_by(Cultivar, SowingD, Depth) %>%
+  dplyr::select(Seedskg_ha) %>%
+  summarise_each(funs(mean,sd)) %>%
+  ggplot(aes(x=SowingD, y=(mean))) +
+  geom_point(aes(colour=Cultivar), size=6) +
+  geom_line(aes(colour=Cultivar)) +
+  geom_errorbar(aes(ymin=mean-sd/2,
+                    ymax=mean+sd/2), width=0.2)   +
+  theme_grey(base_size = 20) +
+  theme_bw()+
+  theme(text = element_text(size = 24))+
+  facet_grid(Depth~., scales="free") +
+    labs(y= "Seed yield (kg/ha)")
+
+```
+
+

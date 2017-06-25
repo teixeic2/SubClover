@@ -39,7 +39,7 @@ summary(DATA)
 head(DATA, 10)
 
 
-summary(df_sp)
+summary(DATA)
 ```
 
 ## Graph it 
