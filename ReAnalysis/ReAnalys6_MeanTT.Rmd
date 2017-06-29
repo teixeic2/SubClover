@@ -1,9 +1,12 @@
 ---
 title: "ReAnalysis Table"
 author: "CT"
-date: "Thursday, December  05, 2016"
-output: html_document
-note: Re analysis data and weather files : merge and graph Daysto flower vs Mean Temperature .
+date: "Thursday, December  28, 2016"
+output:
+  word_document: default
+  pdf_document: default
+  html_document: default
+note: Re analysis data and weatherfiles ; merge and graph Daysto flower vs Mean Temperature
 ---
 
 ```{r loadLibraries}
@@ -52,7 +55,7 @@ df_4 <-df_CumTT3 %>%
 summary (df_4)
 ```
 
-```{r  jointwodataframes, warning=FALSE}}
+```{r  jointwodataframes }
 #
 
 df_MeanT <- merge(df_Data, df_4,by.x=c("LocationYear","SowingDate"), by.y=c("LocationYear","Date"))

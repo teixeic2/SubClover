@@ -78,7 +78,8 @@ df_emerg %>% filter(Plot ==1) %>% summary()
 
 df_emerg_perc <- df_emerg %>%
 group_by(Plot) %>%
-mutate(PercEmerg = round(PlantPop/max(PlantPop)*100,digits=2))
+  mutate(PercEmerg = round(PlantPop/max(PlantPop)*100,digits=2))
+
 
 # Check
 summary(df_emerg_perc)

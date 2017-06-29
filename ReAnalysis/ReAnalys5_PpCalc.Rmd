@@ -2,8 +2,10 @@
 title: "ReAnalysis Table"
 author: "CT"
 date: "Thursday, December  05, 2016"
-output: html_document
-note: Re analysis : include Pp analysis using selected datasets from Reanalysis4 (df_REa6)
+output:
+  word_document: default
+  html_document: default
+note: include Pp analysis using selected datasets from Reanalysis4 (df_REa6)
 ---
 
 ```{r loadLibraries}
@@ -46,7 +48,7 @@ df_1 <- df_1 %>%
 # write.csv(xx, "listOfExpCultUsedForPp.csv")
 
 df_Gr <- read.table("CultivarGroup.txt",header=TRUE)
-
+#just testing new text insert 
 #now merge the two df 
 
 df_Rea7 <- merge(df_1, df_Gr,by=c("indexLocCult"))

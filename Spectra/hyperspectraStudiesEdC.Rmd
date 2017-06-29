@@ -82,6 +82,7 @@ plot (hso[,, 1000 ~ 4000] - bl)
 ```
 
 
+
 ```{r}
 # example 
 ad<- "C:\\Users\\EdCarmen\\Documents\\Hyperspec\\fileio\\fileio\\txt.t\\Triazine 5_31.txt"

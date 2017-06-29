@@ -13,11 +13,11 @@ This script does this:
 
 ```{r loadLibraries, warning=FALSE}
 library(tidyr)
-library (dplyr)
-library (ggplot2)
+library(dplyr)
+library(ggplot2)
 library(agricolae)
 library(knitr)
-library (lubridate)
+library(lubridate)
 library(mosaic)
 library(lattice)
 ```
@@ -237,6 +237,34 @@ ggplot(aes(x=SowingDate, y=mean, colour=factor(Cultivar), shape=factor(Cultivar)
 
 ```
 
+
+
+```{r}
+
+#try 1/DAS50% = Rate
+
+df_RateEmerg <- df_tt_50p_emerg %>%
+  mutate(Rate=1/DAS50E)
+
+  summary(df_RateEmerg)
+  
+  df_RateEmerg %>%
+  group_by(SowingDate, Cultivar) %>%
+  dplyr::select(Rate) %>%
+  summarise_each(funs(mean,sd)) %>%
+  #Graph
+  ggplot(aes(x=SowingDate, y=mean, colour=factor(Cultivar), shape=factor(Cultivar))) +
+  geom_point() +
+  geom_line() +
+  labs(x="Sowing Date",y="1/ Days to 50% emergence ") +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1))+
+  geom_errorbar(aes(ymin=mean-sd/2,
+  ymax=mean+sd/2))+
+  theme_bw()
+  
+  write.table(df_RateEmerg, "df_RateEmerg.txt")
+  
+```
 
 
 

@@ -1,9 +1,12 @@
 ---
 title: "ReAnalysis Table"
 author: "CT"
-date: "Thursday, December  05, 2016"
-output: html_document
-note: Re analysis data and weather files : sum Vernalization .
+date: "Thursday, January   05, 2017"
+output:
+  word_document: default
+  pdf_document: default
+  html_document: default
+note: Re analysis data and weather , sum Vernalization .
 ---
 
 ```{r loadLibraries}
@@ -47,7 +50,7 @@ df_CumTTvern2 <- df_CumTTvern %>%
   summary (df_CumTTvern2)
 ```
 
-```{r  jointwodataframes, warning=FALSE}}
+```{r  jointwodataframes, warning=FALSE}
 #
 
 df_Ver <- merge(df_Data, df_CumTTvern2,by.x=c("LocationYear","SowingDate"), by.y=c("LocationYear","Date"))

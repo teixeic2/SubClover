@@ -1,19 +1,25 @@
 ---
-title: "ReanalysisTT"
+title: "ReAnalysis Table"
 author: "CT"
-date: "27 December 2016"
-output: html_document; attempt to calculate vernalisation of subs 
+date: "Thursday, December  27, 2016"
+output:
+  word_document: default
+  html_document: default
+note: Re analysis data compilation continue from script5and6, vernalization calc.
+
 ---
 
-```{r setup, include=FALSE, loadlibraires}
+
+
+```{r loadlibraires}
 #knitr::opts_chunk$set(echo = TRUE)
 library(tidyr)
 library (dplyr)
 library (ggplot2)
+library(knitr)
 library(agricolae)
 library(knitr)
-library (lubridate)
-
+library(lubridate)
 ```
 
 
@@ -216,5 +222,6 @@ df_CumTTvern %>%
 
 write.table(df_CumTTvern, "df_CumVern.txt")
 
+#that is the end of script 7VernalCalc
 ```
 

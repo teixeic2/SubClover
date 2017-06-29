@@ -2,8 +2,11 @@
 title: "ReAnalysis Table"
 author: "CT"
 date: "Thursday, December  05, 2016"
-output: html_document
-note: Re analysis data and weather files : merge .
+output:
+  word_document: default
+  html_document: default
+note: Re analysis after  merged weather, calculated Tt, re calculate the TT for mid
+  flowering .
 ---
 
 ```{r loadLibraries}

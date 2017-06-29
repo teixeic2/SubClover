@@ -2,7 +2,9 @@
 title: "ReAnalysis Table"
 author: "CT"
 date: "Thursday, December  05, 2016"
-output: html_document
+output:
+  word_document: default
+  html_document: default
 note: Re analysis data compilation; Days, TT and Photop.
 ---
 
@@ -96,7 +98,7 @@ df_Data%>%
 
 Graph Box Plot 
 
-```{r GraphBoxPlot}
+```{r GraphBoxPlot, warning=FALSE}
 
 # Graph DAS and Location 
 

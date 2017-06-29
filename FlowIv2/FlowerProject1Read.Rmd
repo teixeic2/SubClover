@@ -58,6 +58,7 @@ Analysis of sowing date and cultivars for Bud considering Date
   facet_grid(SowTreat~Cultivar, scales = "free")+
   #facet_grid(Cultivar~., scales = "free")+
   geom_abline(intercept = 50, slope = 0) +
+  theme_bw()+
   theme(axis.text.x = element_text(angle = 90, hjust = 1))
 
 ```

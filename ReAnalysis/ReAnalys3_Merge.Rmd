@@ -2,8 +2,10 @@
 title: "ReAnalysis Table"
 author: "CT"
 date: "Thursday, December  05, 2016"
-output: html_document
-note: Re analysis data and weather files : merge .
+output:
+word_document: default
+html_document: default
+note: Re analysis data and weatherfiles to merge
 ---
 
 ```{r loadLibraries}
@@ -47,7 +49,7 @@ df_CumTT2 <- df_CumTT %>%
   summary (df_CumTT2)
 ```
 
-```{r  jointwodataframes, warning=FALSE}}
+```{r  jointwodataframes }
 #
 
 df_Rea <- merge(df_Data, df_CumTT2,by.x=c("LocationYear","SowingDate"), by.y=c("LocationYear","Date"))

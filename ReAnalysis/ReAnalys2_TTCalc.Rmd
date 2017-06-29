@@ -2,12 +2,13 @@
 title: "ReanalysisTT"
 author: "CT"
 date: "27 December 2016"
-output: html_document
+output:
+  word_document: default
+  html_document: default
 ---
 
-```{r setup, include=FALSE, loadlibraires}
-#knitr::opts_chunk$set(echo = TRUE)
-library(tidyr)
+```{r setup, warning=FALSE}
+
 library (dplyr)
 library (ggplot2)
 library(agricolae)
@@ -63,7 +64,7 @@ REFS: MonksEtAl2009	,LonatiEtAl2009	,MootEtal2003, SilsburyetAl1984.
 
 ```{r}
 
-#Create Thermal time cardinal temperatures need REF! 
+#Create Thermal time cardinal temperatures see REFs! 
 
 tt_card <- data.frame(temp=c(0,18,25,40),TT=c(0,18,18,0))
 tt_card %>%
@@ -119,7 +120,6 @@ int_func <- function(temp,TT,temp_ref){
   
 int_func(temp,TT,temp_ref)
 
-
 ```
 
 ```{r}
@@ -171,7 +171,7 @@ df_We_tt <- df_We %>%
 
 
 ```{r}
-#Check TT 
+#Check TT  two methods : TTday_s = simple method (Tmean - Tbzero)
 df_We_tt  %>% 
 ggplot(aes(x=TTday_s, y= TTday)) +
     geom_point(shape=21,alpha=0.2)+
@@ -185,6 +185,13 @@ ggplot(aes(x=TTday_s, y= TTday)) +
 
 ```{r}
 
+#change formats 
+
+df_We_tt$Date <-dmy(df_We_tt$Date)
+
+
+str(df_We_tt)
+
 #Calculate accumulated Themal time 
 
 df_CumTT <- df_We_tt %>%
@@ -194,7 +201,7 @@ mutate(SumTTday = cumsum(TTday)) %>%
 mutate(DayCount=Date-min(Date))
 
 head(df_CumTT)
-
+str(df_CumTT)
 
 ```
 
