@@ -63,11 +63,12 @@ df_We %>%
 
 ## Define Tt vernalisation temperatures
 
-Considered an overall average the following references:
+Considered an overall average the following references
+Atkin 1955;  
 Tb: - 3
 Top range:1-9
 Tmax: 12
-REFS: need to include. 
+ 
 							
 
 
@@ -111,6 +112,8 @@ int_func <- function(temp,TT,temp_ref){
    
    # else interpolate
    
+   #Explan: The function lm fits a linear model to data are we specify the model using a formula where the response variable (y) is separated by a ~ from the explanatory variables (x). 
+   
    tryCatch(  
    
   out <- approx(temp, TT, xout = temp_ref, 
@@ -135,7 +138,7 @@ int_func(temp,TT,temp_ref)
 
 ```{r}
 
-#create REF Jones CA, Ritchie JT, Kiniry JR, Godwin DC (1986) Subroutine structure.In 'CERES-Maize: A simulation model of maize growth anddevelopment'. (Eds CA Jones, JR Kiniry) pp. 49-194. (Texas A&M University Press: Texas, USA
+#then created the same loop as per TT : cycle of 24 = 3 x 8 hours  REF Jones CA, Ritchie JT, Kiniry JR, Godwin DC (1986) Subroutine structure.In 'CERES-Maize: A simulation model of maize growth anddevelopment'. (Eds CA Jones, JR Kiniry) pp. 49-194. (Texas A&M University Press: Texas, USA
 
 TTfunc <- function(Tmin ,Tmax){         
  
@@ -168,6 +171,7 @@ TTfunc <- function(Tmin ,Tmax){
   
   return(TTav)
   }
+#test the function
 
 TTfunc(10,30)
 
