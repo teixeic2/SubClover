@@ -198,7 +198,7 @@ df_Rea4  %>%
   #facet_wrap(~Country)
   #geom_point(shape=21) +
 # theme(legend.position="none")+
-  facet_grid(Variable~Country, scales = "free")
+  facet_grid(Variable~SowTreat, scales = "free")
 
 ```
 

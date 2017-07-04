@@ -49,7 +49,7 @@ df_seed %>%
 
 ```
 
-Graph the potential Hardseededness 
+Calculate and Graph the potential Hardseededness 
 
 
 ```{r, fig.height=5, fig.width=10}
@@ -78,7 +78,7 @@ summary(df_seed)
 
 ```
 
-
+Calculate the cumulative number of germinated seeds 
 
 ```{r, warning=FALSE}
 
@@ -108,7 +108,7 @@ ggplot(aes(x=DAB, y=100*(PercSoftCum), colour=Cultivar, shape=Cultivar)) +
   geom_line() +
   #facet_grid(Depth~SowTreat) +
   theme_bw()+
-  ylim(0,100)+
+  ylim(0,60)+
   #geom_vline(xintercept = 5, linetype=2)+
    labs(x="Days",y="Cumulative Percentage of Seedlings")
 
