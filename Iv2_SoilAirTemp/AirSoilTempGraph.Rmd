@@ -13,6 +13,7 @@ library (dplyr)
 library (ggplot2)
 library (lubridate)
 library (scales)
+library(gridExtra)
 ```
 
 Note: this file produces the graphs for soil and Air temperatures from hobologger data Iversen 2
@@ -50,7 +51,7 @@ g1<- df_file %>%
   #stat_smooth(level = 0.9, size = 1, colour="white") + 
   theme_bw() +
   xlab("Date") + 
-  ylab(expression(Mean~soil~temperature~~"( "*C^"o"*")"))+
+  ylab(expression(Mean~soil~temperature~~"("^"o"*"C)"))+
   theme(text = element_text(size=10))+
   scale_x_date(date_breaks = "3 month", 
                  date_labels = "%B",
@@ -77,7 +78,7 @@ then graph Air
   theme_bw() +
   xlab("Date") + 
   theme(text = element_text(size=10))+
-  ylab(expression(Mean~air~temperature~~"( "*C^"o"*")"))+
+  ylab(expression(Mean~air~temperature~~"("^"o"*"C)"))+
   scale_x_date(date_breaks = "3 month", 
                  date_labels = "%B",
                  limits = as.Date(c('2015-06-01','2017-07-07')))
@@ -101,11 +102,12 @@ g2 <-df_Air %>%
   #stat_smooth(level = 0.9, size = 1, colour="white") + 
   theme_bw() +
  xlab("Date") + 
-  ylab(expression(Mean~air~temperature~~"( "*C^"o"*")"))+
+  ylab(expression(Mean~air~temperature~~"("^"o"*"C)"))+
   theme(text = element_text(size=10))+
   scale_x_date(date_breaks = "3 month", 
                  date_labels = "%B",
                  limits = as.Date(c('2015-06-01','2017-07-07'))) 
+
 
 
 ```
@@ -122,5 +124,8 @@ grid.arrange(g2, g1)
 
 ```
 
+
+
+then continue in next script AirSoilTempCorrelat....
 
 

@@ -1,7 +1,7 @@
 ---
 title: "Thermal Time Calculation Iversen 2 Weather data"
 author: "CT"
-date: "01 Jan 2015"
+date: "01 Jan 2016"
 output: html_document
 ---
 

@@ -334,7 +334,7 @@ vc_temp <-NULL
 
 ```
 
-```{r}
+```{r, fig.height=3}
 #graph it 
 
 df_all %>%
