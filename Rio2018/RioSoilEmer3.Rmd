@@ -1,0 +1,123 @@
+ ---
+title: "SoilTT"
+author: "CT"
+date: "15.07.2017"
+output:
+  word_document: default
+  html_document: default
+---
+
+```{r setup, warning=FALSE}
+
+library (dplyr)
+library (ggplot2)
+library(agricolae)
+library(knitr)
+library (lubridate)
+library(scales)
+
+```
+
+Merge the dataframes 
+
+```{r readData}
+setwd("C:\\Users\\EdCarmen\\Documents\\CarmenProjects2016\\GitSubclover\\Rio2018")
+getwd()
+
+#create file
+dftemp<- read.table("df_CumTTRio.txt",header=TRUE)
+
+df_D <- dftemp %>%
+  dplyr::select(Date,SoilType,SumTTday) %>%
+  mutate(Date=ymd(Date))
+
+
+df_E <- read.table("df_Pemerg.txt",header=TRUE)%>%
+mutate(Date=ReadingDate)%>%
+  mutate(Date=ymd(Date))%>%
+dplyr::select(Date,PercEmerg, PlantPop)
+  
+
+
+summary(df_E)
+summary (df_D)
+
+```
+
+## Merge 
+
+```{r, fig.height=10, fig.width=10}
+
+df_M <- merge(df_E,df_D,by ="Date")%>%
+        mutate(Date=ymd(Date))
+
+str(df_M)
+```
+
+
+```{r}
+
+x <- ymd("2015-06-20")
+
+getSeason <- function(DATES) {
+  
+  require(lubridate)
+  
+SS <-lubridate::yday(ymd("2000-12-25")) #(summer sol)
+AE <-lubridate::yday(ymd("2000-03-22")) #(autumn eq)
+WS <-lubridate::yday(ymd("2000-06-21")) #(winter sol)
+SE <-lubridate::yday(ymd("2000-09-20")) #(spring eq)
+
+ # d <- yday(dmy(DATES))
+ # d <- yday(ymd(DATES))
+  d<-yday(DATES)
+    
+  s <-  ifelse(d >= SS | d < AE,"Summer",
+               ifelse(d >= AE & d < WS,"Autumn",
+                      ifelse(d >= WS & d < SE,"Winter",
+                             ifelse(d >= SE & d < SS,"Spring","?"))
+                      ))
+
+    return(s)
+
+}
+
+getSeason(x)
+
+
+```
+
+
+```{r}
+
+
+df_M1 <- df_M %>%
+#  rowwise() %>%
+  mutate(Season=getSeason(Date)) %>%
+  mutate(Season = factor(Season))
+  
+  
+summary(df_M1)
+
+```
+
+
+
+Graph it 
+
+```{r}
+#Check TT  two methods : TTday_s = simple method (Tmean - Tbzero)
+df_M1%>% 
+  #summarise_each(funs(mean)) %>%
+  ggplot(aes(x=SumTTday, y= PercEmerg)) +
+  geom_line(aes(colour=SoilType, linetype=SoilType)) +
+  facet_wrap(~Season,scale="free") +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1)) +
+  theme_bw()
+  #xlim(0,300)+
+  #ylim(0,100)
+  #geom_point(shape=21,alpha=0.2)+
+  #geom_abline(intercept = 50, slope = 1)
+
+```
+

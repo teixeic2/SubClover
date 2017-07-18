@@ -1,0 +1,128 @@
+---
+title: "Conparison Soil and Air temp Iversen "
+author: "CT"
+date: "17.07.2017"
+output:
+  pdf_document: default
+  html_document: default
+  word_document: default
+---
+
+Purpose:
+
+-Analysis of soil and air temperatures 
+-derive a regression  
+
+
+
+```{r loadLibraries}
+library(tidyr)
+library (dplyr)
+library (ggplot2)
+library(agricolae)
+library(knitr)
+library (lubridate)
+library(mosaic)
+library(lattice)
+```
+
+
+```{r loadFile}
+setwd("C:\\Users\\EdCarmen\\Documents\\CarmenProjects2016\\GitSubclover\\Rio2018")
+getwd()
+
+#create file
+df_emerg <- read.table("AirSoil2.txt",header=TRUE)
+
+
+
+
+```
+
+```{r}
+
+# define format
+
+ df_emerg1 <- df_emerg %>%
+  mutate(Date = dmy(Date))
+         
+  str(df_emerg1)
+  
+
+```
+
+
+
+```{r, fig.height=4, fig.width= 10}
+
+# Graph Max temp Air and Soil
+
+  df_emerg1 %>%  
+  #filter(Cultivar =="Monti") %>%
+  #dplyr::select(-SowingDate, - ReadingDate) %>%
+  #summarise_each(funs(mean)) %>%
+  ggplot(aes(x=STx, y=ATx)) + 
+  geom_point(aes(colour=Season, shape=Season)) +
+  #geom_smooth() +
+  geom_smooth(method='lm', formula=y~x) +
+  theme_bw()+
+  xlab(expression(Maximum~air~temperature~~"("^"o"*"C)")) + 
+  ylab(expression(Maximum~soil~temperature~~"("^"o"*"C)"))
+
+
+```
+
+
+
+```{r,fig.height=4, fig.width= 10}
+
+# Graph Min temp Air and Soil
+
+
+  df_emerg1 %>%  
+  #filter(Cultivar =="Monti") %>%
+  #dplyr::select(-SowingDate, - ReadingDate) %>%
+  #summarise_each(funs(mean)) %>%
+  ggplot(aes(x=STx, y=ATx)) + 
+  geom_point(aes(colour=Season, shape=Season)) +
+  geom_smooth(method='lm', formula=y~x) +
+  #add error bar
+  #geom_errorbar(aes(x=20,ymin=200,ymax=300,width=0.2))+
+  #facet_wrap(~Season,ncol=2, scales = "free")+
+  theme_bw()+
+  xlab(expression(Minimum~air~temperature~~"("^"o"*"C)")) + 
+  ylab(expression(Minimum~soil~temperature~~"("^"o"*"C)"))
+
+
+```
+
+
+```{r}
+
+# For all seasons T max 
+
+ summary(lm(STx~ATx,df_emerg1))
+attributes(summary(lm(STx~ATx, df_emerg1)))
+
+# Get the R^2
+summary(lm(STx~ATx,df_emerg1))$r.squared
+summary(lm(STx~ATx,df_emerg1))$adj.r.squared
+
+
+
+```
+
+
+```{r}
+
+# For all seasons T min 
+
+summary(lm(STm~ATm,df_emerg1))
+attributes(summary(lm(STm~ATm, df_emerg1)))
+
+# Get the R^2
+summary(lm(STm~ATm,df_emerg1))$r.squared
+summary(lm(STm~ATm,df_emerg1))$adj.r.squared
+```
+
+

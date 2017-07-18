@@ -1,0 +1,62 @@
+---
+title: "Flowering 6CV"
+author: "CT"
+date: "06.07.2017"
+output:
+  word_document: default
+  pdf_document: default
+  html_document: default
+---
+
+```{r loadLibraries}
+library(tidyr)
+library (dplyr)
+library (ggplot2)
+library(agricolae)
+library(knitr)
+library (lubridate)
+
+```
+This script calculates the means of DAS and TTAS50Flo for Iversen to join the Reanalysis table 
+
+```{r loadFile}
+
+setwd("C:\\Users\\EdCarmen\\Documents\\CarmenProjects2016\\GitSubclover\\FlowIv2")
+
+getwd()
+
+#create file
+df_f <- read.table("df_tt_50p_flow.txt",header=TRUE)
+
+head (df_f)
+```
+check formats
+```{r}
+str(df_f)
+```
+
+Analysis of sowing date and cultivars for Bud considering Date 
+
+```{r GraphBoxPlotBud}
+
+ df_50Iv <- df_f %>%
+  group_by(Cultivar,SowTreat,Variable)%>%
+  filter (Variable=="Flowering")%>%
+  summarise_each(funs(mean))
+
+str(df_50Iv)
+
+```
+
+Save df as a table to join with Reanalysis table  
+
+```{r GraphSowingDateAndVariable,fig.width=10}
+
+write.table(df_50Iv, "df_50Iv.txt")
+
+
+```
+
+Now do the same for Poukawa in another script within Folder is FlowPok
+
+

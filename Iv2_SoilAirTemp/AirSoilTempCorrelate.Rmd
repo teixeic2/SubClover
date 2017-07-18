@@ -1,0 +1,136 @@
+
+---
+title: "Graph Air and Soil Temperature"
+author: "CT"
+date: "05.07.2017"
+output: html_document
+---
+
+
+```{r}
+library(tidyr)
+library (dplyr)
+library (ggplot2)
+library (lubridate)
+library (scales)
+```
+
+Note: this file produces the graphs for soil and Air temperatures from hobologger data Iversen 2
+
+```{r, load file}
+
+setwd("C:\\Users\\EdCarmen\\Documents\\CarmenProjects2016\\GitSubclover\\Iv2_SoilAirTemp")
+getwd()
+#read soil and Air data 
+df_file <- read.table("SoilTemp.txt", header=TRUE)
+df_Air <- read.table("RawWeaIv2.txt", header=TRUE)
+
+head(df_file)
+head (df_Air)
+#keep this scirpt for the real weather data
+
+str(df_Air)
+
+
+```
+
+Then change date format and combine the two dataframes 
+
+```{r}
+
+df_S <- df_file %>%
+  mutate(Date = dmy(Date)) #(need to reformat date here)
+
+df_A <-df_Air %>%
+  mutate(Date = dmy(Date)) #(need to reformat date here)
+  
+  str(df_S)
+  str(df_A)
+  
+df_AS <- merge(df_S,df_A, by="Date")
+head(df_AS)
+
+```
+
+
+
+Then select only columns of interest 
+ 
+```{r Soiltemp_andAirmean}
+
+df_AS %>%
+ #  select(Date, TempSoil10mm, MeanTt)%>%
+ # summarise_each(funs(mean)) %>%
+  ggplot(aes(x=MeanTt, y= TempSoil10mm))  +
+  geom_point(colour= "darkblue", alpha=0.2) +
+  #geom_line(colour= "brown")+
+  stat_smooth(level = 0.9, size = 1, colour="white") + 
+  theme_bw() +
+  xlab(expression(Mean~air~temperature~~"( "^"o"*"C)"))+ 
+  ylab(expression(Mean~soil~temperature~~"( "^"o"*"C)"))+
+  theme(text = element_text(size=10))
+
+  # #scale_x_date(date_breaks = "3 month", 
+  #                date_labels = "%B",
+  #                limits = as.Date(c('2015-06-01','2017-07-07')))
+
+
+
+```
+
+the use geom ab line to see a stright line 
+
+
+```{r, fig.height=5, fig.width=8}
+
+df_AS %>%
+ select(Date, TempSoil10mm, MeanTt)%>%
+ # summarise_each(funs(mean)) %>%
+  ggplot(aes(x=MeanTt, y= TempSoil10mm))  +
+  geom_point(colour= "darkblue", alpha=0.2) +
+  #geom_abline()+
+  #stat_smooth (method = "lm",col = "darkblue") +
+  stat_smooth (method = "lm",col = "darkblue", formula=y~x)+
+  theme_bw() +
+  xlab(expression(Mean~air~temperature~~"( "^"o"*"C)"))+
+  ylab(expression(Mean~soil~temperature~~"( "^"o"*"C)"))+
+  theme(text = element_text(size=10))
+
+write.table(df_AS,"SoilAir.txt")
+
+
+```
+
+linear regression  
+```{r}
+
+
+#then try lm 
+
+fit1 <- lm(TempSoil10mm ~ MeanTt, df_AS)
+summary (fit1)
+
+cf <- round(coef(fit), 2)
+
+
+
+
+```
+
+
+Then create a grid with two graphs 
+
+```{r}
+
+
+grid.arrange(g2, g1)
+
+
+
+```
+
+
+
+then continue in next script AirSoilTempCorrelat....
+
+

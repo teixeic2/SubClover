@@ -1,0 +1,138 @@
+---
+title: "ReAnalysis Table"
+author: "CT"
+date: "Thursday, December  05, 2016"
+output:
+  word_document: default
+  html_document: default
+note: Re analysis data compilation; Days, TT and Photop.
+---
+
+```{r loadLibraries}
+library(tidyr)
+library (dplyr)
+library (ggplot2)
+library(agricolae)
+library(knitr)
+library (lubridate)
+library(scales)
+```
+Here loading the database : publication, location and dates of experiments 
+
+
+```{r   loadFile}
+setwd("C:\\Users\\EdCarmen\\Documents\\CarmenProjects2016\\GitSubclover\\ReAnalysis")
+getwd()
+
+
+#create file
+df_Data <- read.table("RawDatabase.txt",header=TRUE)
+
+#head(df_Data)
+
+summary(df_Data)
+
+summary(df_Data$AuthorYear)
+
+
+```
+
+```{r}
+#change formats 
+
+df_Data$SowingDate <-dmy(df_Data$SowingDate)
+df_Data$StartFlowering <-dmy(df_Data$StartFlowering)
+
+str(df_Data)
+```
+
+```{r}
+#Calculate DaysToFlower
+
+df_Data <- df_Data %>%
+mutate(DaysToFlower=(StartFlowering-SowingDate))
+
+
+```
+
+Check data quality , graph
+
+```{r}
+df_Data %>%
+  ggplot(aes(x=Location,y=DaysToFlower))+
+  geom_jitter(width = 0.2)+
+  geom_boxplot(alpha=0.2)+
+theme(axis.text.x = element_text(angle = 90, hjust = 1))+
+  
+  facet_wrap(~Country)
+```
+
+
+```{r, }
+
+
+  df_Data%>%
+  ggplot(aes(x=month(SowingDate),y=DaysToFlower,colour=Location, shape=Country))+
+  geom_jitter(width = 0.2)+
+  geom_point(alpha=0.2)+
+  theme(axis.text.x = element_text(angle = 90, hjust = 1))+
+  
+  facet_wrap(~Country)
+```
+
+
+```{r, fig.height=5, fig.width=10,warning=FALSE}
+
+df_Data%>% 
+  ggplot(aes(x=month(SowingDate), y=DaysToFlower))+
+  geom_boxplot()+
+  geom_jitter(width = 0.1, aes(colour=Location))+
+  theme(axis.text.x = element_text(angle = 90, hjust = 1))+
+  #theme(legend.position="none")+
+  labs(x=" Month", y="Days to flower")+
+  facet_wrap(~Country)
+
+
+```
+
+
+Graph Box Plot 
+
+```{r GraphBoxPlot, warning=FALSE}
+
+# Graph DAS and Location 
+
+df_Data %>%
+  filter(Location != "Canberra"& Location != "Lismore") %>%
+  ggplot(aes(x=Country, y=DaysToFlower)) + 
+  geom_boxplot(alpha =0.2) +
+  geom_violin(alpha =0.2)+
+  geom_jitter(aes(colour=Location), width=0.25)+
+  labs(y="DAS to flower ",x="Country")
+  
+
+```
+
+
+```{r}
+# Graph DAS and Location by month 
+
+df_Data %>%
+  filter(Location != "Canberra"& Location != "Lismore"& Location != "Perth") %>%
+  ggplot(aes(x=month(SowingDate), y=DaysToFlower))+
+  geom_boxplot(alpha=0.2)+
+  geom_jitter(width = 0.1, aes(colour=Location))+
+  theme(axis.text.x = element_text(angle = 90, hjust = 1))+
+  
+  #theme(legend.position="none")+
+  xlab("Month")+ ylab (expression(paste("PM(",mu, "g/", m^3,")", sep=""))) +
+     scale_x_discrete(labels=month.abb) +
+  facet_wrap(~Country)
+```
+
+
+
+```{r}
+write.table(df_Data,"df_Data.txt")
+```
+

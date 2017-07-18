@@ -303,5 +303,25 @@ ggplot(aes(x=SowingDate, y=mean, colour=factor(Cultivar), shape=factor(Cultivar)
 
 
 
+```{r}
+
+df_50_Perc %>%
+  ungroup() %>%
+  mutate(Cultivar=factor(Cultivar)) %>%
+  mutate(SowTreat=factor(SowTreat)) %>%
+  mutate(ReadingDate= ymd(ReadingDate)) %>%
+  group_by(Cultivar,SowTreat, ReadingDate) %>%
+  summarise_each(funs(mean)) %>%
+  ggplot(aes(x=av_TT,y=PercEmerg)) +
+  geom_point(aes(colour=Cultivar)) + 
+  facet_wrap(~SowTreat,ncol=4)+
+  geom_line(aes(linetype=Cultivar)) +
+  geom_abline(intercept=50,slope=0) +
+  geom_vline(xintercept = 100, linetype=2)
+
+
+
+
+```
 
 

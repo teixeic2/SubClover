@@ -1,0 +1,226 @@
+---
+title: "Thermal Time Calculation Poukawa Weather data"
+author: "CT"
+date: "28.03.2017"
+output: html_document
+---
+
+```{r setup, include=FALSE, loadlibraires}
+#knitr::opts_chunk$set(echo = TRUE)
+library(tidyr)
+library (dplyr)
+library (ggplot2)
+library(agricolae)
+library(knitr)
+library (lubridate)
+
+```
+
+
+
+```{r readData}
+setwd("C:\\Users\\EdCarmen\\Documents\\CarmenProjects2016\\GitSubclover\\Pok_weather")
+getwd()
+
+#create file
+df_WePo <- read.table("Pok_Weat.txt",header=TRUE)
+
+#head(df_We)
+
+summary(df_WePo)
+```
+
+
+
+```{r changeformat, echo=FALSE}
+
+df_WePo$Date<-dmy(df_WePo$Date)
+
+str(df_WePo)
+
+```
+
+## Graph it 
+
+```{r, fig.height=10, fig.width=15}
+
+df_WePo %>%
+  tidyr::gather("Variable", "Value",Tx:Pp) %>%
+  ggplot(aes(x=Date,y=Value))+
+  geom_line(aes(colour=factor(Variable))) +
+  #facet_wrap(~LocationYear,scale="free") +
+  scale_color_manual(values=c("#8399CC","#333333", "#3355CC","#CC3300"))+
+  theme_bw()+
+  labs(x=" Date", y=" degree Celsius/hours ")+
+  theme(axis.text.y = element_text(size=18))+
+  theme(axis.title.y = element_text(size=22))+
+  theme(legend.text = element_text(size=22))+
+  theme(axis.title.x = element_text(size=22))+
+  theme(axis.text.x = element_text(angle = 90, hjust = 1, size=22)) 
+
+
+```
+
+## Define Tt cardinal temperatures
+
+Considered an overall average the following references:
+Tb: 0.0
+Top range:18-25
+Tmax: 40
+REFS: MonksEtAl2009	,LonatiEtAl2009	,MootEtal2003, SilsburyetAl1984. 
+							
+
+
+```{r}
+
+#Create Thermal time cardinal temperatures ! 
+
+tt_card <- data.frame(temp=c(0,18,25,40),TT=c(0,18,18,0))
+tt_card %>%
+  ggplot(aes(x=temp, y=TT))+
+  labs(x="Temperature (degree Celsius)")+
+  labs(y="Thermal Time (degree days)") +
+  geom_line()
+  
+```
+
+```{r}
+
+#Create and test interpolation function - Test if works 
+
+temp_ref  <- 25 # x-axes reference
+temp <- tt_card$temp # x-axes
+TT <- tt_card$TT # y-axes
+
+
+int_func <- function(temp,TT,temp_ref){
+
+  # if temp is too low or too high give extreme TT values
+ if(temp_ref>temp[length(temp)]) {
+   
+   out <- TT[length(TT)] 
+   # FIXME: approx functions seems to do that - need param
+   
+ } else if (temp_ref<temp[1]) {
+   
+   out <- TT[1]
+   
+ } else {
+   
+   # else interpolate
+   
+   tryCatch(  
+   
+  out <- approx(temp, TT, xout = temp_ref, 
+         method="linear", 
+         rule = 2)$y,
+  error = function(e) 
+  {
+  out <- NA
+  }
+) 
+  
+} # end if check
+
+  return(out)  
+  
+ }
+  
+int_func(temp,TT,temp_ref)
+
+
+```
+
+```{r}
+
+#create REF Jones CA, Ritchie JT, Kiniry JR, Godwin DC (1986) Subroutine structure.In 'CERES-Maize: A simulation model of maize growth anddevelopment'. (Eds CA Jones, JR Kiniry) pp. 49-194. (Texas A&M University Press: Texas, USA
+
+TTfunc <- function(Tmin ,Tmax){         
+ 
+  if (Tmin>Tmax){
+   print("Tmin>Tmax")
+   break
+ } 
+  
+  TTav  <- 0
+  TTsum <- 0
+  
+  for(n in 1:8){ 
+    
+    tn <- 0
+    
+    TT_tn <- 0
+    
+    tn <- ((0.931 +  0.114*n - 0.0703 * n^2
+            + 0.0053 * n^3) * (Tmax-Tmin)) + 
+      Tmin # 8-h temperature
+    
+    TT_tn <- int_func(tt_card$temp, tt_card$T,tn) 
+    
+    TTsum <- TT_tn + TTsum
+    
+    print(TT_tn)
+    
+    }
+  TTav <- TTsum/8
+  
+  return(TTav)
+  }
+
+TTfunc(10,30)
+
+```
+
+```{r ReadCalcTt}
+#Here a comparison between the simple TT calculation (Tx-Tm/2) and Jones 8 hours calculation
+df_We_ttPo <- df_WePo %>%
+  mutate(TTday=TTfunc(Tm,Tx), TTday_s=(Tm+Tx)/2, diff=(TTday_s/TTday)*100)
+
+```
+
+
+```{r}
+#Check TT 
+df_We_ttPo  %>% 
+ggplot(aes(x=TTday_s, y= TTday)) +
+    geom_point(shape=21,alpha=0.2)+
+  geom_abline(intercept = 0, slope = 1)
+
+```
+
+
+
+
+
+```{r}
+
+#Calculate accumulated Themal time 
+
+df_CumTTPo <- df_We_ttPo %>%
+mutate(SumTTday = cumsum(TTday)) 
+
+
+head(df_CumTTPo)
+
+
+```
+
+```{r, fig.height=10, fig.width=10}
+#Graph Accumulated TT 
+
+df_CumTTPo %>% 
+ggplot(aes(x=Date, y= SumTTday)) +
+    geom_line()
+
+
+```
+
+
+
+
+```{r}
+
+write.table(df_CumTTPo, "df_CumTTPo.txt")
+
+```
+

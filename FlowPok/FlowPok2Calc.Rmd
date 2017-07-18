@@ -1,0 +1,299 @@
+---
+title: "Flowering 6CV"
+author: "CT"
+date: "06.07.2017"
+output: html_document
+---
+
+```{r loadLibraries}
+library(tidyr)
+library (dplyr)
+library (ggplot2)
+library(agricolae)
+library(knitr)
+library (lubridate)
+```
+This script calculates the 50 % Flowering - DAS and TTAS for Poukawa based on script FlowPok1
+
+```{r loadFile}
+setwd("C:\\Users\\EdCarmen\\Documents\\CarmenProjects2016\\GitSubclover\\FlowPok")
+getwd()
+
+#create file ; this file was generated in the previous script FlowerProject2
+
+df_P <- read.table("df_PokPerc.txt",header=TRUE)
+
+head(df_P)
+
+
+```
+
+
+
+
+
+
+
+
+Find 50 Percent of the variable bud  for cultivar and sowtreat.
+
+```{r Calc50PercFlower}
+
+# Average by plots
+#dplyr used
+
+df_50_Pok <- df_P %>%
+  group_by(Cultivar,SowTreat, Date, SowingD,DAS) %>%
+  summarise(av_Perc = mean(Percent), 
+            av_TT = mean(TTAS),
+            av_DAS=mean(DAS))
+
+#functions use
+str(df_50_Perc)
+summary(df_50_Perc)
+head(df_50_Perc)
+
+write.table(df_50_Perc, "df_50_Perc.txt")
+
+#  loop to calculate tt_50p_flow for each var x sd x cv
+cv <- unique(df_50_Perc$Cultivar)
+var <- unique(df_50_Perc$Variable)
+sow <- unique(df_50_Perc$SowTreat)
+sowd <- unique(df_50_Perc$SowingD)
+
+# create empty df
+df_tt_50p_flow <- data.frame(SowingD = NULL,
+                             Cultivar = NULL, 
+                             SowTreat = NULL,
+                             Variable = NULL, 
+                             DAS= NULL,
+                             TT50F = NULL)
+
+#loop trough each combination of factor levels
+
+for(i in 1:length(cv)) {
+  for(j in 1:length(var)){
+    for(k in 1:length(sow)){
+      
+      # clean value holders
+      DAS_50p_flow <- 0
+      tt_50p_flow <- 0
+      
+    
+      print(paste0(cv[i]," ",var[j]," ", sow[k]))
+      # filter for each combination
+
+  df_sub <- df_50_Perc %>%
+    subset(Cultivar == as.character(cv[i]) &
+    Variable == as.character(var[j]) &
+    SowTreat == as.character(sow[k]))
+  
+  df_sub
+  
+  # create percentage with maximum value recorded 
+  # to avoid crossing the 50% line twice
+  
+  df_sub$av_Perc_max <- 0 # create new col
+  
+  for(z in 1:nrow(df_sub)) {
+    
+    df_sub$av_Perc_max[z] <- max(df_sub$av_Perc[z],
+                                 df_sub$av_Perc_max[z-1])
+    
+  }
+  
+  df_sub
+  head(df_sub)
+  tail(df_sub)
+
+  # Interpolate 
+  y_ref <- 50 # y value where we want to find x by interpolation
+  
+  # interpolate
+  #find DAS at 50 Pecent Flower 
+
+  tryCatch(  
+  DAS_50p_flow <- approx(df_sub$av_Perc_max, 
+  df_sub$av_DAS , xout = y_ref, rule = 1)$y,
+  error = function(e) 
+  {
+  DAS_50p_flow <- NA
+  }
+)
+  #find TT at 50 Pecent Flower
+  tryCatch(  
+  tt_50p_flow <- approx(df_sub$av_Perc_max, 
+  df_sub$av_TT , xout = y_ref, rule = 1)$y,
+  error = function(e) 
+  {
+  tt_50p_flow <- NA
+  }
+)
+
+  df_temp <- NULL
+  df_temp <- data.frame(Cultivar = df_sub$Cultivar[1],
+                             Variable = df_sub$Variable[1], 
+                             SowTreat = df_sub$SowTreat[1],
+                             SowingD = df_sub$SowingD[1], 
+                             DAS50F = DAS_50p_flow,
+                             TT50F = tt_50p_flow)
+                        
+  
+  df_tt_50p_flow <- rbind(df_tt_50p_flow,df_temp)
+      
+    } 
+  }
+}
+
+
+summary(df_tt_50p_flow)
+
+
+
+write.table(df_tt_50p_flow,"df_tt_50p_flow.txt")
+
+summary(df_tt_50p_flow)
+
+
+```
+
+
+```{r GraphResults}
+
+df_tt_50p_flow %>%
+  #use filter to check single variables
+  filter( Variable== "Bud") %>%
+  ggplot(aes(x=SowingD,y=TT50F,colour=Cultivar))+
+  geom_point()+
+  geom_line()+
+  #facet_grid(Variable~.)+
+  theme_bw()+
+  xlab("Sowing Month")+
+  ylab("Thermal Time (degree days)")
+  
+
+
+
+
+
+```
+
+```{r}
+df_tt_50p_flow %>%
+    #filter( SowTreat != "S6" & SowTreat != "S7")%>%
+  ggplot(aes(x=SowingD,y=TT50F,colour=Cultivar))+
+  geom_point()+
+  facet_grid(Variable~.)+
+  theme_bw()+
+  geom_line()
+
+summary(df_tt_50p_flow)
+```
+
+
+
+```{r,  warning =FALSE }
+
+#CalculateDAys from bud to bur phases,
+df_tt_50p_flow %>%
+  dplyr::select(-TT50F)  %>%
+  tidyr::spread(Variable,DAS50F) %>%
+  mutate(DAS50Bud2Bur = Bur - Bud) %>%
+  #graph it
+ggplot(aes(x=SowingD, y=DAS50Bud2Bur)) + 
+  geom_line(aes(colour=Cultivar)) +
+  geom_point(aes(shape=Cultivar,colour=Cultivar))+
+  #facet_grid(Cultivar~SowTreat, scales = "free") +
+  facet_grid(SowTreat~Cultivar, scales = "free") +
+  geom_abline(intercept = 50, slope = 0) +
+  #ylab("Percent of Flowering (%)") +
+  #xlab("Thermal-time from sowing (oCd)")+
+theme(axis.text.x = element_text(angle = 60, hjust = 1))
+
+# save final DF
+write.table(df_tt_50p_flow, "df_tt_50p_flow.txt")
+
+df_tt_50p_flow %>%
+  dplyr::select(-DAS50F)  %>%
+  tidyr::spread(Variable,TT50F) %>%
+  mutate(TT50Bud2Bur = Bur - Bud) %>%
+  #graph it
+ggplot(aes(x=SowingD, y=TT50Bud2Bur)) + 
+  geom_line(aes(colour=Cultivar)) +
+  geom_point(aes(shape=Cultivar,colour=Cultivar))+
+  #facet_grid(Cultivar~SowTreat, scales = "free") +
+  facet_grid(SowTreat~Cultivar, scales = "free") +
+  geom_abline(intercept = 50, slope = 0) +
+  #ylab("Percent of Flowering (%)") +
+  #xlab("Thermal-time from sowing (oCd)")+
+theme(axis.text.x = element_text(angle = 60, hjust = 1))
+
+
+
+
+```
+
+
+
+
+Now take the dataframe with 50 to flower and combine with photoperiod at sowing 
+
+```{r}
+
+df_Photo <- read.table("Photoperiod.txt",header=T)
+df_Photo$Date <- dmy(df_Photo$Date)
+df_Photo$SowingD <- df_Photo$Date
+head(df_Photo)
+head(df_tt_50p_flow)
+df_tt_50p_flow$SowingD <- ymd(df_tt_50p_flow$SowingD)
+
+#merge two data frames by ID
+df_photoTT <- merge(df_tt_50p_flow,df_Photo, by="SowingD")
+head(df_photoTT)
+summary(df_photoTT)
+
+#graph
+df_photoTT %>%
+  ggplot(aes(x=Pp, y=TT50F,color=factor(Cultivar)))  +
+  geom_point()+
+  geom_line() +
+ # geom_smooth(aes(color=Cultivar))+
+  facet_grid(Variable~., scales = "free")
+
+
+```
+
+
+next step: join early_open and petal categories to create " flower" 
+
+Graph TTAS and Photoperiod 
+
+```{r GraphPhoto}
+
+# graph it
+#head (df_bur_simple)
+df_bur_simple %>%
+  filter(Variable == "Bud" |
+           Variable =="Flowering"| 
+           Variable =="Bur")  %>%
+  mutate(Variable = 
+  factor(Variable,levels = c("Bud","Flowering",
+                             "Bur"))) %>%
+  group_by(TTAS,Cultivar,SowTreat,Variable,Pp_sow) %>%
+  summarise_each(funs(mean)) %>%
+  #select(Variable,Percent, Cultivar,TTAS,SowTreat,Pp_sow) %>%
+  #filter(Cultivar == "Monti" | Cultivar == "Leura" ) %>%
+  #filter(Variable == "Bud") %>%
+  ggplot(aes(x=TTAS, y=Percent)) + 
+  geom_line(aes(colour=Cultivar)) +
+  geom_point(aes(shape=Cultivar,colour=Cultivar))+
+  facet_grid(SowTreat~Variable, scales = "free") +
+  geom_abline(intercept = 50, slope = 0)+
+theme(axis.text.x = element_text(angle = 60, hjust = 1))
+
+unique(df_bur_simple$Variable)
+
+
+```
+
+
