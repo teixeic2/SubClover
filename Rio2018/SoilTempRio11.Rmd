@@ -1,0 +1,188 @@
+---
+title: "Conparison Soil and Air temp Iversen _ Rio 2018"
+author: "CT"
+date: "17.07.2017"
+output:
+  pdf_document: default
+  html_document: default
+  word_document: default
+---
+
+Purpose:
+
+-Analysis of soil and air temperatures 
+-derive a regression  
+
+
+
+```{r loadLibraries}
+library(tidyr)
+library (dplyr)
+library (ggplot2)
+library(agricolae)
+library(knitr)
+library (lubridate)
+library(mosaic)
+library(lattice)
+```
+
+
+```{r loadFile}
+setwd("C:\\Users\\EdCarmen\\Documents\\CarmenProjects2016\\GitSubclover\\Rio2018")
+getwd()
+
+#create file
+df_emerg <- read.table("SoilAir.txt",header=TRUE)
+
+
+
+
+```
+
+```{r}
+
+# define format
+
+ df_emerg1 <- df_emerg %>%
+  mutate(Date = dmy(Date))
+         
+  str(df_emerg1)
+  
+
+```
+
+
+
+```{r, fig.height=4, fig.width= 10}
+
+# Graph Max temp Air and Soil
+
+  df_emerg1 %>%  
+  #filter(Cultivar =="Monti") %>%
+  #dplyr::select(-SowingDate, - ReadingDate) %>%
+  #summarise_each(funs(mean)) %>%
+  ggplot(aes(x=Date, y=Tx)) + 
+  geom_point(aes(colour=Measured,shape=Measured)) +
+  geom_smooth(aes(colour=Measured)) +
+  #add error bar
+  #geom_errorbar(aes(x=20,ymin=200,ymax=300,width=0.2))+
+  #facet_wrap(~Season,ncol=2, scales = "free")+
+  theme_bw()+
+  xlab(expression(Maximum~air~temperature~~"("^"o"*"C)")) + 
+  ylab(expression(Maximum~soil~temperature~~"("^"o"*"C)"))
+  #ylim(0, 2200)+
+  #labs(y="Max temperature",x="Date") 
+  #+geom_abline(intercept = 50, slope = 0)
+
+
+
+```
+
+
+
+```{r,fig.height=4, fig.width= 10}
+
+# Graph Min temp Air and Soil
+
+  df_emerg1 %>%  
+  ggplot(aes(x=Date, y=Tm)) + 
+  geom_point(aes(colour=Measured,shape=Measured)) +
+  geom_smooth(aes(colour=Measured)) +
+    theme_bw()+
+  theme_bw()+
+  xlab(expression(Minimum~air~temperature~~"("^"o"*"C)")) + 
+  ylab(expression(Minimum~soil~temperature~~"("^"o"*"C)"))
+
+
+```
+
+
+```{r}
+
+df_emerg1 %>%
+  ggplot(aes(x=Date, y=Tm))+ 
+  geom_point(aes(colour=Measured,shape=Season)) +
+  geom_smooth(aes(colour=Measured)) +
+    theme_bw()+
+  labs(y="Minimum Temperature ",x="Date") 
+  #+geom_abline(intercept = 50, slope = 0)
+
+
+
+```
+
+
+```{r}
+
+
+df_emerg1 %>%  
+  ggplot(aes(x=Date, y=Tm)) + 
+  geom_point(aes(colour=Measured,shape=Season)) +
+  geom_smooth(aes(colour=Measured)) +
+    theme_bw()+
+  labs(y="",x="Max temperature") 
+  #+geom_abline(intercept = 50, slope = 0)
+```
+
+
+
+
+```{r}
+
+
+  df_emerg1 %>%  
+  ggplot(aes(x=Season, y=Tx)) + 
+  geom_boxplot(alpha=0.2)+
+  geom_jitter(width = 0.1)+
+  theme_bw()+
+  xlab(expression(Maximum~air~temperature~~"("^"o"*"C)")) + 
+  ylab(expression(Maximum~soil~temperature~~"("^"o"*"C)"))
+ 
+  
+
+```
+
+
+```{r}
+
+df_emerg1 %>%  
+  ggplot(aes(x=Season, y=Tm)) + 
+  geom_boxplot(alpha=0.2)+
+  geom_jitter(width = 0.1)+
+  theme_bw()+
+  xlab(expression(Minimum~air~temperature~~"("^"o"*"C)")) + 
+  ylab(expression(Minimum~soil~temperature~~"("^"o"*"C)"))
+
+```
+
+
+
+Then use part of the data set to generate equations 
+```{r, fig.height=4, fig.width= 10}
+
+df_emerg1 %>%  
+  dplyr:: filter(Season=="Autumn")%>%
+  #dplyr::select(TX, Air, Soil)%>%
+  ggplot(aes(x=Date, y=Tx)) + 
+  geom_boxplot(alpha=0.2)+
+  geom_jitter(width = 0.1)+
+  theme_bw()
+
+
+
+```
+
+ 
+
+```{r}
+
+
+```
+
+
+```{r}
+
+write.table(df_emerg1, "SoilAirTemp.txt")
+
+```
+

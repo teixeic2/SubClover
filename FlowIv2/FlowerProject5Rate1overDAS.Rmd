@@ -1,0 +1,154 @@
+---
+title: "Flowering 6CV"
+author: "CT"
+date: "02.03.2017"
+output:
+  word_document: default
+  pdf_document: default
+  html_document: default
+---
+
+```{r loadLibraries}
+library(tidyr)
+library (dplyr)
+library (ggplot2)
+library(agricolae)
+library(knitr)
+library (lubridate)
+
+```
+This script produces the rate of flowering develop 1/DAS and 1/TT50F
+
+```{r loadFile}
+
+setwd("C:\\Users\\EdCarmen\\Documents\\CarmenProjects2016\\GitSubclover\\FlowIv2")
+
+getwd()
+
+#create file
+df_flower <- read.table("df_tt_50p_flow.txt",header=TRUE)
+
+
+
+# convert to date format
+df_f <- df_flower %>%
+  mutate(TT50F=ifelse(TT50F==0,NA,as.numeric(TT50F)))%>%
+  mutate(DAS50F=ifelse(DAS50F==0,NA,as.numeric(DAS50F)))%>%
+  
+  mutate(SowingD=ymd(SowingD))%>%
+  mutate(RateDAS50F=(1/DAS50F))%>%
+  mutate(RateTT50F=(1/TT50F))
+
+
+str(df_f)
+head(df_f)
+tail(df_f)
+```
+
+```{r}
+summary(df_f)
+```
+
+Analysis of sowing date and cultivars for Bud considering Date 
+
+```{r GraphBoxPlotBud, fig.height= 5, fig.width= 8}
+
+ df_f %>%
+  #use filter to check single variables -Bud, Flowering and Bur
+  filter( Variable== "Bur") %>%
+    tidyr::gather("Variable3","Value",RateDAS50F:RateTT50F) %>%
+  mutate(Variable3=as.factor(Variable3))%>%
+
+  ggplot(aes(x=SowingD,y=Value,colour=Cultivar, shape=Cultivar))+
+  geom_point()+
+  geom_line()+
+  facet_grid(Variable3~., scales="free")+
+  theme_bw()+
+ # theme(axis.text.x = element_text(angle = 0, hjust = 1.5))+
+  scale_x_date(date_breaks = "1 month",date_labels =  "%b")+
+labs(x="Sowing Month")+
+ylab(expression(1/Tt~"("^"o"*"Cd)"~~~~~~~~~~~~~~~~~~~~~~1/Days))
+
+
+```
+
+
+
+Then include the mean Temperature !!! TT cum 
+
+
+
+
+Read Thermal Sum data. Need to include  values before 30 06 : 
+
+Country	LocationYear	Date	DOY	Tx	Tm	MeanTt	Pp
+NZ	Iversen2_2015	24/06/2015	175	7.30	-1.80	2.75	10.03173957
+NZ	Iversen2_2015	25/06/2015	176	6.90	-3.90	1.50	10.033705
+NZ	Iversen2_2015	26/06/2015	177	12.80	-0.70	6.05	10.03668323
+NZ	Iversen2_2015	27/06/2015	178	17.40	-1.30	8.05	10.04067231
+NZ	Iversen2_2015	28/06/2015	179	10.30	-1.70	4.30	10.04566961
+NZ	Iversen2_2015	29/06/2015	180	17.30	3.70	10.50	10.05167184
+NZ	Iversen2_2015	30/06/2015	181	18.50	1.30	9.90	10.05867507
+"
+
+```{r ReadThermalSumData}
+# read raw data
+
+#Temperatures from 24 June to 29 June included from Broadfield Niwa in excel Datalogger folder  Thermal Sum is created  in the the Thermal time project_TTCalc (R script_file)
+
+#The df_CumTTiv.txt comes from the TTCalc script in the main Gitsubclover folder! Need to produce the file and add to the FlowIv2 folder for calculations 
+ 
+df_TTSum <- read.table("df_CumTTiv.txt",header=TRUE)
+
+# remove extra columns
+df_TTSum <- df_TTSum %>%
+dplyr::select(Date,MeanTt,Pp) %>%
+  mutate(Date = ymd(Date))
+ 
+#check
+head(df_TTSum)
+
+```
+
+```{r}
+summary(df_TTSum)
+```
+
+Merge dfs TTSum at Measurement and Sowing Date into Flowering df
+```{r}
+#First need to rename SowingD column to Date to merge 
+#But does make sense to plot Mean temperature at sowing date? would be necessary to make mean temperature of the whole period untill flowering? 
+
+df_fa <- df_f %>%
+rename( Date = SowingD)
+str(df_fa)
+
+# Add Tt at measurement date
+df_flowera <- merge(df_fa,df_TTSum, by="Date")
+
+summary(df_flowera)
+```
+
+
+```{r}
+
+
+# grah rate versus mean Temperature 
+df_flowera %>%
+  #use filter to check single variables -Bud, Flowering and Bur
+  filter( Variable== "Bud") %>%
+  
+  tidyr::gather("Variable3","Value",RateDAS50F:RateTT50F) %>%
+  mutate(Variable3=as.factor(Variable3))%>%
+
+  ggplot(aes(x=as.numeric(as.character(Pp)),y=Value,colour=Cultivar, shape=Cultivar))+
+  geom_point()+
+  geom_line()+
+  facet_grid(Variable3~., scales="free")+
+  theme_bw()+
+  #theme(axis.text.x = element_text(angle = 0, hjust = 1.0))+
+labs(x="PpSowing")+
+ylab(expression(1/Tt~"("^"o"*"Cd)"~~~~~~~~~~~~~~1/Days))
+
+```
+

@@ -1,0 +1,259 @@
+---
+title: "Flowering 6CV Poukawa"
+author: "CT"
+date: "01/10/2016, 2016"
+output: html_document
+---
+last update: 18 Jan 2017
+
+```{r loadLibraries}
+library(tidyr)
+library (dplyr)
+library (ggplot2)
+library(agricolae)
+library(knitr)
+library (lubridate)
+
+```
+
+
+```{r loadFile}
+setwd("C:\\Users\\EdCarmen\\Documents\\CarmenProjects2016\\GitSubclover\\FlowPok")
+getwd()
+
+#create file
+info <- read.table("FlowPok.txt",header=TRUE)
+
+
+info <- info %>%
+mutate(Date=dmy(Date),
+       SowingD=dmy(SowingD), 
+       Percent=(S1+S2+S3+S4+S5)/5*100)
+
+
+#Need to Change formats 
+
+df_flower <- info %>%
+  dplyr:: mutate(PlotNumber = as.factor(PlotNumber), Block = as.factor(Block),DAS = as.numeric(DAS))
+
+df_flower <- info %>%
+group_by(PlotNumber) %>%
+arrange(Date) 
+
+#
+  #mutate(Percent_cum = cumsum(Percent)) %>% (no need for cumulative as data was already cumulative from the field notes )
+  #mutate(Percent_cum = ifelse(Percent_cum>100,100,Percent_cum))
+
+str(df_flower)
+head(df_flower)
+summary(df_flower)
+tail(df_flower)
+
+
+```
+
+
+```{r, fig.height=5, fig.width= 10}
+
+df_flower %>%
+  group_by(Date, SowTreat,SowingD,DAS) %>%
+  summarise_each(funs(mean)) %>%
+  ggplot(aes(x=DAS, y=Percent)) + 
+  geom_line(aes(colour=SowTreat)) +
+  #facet_grid(SowTreat~Cultivar, scales = "free")+
+  #facet_grid(Cultivar~., scales = "free")+
+   #facet_wrap (~SowTreat,ncol=4, scales = "free")+
+  geom_abline(intercept = 50, slope = 0) +
+  labs(y="Percent Floral Bud")+
+  labs(x="Days after sowing")+
+  theme_bw()+
+  theme(axis.text.x = element_text(angle = 90, hjust = 1))
+
+```
+
+
+
+
+Analysis of sowing date and cultivars for Bud considering Date 
+
+```{r GraphBoxPlotBud, fig.height=5, fig.width= 10}
+
+ df_flower %>%
+  group_by(Date, SowTreat, Cultivar,SowingD,DAS) %>%
+  summarise_each(funs(mean)) %>%
+  #ggplot(aes(x=DAS, y=Percent_cum)) + #note percent cum not needed _Data already formated in excel (S4 onward)
+  ggplot(aes(x=DAS, y=Percent)) +
+  geom_line(aes(colour=Cultivar)) +
+  facet_grid(SowTreat~Cultivar, scales = "free")+
+  #facet_grid(Cultivar~., scales = "free")+
+   #facet_wrap (~SowTreat,ncol=4, scales = "free")+
+  geom_abline(intercept = 20, slope = 0) +
+  labs(y="Percent plants with floral Bud")+
+  labs(x="Days after sowing")+
+  theme_bw()+
+  theme(axis.text.x = element_text(angle = 90, hjust = 1))
+ 
+
+write.table(df_flower,"df_PokPerc.txt")
+
+```
+
+Then bring the thermal time data for Poukawa in next script 
+
+
+```{r}
+
+
+#Temperatures from  Pok Weather
+ 
+df_TTSum <- read.table("df_CumTTPo.txt",header=TRUE)
+
+# remove extra columns
+df_TTSuPo <- df_TTSum %>%
+dplyr::select(Date,SumTTday) %>%
+  mutate(Date = ymd(Date))
+ 
+#check
+head(df_TTSuPo)
+summary (df_TTSuPo)
+str(df_TTSuPo)
+
+
+#graph it 
+df_TTSuPo %>% 
+ggplot(aes(x=Date, y=SumTTday)) +
+  geom_line(aes()) 
+
+```
+
+Merge dfs TTSum at Measurement and Sowing Date into Flowering df
+
+```{r}
+
+# continue here
+
+
+# Add Tt at measurement date
+df_flowerPo <- merge(df_flower,df_TTSuPo, by="Date")
+
+summary(df_flowerPo)
+
+str(df_flowerPo)
+```
+
+```{r}
+# change name SumTTday to TT at measurement
+df_flowerPo1 <- df_flowerPo %>%
+rename(TT_meas = SumTTday)
+
+summary(df_flowerPo1)
+
+# Add Tt at sowing date
+df_TTSum_mod <- df_TTSuPo %>%
+  mutate (SowingD = Date) %>%
+  dplyr::select (-Date)
+  
+
+df_flowerPo2 <- merge(df_flowerPo1,df_TTSum_mod, by = "SowingD")
+
+```
+
+```{r}
+# change name TT to TT at measurement
+df_flowerPo3 <- df_flowerPo2 %>%
+rename(TT_sow = SumTTday)
+
+summary(df_flowerPo3)
+#Calculate TTAS for Poukawa 
+
+df_flowerPo3$TTAS <- df_flowerPo3$TT_meas-df_flowerPo3$TT_sow
+
+summary(df_flowerPo3)
+str(df_flowerPo3)
+
+write.table(df_flowerPo3,"df_flowerPo3.txt")
+
+```
+
+
+```{r}
+
+#here visualise data 
+
+
+df_flowerPo3 %>%
+  group_by(TTAS,Cultivar,SowTreat,DAS) %>%
+  summarise_each(funs(mean)) %>%
+  #select(Variable,Percent, Cultivar,TTAS,SowTreat) %>%
+  #filter(Cultivar == "Monti" | Cultivar == "Leura" ) %>%
+  #filter(Variable == "Bud") %>%
+  ggplot(aes(x=TTAS, y=Percent)) + 
+  geom_line(aes(colour=Cultivar)) +
+  facet_grid(SowTreat~Cultivar, scales = "free") +
+  geom_abline(intercept = 50, slope = 0)+
+theme(axis.text.x = element_text(angle = 60, hjust = 1))
+  
+
+
+```
+
+
+```{r}
+
+#Add photoperiod 
+
+# #create file
+
+df_Photo <- read.table("PpPo.txt",header=TRUE)
+
+# convert to date format
+df_Photo <- df_Photo %>%
+mutate(Date=dmy(Date))
+head(df_Photo)
+
+# rename date column for merge
+df_Photo <- df_Photo %>%
+rename(SowingD = Date)
+head(df_Photo)
+
+#Add Pp to df_flower (merge by SowinD)
+df_flowerPo5 <- merge(df_flowerPo4,df_Photo,by="SowingD")
+head(df_flowerPo5)
+summary(df_flowerPo5)
+
+
+# # change name PP to PP at sowing date
+df_flowerPo6 <- df_flowerPo5 %>%
+rename(Pp_sow = Pp)
+head(df_flowerPo6)
+
+
+
+```
+
+
+
+```{r}
+
+df_flowerPo6$TTAS <- df_flowerPo6$TT_meas-df_flowerPo6$TT_sow
+head(df_flowerPo6)
+summary(df_flowerPo6)
+
+# graph
+df_flowerPo6 %>%
+  group_by(TTAS,Cultivar,SowTreat,DAS) %>%
+  summarise_each(funs(mean)) %>%
+  #select(Variable,Percent, Cultivar,TTAS,SowTreat,SowingD,DAS) %>%
+  #filter(Variable == "Bud") %>%
+  ggplot(aes(x=DAS, y=Percent_cum)) + 
+  geom_line(aes(colour=Cultivar)) +
+  facet_grid(SowTreat~Cultivar, scales = "free") +
+  geom_abline(intercept = 50, slope = 0)+
+theme(axis.text.x = element_text(angle = 60, hjust = 1))+
+  labs(x="Days after sowing",y="Percent of Plants with Floral bud ")
+
+
+
+```
+
+

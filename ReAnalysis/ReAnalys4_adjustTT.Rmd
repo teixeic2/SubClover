@@ -90,7 +90,8 @@ df_Rea4  %>%
            Treatcultivar=="MtBarker") %>%
 ggplot(aes(x=month(SowingDate), y= TTFloAdj, colour=Treatcultivar)) +
     geom_point(shape=21) +
-  scale_x_continuous(breaks = c(2,4,6,8,10,12))+
+  scale_x_continuous(breaks = c(2,4,6,8,10,12) )+
+  #scale_x_date(date_breaks = "1 month", date_labels =  "%b %Y") 
   geom_smooth()
   #facet_grid(Country~.)
 

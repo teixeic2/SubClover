@@ -1,63 +1,54 @@
----
-title: "Thermal Time Calculation Iversen 2 Weather data"
+ ---
+title: "SoilTT"
 author: "CT"
-date: "01 Jan 2016"
-output: html_document
+date: "14.07.2017"
+output:
+  word_document: default
+  html_document: default
 ---
 
-```{r setup, include=FALSE, loadlibraires}
-#knitr::opts_chunk$set(echo = TRUE)
-library(tidyr)
+```{r setup, warning=FALSE}
+
 library (dplyr)
 library (ggplot2)
 library(agricolae)
 library(knitr)
 library (lubridate)
+library(scales)
 
 ```
 
 
 
 ```{r readData}
-setwd("C:\\Users\\EdCarmen\\Documents\\CarmenProjects2016\\GitSubclover")
+setwd("C:\\Users\\EdCarmen\\Documents\\CarmenProjects2016\\GitSubclover\\Rio2018")
 getwd()
 
 #create file
-df_Weiv <- read.table("RawWeaIv2.txt",header=TRUE)
+df_We <- read.table("RioSoil.txt",header=TRUE)
 
 #head(df_We)
 
-summary(df_Weiv)
-```
-
-
-
-```{r changeformat, echo=FALSE}
-
-df_Weiv$Date<-dmy(df_Weiv$Date)
-
-str(df_Weiv)
-
+summary(df_We)
 ```
 
 ## Graph it 
 
-```{r, fig.height=6, fig.width=15}
+```{r, fig.height=10, fig.width=10}
 
-df_Weiv %>%
-  tidyr::gather("Variable", "Value",Tx:Pp) %>%
-  ggplot(aes(x=Date,y=Value))+
-  geom_line(aes(colour=factor(Variable))) +
-  #facet_wrap(~LocationYear,scale="free") +
-  scale_color_manual(values=c("#8399CC","#333333", "#3355CC","#CC3300"))+
+df_We %>%
+  mutate(Date=dmy(df_We$Date)) %>%
+  #filter(LocationYear != "Mininera2005") %>%
+  #tidyr::gather("Variable", "Value",Tx:Pp) %>%
+ #mutate(Month=format(as.Date(dmy(as.character(Date))),"%b")) %>%
+  ggplot(aes(x=Date,y=TempSoil10mm))+
+  geom_line() +
+  facet_wrap(~SoilType,scale="free") +
+  labs(x=" Date", y=" degree Celsius/hours  ")+
+  #scale_color_manual(values=c("#333333", "#9999CC", "#CC3300"))+
+  theme(axis.text.x = element_text(angle = 90, hjust = 1)) +
   theme_bw()+
-  labs(x=" Date")+
-  ylab(expression(Temperature~time~~"("^"o"*"C)/hours"))+
-  theme(axis.text.y = element_text(size=18))+
-  theme(axis.title.y = element_text(size=22))+
-  theme(legend.text = element_text(size=22))+
-  theme(axis.title.x = element_text(size=22))+
-  theme(axis.text.x = element_text(angle = 0, hjust = 1, size=22)) 
+  scale_x_date(labels = date_format("%b-%Y"))
 
 
 ```
@@ -74,16 +65,16 @@ REFS: MonksEtAl2009	,LonatiEtAl2009	,MootEtal2003, SilsburyetAl1984.
 
 ```{r}
 
-#Create Thermal time cardinal temperatures need REF! 
+#Create Thermal time cardinal temperatures see REFs! 
 
 tt_card <- data.frame(temp=c(0,18,25,40),TT=c(0,18,18,0))
 tt_card %>%
   ggplot(aes(x=temp, y=TT))+
   labs(x="Temperature (degree Celsius)")+
-  labs(y="Thermal Time (degree days)") +
-  theme_bw()+
+  labs(y="Thermal Time (oCd)") +
   geom_line()
   
+#FIX ME include REF Thermal time 
 ```
 
 ```{r}
@@ -130,12 +121,12 @@ int_func <- function(temp,TT,temp_ref){
   
 int_func(temp,TT,temp_ref)
 
-
 ```
 
 ```{r}
 
 #create REF Jones CA, Ritchie JT, Kiniry JR, Godwin DC (1986) Subroutine structure.In 'CERES-Maize: A simulation model of maize growth anddevelopment'. (Eds CA Jones, JR Kiniry) pp. 49-194. (Texas A&M University Press: Texas, USA
+
 
 TTfunc <- function(Tmin ,Tmax){         
  
@@ -174,15 +165,15 @@ TTfunc(10,30)
 ```
 
 ```{r ReadCalcTt}
-#Here a comparison between the simple TT calculation (Tx-Tm/2) and Jones 8 hours calculation
-df_We_tt <- df_Weiv %>%
+
+df_We_tt <- df_We %>%
   mutate(TTday=TTfunc(Tm,Tx), TTday_s=(Tm+Tx)/2, diff=(TTday_s/TTday)*100)
 
 ```
 
 
 ```{r}
-#Check TT 
+#Check TT  two methods : TTday_s = simple method (Tmean - Tbzero)
 df_We_tt  %>% 
 ggplot(aes(x=TTday_s, y= TTday)) +
     geom_point(shape=21,alpha=0.2)+
@@ -196,28 +187,35 @@ ggplot(aes(x=TTday_s, y= TTday)) +
 
 ```{r}
 
+#change formats 
+
+df_We_tt$Date <-dmy(df_We_tt$Date)
+
+
+str(df_We_tt)
+
 #Calculate accumulated Themal time 
 
-df_CumTTiv <- df_We_tt %>%
-mutate(SumTTday = cumsum(TTday)) 
+df_CumTT <- df_We_tt %>%
+group_by(SoilType) %>%
+arrange(Date) %>%
+mutate(SumTTday = cumsum(TTday)) %>%
+mutate(DayCount=Date-min(Date))
 
+head(df_CumTT)
 
-head(df_CumTTiv)
-
+str(df_CumTT)
 
 ```
 
-```{r, fig.height=5, fig.width=10}
+```{r, fig.height=10, fig.width=10}
 #Graph Accumulated TT 
 
-df_CumTTiv %>% 
-ggplot(aes(x=Date, y= SumTTday)) +
-  theme_bw()+
-  geom_line()+
-  xlab(expression(Date~~"(Year-Month)")) + 
-  ylab(expression(Thermal~time~~"(d"^"o"*"C)"))
-    
-
+df_CumTT %>%
+  ggplot(aes(x=DayCount,y=SumTTday))+
+  geom_line(aes(colour=SoilType, linetype=SoilType))+
+  theme_bw()
+  
 
 ```
 
@@ -226,7 +224,7 @@ ggplot(aes(x=Date, y= SumTTday)) +
 
 ```{r}
 
-write.table(df_CumTTiv, "df_CumTTiv.txt")
+write.table(df_CumTT, "df_CumTTRio.txt")
 
 ```
 

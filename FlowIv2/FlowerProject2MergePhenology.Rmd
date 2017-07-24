@@ -77,12 +77,10 @@ Do the same joining for Burr
 
 ```{r joinBurrStages, warning=FALSE}
 
-# create df with bur only (merged bur1,2,3 and 4)
+# create df with bur only (merged bur3 and 4 to create a phenophase called maturation did that cause the cahpter splits in bud to fertilization and then fertilization to seed mature)
 df_bur_simple <- df_flower %>%
-filter(Variable == "Bur1" | 
-         Variable == "Bur2" | 
-         Variable == "Bur3"| 
-         Variable == "Bur4" ) %>%
+filter(Variable == "Bur3" | 
+         Variable == "Bur4"  ) %>%
 group_by(Date, Plot) %>%
   mutate(Variable = "Bur", 
          S1=max(S1), 
@@ -115,7 +113,7 @@ write.table(df_bud_flow_bur_simple, "df_bud_flow_bur_simple.txt")
 
 
 
-```{r graph,fig.height= 10,fig.width= 10, warning=FALSE}
+```{r graph,fig.height= 5,fig.width= 10, warning=FALSE}
 # graph it
 df_bud_flow_bur_simple %>%
   filter(Variable == "Bud" |
@@ -130,16 +128,17 @@ df_bud_flow_bur_simple %>%
   #filter(SowTreat == "S1" | SowTreat == "S2" | SowTreat == "S3" | SowTreat == "S4" ) %>%
   #filter(Cultivar == "Monti" | Cultivar == "Leura") %>%
   filter(Variable == "Bud")%>%
- ggplot(aes(x=DAS, y=Percent)) + 
-  #ggplot(aes(x=TTAS, y=Percent)) + 
+ #ggplot(aes(x=DAS, y=Percent)) + 
+  ggplot(aes(x=TTAS, y=Percent)) + 
   geom_line(aes(colour=Cultivar)) +
   geom_point(aes(shape=Cultivar,colour=Cultivar))+
   #facet_grid(Cultivar~SowTreat, scales = "free") +
   facet_grid(SowTreat~Cultivar, scales = "free") +
   geom_abline(intercept = 50, slope = 0) +
   ylab("Percent of plants with floral Bud (%)") +
-   xlab("Days after sowing")+
+   xlab(expression(Thermal~time~~"("^"o"*"Cd)"))+
   #xlab("Thermal-time from sowing (oCd)")+
+  theme_bw()+
 theme(axis.text.x = element_text(angle = 60, hjust = 1))
 ```
 

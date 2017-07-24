@@ -1,0 +1,102 @@
+---
+title: "Flowering 6CV Poukawa"
+author: "CT"
+date: "01/10/2016, 2016"
+output: html_document
+---
+last update: 18 Jan 2017
+
+```{r loadLibraries}
+library(tidyr)
+library (dplyr)
+library (ggplot2)
+library(agricolae)
+library(knitr)
+library (lubridate)
+
+```
+
+
+```{r loadFile}
+setwd("C:\\Users\\EdCarmen\\Documents\\CarmenProjects2016\\GitSubclover\\FlowPok")
+getwd()
+
+#create file
+info <- read.table("FlowPok.txt",header=TRUE)
+
+
+info <- info %>%
+mutate(Date=dmy(Date),
+       SowingD=dmy(SowingD), 
+       Percent=(S1+S2+S3+S4+S5)/5*100)
+
+
+#Need to Change formats 
+
+df_flower <- info %>%
+  dplyr:: mutate(PlotNumber = as.factor(PlotNumber), Block = as.factor(Block),DAS = as.numeric(DAS))
+
+df_flower <- info %>%
+group_by(PlotNumber) %>%
+arrange(Date) 
+
+#
+  #mutate(Percent_cum = cumsum(Percent)) %>% (no need for cumulative as data was already cumulative from the field notes )
+  #mutate(Percent_cum = ifelse(Percent_cum>100,100,Percent_cum))
+
+str(df_flower)
+head(df_flower)
+summary(df_flower)
+tail(df_flower)
+
+
+```
+
+
+```{r, fig.height=5, fig.width= 10}
+
+df_flower %>%
+  group_by(Date, SowTreat,SowingD,DAS) %>%
+  summarise_each(funs(mean)) %>%
+  ggplot(aes(x=DAS, y=Percent)) + 
+  geom_line(aes(colour=SowTreat)) +
+  #facet_grid(SowTreat~Cultivar, scales = "free")+
+  #facet_grid(Cultivar~., scales = "free")+
+   #facet_wrap (~SowTreat,ncol=4, scales = "free")+
+  geom_abline(intercept = 50, slope = 0) +
+  labs(y="Percent Floral Bud")+
+  labs(x="Days after sowing")+
+  theme_bw()+
+  theme(axis.text.x = element_text(angle = 90, hjust = 1))
+
+```
+
+
+stoped here ...
+
+Analysis of sowing date and cultivars for Bud considering Date 
+
+```{r GraphBoxPlotBud, fig.height=5, fig.width= 10}
+
+ df_flower %>%
+  group_by(Date, SowTreat, Cultivar,SowingD,DAS) %>%
+  summarise_each(funs(mean)) %>%
+  #ggplot(aes(x=DAS, y=Percent_cum)) + #note percent cum not needed _Data already formated in excel (S4 onward)
+  ggplot(aes(x=DAS, y=Percent)) +
+  geom_line(aes(colour=Cultivar)) +
+  facet_grid(SowTreat~Cultivar, scales = "free")+
+  #facet_grid(Cultivar~., scales = "free")+
+   #facet_wrap (~SowTreat,ncol=4, scales = "free")+
+  geom_abline(intercept = 20, slope = 0) +
+  labs(y="Percent plants with floral Bud")+
+  labs(x="Days after sowing")+
+  theme_bw()+
+  theme(axis.text.x = element_text(angle = 90, hjust = 1))
+ 
+
+write.table(df_flower,"df_PokPerc.txt")
+
+```
+
+Then bring the thermal time data for Poukawa in next script 
+

@@ -46,7 +46,7 @@ summary(df_flower)
 
 Analysis of sowing date and cultivars for Bud considering Date 
 
-```{r GraphBoxPlotBud}
+```{r GraphBoxPlotBud, fig.height= 5, fig.width= 8}
 
  df_flower %>%
   group_by(DAS,Date,Cultivar,SowTreat,Variable)%>%
@@ -61,11 +61,45 @@ Analysis of sowing date and cultivars for Bud considering Date
   theme_bw()+
   theme(axis.text.x = element_text(angle = 90, hjust = 1))
 
+
 ```
+
+Here to estimate the days between bud to petal 
+split into early , medium late cvs and make from bud to fertilization (petal) 
+
+
+```{r}
+
+df_1<-df_flower %>%
+  group_by(DAS,Date,Cultivar,SowTreat,Variable)%>%
+  select(Variable,Percent,Cultivar,Date,SowTreat)%>%
+  filter(Variable == "Bud"| Variable =="Petal"   )%>%
+summarise_each(funs(mean)) 
+summary (df_flower)
+
+```
+
+
+
+```{r}
+
+df_2<-df_flower %>%
+  group_by(DAS,Date,Cultivar,SowTreat,Variable)%>%
+  select(Variable,Percent,Cultivar,Date,SowTreat)%>%
+  #filter(Variable == "Bur4" | SowTreat== "S1" )%>%
+  filter(Variable == "Petal"| Variable =="Bur4"   )%>%
+summarise_each(funs(mean)) 
+
+summary (df_2)
+
+
+```
+
+
 
 Analysis of Sowing dates and variables (from bud to bur4) considering DAS 
 
-```{r GraphSowingDateAndVariable,fig.width=10}
+```{r GraphSowingDateAndVariable,fig.height=4, fig.width=10}
 
 df_flower %>%
   #filter(SowTreat != "S6" & SowTreat != "S7")%>%
@@ -75,15 +109,46 @@ df_flower %>%
   group_by(DAS,Cultivar,SowTreat,Variable) %>%
   summarise_each(funs(mean)) %>%
   #select(Variable,Percent, Cultivar,DAS,SowTreat) %>%
-  filter(Cultivar == "Monti" | Cultivar =="Woogenellup") %>%
+  filter(Cultivar == "Denmark" | Cultivar =="Leura") %>%
   ggplot(aes(x=DAS, y=Percent)) + 
   #geom_bar(shape=1, stat="identity")
-  geom_line(aes(colour=Cultivar)) +
+  geom_line(aes(colour=Cultivar, shape=Cultivar)) +
+  theme_bw()+
   facet_grid(SowTreat~Variable, scales = "free") +
   geom_abline(intercept = 50, slope = 0) +
  theme(axis.text.x = element_text(angle = 90, hjust = 1))
 
 ```
+
+
+
+
+```{r GraphSowingDateAndVariable,fig.height=4, fig.width=10}
+
+df_flower %>%
+  #filter(SowTreat != "S6" & SowTreat != "S7")%>%
+  mutate(Variable = factor(Variable,levels = c("Bud","Early","Open",
+          "Petal"))) %>%
+  group_by(DAS,Cultivar,SowTreat,Variable) %>%
+  summarise_each(funs(mean)) %>%
+  #select(Variable,Percent, Cultivar,DAS,SowTreat) %>%
+  filter(Cultivar == "Monti" | Cultivar =="Narrikup") %>%
+  ggplot(aes(x=DAS, y=Percent)) + 
+  #geom_bar(shape=1, stat="identity")
+  geom_line(aes(colour=Cultivar, shape=Cultivar)) +
+  theme_bw()+
+  facet_grid(SowTreat~Variable, scales = "free") +
+  geom_abline(intercept = 50, slope = 0) +
+ theme(axis.text.x = element_text(angle = 90, hjust = 1))
+
+summary (df_flower)
+
+```
+
+Then include the TT calculated !!! TT cum 
+
+
+
 
 Read Thermal Sum data. Need to include  values before 30 06 : 
 
@@ -100,7 +165,9 @@ NZ	Iversen2_2015	30/06/2015	181	18.50	1.30	9.90	10.05867507
 ```{r ReadThermalSumData}
 # read raw data
 
-#Temperatures from 24 June to 29 June included from Broadfield Niwa in excel Datalogger folder  Thermal Sum is created  in the the Thermal time project_TTCalc (R script_file) 
+#Temperatures from 24 June to 29 June included from Broadfield Niwa in excel Datalogger folder  Thermal Sum is created  in the the Thermal time project_TTCalc (R script_file)
+
+#The df_CumTTiv.txt comes from the TTCalc script in the main Gitsubclover folder! Need to produce the file and add to the FlowIv2 folder for calculations 
  
 df_TTSum <- read.table("df_CumTTiv.txt",header=TRUE)
 
@@ -168,7 +235,7 @@ summary(df_flower )
 df_flower %>%
   #filter(SowTreat != "S6" & SowTreat != "S7")%>%
   mutate(Variable = 
-  factor(Variable,levels = c("Bud","Bur3"))) %>%
+  factor(Variable,levels = c("Bud","Petal"))) %>%
   group_by(DAS,Cultivar,SowTreat,Variable) %>%
   summarise_each(funs(mean)) %>%
   #select(Variable,Percent, Cultivar,SowTreat) %>%
@@ -233,12 +300,15 @@ df_flower %>%
   summarise_each(funs(mean)) %>%
   #select(Variable,Percent, Cultivar,TTAS,SowTreat,SowingD,DAS) %>%
   filter(Variable == "Bud") %>%
-  ggplot(aes(x=DAS, y=Percent)) + 
+  ggplot(aes(x=TTAS, y=Percent)) + 
   geom_line(aes(colour=Cultivar)) +
   facet_grid(SowTreat~Cultivar, scales = "free") +
   geom_abline(intercept = 50, slope = 0)+
+   theme_bw()+
 theme(axis.text.x = element_text(angle = 60, hjust = 1))+
-  labs(x="Days after sowing",y="Percent of Plants with Floral bud ")
+labs(y="Percent of Plants with Floral bud ")+
+xlab(expression(Thermal~time~~"("^"o"*"Cd)"))
+ 
 
 summary(df_flower)
 
@@ -247,6 +317,23 @@ summary(df_flower)
 #Graph only Bud and Bur 4 
 
 ```
+
+Here analyse per stages 
+
+```{r}
+
+df_3<-df_flower %>%
+  group_by(TTAS,Date,Cultivar,SowTreat,Variable)%>%
+  select(Variable,Percent,Cultivar,Date,SowTreat)%>%
+  filter(Variable == "Bud"| Cultivar =="Monti")%>%
+summarise_each(funs(mean)) 
+
+summary (df_3)
+
+
+```
+
+
 
 ```{r}
 
@@ -264,6 +351,7 @@ df_flower %>%
   geom_line(aes(colour=Cultivar)) +
   facet_grid(SowTreat~Variable, scales = "free") +
   geom_abline(intercept = 50, slope = 0)+
+  theme_bw()+
 theme(axis.text.x = element_text(angle = 60, hjust = 1))
 
 

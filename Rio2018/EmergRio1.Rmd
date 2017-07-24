@@ -1,0 +1,177 @@
+---
+title: "Emergence seedlings I2 and Pooukawa _ Rio 2018"
+author: "CT"
+date: "13.07.2017"
+output:
+  pdf_document: default
+  html_document: default
+  word_document: default
+---
+
+Purpose:
+
+-Analysis of plant population in two locations (edaphoclimatic zones )
+-calculate the percentage of emergence 
+
+
+
+```{r loadLibraries}
+library(tidyr)
+library (dplyr)
+library (ggplot2)
+library(agricolae)
+library(knitr)
+library (lubridate)
+library(mosaic)
+library(lattice)
+```
+
+
+```{r loadFile}
+setwd("C:\\Users\\EdCarmen\\Documents\\CarmenProjects2016\\GitSubclover\\Rio2018")
+getwd()
+
+#create file
+df_emerg <- read.table("RioPop.txt",header=TRUE)
+
+#need to include worked values for soit Temp for Matapiro soil (working on that! )
+df_SoilT <- read.table("RioSoil.txt",header=TRUE)
+
+
+```
+
+```{r}
+
+# define factors for the ones that "look like" values
+df_emerg$Plot <- as.factor(df_emerg$Plot)
+df_emerg$Block <- as.factor(df_emerg$Block)
+
+ df_emerg <- df_emerg %>%
+  mutate(SowingDate = dmy(SowingDate), 
+         ReadingDate = dmy(ReadingDate),
+         PlantPop = (Sub1+Sub2+Sub3)/3/0.01)
+
+str(df_emerg)
+head(df_emerg)
+tail(df_emerg)
+
+
+df_emerg %>% filter(Plot ==1) %>% summary()
+
+```
+
+
+
+```{r, fig.height=4, fig.width= 10}
+
+# Graph 
+
+  df_emerg %>%  group_by(Cultivar, SowTreat,SoilType,DAS) %>%
+  filter(Cultivar =="Monti") %>%
+  #dplyr::select(-SowingDate, - ReadingDate) %>%
+  summarise_each(funs(mean)) %>%
+  ggplot(aes(x=DAS, y=PlantPop)) + 
+  geom_point(aes(colour=SoilType,shape=SoilType)) +
+  geom_line(aes(colour=SoilType)) +
+  #add error bar
+  geom_errorbar(aes(x=20,ymin=200,ymax=300,width=0.2))+
+  facet_wrap(~SowTreat,ncol=4, scales = "free")+
+  theme_bw()+
+  ylim(0, 2200)+
+  labs(y="Number of seedlings per m2",x="Days after sowing") 
+  #+geom_abline(intercept = 50, slope = 0)
+
+
+
+```
+
+then organise by seasons ...but my experiments run from 24 June 2015 until June 2017
+
+```{r}
+
+x <- "02/02/2000"
+d <- yday(dmy(x))
+
+getSeason <- function(DATES) {
+  
+  require(lubridate)
+  
+SS <-lubridate::yday(ymd("2000-12-25")) #(summer sol)
+AE <-lubridate::yday(ymd("2000-03-22")) #(autumn eq)
+WS <-lubridate::yday(ymd("2000-06-21")) #(winter sol)
+SE <-lubridate::yday(ymd("2000-09-20")) #(spring eq)
+
+  d <- yday(dmy(DATES))
+    
+  s <-  ifelse(d >= SS | d < AE,"Summer",
+               ifelse(d >= AE & d < WS,"Autumn",
+                      ifelse(d >= WS & d < SE,"Winter",
+                             ifelse(d >= SE & d < SS,"Spring","?"))
+                      ))
+
+    return(s)
+
+}
+
+getSeason(x)
+
+
+```
+
+```{r}
+df_SoilT_s <- df_SoilT %>%
+ # rowwise() %>%
+  mutate(Season=as.factor(getSeason(Date)))
+  
+  
+head(df_SoilT_s)  
+
+summary(df_SoilT_s)  
+
+write.csv(df_SoilT_s, "df_SoilT_s.txt")
+```
+
+```{r, fig.height=4, fig.width= 10}
+
+
+# Graph 
+
+  df_SoilT_s %>%  
+  #dplyr::select(-SowingDate, - ReadingDate) %>%
+  #summarise_each(funs(mean)) %>%
+  ggplot(aes(x=Season, y=TempSoil10mm)) + 
+  geom_boxplot(alpha=0.2)+
+  geom_jitter(width = 0.1)+
+  #geom_errorbar(aes(x=20,ymin=200,ymax=300,width=0.2))+
+  #facet_wrap(~Season,ncol=4, scales = "free")+
+  theme_bw()
+  #ylim(0, 2200)+
+  #labs(y="Number of seedlings per m2",x="Days after sowing") 
+  #+geom_abline(intercept = 50, slope = 0)
+
+
+
+```
+
+Calculate 50 percent emergence 
+
+```{r}
+
+df_emerg_perc <- df_emerg %>%
+group_by(Plot) %>%
+mutate(PercEmerg = round(PlantPop/max(PlantPop)*100,digits=2))
+
+# Check
+summary(df_emerg_perc)
+tail(df_emerg_perc)
+df_emerg_perc %>%  filter(Plot=="2")
+
+```
+
+
+```{r}
+
+write.table(df_emerg_perc, "df_Pemerg.txt")
+
+```
+
