@@ -83,6 +83,44 @@ summary(df_seed)
 ```
 
 
+
+```{r fig.height=5, fig.width=10}
+
+
+df_seed %>%
+  mutate(hardSeed = 100-PropSoft) %>%
+  mutate(SowingD = dmy(SowingD)) %>%
+    filter(Round == 14) %>%  #need to keep filter to get first and max hardseed percen
+  mutate(Depth = factor(Depth,levels=c( "Above","Below"))) %>%
+  group_by(Depth, SowingD, Cultivar) %>%
+  #cultivars filtered for power point 
+  #filter(Cultivar == "Antas"| Cultivar == "Monti") %>%
+  dplyr::select(hardSeed) %>%
+  summarise_each(funs(mean,sd)) %>%
+  ggplot(aes(x=SowingD, y=mean, colour=factor(Cultivar), shape=factor(Cultivar))) +
+  #ggplot(aes(x=Depth, y=mean)) +
+  geom_line() +
+  geom_point()+
+ #facet_grid(.~Depth) +
+  labs(x="Sowing Date",y="Maximum Percentage of Hardseeds") +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1))+
+  scale_x_date(date_breaks = "1 month",date_labels =  "%b")+
+  geom_errorbar(aes(ymin=mean-sd/2,
+                    ymax=mean+sd/2))+
+  theme_bw()+
+   ylim(0,100)
+
+head(df_seed)
+
+summary(df_seed)
+
+
+```
+
+
+
+
+
 ```{r, warning=FALSE}
 
 
@@ -100,6 +138,41 @@ g1 <- df_seed %>%
 
 
 ```
+
+
+
+```{r, fig.height=4, fig.width=10}
+
+head(df_seed)
+  df_seed %>%
+  mutate(SumPropSoft = cumsum(PropSoft))
+  
+  
+  
+  df_seed %>%
+  mutate(hardSeed = 100-PropSoft) %>%
+  mutate(SowingD = dmy(SowingD)) %>%
+    filter(Round == 14) %>%  #need to keep filter to get first and max hardseed percent
+  #mutate(Depth = factor(Depth,levels=c( "Above","Below"))) %>%
+  group_by(Cultivar,SowingD,Depth) %>%
+  dplyr::select(hardSeed) %>%
+  summarise_each(funs(mean,sd)) %>%
+  ggplot(aes(x=SowingD, y=mean, colour=factor(Cultivar), shape=factor(Cultivar))) +
+  geom_point() +
+  geom_line() +
+ facet_grid(. ~ Cultivar) +
+  labs(x="Sowing Date",y="Maximum Percentage of Hardseeds") +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1))+
+  geom_errorbar(aes(ymin=mean-sd/2,
+                    ymax=mean+sd/2))+
+  theme_bw()+
+  ylim(0,100)
+
+
+
+```
+
+
 
 here looking cultivars individually 
 

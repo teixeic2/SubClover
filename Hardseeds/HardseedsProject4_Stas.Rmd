@@ -7,7 +7,7 @@ output:
   pdf_document: default
   
   This script does,
-  reads the table generated in 
+  reads the table generated in script 1 
 ---
 
 ```{r loadLibraries}
@@ -29,8 +29,14 @@ getwd()
 
 df_seedH <- read.table("dftablehardseeds1.txt",header=TRUE)
 head(df_seedH)
-summary(df_seedH)
 
+#Check formats !
+
+df_seedH <- df_seedH%>%
+  mutate(hardSeed=as.numeric(hardSeed),
+        Block= as.factor(Block))
+
+str(df_seedH)
 
 ```
 
@@ -39,56 +45,56 @@ summary(df_seedH)
  Here suggestion first suggestion of Dean transform (2016!)
 
 ```{r}
-
-#ANOVA
-
-#data transformation many possibilities but logit worked well 
-df_seedH$transf_no <- 1*(df_seedH$hardSeed)
-# df_seedH$transf_sqr <- sqrt(df_seedH$hardSeed)
-# df_seedH$transf_log <- log(df_seedH$hardSeed)
-# df_seedH$transf_acos <- acos(df_seedH$hardSeed/100)
-# df_seedH$transf_power3 <- (df_seedH$hardSeed)^3
-#df_seedH$transf_logit <- logit(df_seedH$hardSeed/100)
-
-write.table(df_seedH,"df_seedHanova.txt")
-file <- df_seedH
-
-#x <- c( "transf_no",  "transf_sqr", "transf_log", "transf_acos", "transf_power3")
-x <- c( "transf_no",  "transf_logit")
-colsSelec <- match(x,colnames(file))
-
-file %>%
-  tidyr::gather("transformation" ,"value",colsSelec) %>%
-  ggplot(aes(value)) + 
-  geom_histogram() +
-  facet_grid(.~transformation, scales="free" )
-
-head(file)
-head(df_seedH)
-#normality test
-#tranform log was the best histogram so continue with it 
-shapiro.test(file$transf_no)
-
-#QQplot
-# var<-file$transf_logit
-# qqnorm(var, ylim = 1)
-# qqline(var, col = 2)
-# qqplot(var, rt(3000))
-
-#-------------------------------------------------
-
-# Chosen transform log to do anova 
-file.subset <- file 
-
-head(file.subset)
-summary(file.subset)
-my.anova <- aov(transf_no ~ Cultivar*SowingD + Block, data = file.subset)
-
-summary(my.anova)
-TukeyHSD(my.anova)
-
-#Means separation 
-(LSD.test(my.anova, c("Cultivar","SowingD"), alpha= 0.05, p.adj="none")) 
+# 
+# #ANOVA
+# 
+# #data transformation many possibilities but logit worked well 
+# df_seedH$transf_no <- 1*(df_seedH$hardSeed)
+# # df_seedH$transf_sqr <- sqrt(df_seedH$hardSeed)
+# # df_seedH$transf_log <- log(df_seedH$hardSeed)
+# # df_seedH$transf_acos <- acos(df_seedH$hardSeed/100)
+# # df_seedH$transf_power3 <- (df_seedH$hardSeed)^3
+# #df_seedH$transf_logit <- logit(df_seedH$hardSeed/100)
+# 
+# write.table(df_seedH,"df_seedHanova.txt")
+# file <- df_seedH
+# 
+# #x <- c( "transf_no",  "transf_sqr", "transf_log", "transf_acos", "transf_power3")
+# x <- c( "transf_no",  "transf_logit")
+# colsSelec <- match(x,colnames(file))
+# 
+# file %>%
+#   tidyr::gather("transformation" ,"value",colsSelec) %>%
+#   ggplot(aes(value)) + 
+#   geom_histogram() +
+#   facet_grid(.~transformation, scales="free" )
+# 
+# head(file)
+# head(df_seedH)
+# #normality test
+# #tranform log was the best histogram so continue with it 
+# shapiro.test(file$transf_no)
+# 
+# #QQplot
+# # var<-file$transf_logit
+# # qqnorm(var, ylim = 1)
+# # qqline(var, col = 2)
+# # qqplot(var, rt(3000))
+# 
+# #-------------------------------------------------
+# 
+# # Chosen transform log to do anova 
+# file.subset <- file 
+# 
+# head(file.subset)
+# summary(file.subset)
+# my.anova <- aov(transf_no ~ Cultivar*SowingD + Block, data = file.subset)
+# 
+# summary(my.anova)
+# TukeyHSD(my.anova)
+# 
+# #Means separation 
+# (LSD.test(my.anova, c("Cultivar","SowingD"), alpha= 0.05, p.adj="none")) 
 
 
 ```
@@ -96,16 +102,16 @@ TukeyHSD(my.anova)
 Here ANOVA according S. Saville advice : LSD test unprotected by sowing date 
 
 ```{r}
-#Filter  S1, S2, S3, S6 , S7 
+#Filter  S1, S2, S4, S3, S6 , S7 
 summary(df_seedH)
 
 df_seedHS6 <- df_seedH %>%
   #filter(SowingD=="2015-06-24")
-  filter(SowingD=="2015-07-28")
+  #filter(SowingD=="2015-07-28")
   #filter(SowingD=="2015-09-15")
   #filter(SowingD=="2015-11-05")
   #filter(SowingD=="2016-02-17")
-  #filter(SowingD=="2016-03-15")
+  filter(SowingD=="2016-03-15")
 
 #data transformation many possibilities but logit worked well, however little difference between real and transformed numbers 
 

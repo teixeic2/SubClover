@@ -215,7 +215,7 @@ Pp_finder_func <- function(idx_loc,tt_target){
 
 ```{r}
 #test
-tt_target <- 2172.8526
+tt_target <- 116.37330
 #TTsum estimated to reach 1st trifoliate 
 
 #test if function is working : example : 
