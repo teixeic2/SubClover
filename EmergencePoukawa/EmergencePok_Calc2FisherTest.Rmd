@@ -52,7 +52,7 @@ df_emerg %>% filter(Plot ==1) %>% summary()
 
 ```
 
-```{r, fig.height= 5, fig.width= 10}
+```{r, fig.height= 7, fig.width= 10}
 # Graph it 
 
 
@@ -91,11 +91,11 @@ summary (df_emerg_perc3)
 write.table(df_emerg_perc3, "df_emerg_perc3.txt")
 ```
 
-then select each sowing date individually 
+then select each sowing date individually; here starting with S1  
 
 
 ```{r}
-df_emerg_S1 <-df_emerg_perc3 %>%
+df_emerg_S1 <-df_emerg_perc3 
 filter(SowTreat=="S1") 
 summary (df_emerg_S1)  
   
@@ -117,6 +117,7 @@ file.subset <- file
 
 head(file.subset, 50)
 summary(file.subset)
+#To get means select the factor : SowTreat or Cultivar
 my.anova <- aov(transf_no ~ Cultivar + Block, 
                 data = file.subset)
 

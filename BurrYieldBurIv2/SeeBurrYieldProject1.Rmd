@@ -64,9 +64,11 @@ df <- file %>%
   df <- as.data.frame(df)
 head(df)
 
+write.table(df, "df.txt")
+
 ```
 
-Re start
+Here calculates the percentage of buried burrs 
 
 ```{r, fig.height= 5, fig.width=10 , warning=FALSE}
 
@@ -104,7 +106,9 @@ df_bur %>%
     facet_grid(.~SowTreat) +
     labs(y="% Buried burrs") +
   theme_bw()+
-theme(axis.text.x=element_text(angle = +89, hjust = 0.95, size = 12))
+theme(axis.text.y = element_text( size = 10))+
+theme(axis.title.y = element_text(face="bold", size=12))+
+theme(axis.text.x=element_text(angle = 90, hjust=0.95,vjust=0.2,size = 12))
 
 head(df_bur)
 ```

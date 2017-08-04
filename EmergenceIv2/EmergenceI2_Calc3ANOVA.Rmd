@@ -9,6 +9,7 @@ This script does this:
 
 -Reads the table "df_tt_50p_emerg.txt"
 - Run the anova on DAS and TT to 50 % Emergence for Sowind dates and cultivars 
+- Do it overall and then each SowTreat individually (Saville)
 
 ```{r loadLibraries}
 library(tidyr)
@@ -114,44 +115,25 @@ TukeyHSD(my.anova)
 #loop trough each combination of factor levels
 ```
 
-ANOVA TT50E
+ variable : ANOVA TT50E Easy ANOVA 
+ use filter for specific SowTreat
 
 ```{r}
-
-file$transf_no <- 1*(df_emerg1$TT50E)
-head(file)
-
-
-
-x <- c("transf_sqr", "transf_log","transf_log1", "transf_no")
-colsSelec <- match(x,colnames(file))
-
-file %>%
-  tidyr::gather("transformation","value",colsSelec) %>%
-  ggplot(aes(value)) + 
-  geom_histogram() +
- # facet_wrap(SowTreat~transformation, scales="free", ncol=4) +
-  facet_grid(transformation~SowTreat, scales="free")
-
-head(file)
-
-#normality test
-#shapiro.test(file$transf_ln)
 
 #QQplot
 var<-file$transf_no
 qqnorm(var)
 qqline(var, col = 2)
-qqplot(var, rt(300))
+# qqplot(var, rt(3000))
 
 #-------------------------------------------------
-# ANOVA (selecing by hand FIXME: do loop)
-# file.subset <- file %>% subset(SowTreat == "S2" & round==1)
-file.subset <- file 
+# ANOVA (selecing by hand SowTreat)
+file.subset <- file %>% subset(SowTreat == "S1")
+#file.subset <- file 
 
 head(file.subset, 50)
 summary(file.subset)
-my.anova <- aov(transf_no ~ Cultivar*SowTreat + Block, 
+my.anova <- aov(transf_no ~ Cultivar + Block, 
                 data = file.subset)
 
 summary(my.anova)
@@ -159,9 +141,16 @@ summary(my.anova)
 TukeyHSD(my.anova)
 
 #Means separation 
-(LSD.test(my.anova, c("SowTreat"), alpha= 0.05, p.adj="none")) 
+#(LSD.test(my.anova, c("SowTreat"), alpha= 0.05, p.adj="none")) 
 (LSD.test(my.anova, c("Cultivar"), alpha= 0.05, p.adj="none") )
-(LSD.test(my.anova, c("SowTreat","Cultivar"), alpha= 0.05, p.adj="none"))
+#(LSD.test(my.anova, c("SowTreat","Cultivar"), alpha= 0.05, p.adj="none"))
+
+#loop trough each combination of factor levels
 
 ```
+
+
+
+
+
 

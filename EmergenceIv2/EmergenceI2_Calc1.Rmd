@@ -53,7 +53,7 @@ df_emerg %>% filter(Plot ==1) %>% summary()
 
 ```
 
-```{r, fig.height= 7, fig.width= 10}
+```{r, fig.height= 6, fig.width= 10}
 # Graph it 
 
 
@@ -96,7 +96,7 @@ df_emerg_perc %>%  filter(Plot=="2")
 
 ```
 
-```{r, fig.width= 10, fig.height=5}
+```{r, fig.width= 10, fig.height=6}
 #Graph         
   df_emerg_perc %>%  group_by(Cultivar, SowTreat, DAS) %>%
 #  filter(Cultivar =="Monti") %>%
@@ -257,7 +257,7 @@ head(df_emerg_perc_TT )
 
 ```
 
-```{r, fig.width=10, fig.height=5}
+```{r, fig.width=10, fig.height=6}
 # graph emerg x tt
 df_emerg_perc_TT %>%
   group_by(Cultivar, SowTreat, TT_to_emerg) %>%

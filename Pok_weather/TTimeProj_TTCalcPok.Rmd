@@ -22,7 +22,7 @@ library (lubridate)
 setwd("C:\\Users\\EdCarmen\\Documents\\CarmenProjects2016\\GitSubclover\\Pok_weather")
 getwd()
 
-#create file
+#create file this is already updated with station 40256 Marakakeho
 df_WePo <- read.table("Pok_Weat.txt",header=TRUE)
 
 #head(df_We)

@@ -177,43 +177,25 @@ TukeyHSD(my.anova)
 
 
 
-Create Graph Percent emergence with Mean Soil Temperature 
+Do not have soil Temperature for Poukawa ...used Air Temp skip this script 
+
 ```{r}
 
-setwd("C:\\Users\\EdCarmen\\Documents\\CarmenProjects2016\\GitSubclover")
-getwd()
-
-
-df_fileSo <- read.table("SoilTempPok.txt", header=TRUE)
-
-head(df_fileSo)
-
-df_fileSo <- df_fileSo %>%
-mutate(ReadingDate = dmy(Date)) %>%
-dplyr:: select(-Date)
-str(df_fileSo)
-
-head(df_emerg_perc)
-head(df_fileSo)
-
- 
-# Merge SoilTemp and Emergence  at measurement date
-df_emerg_perc_SoilT <- NULL
-df_emerg_perc_SoilT <- merge(df_emerg_perc,df_fileSo,by="ReadingDate")
-head(df_emerg_perc_SoilT)
-
+#empthy chunk
 
 ```
 
 
 
 ```{r SoilTemp}
-# include soil  temperature before 30 June_lysimeter  
+# df_CumTT.txt is generated in folder PokWeather... basically here is the same as per TT because do not have soil Temp
+#Remember to format dates as ymd 
 
-df_SoilTT <- read.table("df_CumTT.txt.txt",header=TRUE)
+df_SoilTT <- read.table("ThermalSumSoilPo.txt",header=TRUE)
 head(df_SoilTT)
 
 # convert to date format
+
 df_SoilTT <- as.data.frame(df_SoilTT) %>%
  mutate(Date=ymd(Date))
 
@@ -232,11 +214,12 @@ Merge the dataframes
 df_emerg_perc_TT <- NULL
 df_emerg_perc_TT <- merge(df_emerg_perc,df_SoilTT,by.x="ReadingDate",by.y="Date")
 df_emerg_perc_TT <- merge(df_emerg_perc_TT,df_SoilTT,by.x="SowingDate",by.y="Date")
+
 df_emerg_perc_TT$TT_to_emerg <- df_emerg_perc_TT$TT.x-df_emerg_perc_TT$TT.y
 summary(df_emerg_perc_TT)
 
 #save as table 
-write.table(df_emerg_perc_TT, "df_emerg_perc_soilTT.txt")
+write.table(df_emerg_perc_TT, "df_emerg_perc_soilTTPo.txt")
 head(df_emerg_perc_TT )
 
 # graph emerg x tt
@@ -256,3 +239,6 @@ df_emerg_perc_TT %>%
 
 
 ```
+
+
+End of this script ...continue in Pok_Calc2
