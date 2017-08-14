@@ -39,7 +39,7 @@ summary(metFile)
 
 > Pooled for 30 years
 
-```{r GraphMet,  echo = FALSE}
+```{r GraphMet, echo = FALSE}
 
 metFile <- data.table(metFile)
 
@@ -96,7 +96,7 @@ g4 <- metFile %>%
   group_by(year, month) %>%
   summarise_each(funs(sum)) %>%
   group_by(month) %>%
-  #select(month, rain) %>%
+  select(month, rain) %>%
   summarise(rainMean = mean(rain), rainSd = sd(rain)/2) %>%
   ggplot(aes(x=month, y=rainMean)) + 
   #geom_bar(stat ='identity') +
@@ -116,93 +116,6 @@ grid.arrange(g1, g2, g3, g4)
 
 
 ```
-
-
-Here graph without Solar radiation 
-
-
-```{r GraphMet, fig.width= 5, fig.height=10, echo = FALSE}
-
-
-metFile <- data.table(metFile)
-
-fontSize <- 9.0
-
-#mint
-g1 <- metFile %>%
-  filter(year %in% 1960:2000) %>%
-  group_by(day) %>%
- # summarise_each(funs(mean)) %>%
-  ggplot(aes(x=day, y=mint))  +
-  geom_point(colour= "darkblue", alpha=0.2) +
-  stat_smooth(level = 0.9, size = 1, colour="white") + 
-  theme_bw() +
- xlab("Day of the year (1-365)") + 
-  ylab("Daily minimum temperature (oC)") +
-  theme(text = element_text(size=fontSize))
-
-# maxt
-g2 <- metFile %>%
-  filter(year %in% 1960:2000) %>%
-  group_by(day) %>%
- # summarise_each(funs(mean)) %>%
-  ggplot(aes(x=day, y=maxt))  +
-  geom_point(colour= "red", alpha=0.2) +
-  stat_smooth(level = 0.9, size = 1, colour="white") + 
-  theme_bw() +
- xlab("Day of the year (1-365)") + 
-  ylab("Daily maximum temperature (oC)") +
-  theme(text = element_text(size=fontSize))
-
-
-#radn
-# g3 <- metFile %>%
-#   filter(year %in% 1960:2000) %>%
-#   group_by(day) %>%
-#  # summarise_each(funs(mean)) %>%
-#   ggplot(aes(x=day, y=radn))  +
-#   geom_point(colour= "darkblue", alpha=0.2) +
-#   stat_smooth(level = 0.9, size = 1, colour="white") + 
-#  theme_bw() +
-#   xlab("Day of the year (1-365)") + 
-#  # ylab("Daily solar radiation (MJ/m2)" ) +
-#    ylab(expression(Daily~solar~radiation~~"(MJ "*m^"-2"*")")) +
-#   theme(text = element_text(size=fontSize))
-
-# rain
-#http://www.cookbook-r.com/Graphs/Colors_(ggplot2)/
-
-metFile$month <- with(metFile, strptime(paste(year, day), format="%Y %j")$mon+1)
-
-g4 <- metFile %>%
-  filter(year %in% 1960:2000) %>%
-  group_by(year, month) %>%
-  summarise_each(funs(sum)) %>%
-  group_by(month) %>%
-  #select(month, rain) %>%
-  summarise(rainMean = mean(rain), rainSd = sd(rain)/2) %>%
-  ggplot(aes(x=month, y=rainMean)) + 
-  #geom_bar(stat ='identity') +
-  geom_bar(stat="identity", fill="#0072B2", colour="black")+
-  theme_bw() +
- xlab("Month") + 
-  ylab("Monthly rainfall (mm)") +
-  scale_x_continuous(breaks=1:12) +
-  geom_errorbar(aes(ymax = rainMean + rainSd, ymin=rainMean - rainSd), 
-                position=position_dodge(width=0.9), width=0.25)+
-  theme(text = element_text(size=fontSize))
-
-
-grid.arrange(g1, g2, g4)
-# Save
-# ggsave(file="Fig_weather.tiff", dpi = 300)
-
-
-
-
-```
-
-
 
 ```{r PotEvap_graph}
 

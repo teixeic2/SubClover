@@ -51,7 +51,7 @@ df_Weiv %>%
   #facet_wrap(~LocationYear,scale="free") +
   scale_color_manual(values=c("#8399CC","#333333", "#3355CC","#CC3300"))+
   theme_bw()+
-  labs(x=" Date (Year-Month)")+
+  labs(x=" Date")+
   ylab(expression(Temperature~time~~"("^"o"*"C)/hours"))+
   theme(axis.text.y = element_text(size=18))+
   theme(axis.title.y = element_text(size=22))+
@@ -215,13 +215,9 @@ ggplot(aes(x=Date, y= SumTTday)) +
   theme_bw()+
   geom_line()+
   xlab(expression(Date~~"(Year-Month)")) + 
-  ylab(expression(Thermal~time~~"("^"o"*"Cd)"))+
-  theme(axis.text.y = element_text(size=18))+
-  theme(axis.title.y = element_text(size=18))+
-  theme(legend.text = element_text(size=18))+
-  theme(axis.title.x = element_text(size=18))+
-  theme(axis.text.x = element_text(angle = 0, hjust = 1, size=16))
+  ylab(expression(Thermal~time~~"(d"^"o"*"C)"))
     
+
 
 ```
 
@@ -229,8 +225,6 @@ ggplot(aes(x=Date, y= SumTTday)) +
 
 
 ```{r}
-
-summary (df_CumTTiv)
 
 write.table(df_CumTTiv, "df_CumTTiv.txt")
 

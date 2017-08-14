@@ -8,7 +8,7 @@ output: html_document
 Purpose:
 
 -Analysis of trifoliate expansion ; same script as Poukawa
-_ Get the raw data TrifoCountall.txt and read
+ 
 
 
 
@@ -110,8 +110,7 @@ compare swoing dates
   geom_line(aes(colour=SowTreat)) +
   #facet_grid (SowTreat~., scales = "free")+
   labs(y="Number of trifoliates",x="Days after sowing")+
-    geom_abline(intercept = 6, slope = 0)+
-  theme_bw()
+    geom_abline(intercept = 6, slope = 0)
 
 ```
 

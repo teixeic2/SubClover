@@ -1,7 +1,7 @@
 ---
 title: "Emergence seedlings I2"
 author: "CT"
-date: "02.01.2016"
+date: "Thursday, December 31, 2015"
 output: html_document
 ---
 
@@ -25,8 +25,6 @@ library(mosaic)
 library(lattice)
 ```
 
-First read the dataframe with the emergence and  accumulated SoiTT. 
-Create a D dataframe and store.
 
 ```{r loadFile}
 # Get dataframe 1 with the soil Temp 
@@ -52,7 +50,6 @@ summary(D)
 df_emerg4 <- NULL
 
 ```
-Second, read the dataframe with the calculated 50 percent emergence.
 
 
 ```{r}
@@ -74,7 +71,7 @@ head(df_emerg5)
 
 
 ```
-Days to reach 50% from sowing date. Create a E dataframe and store.
+Days to reach 50% from sowing date
 
 ```{r}
 
@@ -87,8 +84,7 @@ df_emerg5 <- NULL
 
 ```
 
-Finally merge the two data frames D and E by Plot number.
-Create a new dataframe df_M
+Merge
 
 ```{r}
 
@@ -99,11 +95,6 @@ df_M <- merge(D,E,by ="Plot")
 str(df_M)
 head(df_M)
 
-
-         
-```
-
-```{r}
 #Then calculate the date to 50% Emergence sum the date or sowing + DAS50E
 #Note df_Md has duplicated rows - fix it!! 
 
@@ -118,9 +109,9 @@ str(df_MD)
 # mutate(Date50E = dmy(Date50E)
 
 E <- D <- df_M <- NULL
+         
 ```
 
-Check data
 
 ```{r}
 summary(df_MD)
@@ -142,7 +133,8 @@ TRy to erase duplicated rows
 ```
 
 
-Bring the measured soil temperature file. This is needed to calculate the average temperature at emergence period.
+
+
 
 ```{r}
 
@@ -165,7 +157,7 @@ head(df_emerg6)
 
 ```
 
-Calculate the  sum of soil temperature
+do sum of soil temp for calc later
 ```{r}
 df_soilTemp <- df_emerg6 %>%
   mutate(soilTempAcc = cumsum(TempSoil10mm)) %>%
@@ -187,7 +179,7 @@ df_soilTemp %>%
 
 ```
 
-Then merge the dataframes (MD and soiTemp)
+
 
 
 ```{r}
@@ -200,16 +192,10 @@ df1 <- merge(df_MD,df_soilTemp, by.x="SowingDate",by.y="Date") %>%
 str(df1)
 ```
 
-Check if data is ok. 
-
 ```{r}
 summary(df1)
 ```
 
-The attribute a date for the days after emergence when 50% is reached. 
-Then calculate the average soil temperature at emergence as 
-soilTempAcc_em-soilTempAcc_sow)/DAS50E.
-Create a column called meanTemp_Em
 
 ```{r}
 
@@ -228,7 +214,6 @@ summary(df_merge)
 write.table(df_merge, "df_MeanSoilTemp50Emerg.txt") 
 ```
 
-Then graph the results excluding S1 (problematic experiment)
 ```{r}
 
 df_merge %>%
@@ -243,7 +228,6 @@ df_merge %>%
 
 
 
-END of this script.
-Graphs with DAS50E with mean soil Temp continue in Script EmergenceI2_Calc5EmergSoilGraph
+END ....graphs with DAS50E with mean soil Temp continue in Script EmergenceI2_Calc5EmergSoilGraph
 
 
