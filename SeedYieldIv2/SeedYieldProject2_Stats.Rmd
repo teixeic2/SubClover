@@ -4,17 +4,17 @@ output:
   html_document: default
 ---
 ---
-title: "Seed Number and yield   "
+title: "Seed Number and yield - Statistics   "
 author: "CT"
-date: "Thursday, FEbruary 19, 2016"
+date: "19.02.2016"
 output:
   word_document: default
   pdf_document: default
   
-  #This script  reads the SeedBurrYield and tests Data first anaylsed in SeedYieldProject1
+  #This script  reads the SeedBurrYield and tests Data calculated in SeedYieldProject1 script
 ---
 
-```{r loadLibraries}
+```{r loadLibraries, warning=FALSE}
 library(tidyr)
 library (dplyr)
 library (ggplot2)
@@ -23,6 +23,7 @@ library(knitr)
 library (lubridate)
 library(rgr)
 ```
+
 
 
 ```{r loadFile}
@@ -38,22 +39,22 @@ summary(df_seedY)
 
 ```
 
+In this chunck reduce the number of columns: select only columns for ANOVA.
+Create a file subset according to filter. The file subset is then tested for statistics. 
 
-Here ANOVA according S. Saville advice : LSD test unprotected by sowing date individually
 
 ```{r}
+
 #Filter  S1, S2, S3, S6 , S7 
-summary(df_seedY)
 
-df_seedYS6 <- df_seedY #%>%
-  #filter(SowingD=="2015-06-24")
-  #filter(SowingD=="2015-07-28")
-  #filter(SowingD=="2015-09-15")
-  #filter(SowingD=="2015-11-05")
-  #filter(SowingD=="2016-02-17")
-  #filter(SowingD=="2016-03-15")
-
-#data transformation many possibilities but logit worked well, however little difference between real and transformed numbers 
+df_seedYS6 <- df_seedY %>%
+  dplyr::select(Cultivar,SowTreat,Block,Depth,Seedskg_ha) %>%
+  #filter(SowTreat=="S1")
+  #filter(SowTreat=="S2")
+  #filter(SowTreat=="S3")
+  #filter(SowTreat=="S4")
+  #filter(SowTreat=="S6")
+  filter(SowTreat=="S7")
 
 #-------------------------------------------------
 # anova 
@@ -67,18 +68,25 @@ summary(file.subset)
 
 
 ```
+ANOVA according S. Saville advice : LSD test unprotected by sowing date individually
+
+Use filters to get the information for each variable :SowTreat, Cultivar, Depth.
+Remember that means may consider mean of above and below.Therefore need to sum up values for total yield per ha. 
 
 ```{r}
 #ANOVA
-my.anova <- aov(Seedskg_ha ~ Cultivar + Block, data = file.subset)
-
+#my.anova <- aov(Seedskg_ha ~ Cultivar + Block, data = file.subset)
+#my.anova <- aov(Seedskg_ha ~ SowTreat + Block, data = file.subset)
+my.anova <- aov(Seedskg_ha ~ Depth + Block, data = file.subset)
 summary(my.anova)
 ```
 
-Then use multiple comparisons of means
+Then use multiple comparisons of means when applicable (P<0.05 or approximate to that)
 ```{r}
 #Means separation after ANOVA
-(LSD.test(my.anova, c("Cultivar"), alpha= 0.05, p.adj="none")) 
+#(LSD.test(my.anova, c("Cultivar"), alpha= 0.05, p.adj="none"))
+#(LSD.test(my.anova, c("SowTreat"), alpha= 0.05, p.adj="none"))
+(LSD.test(my.anova, c("Depth"), alpha= 0.05, p.adj="none"))
 ```
 
-
+End of this script. 

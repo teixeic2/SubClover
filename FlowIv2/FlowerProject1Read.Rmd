@@ -1,7 +1,7 @@
 ---
-title: "Flowering 6CV"
+title: "Flowering 6 cultivars Iversen field Experiment "
 author: "CT"
-date: "Thursday, December 31, 2015"
+date: "31.12.2015"
 output:
   word_document: default
   pdf_document: default
@@ -18,6 +18,8 @@ library (lubridate)
 
 ```
 
+- Aim: to calculate the Percent of plants in each reproductive stage : Bud, Early, Open Flower, Petal , Bur 1 -Bur4 . 
+- This script reads the raw field date F_Flower_SB_PhenologyData. which was initially loaded in excel and exported as txt. 
 
 ```{r loadFile}
 
@@ -28,30 +30,39 @@ getwd()
 #create file
 df_flower <- read.table("F_Flower_SB_PhenologyData.txt",header=TRUE)
 
+
+```
+- This step correct formats and column names
+- create a column with the calculated Percent of each flower class (Percent)
+
+```{r}
+
 colnames(df_flower)[1] <- "Cultivar" # fix bug of extra characters in name
 
 # convert to date format
 df_flower <- df_flower %>%
-mutate(Date=dmy(Date),SowingD=dmy(SowingD), 
+mutate(Date=dmy(Date),SowingD=dmy(SowingD),
+       Block=as.factor(Block),
+       Plot=as.factor(Plot),             
        Percent=(S1+S2+S3+S4+S5)/5*100)
 
 str(df_flower)
-head(df_flower)
-tail(df_flower)
 ```
+
+-Summary of the dataset to check. NA's correspond to categories which were not recorded in the field. For example when there were no longer buds in the plants. 
 
 ```{r}
 summary(df_flower)
 ```
 
-Analysis of sowing date and cultivars for Bud considering Date 
+-Data visualisation : analysis of sowing date and cultivars for mean Percent of Bud considering Date 
+- Use tool filter to select any particular variable and find out DAS for each class
 
 ```{r GraphBoxPlotBud, fig.height= 5, fig.width= 8}
 
  df_flower %>%
   group_by(DAS,Date,Cultivar,SowTreat,Variable)%>%
   summarise_each(funs(mean)) %>%
-  #select(Variable,Percent,Cultivar,Date,SowTreat)%>%
   filter(Variable == "Bud") %>%
   ggplot(aes(x=DAS, y=Percent)) + 
   geom_line(aes(colour=Cultivar)) +
@@ -64,8 +75,8 @@ Analysis of sowing date and cultivars for Bud considering Date
 
 ```
 
-Here to estimate the days between bud to petal 
-split into early , medium late cvs and make from bud to fertilization (petal) 
+-Here to estimate the days between bud to petal : used to estimate how many days it takes to sel pollination. Written in Chapter 4.
+-split into early , medium late cvs and make from bud to fertilization (petal) 
 
 
 ```{r}
@@ -79,6 +90,7 @@ summary (df_flower)
 
 ```
 
+-Then calculate the mean day (DAS) it took from fertilization to seed maturity (bur 4) 
 
 
 ```{r}
@@ -97,7 +109,7 @@ summary (df_2)
 
 
 
-Analysis of Sowing dates and variables (from bud to bur4) considering DAS 
+- Data Visualisation : analysis of Sowing dates and variables (from bud to bur4) considering DAS for contrasting cultivars. Here the late cultivars D and L.
 
 ```{r GraphSowingDateAndVariable,fig.height=4, fig.width=10}
 
@@ -121,7 +133,7 @@ df_flower %>%
 ```
 
 
-
+Same graph as per above but for early cultivars : M and N 
 
 ```{r GraphSowingDateAndVariable,fig.height=4, fig.width=10}
 
@@ -145,92 +157,8 @@ summary (df_flower)
 
 ```
 
-Then include the TT calculated !!! TT cum 
-
-
-
-
-Read Thermal Sum data. Need to include  values before 30 06 : 
-
-Country	LocationYear	Date	DOY	Tx	Tm	MeanTt	Pp
-NZ	Iversen2_2015	24/06/2015	175	7.30	-1.80	2.75	10.03173957
-NZ	Iversen2_2015	25/06/2015	176	6.90	-3.90	1.50	10.033705
-NZ	Iversen2_2015	26/06/2015	177	12.80	-0.70	6.05	10.03668323
-NZ	Iversen2_2015	27/06/2015	178	17.40	-1.30	8.05	10.04067231
-NZ	Iversen2_2015	28/06/2015	179	10.30	-1.70	4.30	10.04566961
-NZ	Iversen2_2015	29/06/2015	180	17.30	3.70	10.50	10.05167184
-NZ	Iversen2_2015	30/06/2015	181	18.50	1.30	9.90	10.05867507
-"
-
-```{r ReadThermalSumData}
-# read raw data
-
-#Temperatures from 24 June to 29 June included from Broadfield Niwa in excel Datalogger folder  Thermal Sum is created  in the the Thermal time project_TTCalc (R script_file)
-
-#The df_CumTTiv.txt comes from the TTCalc script in the main Gitsubclover folder! Need to produce the file and add to the FlowIv2 folder for calculations 
- 
-df_TTSum <- read.table("df_CumTTiv.txt",header=TRUE)
-
-# remove extra columns
-df_TTSum <- df_TTSum %>%
-dplyr::select(Date,SumTTday) %>%
-  mutate(Date = ymd(Date))
- 
-#check
-head(df_TTSum)
-
-```
-
+-Data visualisation : comparison between cultivars (used to write chapter 4 )
 ```{r}
-summary(df_TTSum)
-```
-
-Merge dfs TTSum at Measurement and Sowing Date into Flowering df
-```{r}
-
-# Add Tt at measurement date
-df_flower <- merge(df_flower,df_TTSum, by="Date")
-
-summary(df_flower)
-```
-
-
-```{r}
-
-
-# change name SumTTday to TT at measurement
-df_flower <- df_flower %>%
-rename(TT_meas = SumTTday)
-head(df_flower)
-
-# Add Tt at sowing date
-df_TTSum_mod <- df_TTSum %>%
-  mutate (SowingD = Date) %>%
-  dplyr::select (-Date)
-  
-
-df_flower <- merge(df_flower,df_TTSum_mod, by = "SowingD")
-
-# change name TT to TT at measurement
-df_flower <- df_flower %>%
-rename(TT_sow = SumTTday)
-head(df_flower)
-
-#check
-head(df_flower)
-summary(df_flower )
-
-#FIX ME HERE duplicated columns!! x y 
-```
-
-
-
-```{r MergeTTSumDate}
-
-
-
-#aqi
-# TT from Bud to Bur 3 
 
 df_flower %>%
   #filter(SowTreat != "S6" & SowTreat != "S7")%>%
@@ -248,12 +176,91 @@ df_flower %>%
   
 theme(axis.text.x = element_text(angle = 90, hjust = 1))
 
+```
+
+
+
+Then include the TT calculated !!! TT cum 
+
+
+Read Thermal Sum data. Need to include  values before 30 06 : 
+
+Country	LocationYear	Date	DOY	Tx	Tm	MeanTt	Pp
+NZ	Iversen2_2015	24/06/2015	175	7.30	-1.80	2.75	10.03173957
+NZ	Iversen2_2015	25/06/2015	176	6.90	-3.90	1.50	10.033705
+NZ	Iversen2_2015	26/06/2015	177	12.80	-0.70	6.05	10.03668323
+NZ	Iversen2_2015	27/06/2015	178	17.40	-1.30	8.05	10.04067231
+NZ	Iversen2_2015	28/06/2015	179	10.30	-1.70	4.30	10.04566961
+NZ	Iversen2_2015	29/06/2015	180	17.30	3.70	10.50	10.05167184
+NZ	Iversen2_2015	30/06/2015	181	18.50	1.30	9.90	10.05867507
+"
+
+```{r ReadThermalSumData}
+# Notes : read raw data
+
+#Temperatures from 24 June to 29 June included from Broadfield Niwa in excel Datalogger folder  #Thermal Sum is created  in the the Thermal time project_TTCalc (R script_file)
+
+#The df_CumTTiv.txt comes from the TTCalc script in the main Gitsubclover folder. Need to produce #the file and add to the FlowIv2 folder for calculations 
+ 
+df_TTSum <- read.table("df_CumTTiv.txt",header=TRUE)
+# remove extra columns
+df_TTSum <- df_TTSum %>%
+dplyr::select(Date,SumTTday) %>%
+  mutate(Date = ymd(Date))
+#check
+head(df_TTSum)
 
 ```
 
-Include Photoperiod at sowing date in main df 
+```{r}
+summary(df_TTSum)
+```
 
-```{r mergePhotoperiod}
+-Merge dfs TTSum at Measurement and Sowing Date with the df_flower
+```{r}
+
+# Add Tt at measurement date
+df_flower <- merge(df_flower,df_TTSum, by="Date")
+
+summary(df_flower)
+```
+
+-This step rename the column names to attribute Thermal time values at sowing and flowering date for each measurement date.
+
+```{r}
+
+
+# change name SumTTday to TT at measurement
+df_flower <- df_flower %>%
+rename(TT_meas = SumTTday)
+head(df_flower)
+
+# Add Tt at sowing date
+df_TTSum_mod <- df_TTSum %>%
+  mutate (SowingD = Date) %>%
+  dplyr::select (-Date)
+  
+```
+
+-Then procede merging the two dataframes : df_flower and df_TTSum_mod by SowingD
+
+```{r}
+df_flower <- merge(df_flower,df_TTSum_mod, by = "SowingD")
+
+# change name TT to TT at measurement
+df_flower <- df_flower %>%
+rename(TT_sow = SumTTday)
+head(df_flower)
+
+#check
+head(df_flower)
+summary(df_flower )
+
+```
+
+- This step brings the Photoperiod of each date from calculated Photoperiod for Iversen ( excel exporte to txt)
+
+```{r }
 
 # #create file
 df_Photo <- read.table("Photoperiod.txt",header=TRUE)
@@ -268,28 +275,41 @@ df_Photo <- df_Photo %>%
 rename(SowingD = Date)
 head(df_Photo)
 
-#Add Pp to df_flower (merge by SowinD)
+```
+
+-Add the photoperiod at sowing date in main df (merge)
+
+```{r mergePhotoperiod}
+
+# Add Pp to df_flower (merge by SowinD)
 df_flower <- merge(df_flower,df_Photo,by="SowingD")
 head(df_flower)
 summary(df_flower)
 
 
-# # change name PP to PP at sowing date
+# Change name PP to PP at sowing date
 df_flower <- df_flower %>%
 rename(Pp_sow = Pp)
 head(df_flower)
 
-
-
 ```
 
-calculate TT after sowing 
+- Now calculate Thermal Time after sowing (TTAS) which is TT at measurement date (TT_meas) - TT  at sowing date (TT_sow)
 
 ```{r Calc_TT_afterSow}
 
 df_flower$TTAS <- df_flower$TT_meas-df_flower$TT_sow
-head(df_flower)
 
+check 
+#head(df_flower)
+
+summary(df_flower)
+
+```
+
+- Graph it to check data 
+
+```{r}
 
 # graph
 df_flower %>%
@@ -308,31 +328,22 @@ df_flower %>%
 theme(axis.text.x = element_text(angle = 60, hjust = 1))+
 labs(y="Percent of Plants with Floral bud ")+
 xlab(expression(Thermal~time~~"("^"o"*"Cd)"))
- 
-
-summary(df_flower)
-
-
-
-#Graph only Bud and Bur 4 
 
 ```
 
-Here analyse per stages 
+- Data checked 
+- Save the dataframe aS a txt in the same folder for the next script (2) 
+- The df_flower will be used in the next script to simplify flowering classes and then  calculate days and thermal time to 50 % of flowering (script 3) 
 
 ```{r}
 
-df_3<-df_flower %>%
-  group_by(TTAS,Date,Cultivar,SowTreat,Variable)%>%
-  select(Variable,Percent,Cultivar,Date,SowTreat)%>%
-  filter(Variable == "Bud"| Cultivar =="Monti")%>%
-summarise_each(funs(mean)) 
-
-summary (df_3)
-
+# save final DF
+write.table(df_flower, "df_flower.txt")
 
 ```
 
+
+- Data visualisation: graph per stages 
 
 
 ```{r}
@@ -355,16 +366,12 @@ df_flower %>%
 theme(axis.text.x = element_text(angle = 60, hjust = 1))
 
 
-# save final DF
-write.table(df_flower, "df_flower.txt")
-
-
 ```
 
 
 
 
-Derrick's graph
+- Here graph per class comparing different cultivars (Derrick's graph)
 
 ```{r GraphDerrick}
 
@@ -382,13 +389,16 @@ df_flower %>%
   ggplot(aes(x=TTAS, y=Percent)) + 
   geom_line(aes(colour=Cultivar)) +
   facet_grid(SowTreat~Variable, scales = "free") +
+  theme_bw()+
   geom_abline(intercept = 50, slope = 0)+
 theme(axis.text.x = element_text(angle = 60, hjust = 1))
 
 ```
 
 
+-End of Script FlowerProject1Read.Rmd
 
+-Continue in FlowerProject2MergePhenology.Rmd
 
 
 

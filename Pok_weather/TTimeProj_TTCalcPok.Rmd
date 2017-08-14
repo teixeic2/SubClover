@@ -49,14 +49,15 @@ df_WePo %>%
   ggplot(aes(x=Date,y=Value))+
   geom_line(aes(colour=factor(Variable))) +
   #facet_wrap(~LocationYear,scale="free") +
-  scale_color_manual(values=c("#8399CC","#333333", "#3355CC","#CC3300"))+
+  scale_color_manual(values=c("black","blue", "red"))+
   theme_bw()+
-  labs(x=" Date", y=" degree Celsius/hours ")+
+  labs(x=" Date (Year-Month)")+
+  ylab(expression(Temperature~time~~"("^"o"*"C)/hours"))+
   theme(axis.text.y = element_text(size=18))+
   theme(axis.title.y = element_text(size=22))+
   theme(legend.text = element_text(size=22))+
   theme(axis.title.x = element_text(size=22))+
-  theme(axis.text.x = element_text(angle = 90, hjust = 1, size=22)) 
+  theme(axis.text.x = element_text(angle = 0, hjust = 1, size=22))  
 
 
 ```

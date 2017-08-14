@@ -17,7 +17,10 @@ library(knitr)
 library (lubridate)
 
 ```
-This script calculates the means of DAS and TTAS50Flo for Iversen to join the Reanalysis table 
+
+- Aim : data visualisation .
+- This script uses the calculated means of DAS and TTAS50Flo for Iversen for visualisation
+
 
 ```{r loadFile}
 
@@ -25,12 +28,17 @@ setwd("C:\\Users\\EdCarmen\\Documents\\CarmenProjects2016\\GitSubclover\\FlowIv2
 
 getwd()
 
+
+```
+- Read data from script Project Flower 3
+```{r}
 #create file
 df_f <- read.table("df_tt_50p_flow.txt",header=TRUE)
 
 head (df_f)
 ```
 check formats
+
 ```{r}
 str(df_f)
 
@@ -40,17 +48,19 @@ Here only graph by month of swoing for report
 ```{r}
 
 a <-df_f %>%
-  mutate(SowingD=ymd(SowingD))
+  mutate(SowingD=ymd(SowingD), 
+         Block=as.factor(Block))
+         #Plot=as,factor(Plot))
   str(a)
 
   a%>%
     #use filter to check single variables -Bud, Flowering and Bur
-  filter( Cultivar == "Monti") %>%
+  #filter( Cultivar == "Monti") %>%
   filter(Variable=="Flowering")%>%
   tidyr::gather("Variable3","Value",DAS50F:TT50F) %>%
   mutate(Variable3=as.factor(Variable3))%>%
 
-  ggplot(aes(x=SowingD,y=Value,colour=Cultivar, shape=Cultivar))+
+  ggplot(aes(x=SowTreat,y=Value,colour=Cultivar, shape=Cultivar))+
     #scale_x_discrete(name="Mon")
   geom_point()+
   geom_line()+
@@ -58,8 +68,8 @@ a <-df_f %>%
   theme_bw()+
  # theme(axis.text.x = element_text(angle = 0, hjust = 1.5))+
   #scale_x_date(date_breaks = "1 month",date_labels =  "%b")+
-labs(x="Sowing Month")+
-    limits = as.Date (c("2016-"))
+labs(x="Sowing Treatment")+
+    #limits = as.Date (c("2016-"))
 ylab(expression(Tt~"("^"o"*"Cd)"~~~~~~~~~~~~~~~~~~~~~~Days))
     
 
@@ -74,7 +84,7 @@ Analysis of sowing date and cultivars for Bud considering Date
 ```{r GraphBoxPlotBud}
 
  df_50Iv <- df_f %>%
-  group_by(Cultivar,SowTreat,Variable)%>%
+  group_by(Cultivar,Block,SowTreat,Variable)%>%
   filter (Variable=="Flowering")%>%
   summarise_each(funs(mean))
 

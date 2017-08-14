@@ -1,11 +1,10 @@
 ---
 title: "Seed Yield Analysis"
 author: "CT"
-date: "Friday, March 18, 2016"
+date: "18.03.2016"
 output: html_document
 ---
-This script :
-reads the file with burrs and seeds quantification
+Aim :reads the file with burrs and seeds quantification. Calculates the number of seeds per 1 m2 and seed yield (kg/ha)
 
 
 
@@ -18,7 +17,7 @@ library(agricolae)
 library(lubridate)
 ```
 
-Read File 
+Read the rawdata file SeedBurrYield.txt
 
 ```{r, echo=FALSE}
 
@@ -29,7 +28,7 @@ head(file)
 summary(file)
 ```
 
-Calculations 
+Change format of each column and check data.  
 
 ```{r}
 
@@ -46,10 +45,12 @@ file <- file %>%
 
 str(file)
 summary(file)
-head(file)
+#head(file)
 
 ```
 
+Calculation of Number of seeds per 1 m2 (Column name = SeedsNo_m2)
+Select only columns of interest.
 
 ```{r}
 
@@ -67,7 +68,8 @@ df<- file %>%
 head(df)
 
 ```
-Re start
+
+Graph the Mean values and standard deviation for cultivar and sowing treatments in each Above or below soil scenarios.  
 
 ```{r}
 
@@ -82,9 +84,7 @@ dodge_x <- position_dodge(width = 0.9)
 # splitting and df due bug in tidyr (https://github.com/hadley/tidyr/issues/32)
   df %>%
   #tidyr::spread(Depth,SeedsNo_m2) %>%
-  #mutate(SeedsNo_m2= Down/(Down+Up)*100) %>%
   mutate(Depth = factor(Depth,levels=c( "Above","Below"))) %>%
-
   group_by(Cultivar, SowTreat,Depth) %>%
   summarise_each(funs(mean,sd)) %>%
   ggplot(aes(x=Cultivar, y=(SeedsNo_m2_mean), fill=Cultivar)) +
@@ -99,9 +99,20 @@ dodge_x <- position_dodge(width = 0.9)
 theme(axis.text.x=element_text(angle = +90, hjust = 0))+
   theme(text = element_text(size = 14))
 
+  
+ 
 
 ```
 
+Save the dataframe for statistical analysis in another script 
+
+```{r}
+
+write.table(df, "SeedNumberm2_Iv2.txt", row.names=FALSE)
+
+```
+
+Calculate the Seed yield in Kg/ha
 
 
 ```{r, fig.height=5, fig.width=10}
@@ -120,9 +131,18 @@ df1<- file %>%
   df1 <- as.data.frame(df1)
 summary(df1)
 
+
+
+```
+
+Write the dataframe with yields for statistics in another script 
+```{r}
+
 write.table(df1, "SeedYieldIv2.txt", row.names=FALSE)
 
 ```
+
+Graph the mean seed yield (kg/ha)  and standard deviation 
 
 ```{r, fig.heigt=5, fig.width=10}
 # Graph Seed kg ha
@@ -154,7 +174,7 @@ theme(axis.text.x=element_text(angle = +90, hjust = 0))+
 theme(text = element_text(size = 20))
 ```
 
-
+Another graph style 
 
 ```{r, gig.height=15, fig.width=15, warning=FALSE}
 
@@ -175,4 +195,5 @@ theme(text = element_text(size = 20))
 
 ```
 
-
+End of this script. 
+More data analysis in SeedYieldProject2 (Stats).
