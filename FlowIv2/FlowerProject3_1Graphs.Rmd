@@ -14,156 +14,35 @@ library(knitr)
 library (lubridate)
 ```
 
-
+This script reads the dataframe ( df_tt_50p_flow) created in previous script 3 and makes graphs 
 ```{r loadFile}
 setwd("C:\\Users\\EdCarmen\\Documents\\CarmenProjects2016\\GitSubclover\\FlowIv2")
 getwd()
 
 #create file ; this file was generated in the previous script FlowerProject2
 
-df_bud_flow_bur_simple <- read.table("df_bud_flow_bur_simple.txt",header=TRUE)
-head(df_bud_flow_bur_simple)
+df_tt_50p_flow <- read.table("df_tt_50p_flow.txt",header=TRUE)
+
+#head(df_bud_flow_bur_simple)
 # change formats
-df_bud_flow_bur_simple <- df_bud_flow_bur_simple %>%
-mutate (Date=ymd(Date),SowingD=ymd(SowingD))
+df_tt_50p_flow <- df_tt_50p_flow %>%
+mutate (SowingD=ymd(SowingD))
 
-head(df_bud_flow_bur_simple)
-tail(df_bud_flow_bur_simple)
+summary(df_tt_50p_flow)
+#tail(df_bud_flow_bur_simple)
 ```
 
 
-
-Find 50 Percent of each variable for cultivar and sowtreat.
-
-```{r Calc50PercFlower}
-
-# Average by plots
-#dplyr used
-
-df_50_Perc <- df_bud_flow_bur_simple %>%
-  group_by(Cultivar,SowTreat, Variable, Date, SowingD,DAS) %>%
-  summarise(av_Perc = mean(Percent), 
-            av_TT = mean(TTAS),
-            av_DAS=mean(DAS))
-
-#functions use
-str(df_50_Perc)
-summary(df_50_Perc)
-head(df_50_Perc)
-
-write.table(df_50_Perc, "df_50_Perc.txt")
-
-#  loop to calculate tt_50p_flow for each var x sd x cv
-cv <- unique(df_50_Perc$Cultivar)
-var <- unique(df_50_Perc$Variable)
-sow <- unique(df_50_Perc$SowTreat)
-sowd <- unique(df_50_Perc$SowingD)
-
-# create empty df
-df_tt_50p_flow <- data.frame(SowingD = NULL,
-                             Cultivar = NULL, 
-                             SowTreat = NULL,
-                             Variable = NULL, 
-                             DAS= NULL,
-                             TT50F = NULL)
-
-#loop trough each combination of factor levels
-
-for(i in 1:length(cv)) {
-  for(j in 1:length(var)){
-    for(k in 1:length(sow)){
-      
-      # clean value holders
-      DAS_50p_flow <- 0
-      tt_50p_flow <- 0
-      
-    
-      print(paste0(cv[i]," ",var[j]," ", sow[k]))
-      # filter for each combination
-
-  df_sub <- df_50_Perc %>%
-    subset(Cultivar == as.character(cv[i]) &
-    Variable == as.character(var[j]) &
-    SowTreat == as.character(sow[k]))
-  
-  df_sub
-  
-  # create percentage with maximum value recorded 
-  # to avoid crossing the 50% line twice
-  
-  df_sub$av_Perc_max <- 0 # create new col
-  
-  for(z in 1:nrow(df_sub)) {
-    
-    df_sub$av_Perc_max[z] <- max(df_sub$av_Perc[z],
-                                 df_sub$av_Perc_max[z-1])
-    
-  }
-  
-  df_sub
-  head(df_sub)
-  tail(df_sub)
-
-  # Interpolate 
-  y_ref <- 50 # y value where we want to find x by interpolation
-  
-  # interpolate
-  #find DAS at 50 Pecent Flower 
-
-  tryCatch(  
-  DAS_50p_flow <- approx(df_sub$av_Perc_max, 
-  df_sub$av_DAS , xout = y_ref, rule = 1)$y,
-  error = function(e) 
-  {
-  DAS_50p_flow <- NA
-  }
-)
-  #find TT at 50 Pecent Flower
-  tryCatch(  
-  tt_50p_flow <- approx(df_sub$av_Perc_max, 
-  df_sub$av_TT , xout = y_ref, rule = 1)$y,
-  error = function(e) 
-  {
-  tt_50p_flow <- NA
-  }
-)
-
-  df_temp <- NULL
-  df_temp <- data.frame(Cultivar = df_sub$Cultivar[1],
-                             Variable = df_sub$Variable[1], 
-                             SowTreat = df_sub$SowTreat[1],
-                             SowingD = df_sub$SowingD[1], 
-                             DAS50F = DAS_50p_flow,
-                             TT50F = tt_50p_flow)
-                        
-  
-  df_tt_50p_flow <- rbind(df_tt_50p_flow,df_temp)
-      
-    } 
-  }
-}
-
-
-summary(df_tt_50p_flow)
-
-
-
-write.table(df_tt_50p_flow,"df_tt_50p_flow.txt")
-
-summary(df_tt_50p_flow)
-
-
-```
 
 Use this chunk to generate TT50 for bud, flowering(fertilization) and seed mature
 
-```{r GraphResults}
+```{r GraphResults, fig.width=12}
 
 #Here need to create Variable2 to make a graph with the DAS50F and TT50F 
 
   df_tt_50p_flow %>%
   #use filter to check single variables -Bud, Flowering and Bur
-  filter( Variable== "Bur") %>%
+  filter( Variable== "Bud") %>%
   mutate(TT50F=ifelse(TT50F==0,NA,as.numeric(TT50F)))%>%
   mutate(DAS50F=ifelse(DAS50F==0,NA,as.numeric(DAS50F)))%>%
   tidyr::gather("Variable2","Value",DAS50F:TT50F) %>%
@@ -172,30 +51,33 @@ Use this chunk to generate TT50 for bud, flowering(fertilization) and seed matur
   ggplot(aes(x=SowingD,y=Value,colour=Cultivar, shape=Cultivar))+
   geom_point()+
   geom_line()+
-  facet_grid(Variable2~., scales="free")+
+  facet_grid(Variable2~Block, scales="free")+
   theme_bw()+
   #theme(axis.text.x = element_text(angle = 0, hjust = 1.0))+
   scale_x_date(date_breaks = "1 month",date_labels =  "%b")+
 labs(x="Sowing Month")+
-ylab(expression(Tt~"("^"o"*"Cd)"~~~~~~~~~~~~~~~~Days))
+ylab(expression(Tt~"("^"o"*"Cd)"~~~~~~~~~~~~~~~~Days)) 
   
 
 
 ```
 
+
+stopped here .. need to check why there are zeros !!! 
+
+
 ```{r}
 df_tt_50p_flow %>%
+  na.omit() %>%
     #filter( SowTreat != "S6" & SowTreat != "S7")%>%
   ggplot(aes(x=SowingD,y=TT50F,colour=Cultivar, shape=Cultivar))+
   geom_point()+
-  facet_grid(Variable~.)+
+  facet_grid(Variable~Block)+
   theme_bw()+
   geom_line()
 
-summary(df_tt_50p_flow)
 ```
-
-
+Now 
 
 ```{r,  warning =FALSE }
 
@@ -204,19 +86,18 @@ df_tt_50p_flow %>%
   dplyr::select(-TT50F)  %>%
   tidyr::spread(Variable,DAS50F) %>%
   mutate(DAS50Bud2Bur = Bur - Bud) %>%
-  #graph it
 ggplot(aes(x=SowingD, y=DAS50Bud2Bur)) + 
   geom_line(aes(colour=Cultivar)) +
   geom_point(aes(shape=Cultivar,colour=Cultivar))+
   #facet_grid(Cultivar~SowTreat, scales = "free") +
-  facet_grid(SowTreat~Cultivar, scales = "free") +
+  facet_grid(.~Block, scales = "free") +
   geom_abline(intercept = 50, slope = 0) +
   #ylab("Percent of Flowering (%)") +
   #xlab("Thermal-time from sowing (oCd)")+
 theme(axis.text.x = element_text(angle = 60, hjust = 1))
 
 # save final DF
-write.table(df_tt_50p_flow, "df_tt_50p_flow.txt")
+#write.table(df_tt_50p_flow, "df_tt_50p_flow.txt")
 
 
 
@@ -225,7 +106,7 @@ write.table(df_tt_50p_flow, "df_tt_50p_flow.txt")
 
 ```
 
-
+Graph thermal time required from bud to bur phase 
 
 ```{r}
 df_tt_50p_flow %>%
@@ -259,18 +140,22 @@ df_tt_50p_flow$SowingD <- ymd(df_tt_50p_flow$SowingD)
 
 #merge two data frames by ID
 df_photoTT <- merge(df_tt_50p_flow,df_Photo, by="SowingD")
-head(df_photoTT)
+#head(df_photoTT)
 summary(df_photoTT)
 
+
+
+
+```
+
+```{r}
 #graph
 df_photoTT %>%
   ggplot(aes(x=Pp, y=TT50F,color=factor(Cultivar)))  +
   geom_point()+
   geom_line() +
  # geom_smooth(aes(color=Cultivar))+
-  facet_grid(Variable~., scales = "free")
-
-
+  facet_grid(Variable~Block, scales = "free")
 ```
 
 
@@ -282,19 +167,19 @@ Graph TTAS and Photoperiod
 
 # graph it
 #head (df_bur_simple)
-df_bur_simple %>%
+df_bud_flow_bur_simple %>%
   filter(Variable == "Bud" |
            Variable =="Flowering"| 
            Variable =="Bur")  %>%
   mutate(Variable = 
   factor(Variable,levels = c("Bud","Flowering",
                              "Bur"))) %>%
-  group_by(TTAS,Cultivar,SowTreat,Variable,Pp_sow) %>%
+  group_by(TT50F,Cultivar,SowTreat,Variable,Pp_sow) %>%
   summarise_each(funs(mean)) %>%
   #select(Variable,Percent, Cultivar,TTAS,SowTreat,Pp_sow) %>%
   #filter(Cultivar == "Monti" | Cultivar == "Leura" ) %>%
   #filter(Variable == "Bud") %>%
-  ggplot(aes(x=TTAS, y=Percent)) + 
+  ggplot(aes(x=TT50F, y=Percent)) + 
   geom_line(aes(colour=Cultivar)) +
   geom_point(aes(shape=Cultivar,colour=Cultivar))+
   facet_grid(SowTreat~Variable, scales = "free") +

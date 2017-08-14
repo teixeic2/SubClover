@@ -1,0 +1,179 @@
+ ---
+title: "Flowering 6CV"
+author: "CT"
+date: "Thursday, December 31, 2015"
+output: html_document
+---
+
+```{r loadLibraries}
+library(tidyr)
+library (dplyr)
+library (ggplot2)
+library(agricolae)
+library(knitr)
+library (lubridate)
+```
+
+
+```{r loadFile}
+setwd("C:\\Users\\EdCarmen\\Documents\\CarmenProjects2016\\GitSubclover\\FlowIv2")
+getwd()
+
+#create file ; this file was generated in the previous script FlowerProject2
+
+df_bud_flow_bur_simple <- read.table("df_bud_flow_bur_simple.txt",header=TRUE)
+#head(df_bud_flow_bur_simple)
+# change formats
+df_bud_flow_bur_simple <- df_bud_flow_bur_simple %>%
+mutate (Date=ymd(Date),SowingD=ymd(SowingD))
+
+summary(df_bud_flow_bur_simple)
+#tail(df_bud_flow_bur_simple)
+```
+
+
+Here blocks and plots are in 
+
+Find 50 Percent of each variable for cultivar and sowtreat.
+
+```{r Calc50PercFlower}
+
+# Average by plots
+#dplyr used
+# 
+# df_50_Perc <- df_bud_flow_bur_simple %>%
+#   group_by(Cultivar,SowTreat, Variable, Date, SowingD,DAS) %>%
+#   summarise(av_Perc = mean(Percent), 
+#             av_TT = mean(TTAS),
+#             av_DAS=mean(DAS))
+
+df_50_Perc <- df_bud_flow_bur_simple %>%
+ # group_by(Cultivar,SowTreat, Variable, Block, Date, SowingD,DAS) %>%
+  mutate(av_Perc = Percent,
+            av_TT = TTAS,
+            av_DAS=DAS)
+
+#functions use
+str(df_50_Perc)
+summary(df_50_Perc)
+head(df_50_Perc)
+
+write.table(df_50_Perc, "df_50_Perc.txt")
+
+#  loop to calculate tt_50p_flow for each var x sd x cv x block
+cv <- unique(df_50_Perc$Cultivar)
+var <- unique(df_50_Perc$Variable)
+sow <- unique(df_50_Perc$SowTreat)
+sowd <- unique(df_50_Perc$SowingD)
+block <- unique(df_50_Perc$Block)
+#plot <- unique(df_50_Perc$Plot)
+# create empty df
+df_tt_50p_flow <- data.frame(SowingD = NULL,
+                             Cultivar = NULL, 
+                             SowTreat = NULL,
+                             Variable = NULL,
+                             Block=NULL,
+                             Plot=NULL,
+                             DAS= NULL,
+                             TT50F = NULL)
+
+#loop trough each combination of factor levels
+
+for(i in 1:length(cv)){
+  for(j in 1:length(var)){
+    for(k in 1:length(sow)){
+      for(b in 1:length(block)){
+      #for(p in 1:length(plot)){
+        
+      # clean value holders
+      DAS_50p_flow <- 0
+      tt_50p_flow <- 0
+      
+    
+      print(paste0(cv[i]," ",var[j]," ", sow[k], " ", block[b]))
+      # filter for each combination
+
+  df_sub <- df_50_Perc %>%
+    subset(Cultivar == as.character(cv[i]) &
+    Block == as.character(block[b]) &
+    Variable == as.character(var[j]) &
+    SowTreat == as.character(sow[k]))
+  
+ # df_sub
+  
+  # create percentage with maximum value recorded 
+  # to avoid crossing the 50% line twice
+  
+  df_sub$av_Perc_max <- 0 # create new col
+  
+  for(z in 1:nrow(df_sub)) {
+    
+    df_sub$av_Perc_max[z] <- max(df_sub$av_Perc[z],
+                                 df_sub$av_Perc_max[z-1])
+    
+  }
+  
+ # df_sub
+ # head(df_sub)
+ # tail(df_sub)
+
+  # Interpolate 
+  y_ref <- 50 # y value where we want to find x by interpolation
+  
+  # interpolate
+  #find DAS at 50 Pecent Flower 
+
+  tryCatch(  
+  DAS_50p_flow <- approx(df_sub$av_Perc_max, 
+  df_sub$av_DAS , xout = y_ref, rule = 1)$y,
+  error = function(e) 
+  {
+  DAS_50p_flow <- NA
+  }
+)
+  #find TT at 50 Pecent Flower
+  tryCatch(  
+  tt_50p_flow <- approx(df_sub$av_Perc_max, 
+  df_sub$av_TT , xout = y_ref, rule = 1)$y,
+  error = function(e) 
+  {
+  tt_50p_flow <- NA
+  }
+)
+
+  df_temp <- NULL
+  df_temp <- data.frame(Cultivar = df_sub$Cultivar[1],
+                             Variable = df_sub$Variable[1], 
+                             SowTreat = df_sub$SowTreat[1],
+                             SowingD = df_sub$SowingD[1], 
+                             Block = df_sub$Block[1],
+                             Plot = df_sub$Plot[1],
+                             DAS50F = DAS_50p_flow,
+                             TT50F = tt_50p_flow)
+                        
+  
+  df_tt_50p_flow <- rbind(df_tt_50p_flow,df_temp)
+  
+      }
+    } 
+  }
+ }
+#}
+
+summary(df_tt_50p_flow)
+
+
+
+
+```
+
+```{r}
+write.table(df_tt_50p_flow,"df_tt_50p_flow.txt")
+
+#summary(df_tt_50p_flow)
+```
+
+Graphs are produced in next script (3_1 Graphs )
+
+
+

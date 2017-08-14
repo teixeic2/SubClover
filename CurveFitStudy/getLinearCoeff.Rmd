@@ -1,0 +1,82 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+Author: Koala Bala Pires Teixeira
+Co-author: Dady
+
+```{r}
+library(dplyr)
+```
+
+
+##read
+
+```{r}
+setwd("C:\\Users\\EdCarmen\\Documents\\CarmenProjects2016\\GitSubclover\\CurveFitStudy")
+
+getwd()
+
+#get dataframe created
+dt<- read.table("data.txt",header=TRUE)
+summary(dt)
+```
+
+## do linear fit by factor
+
+use linear
+```{r}
+
+polyType <- 1 # 
+
+polFit_df <- dt %>%
+  group_by(Factor) %>%
+  do(fittedEq = lm(Y ~ poly(X,polyType,raw = TRUE), data = .)) # note that raw is TRUE not to get orthogonal coeff
+```
+
+
+## Bolacha
+
+- enquire summary of 1 factor [[1]]
+- Is it the same as excel?
+```{r}
+summary(polFit_df$fittedEq[[1]])
+```
+
+## Sorvete
+
+- enquire summary of 2nd factor [[2]]
+- Is it the same as excel?
+
+```{r}
+summary(polFit_df$fittedEq[[2]])
+```
+
+Tabulate the coefficients 
+
+```{r}
+
+# loop through results and get coefficients
+
+# get size of loop
+noFactors <- length(unique(dt$Factor)) # how many factors?
+noCoeff <-   polyType + 1 # how many coeficients (plynomial no + 1 intercept)
+
+# loop and print each coeff
+for (f in 1:noFactors) {
+  
+  print("-----------------------------------------")
+  print(dt$Factor[f])
+  
+  
+  for (c in 1:noCoeff) {
+    
+    print(paste0("Coeff_",c,": ",unname(polFit_df$fittedEq[[f]]$coefficients[c]) ))# remove coeff names
+    
+  }
+  
+}
+
+```
+

@@ -1,15 +1,14 @@
 ---
-title: "Emergence seedlings I2 graphs with Mean Soil Temp"
+title: "Emergence seedlings I2 graphs with Mean Soil Temp Poukawa"
 author: "CT"
-date: "10.01 2016"
+date: "07.08.2017"
 output: html_document
 ---
 
 This script does this:
--get dataframe produced in Calc4EmergSoilT (df3; df_MeanSoilTemp50Emerg.txt)
+-get dataframe produced in Pok_Calc5EmergSoilT (df3; df_MeanSoilTemp50EmergPo.txt)
 -graph y=Days to 50% emergence ; x= mean soil Temp
 -graph y= 1/days to 50% emergence ; x= mean soil Temp
--produces the linear equations emergence as a function of temperature 
 
 
 
@@ -25,14 +24,14 @@ library(lattice)
 library (gridExtra)
 ```
 
-Read file and correct formats 
+
 ```{r loadFile}
 # Get dataframe from previous script (written table )
-setwd("C:\\Users\\EdCarmen\\Documents\\CarmenProjects2016\\GitSubclover\\EmergenceIv2")
+setwd("C:\\Users\\EdCarmen\\Documents\\CarmenProjects2016\\GitSubclover\\EmergencePoukawa")
 getwd()
 
 #create file
-df_G <- read.table("df_MeanSoilTemp50Emerg.txt",header=TRUE)
+df_G <- read.table("df_MeanSoilTemp50EmergPo.txt",header=TRUE)
 
 
 df_G$Date50E <- ymd(df_G$Date50E)
@@ -40,14 +39,13 @@ df_G$SowingDate <- ymd(df_G$SowingDate )
 df_G$Cultivar <- as.factor(df_G$Cultivar)
 df_G$Plot <- as.factor(df_G$Plot)
 
-#check data 
 summary(df_G)
 
 # this is to "clean previous dfs : df_emerg4 <- NULL
 
 ```
 
-calculate and include column 1/DAS50E 
+Include 1/DAS50E 
 
 
 ```{r}
@@ -57,7 +55,6 @@ df_H <- df_G %>%
 
 ```
 
-Graph DAS50 Emergence and rate against meanTemp at emergence 
 
 ```{r, fig.height=5, fig.width=10, echo = FALSE}
 
@@ -76,12 +73,12 @@ fontSize <- 12.0
   #geom_smooth()+
   #stat_smooth(level = 0.9, size = 1, colour="white") + 
   theme_bw() +
-  xlab(expression(Soil~temperature~~"("^"o"*"C)")) +  
+  xlab(expression(Estimated~Soil~temperature~~"("^"o"*"C)")) +  
   ylab("Days to 50% emergence  (days)") +
     facet_grid(.~Cultivar, scales="free")+
   theme(text = element_text(size=11))+
   scale_x_continuous(limits = c(0,25))+
-  scale_y_continuous(limits = c(0,60))
+  scale_y_continuous(limits = c(0,40))
 
 # 1/DAS50E
   g2 <- df_H %>%
@@ -90,7 +87,7 @@ fontSize <- 12.0
   #geom_smooth(colour="red")+
   #stat_smooth(level = 0.9, size = 1, colour="white") + 
   theme_bw() +
-  xlab(expression(Soil~temperature~~"("^"o"*"C)")) + 
+  xlab(expression(Estimated~Soil~temperature~~"("^"o"*"C)")) + 
   ylab(" Rate (1/ Days) to 50% emergence") +
   facet_grid(.~Cultivar, scales="free")+
   theme(text = element_text(size=11))+
@@ -105,7 +102,9 @@ fontSize <- 12.0
 
 
 
-Then get the equations from the whole temperature range   
+
+
+here get the equations from all temperatures BUT FOR POUKAWA this is not a good idea! Estimated soil temps!
 
 ```{r, fig.height=7,fig.width=12}
 require(ggplot2)
@@ -147,7 +146,7 @@ p1
 ```
 
 
-Try to leave S1 out of that and see if it improves  
+Try to leave S1 out of that 
 
 ```{r fig.height=6, fig.width=12, echo = FALSE, warning=FALSE}
 
@@ -200,8 +199,7 @@ fontSize <- 12.0
 
 ```
 
-Then get the equations for the interval between 5 - 17 degrees.
-This is the portion of the data which is ascending.
+Then get the equations for the interval between 5 - 17 degrees 
 
 ```{r}
 

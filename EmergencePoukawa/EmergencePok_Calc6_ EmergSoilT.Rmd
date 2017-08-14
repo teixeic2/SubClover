@@ -1,0 +1,222 @@
+---
+title: "Emergence seedlings Poukawa"
+author: "CT"
+date: "07.08.2017"
+output: html_document
+---
+
+This script does this:
+
+- get the dataframe with sowing dates and date to 50% Emergence  
+- get the dataframe with soil temperature 
+- merge the two dataframes to calculate the mean temperature during emergence
+-graph y=Days to 50% emergence ; x= mean soil Temp
+-graph y= 1/days to 50% emergence ; x= mean soil Temp
+
+
+```{r loadLibraries, warning=FALSE}
+library(tidyr)
+library(dplyr)
+library(ggplot2)
+library(agricolae)
+library(knitr)
+library(lubridate)
+library(mosaic)
+library(lattice)
+```
+
+
+```{r loadFile}
+# Get dataframe 1 with the soil Temp 
+setwd("C:\\Users\\EdCarmen\\Documents\\CarmenProjects2016\\GitSubclover\\EmergencePoukawa")
+getwd()
+
+#create file
+df_emerg4 <- read.table("df_emerg_perc_soilTTPo.txt",header=TRUE)
+#head(df_emerg4)
+
+df_emerg4$ReadingDate <- ymd(df_emerg4$ReadingDate )
+df_emerg4$SowingDate <- ymd(df_emerg4$SowingDate )
+df_emerg4$Block <- as.factor(df_emerg4$Block)
+df_emerg4$Plot <- as.factor(df_emerg4$Plot)
+# str(df_emerg4)
+# head(df_emerg4)
+
+D <- df_emerg4 %>%
+dplyr::select(Cultivar,SowTreat, Plot, SowingDate)
+
+summary(D)
+
+df_emerg4 <- NULL
+
+```
+
+
+```{r}
+
+# Get dataframe 2 with the date to 50 % Emerg
+setwd("C:\\Users\\EdCarmen\\Documents\\CarmenProjects2016\\GitSubclover\\EmergencePoukawa")
+getwd()
+
+#create file
+df_emerg5 <- read.table("df_tt_50p_emergPo.txt",header=TRUE)
+head(df_emerg5)
+
+#df_emerg5$ReadingDate <- ymd(df_emerg5$ReadingDate )
+#df_emerg5$SowingDate <- ymd(df_emerg5$SowingDate )
+df_emerg5$Block <- as.factor(df_emerg5$Block)
+df_emerg5$Plot <- as.factor(df_emerg5$Plot)
+str(df_emerg5)
+head(df_emerg5)
+
+
+```
+Days to reach 50% from sowing date
+
+```{r}
+
+E <-df_emerg5 %>%
+dplyr::select(Plot,DAS50E)
+
+summary(E)
+
+df_emerg5 <- NULL
+
+```
+
+Merge
+
+```{r}
+
+#Merge the two dataframes by plot
+
+
+df_M <- merge(D,E,by ="Plot")
+str(df_M)
+head(df_M)
+
+#Then calculate the date to 50% Emergence sum the date or sowing + DAS50E
+#Note df_Md has duplicated rows - fix it!! 
+
+df_MD <- df_M %>%
+  mutate(Date50E=SowingDate+DAS50E) %>%
+  group_by(Plot, DAS50E) %>% 
+  dplyr::filter(row_number() == 1)
+
+str(df_MD)
+#Here DAte50E is included no nee to change format 
+
+# mutate(Date50E = dmy(Date50E)
+
+E <- D <- df_M <- NULL
+         
+```
+
+
+```{r}
+summary(df_MD)
+```
+
+
+
+
+```{r}
+
+# Get dataframe 1 with the soil TempPo changed directory ! 
+setwd("C:\\Users\\EdCarmen\\Documents\\CarmenProjects2016\\GitSubclover\\EmergencePoukawa")
+getwd()
+
+#create file; here got the estimated soil temnp for sandy soil based on Langholz 1989 and Zheng 1993 papers 
+
+df_emerg6 <- read.table("SoilTempPo.txt",header=TRUE)
+head(df_emerg6)
+
+df_emerg6$Date <- dmy(df_emerg6$Date )
+# df_emerg4$SowingDate <- ymd(df_emerg4$SowingDate )
+# df_emerg4$Block <- as.factor(df_emerg4$Block)
+# df_emerg4$Plot <- as.factor(df_emerg4$Plot)
+str(df_emerg6)
+head(df_emerg6)
+
+#summary(df_emerg6)
+
+
+```
+
+do sum of soil temp for calc later
+```{r}
+df_soilTemp <- df_emerg6 %>%
+  mutate(soilTempAcc = cumsum(TempSoil10mm)) %>%
+  dplyr::select(-TempSoil10mm)
+
+#head(df_soilTemp)
+
+summary(df_soilTemp)
+
+df_emerg6 <- NULL
+
+```
+
+```{r}
+
+df_soilTemp %>%
+  ggplot(aes(x=Date,y=soilTempAcc)) +
+  geom_point()
+
+#check dates matching 
+ #write.table (df_soilTemp, "soilAccPo.txt")
+
+```
+
+
+
+
+```{r}
+
+#Merge the two dataframes by Date
+df1 <- merge(df_MD,df_soilTemp, by.x="SowingDate",by.y="Date") %>%
+  mutate(soilTempAcc_sow = soilTempAcc) %>%
+  dplyr::select(-soilTempAcc)
+
+str(df1)
+```
+
+```{r}
+summary(df1)
+```
+
+
+```{r}
+
+# force formats of dates
+df1$Date <- round(df1$Date50E,0)
+df_soilTemp$Date <- round(df_soilTemp$Date,0)
+
+
+  df_merge <- merge(df1, df_soilTemp, by="Date") %>%
+  mutate(soilTempAcc_em = soilTempAcc) %>%
+  dplyr::select(-soilTempAcc) %>%
+  mutate(meanTemp_Em = (soilTempAcc_em-soilTempAcc_sow)/DAS50E)  
+
+summary(df_merge)
+
+write.table(df_merge, "df_MeanSoilTemp50EmergPo.txt") 
+```
+
+```{r}
+
+df_merge %>%
+  filter(SowTreat!= "S1")%>% 
+  group_by(Cultivar,SowTreat) %>%
+  summarise(meanTemp_Em=mean(meanTemp_Em),DAS50E = mean(DAS50E))%>%
+  ggplot(aes(x=meanTemp_Em,y=DAS50E,colour=Cultivar)) +
+  theme_bw()+
+  geom_point()
+
+```
+
+
+
+END ....graphs with DAS50E with mean soil Temp continue in Script EmergencePokawa_Calc7EmergSoilGraph
+
+

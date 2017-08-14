@@ -1,0 +1,104 @@
+---
+title: "R Notebook"
+output:
+  word_document: default
+  html_notebook: default
+---
+
+Objective: Retrieve and test the data from 
+
+```{r, echo = FALSE, include=FALSE}
+library(raster)
+library(ggplot2)
+library(rgdal) 
+library(dplyr)
+```
+
+## Get data and sort formats
+
+```{r}
+info<-read.table("C:\\Users\\EdCarmen\\Documents\\CarmenProjects2016\\GitSubclover\\New\\HeatStressFinalData_2017.txt", header=TRUE)
+
+info$scenario <- as.factor(info$scenario)
+
+info$longitude <- 360-info$longitude+1 # correct left right align
+
+unique(info$scenario)
+```
+## Create categories as paper
+
+- FIXME: Check this logic
+
+```{r}
+# create categories as paper
+# info$CatDamage <- NA
+# info$CatDamage <- ifelse(info$damagePerc<5,1,as.numeric(info$CatDamage))
+# info$CatDamage <- ifelse(info$damagePerc==0,0,as.numeric(info$CatDamage))
+# info$CatDamage <- ifelse(info$damagePerc>=5,2,as.numeric(info$CatDamage))
+# info$CatDamage <- ifelse(info$damagePerc>=15,3,as.numeric(info$CatDamage)) # high
+# info$CatDamage <- ifelse(info$damagePerc>30,4,as.numeric(info$CatDamage)) # vh
+
+
+lowCut <- 2.5
+highCut <- 7.5
+vhCut <- 14.0
+
+
+info$CatDamage <- NA # NA
+info$CatDamage <- ifelse(info$damagePerc<lowCut,1,as.numeric(info$CatDamage)) # low
+info$CatDamage <- ifelse(info$damagePerc==0,0,as.numeric(info$CatDamage)) # very low or not suitable
+info$CatDamage <- ifelse(info$damagePerc>=lowCut,2,as.numeric(info$CatDamage)) # medium
+info$CatDamage <- ifelse(info$damagePerc>=highCut,3,as.numeric(info$CatDamage)) # high
+info$CatDamage <- ifelse(info$damagePerc>vhCut,4,as.numeric(info$CatDamage)) # very high
+
+
+info$CatDamage <- as.factor(info$CatDamage)
+```
+
+Check data
+
+```{r}
+summary(info)
+```
+
+```{r}
+str(info)
+```
+
+## Get original figure
+
+## Plot retrieved data
+```{r, warning=FALSE, fig.height=15, fig.width=12, echo=FALSE}
+
+mycol <- c("grey","green", "yellow", "orange", "red")
+
+
+info %>%
+mutate(crop=factor(crop,levels=c("rice", "maize", "soybean", "wheat")))  %>%
+ggplot(aes(y=latitude, x=longitude)) +
+geom_raster(aes(fill=CatDamage)) +
+coord_equal() +
+facet_grid(crop~scenario) +
+scale_fill_manual(values = mycol, 
+              breaks = c("0","1","2","3","4"), 
+              labels = c("Very low", "Low", "Medium", "High", "Very high")) 
+  
+```
+
+## Plot raw data 
+
+- continous scale
+
+```{r, warning=FALSE, fig.height=15, fig.width=12, echo=FALSE, fig}
+mycol <- c("grey","green", "yellow", "orange", "red")
+
+info %>%
+mutate(crop=factor(crop,levels=c("rice", "maize", "soybean", "wheat")))  %>%
+ggplot(aes(y=latitude, x=longitude)) +
+geom_raster(aes(fill=damagePerc)) +
+coord_equal() +
+facet_grid(crop~scenario) +
+  scale_fill_gradientn(colours = mycol)
+ 
+```
+

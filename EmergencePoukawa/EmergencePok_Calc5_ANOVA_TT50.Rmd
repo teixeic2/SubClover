@@ -1,0 +1,310 @@
+---
+title: "Emergence seedlings Poukawa"
+author: "CT"
+date: "07.08.2017"
+output:
+  word_document: default
+ 
+---
+
+Purpose:
+
+-Analysis of TT50 Pokawa site  
+ 
+
+
+
+```{r loadLibraries}
+library(tidyr)
+library (dplyr)
+library (ggplot2)
+library(agricolae)
+library(knitr)
+library (lubridate)
+library(mosaic)
+library(lattice)
+```
+
+
+```{r loadFile}
+setwd("C:\\Users\\EdCarmen\\Documents\\CarmenProjects2016\\GitSubclover\\EmergencePoukawa")
+getwd()
+
+#create file
+df_emerg <- read.table("df_tt_50p_emergPo.txt",header=TRUE)
+
+# define factors for the ones that "look like" values
+df_emerg$Plot <- as.factor(df_emerg$Plot)
+df_emerg$Block <- as.factor(df_emerg$Block)
+
+
+str(df_emerg)
+head(df_emerg)
+tail(df_emerg)
+
+
+df_emerg %>% filter(Plot ==1) %>% summary()
+
+str(df_emerg)
+```
+
+
+
+
+```{r ANOVA TTAS 50% Emerg}
+
+#compare DAS 50% emerg in eavh Sowing dates and cultivars
+
+df_emerg_perc3 <- df_emerg
+
+
+head(df_emerg_perc3)
+summary (df_emerg_perc3)
+
+#write.table(df_emerg_perc3, "df_emerg_perc3.txt")
+str(df_emerg_perc3)
+```
+
+then select each sowing date individually; here starting with S1  
+
+
+```{r}
+df_emerg_S1 <-df_emerg_perc3 %>%
+filter(SowTreat=="S1") 
+summary (df_emerg_S1)  
+  
+```
+
+
+
+Run ANOVA pure numbers for TTAS50Emergence 
+
+```{r}
+#data transf
+file <- df_emerg_S1
+file$transf_no <- 1*(df_emerg_S1$TT50E)
+head(file)
+
+#-------------------------------------------------
+# ANOVA 
+file.subset <- file 
+
+head(file.subset, 50)
+summary(file.subset)
+#To get means select the factor : SowTreat or Cultivar
+my.anova <- aov(transf_no ~ Cultivar + Block, 
+                data = file.subset)
+
+summary(my.anova)
+
+#Means separation 
+(LSD.test(my.anova, c("Cultivar"), alpha= 0.05, p.adj="none") )
+
+
+```
+
+S2
+ 
+```{r}
+
+df_emerg_S1 <-df_emerg_perc3 %>%
+filter(SowTreat=="S2") 
+summary (df_emerg_S1)  
+
+#data transf
+file <- df_emerg_S1
+file$transf_no <- 1*(df_emerg_S1$TT50E)
+head(file)
+
+#-------------------------------------------------
+# ANOVA 
+file.subset <- file 
+
+head(file.subset, 50)
+summary(file.subset)
+my.anova <- aov(transf_no ~ Cultivar + Block, 
+                data = file.subset)
+
+summary(my.anova)
+
+#Means separation 
+(LSD.test(my.anova, c("Cultivar"), alpha= 0.05, p.adj="none") )
+
+```
+
+S3
+
+```{r}
+df_emerg_S1 <-df_emerg_perc3 %>%
+filter(SowTreat=="S3") 
+summary (df_emerg_S1)  
+
+#data transf
+file <- df_emerg_S1
+file$transf_no <- 1*(df_emerg_S1$TT50E)
+head(file)
+
+#-------------------------------------------------
+# ANOVA 
+file.subset <- file 
+
+head(file.subset, 50)
+summary(file.subset)
+my.anova <- aov(transf_no ~ Cultivar + Block, 
+                data = file.subset)
+
+summary(my.anova)
+
+#Means separation 
+(LSD.test(my.anova, c("Cultivar"), alpha= 0.05, p.adj="none") )
+
+
+```
+S4
+
+
+```{r}
+df_emerg_S1 <-df_emerg_perc3 %>%
+filter(SowTreat=="S4") 
+summary (df_emerg_S1)  
+
+#data transf
+file <- df_emerg_S1
+file$transf_no <- 1*(df_emerg_S1$TT50E)
+head(file)
+
+#-------------------------------------------------
+# ANOVA 
+file.subset <- file 
+
+head(file.subset, 50)
+summary(file.subset)
+my.anova <- aov(transf_no ~ Cultivar + Block, 
+                data = file.subset)
+
+summary(my.anova)
+
+#Means separation 
+(LSD.test(my.anova, c("Cultivar"), alpha= 0.05, p.adj="none") )
+
+
+
+```
+
+S5
+
+
+```{r}
+
+df_emerg_S1 <-df_emerg_perc3 %>%
+filter(SowTreat=="S5") 
+summary (df_emerg_S1)  
+
+#data transf
+file <- df_emerg_S1
+file$transf_no <- 1*(df_emerg_S1$TT50E)
+head(file)
+
+#-------------------------------------------------
+# ANOVA 
+file.subset <- file 
+
+head(file.subset, 50)
+summary(file.subset)
+my.anova <- aov(transf_no ~ Cultivar + Block, 
+                data = file.subset)
+
+summary(my.anova)
+
+#Means separation 
+(LSD.test(my.anova, c("Cultivar"), alpha= 0.05, p.adj="none") )
+
+
+```
+
+S6
+
+```{r}
+df_emerg_S1 <-df_emerg_perc3 %>%
+filter(SowTreat=="S6") 
+summary (df_emerg_S1)  
+
+#data transf
+file <- df_emerg_S1
+file$transf_no <- 1*(df_emerg_S1$TT50E)
+head(file)
+
+#-------------------------------------------------
+# ANOVA 
+file.subset <- file 
+
+head(file.subset, 50)
+summary(file.subset)
+my.anova <- aov(transf_no ~ Cultivar + Block, 
+                data = file.subset)
+
+summary(my.anova)
+
+#Means separation 
+(LSD.test(my.anova, c("Cultivar"), alpha= 0.05, p.adj="none") )
+
+
+```
+
+
+S7 
+
+```{r}
+
+df_emerg_S1 <-df_emerg_perc3 %>%
+filter(SowTreat=="S7") 
+summary (df_emerg_S1)  
+
+#data transf
+file <- df_emerg_S1
+file$transf_no <- 1*(df_emerg_S1$TT50E)
+head(file)
+
+#-------------------------------------------------
+# ANOVA 
+file.subset <- file 
+
+head(file.subset, 50)
+summary(file.subset)
+my.anova <- aov(transf_no ~ Cultivar + Block, 
+                data = file.subset)
+
+summary(my.anova)
+
+#Means separation 
+(LSD.test(my.anova, c("Cultivar"), alpha= 0.05, p.adj="none") )
+
+```
+S8
+
+```{r}
+df_emerg_S1 <-df_emerg_perc3 %>%
+filter(SowTreat=="S8") 
+summary (df_emerg_S1)  
+
+#data transf
+file <- df_emerg_S1
+file$transf_no <- 1*(df_emerg_S1$TT50E)
+head(file)
+
+#-------------------------------------------------
+# ANOVA 
+file.subset <- file 
+
+head(file.subset, 50)
+summary(file.subset)
+my.anova <- aov(transf_no ~ Cultivar + Block, 
+                data = file.subset)
+
+summary(my.anova)
+
+#Means separation 
+(LSD.test(my.anova, c("Cultivar"), alpha= 0.05, p.adj="none") )
+
+```
+

@@ -1,0 +1,291 @@
+---
+title: "Seed Germination I2"
+author: "CT"
+date: " December 17, 2016""
+output:
+  pdf_document: default
+  html_document: default
+  word_document: default
+---
+
+Purpose:
+
+-Analysis of seed germination 
+-calculate the percentage of germination
+
+
+
+```{r loadLibraries}
+library(tidyr)
+library (dplyr)
+library (ggplot2)
+library(agricolae)
+library(knitr)
+library (lubridate)
+library(mosaic)
+library(lattice)
+```
+
+
+```{r loadFile}
+setwd("C:\\Users\\EdCarmen\\Documents\\CarmenProjects2016\\GitSubclover\\Germ")
+getwd()
+
+#create file
+df_g <- read.table("Germ.txt",header=TRUE)
+
+# define factors for the ones that "look like" values
+df_g$Temp <- as.factor(df_g$Temp)
+df_g$rep <- as.factor(df_g$rep)
+df_g$Cv <- as.factor(df_g$Cv)
+df_g$CumulativeGermPerc <- as.numeric(df_g$CumulativeGermPerc)
+
+ df_g1 <- df_g%>%
+  mutate(startDate = dmy(startDate), 
+         DateRead = dmy(DateRead))
+
+str(df_g1)
+
+
+
+```
+
+```{r, fig.height= 5, fig.width= 10}
+# Graph it 
+
+
+#Graph         
+  df_g1 %>%  
+  group_by(Cv, Temp, Daysoftest) %>%
+  #filter(SowTreat =="S2"& SowTreat =="S4")%>%
+  #dplyr::select(-SowingDate, - ReadingDate) %>%
+  summarise_each(funs(mean)) %>%
+  ggplot(aes(x=Daysoftest, y=CumulativeGermPerc)) + 
+  geom_point(aes(colour=Cv,shape=Cv)) +
+  geom_line(aes(colour=Cv)) +
+  #add error bar
+  geom_errorbar(aes(x=10,ymin=25,ymax=30,width=0.2))+
+  facet_wrap(~Temp,ncol=3, scales = "free")+
+  theme_bw()+
+  scale_x_continuous(breaks = c(2,4,6,8,10,12))+
+  ylim(0, 100)+
+  labs(y="Mean cumulative germination Percent",x="Days of test")+ 
+  geom_abline(intercept = 50, slope = 0)
+
+
+
+```
+
+
+
+```{r}
+
+df_g1 %>%
+
+  #filter(Cv == "Antas") %>%  
+  group_by(Cv, Temp, Daysoftest) %>%
+  dplyr::select(CumulativeGermPerc) %>%
+  summarise_each(funs(mean,sd)) %>%
+  ggplot(aes(x=Daysoftest, y=mean, colour=factor(Cv), shape=factor(Cv))) +
+  geom_point() +
+  geom_line() +
+  facet_wrap(~Temp,ncol=3, scales = "free")+
+  labs(x="Sowing Date",y="Maximum Percentage of Hardseeds") +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1))+
+  geom_errorbar(aes(ymin=mean-sd/2,
+                    ymax=mean+sd/2))+
+  scale_x_continuous(breaks = c(2,4,6,8,10,12))+
+  ylim(0, 100)+
+  theme_bw()+
+  labs(y="Mean cumulative germination Percent",x="Days of test")+ 
+  geom_abline(intercept = 50, slope = 0)
+
+
+
+```
+
+
+
+```{r CalculatePercentageEmergence }
+
+df_g2 <- df_g1 %>%
+
+  mutate(Daysoftest=ifelse(Daysoftest==0,NA,as.numeric(Daysoftest)))%>%
+  mutate(Germrate = as.numeric(round(1/Daysoftest*1,digits=2)))%>%
+  group_by(Cv,Temp, rep) %>%
+  mutate(MaxGerm = as.numeric(round(max(CumulativeGermPerc)*1,digits=2)))
+
+
+
+```
+
+```{r, fig.width= 10, fig.height=5}
+#Graph         
+
+
+df_g2 %>%  
+  group_by(Cv, Temp) %>%
+  dplyr::select(MaxGerm) %>%
+  summarise_each(funs(mean,sd)) %>%
+  ggplot(aes(x=Temp, y=mean, colour=factor(Cv), shape=factor(Cv))) +
+  geom_point(aes(colour=Cv)) +
+  geom_line(aes(colour=Cv)) +
+  facet_grid(.~ Cv) +
+  labs(x="Temperature",y="Maximum Percentage of Germination") +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1))+
+  geom_errorbar(aes(ymin=mean-sd/2,
+                    ymax=mean+sd/2))+
+  theme_bw()+
+  ylim(0,100)+
+  geom_abline(intercept = 50, slope = 0)
+```
+
+```{r}
+
+write.table(df_g2, "df_g2.txt")
+
+```
+
+Stopped here ... not ready yet!!! 
+
+```{r}
+
+#Find days to 50% germination 
+#Find days to 50% germination 
+
+
+# This step is now unnecessary as we want Plot values anyway (FIXME)
+# df_g3 <- df_g2 %>%
+#   group_by(Plot,Cv,Temp, CumulativeGermPerc,Daysoftest)  %>%
+#   summarise(av_Perc = mean(CumulativeGermPerc,
+#             av_DAS = mean(Daysoftest)))
+# plots <- unique(df_g3$Plot)
+
+
+df_50_Perc <- df_g2 %>%
+  mutate(DAS = as.numeric(Daysoftest))%>%
+  group_by(Plot,Cv,Temp, CumulativeGermPerc,Daysoftest) %>%
+  summarise(av_Perc = mean(CumulativeGermPerc), 
+            #av_TT = mean(TT_to_emerg),
+            av_DAS = mean(DAS)
+            )
+
+str(df_50_Perc)
+summary(df_50_Perc)
+head(df_50_Perc)
+
+#  loop to calculate tt_50p_flow for each var x sd x cv
+#cv <- unique(df_50_Perc$Cultivar)
+#var <- unique(df_50_Perc$PercEmerg)
+#sow <- unique(df_50_Perc$SowTreat)
+#sowd <- unique(df_50_Perc$SowingDate)
+plots <- unique(df_50_Perc$Plot)
+ 
+
+#loop trough each combination of factor levels
+
+for(p in 1:length(plots)) {
+#  for(j in 1:length(var)){
+ #   for(k in 1:length(sow)){
+      
+      # clean value holders
+      DAS_50p_emerg <- 0
+      #tt_50p_emerg <- 0
+      
+      #FIX ME Partially set 
+    
+     # print(paste0(cv[i]," ",var[j]," ", sow[k]))
+      # filter for each combination
+
+  df_sub <- df_50_Perc %>%
+    # subset(Cultivar == as.character(cv[i]) &
+    # Plot == as.character(var[j]) &
+    #   Block == as.character(var[b]) &
+    # SowTreat == as.character(sow[k])) %>%
+    subset(Plot == plots[p]) %>%
+    arrange(av_Perc)
+  
+  df_sub
+  head(df_sub)
+  # create percentage with maximum value recorded 
+  # to avoid crossing the 50% line twice
+  
+  df_sub$av_Perc_max <- 0 # create new col
+  
+  for(z in 1:nrow(df_sub)) {
+    
+    df_sub$av_Perc_max[z] <- max(df_sub$av_Perc[z],
+                                 df_sub$av_Perc_max[z-1])
+    
+  }
+  
+  df_sub
+  head(df_sub)
+  tail(df_sub)
+
+  # Interpolate 
+  y_ref <- 50 # y value where we want to find x by interpolation
+  
+  # interpolate
+  #find DAS at 50 Pecent Emergence 
+
+  tryCatch(  
+  DAS_50p_emerg <- approx(df_sub$PercEmerg, 
+  df_sub$av_DAS , xout = y_ref, rule = 1)$y,
+  error = function(e) 
+  {
+  DAS_50p_emerg <- NA
+  }
+) 
+  #find TT at 50 Pecent Emergence(no need here)
+#   tryCatch(  
+#   tt_50p_emerg <- approx(df_sub$av_Perc, 
+#   df_sub$av_TT , xout = y_ref, rule = 1)$y,
+#   error = function(e) 
+#   {
+#   tt_50p_emerg <- NA
+#   }
+# )
+
+  df_temp <- NULL
+  df_temp <- data.frame(Cultivar = df_sub$Cv[1],
+                             PercEmerg = df_sub$Perc_av[1], 
+                             
+                             Plot = df_sub$Plot[1],
+                             
+                             DAS50E = DAS_50p_emerg)
+                            
+  print(p)
+  
+  if(p == 1) {
+    df_tt_50p_emerg <- df_temp
+  } else {
+   df_tt_50p_emerg <- rbind(df_tt_50p_emerg,df_temp) 
+  }                     
+  
+  
+      
+#    } 
+  } # end plot loop
+
+```
+
+
+```{r}
+
+head(df_tt_50p_germ)
+
+write.table(df_tt_50p_emerg,"df_tt_50p_emerg.txt")
+
+summary(df_tt_50p_emerg)
+
+```
+
+
+
+Then 
+
+```{r}
+
+
+

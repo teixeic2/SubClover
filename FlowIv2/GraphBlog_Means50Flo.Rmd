@@ -1,0 +1,103 @@
+---
+title: "Flowering 6CV"
+author: "CT"
+date: "06.07.2017"
+output:
+  word_document: default
+  pdf_document: default
+  html_document: default
+---
+
+```{r loadLibraries}
+library(tidyr)
+library (dplyr)
+library (ggplot2)
+library(agricolae)
+library(knitr)
+library (lubridate)
+
+```
+This script calculates the means of DAS and TTAS50Flo for Iversen to join the Reanalysis table 
+
+```{r loadFile}
+
+setwd("C:\\Users\\EdCarmen\\Documents\\CarmenProjects2016\\GitSubclover\\FlowIv2")
+
+getwd()
+
+#create file
+df_f <- read.table("graph1.txt",header=TRUE)
+
+head (df_f)
+```
+
+
+check formats
+```{r}
+str(df_f)
+
+#df_f$SowingD <-factor(df_f$SowingD, levels=df_f$SpowingD [order(df_f$DAS50F)])
+```
+
+Graph starting with month Feb 
+
+```{r fig.height=5, fig.width=10}
+
+
+
+
+ df_f%>%
+    #use filter to check single variables -Bud, Flowering and Bur
+  filter( Cultivar == "Monti"|Cultivar=="Antas") %>%
+  tidyr::gather("Variable3","Value",DAS50F:TT50F) %>%
+  mutate(Variable3=as.factor(Variable3))%>%
+  
+  ggplot(aes(x=Month,y=Value,colour=Cultivar, shape=Cultivar))+
+  geom_point()+
+  geom_smooth()+
+  facet_grid(Variable3~., scales="free")+
+  theme_bw()+
+ theme(axis.text.y = element_text(angle = 0, size = 14))+
+ theme(axis.text.x = element_text(angle = 0, size = 14))+
+labs(x="Sowing Month")+
+scale_x_continuous(limits=c(0,12))+
+  scale_x_continuous(breaks = c(2,4,6,8,10,12))+
+ylab(expression(Tt~"("^"o"*"Cd)"~~~~~~~~~~~~~~~~~~~~~~Days))
+
+```
+
+
+
+
+
+
+Graph modifications  
+
+```{r GraphSowingDateAndVariable,fig.width=10}
+
+df_f%>%
+    #use filter to check single variables -Bud, Flowering and Bur
+  filter( Cultivar == "Monti"|Cultivar=="Antas") %>%
+  tidyr::gather("Variable3","Value",DAS50F:TT50F) %>%
+  mutate(Variable3=as.factor(Variable3))%>%
+  
+  ggplot(aes(x=Month,y=Value,colour=Cultivar, shape=Cultivar))+
+  #ggplot(aes(x=Month,y=Value))+
+  #geom_line(aes(colour=Cultivar, shape=Cultivar, size = 0.1))+
+  geom_point()+
+  geom_smooth(aes(size=0.06))+
+  facet_grid(Variable3~., scales="free")+
+  theme_bw()+
+ theme(axis.text.y = element_text(angle = 0, size = 14))+
+ theme(axis.text.x = element_text(angle = 0, size = 14))+
+labs(x="Sowing Month")+
+scale_x_continuous(limits=c(0,12))+
+  scale_x_continuous(breaks = c(2,4,6,8,10,12))+
+ylab(expression(Tt~"("^"o"*"Cd)"~~~~~~~~~~~~~~~~~~~~~~Days))
+
+
+```
+
+
+
+

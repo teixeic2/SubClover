@@ -1,0 +1,157 @@
+---
+title: "Emergence seedlings I2 graphs with Mean Soil Temp between 5-17.5"
+author: "CT"
+date: "01.08.2017"
+output: html_document
+---
+
+This script does this:
+-get txt file produced in Calc5EmergSoilT (a sub set of  df_MeanSoilTemp50Emerg.txt)
+-graph y=Days to 50% emergence ; x= mean soil Temp between 5 and the max observed Temp depending on cultivar!!!  
+-graph y= 1/days to 50% emergence ; x= mean soil Temp subset  
+-considered only S2 to S6 dataset 
+ 
+
+
+```{r loadLibraries, warning=FALSE}
+
+library(tidyr)
+library(dplyr)
+library(ggplot2)
+library(agricolae)
+library(knitr)
+library(lubridate)
+library(mosaic)
+library(lattice)
+library (gridExtra)
+```
+
+
+```{r loadFile}
+# Get dataframe from previous script (written table )
+setwd("C:\\Users\\EdCarmen\\Documents\\CarmenProjects2016\\GitSubclover\\EmergenceIv2")
+getwd()
+
+#create file
+df_G <- read.table("Subset5_up.txt",header=TRUE)
+
+
+df_G$Date50E <- ymd(df_G$Date50E)
+df_G$SowingDate <- ymd(df_G$SowingDate )
+df_G$Cultivar <- as.factor(df_G$Cultivar)
+df_G$Plot <- as.factor(df_G$Plot)
+
+summary(df_G)
+
+# this is to "clean previous dfs : df_emerg4 <- NULL
+
+```
+
+Include 1/DAS50E 
+
+
+```{r}
+
+df_H <- df_G %>%
+  mutate(InvDAS50E= 1/ DAS50E)
+
+```
+
+
+```{r, fig.height=5, fig.width=10, echo = FALSE}
+
+
+
+fontSize <- 12.0
+
+#DAS50E
+#g1 <- df_H %>%
+  #filter(year %in% 1960:2000) %>%
+  #group_by(day) %>%
+ # summarise_each(funs(mean)) %>%
+  g1 <- df_H %>%
+  ggplot(aes(x=meanTemp_Em, y=DAS50E,shape=Cultivar))  +
+  geom_point(colour= "darkblue", alpha=0.2) +
+  geom_smooth()+
+  #stat_smooth(level = 0.9, size = 1, colour="white") + 
+  theme_bw() +
+ xlab("Mean Soil Temp (oC)") + 
+  ylab("Days to 50% emergence  (days)") +
+    facet_grid(.~Cultivar, scales="free")+
+  theme(text = element_text(size=10))+
+  scale_x_continuous(limits = c(0,25))+
+  scale_y_continuous(limits = c(0,60))
+
+# 1/DAS50E
+  g2 <- df_H %>%
+  ggplot(aes(x=meanTemp_Em, y=InvDAS50E, shape=Cultivar))  +
+  geom_point(colour= "red", alpha=0.2) +
+  geom_smooth(colour="red")+
+  #stat_smooth(level = 0.9, size = 1, colour="white") + 
+  theme_bw() +
+  xlab("Mean Soil Temp (oC)") + 
+  ylab(" Rate (1/ Days) to 50% emergence") +
+  facet_grid(.~Cultivar, scales="free")+
+  theme(text = element_text(size=10))+
+ scale_x_continuous(limits = c(0,25))+
+  scale_y_continuous(limits = c(0,0.25))
+  grid.arrange(g1, g2)
+# 
+
+# 
+
+```
+
+
+
+
+
+here get the equations from all temperatures  
+
+```{r, fig.height=7,fig.width=12}
+require(ggplot2)
+require(plyr)
+require(dplyr)
+
+
+
+lm_eqn = function(df){
+  m = lm(y ~ x, df);
+  eq <- substitute(italic(y) == a + b %.% italic(x)*","~~italic(r)^2~"="~r2, 
+                   list(a = format(coef(m)[1], digits = 2), 
+                        b = format(coef(m)[2], digits = 2), 
+                        r2 = format(summary(m)$r.squared, digits = 3)))
+  as.character(as.expression(eq));                 
+}
+
+
+df <- df_H %>%
+  dplyr::select(SowTreat,Cultivar, Plot, meanTemp_Em, InvDAS50E) %>%
+  group_by(SowTreat,Cultivar) %>%
+  summarise_each(funs(mean)) %>%
+  mutate(y=InvDAS50E,x=meanTemp_Em) %>%
+  dplyr::select(-meanTemp_Em, -InvDAS50E)
+
+eq <- ddply(df,.(Cultivar),lm_eqn)
+
+yx<-quantile(df$y,0.75)
+xn<- quantile(df$x,0.25)
+
+p <- ggplot(data = df, aes(x = x, y = y)) +
+  
+  geom_smooth(method = "lm", se=FALSE, color="blue", formula = y ~ x) +
+  geom_point()+
+  theme_bw()+
+  scale_x_continuous(limits = c(0,25))+
+  scale_y_continuous(limits = c(0,0.25))+
+  xlab(expression( Mean~soil~temperature~~"("^"o"*"C)")) + 
+  #xlab("Mean Soil Temp (oC)")  
+  ylab(" Rate (1/ Days) to 50% emergence")+
+  theme(text = element_text(size=12))
+
+
+p1 <- p + geom_text(data=eq,aes(x = xn, y = yx,label=V1), parse = TRUE, inherit.aes=FALSE) + 
+  facet_grid(Cultivar~.,scales="free")
+  
+p1
+```

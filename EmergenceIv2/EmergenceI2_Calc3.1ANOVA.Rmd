@@ -1,7 +1,7 @@
 ---
 title: "Emergence seedlings I2"
 author: "CT"
-date: "Thursday, December 31, 2015"
+date: "01.01.2016"
 output: html_document
 ---
 
@@ -21,7 +21,7 @@ library (lubridate)
 library(mosaic)
 library(lattice)
 ```
-
+Read file 
 
 ```{r loadFile}
 setwd("C:\\Users\\EdCarmen\\Documents\\CarmenProjects2016\\GitSubclover\\EmergenceIv2")
@@ -31,6 +31,11 @@ getwd()
 df_emerg1 <- read.table("df_tt_50p_emerg.txt",header=TRUE)
 head(df_emerg1)
 
+
+
+```
+Check formats 
+```{r}
 df_emerg1$SowTreat <- as.factor(df_emerg1$SowTreat)
 df_emerg1$Cultivar <- as.factor(df_emerg1$Cultivar)
 df_emerg1$Block <- as.factor(df_emerg1$Block)
@@ -39,11 +44,11 @@ df_emerg1$Plot <- as.factor(df_emerg1$Plot)
 str(df_emerg1)
 head(df_emerg1)
 summary(df_emerg1)
-
 ```
 
-Calculate ......  
-Note : DAS and TT are not normal distributed!!! 
+Check data for normality  
+Transformations are : sqrt, log, log+1 and no transformation (transf_no)
+
 ```{r DataCheckANOVADf}
 
 # This step is now check for data Normality 
@@ -68,6 +73,7 @@ colsSelec <- match(x,colnames(file))
 
 ```
 
+histogram of residuals 
 ```{r}
 file %>%
   tidyr::gather("transformation","value",colsSelec) %>%
@@ -84,7 +90,7 @@ head(file)
 
 ```
 
-then 
+then check QQ plot
 
 ```{r}
 #QQplot
@@ -94,6 +100,13 @@ qqline(var, col = 2)
 # qqplot(var, rt(3000))
 
 #-------------------------------------------------
+
+```
+
+ 
+ Here general data overview 
+```{r}
+
 # ANOVA (selecing by hand FIXME: do loop)
 # file.subset <- file %>% subset(SowTreat == "S2" & round==1)
 file.subset <- file 
@@ -115,16 +128,10 @@ TukeyHSD(my.anova)
 #loop trough each combination of factor levels
 ```
 
- variable : ANOVA TT50E Easy ANOVA 
- use filter for specific SowTreat
 
+Here ANOVA for each individual sowTreat (need to filter S1, S2, ...S8)
 ```{r}
 
-#QQplot
-var<-file$transf_no
-qqnorm(var)
-qqline(var, col = 2)
-# qqplot(var, rt(3000))
 
 #-------------------------------------------------
 # ANOVA (selecing by hand SowTreat)
@@ -140,13 +147,19 @@ summary(my.anova)
 
 TukeyHSD(my.anova)
 
+
+
+```
+
+LSD anova ; select variable to write 
+
+```{r}
 #Means separation 
 #(LSD.test(my.anova, c("SowTreat"), alpha= 0.05, p.adj="none")) 
 (LSD.test(my.anova, c("Cultivar"), alpha= 0.05, p.adj="none") )
 #(LSD.test(my.anova, c("SowTreat","Cultivar"), alpha= 0.05, p.adj="none"))
 
 #loop trough each combination of factor levels
-
 ```
 
 

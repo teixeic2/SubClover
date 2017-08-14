@@ -1,7 +1,7 @@
 ---
-title: "Emergence seedlings I2"
+title: "Emergence seedlings Iversen 2"
 author: "CT"
-date: "Thursday, December 31, 2015"
+date: "01.01.2016"
 output: html_document
 ---
 
@@ -9,6 +9,8 @@ This script does this:
 
 - get the dataframe produced in Calc1  
 - Calculate the DAS and TT for the 50% emergence by a loop interpolating points
+- Calculate the rate of emergence (1/Days)
+_Graph results  
 
 
 ```{r loadLibraries, warning=FALSE}
@@ -29,6 +31,14 @@ getwd()
 
 #create file
 df_emerg1 <- read.table("df_emerg_perc_soilTT.txt",header=TRUE)
+
+
+
+```
+
+Format changes 
+```{r}
+#change formats 
 df_emerg1$ReadingDate <- ymd(df_emerg1$ReadingDate )
 df_emerg1$SowingDate <- ymd(df_emerg1$SowingDate )
 df_emerg1$Block <- as.factor(df_emerg1$Block)
@@ -36,7 +46,6 @@ df_emerg1$Plot <- as.factor(df_emerg1$Plot)
 str(df_emerg1)
 head(df_emerg1)
 summary(df_emerg1)
-
 ```
 
 Calculate 50 PercentEmergence  
@@ -46,8 +55,7 @@ Calculate 50 PercentEmergence
 # This step is now unnecessary as we want Plot values anyway (FIXME)
 df_50_Perc <- df_emerg1 %>%
   mutate(DAS = as.numeric(ReadingDate-SowingDate)) %>%
-  group_by(Plot, Block,Cultivar,SowTreat, PercEmerg, 
-  ReadingDate) %>%
+  group_by(Plot, Block,Cultivar,SowTreat, PercEmerg, ReadingDate) %>%
   summarise(av_Perc = mean(PercEmerg), 
             av_TT = mean(TT_to_emerg),
             av_DAS = mean(DAS)
@@ -157,11 +165,8 @@ for(p in 1:length(plots)) {
    df_tt_50p_emerg <- rbind(df_tt_50p_emerg,df_temp) 
   }                     
   
-  
-      
 #    } 
   } # end plot loop
-
 
 
 head(df_tt_50p_emerg)
@@ -172,7 +177,7 @@ summary(df_tt_50p_emerg)
 
 ```
 
-Graph results 
+Graph results: include the sowing treatments again. 
 
 ```{r GraphResults}
 
@@ -189,21 +194,16 @@ sdLookup <- data.frame (
 
 sdLookup$SowingDate <- dmy(sdLookup$SowingDate)
 
-
 df_tt_50p_emerg <- merge(df_tt_50p_emerg, sdLookup, by="SowTreat")
 summary(df_tt_50p_emerg)
 
 
-
-
-
 ```
 
+Data visualisation and means check.
 ```{r, fig.height=5, fig.width=10}
 
 #Here just to check means 
-
-
 # mean <-df_tt_50p_emerg %>%
 #   group_by(SowTreat, SowingDate, Cultivar,DAS50E) %>%
 #   summarise_each(funs(mean,sd))
@@ -222,13 +222,13 @@ df_tt_50p_emerg %>%
   #        Cultivar != "Denmark" &
   #        Cultivar != "Leura") %>%
          
- 
   
 ggplot(aes(x=SowingDate, y=mean, colour=factor(Cultivar), shape=factor(Cultivar))) +
   geom_point() +
   geom_line() +
   labs(x="Sowing Date",y="Days to 50% emergence ") +
-  theme(axis.text.x = element_text(angle = 90, hjust = 1))+
+  theme(axis.text.x = element_text(angle = 90, hjust = 1, size = 12))+
+  theme(axis.text.y = element_text(angle = 0, hjust = 1, size = 12))+
   geom_errorbar(aes(ymin=mean-sd/2,
   ymax=mean+sd/2))+
   theme_bw()
@@ -237,7 +237,7 @@ ggplot(aes(x=SowingDate, y=mean, colour=factor(Cultivar), shape=factor(Cultivar)
 
 ```
 
-
+Calculate the rate of emergence (1/Days to 50% emergence)
 
 ```{r}
 
@@ -248,7 +248,13 @@ df_RateEmerg <- df_tt_50p_emerg %>%
 
   summary(df_RateEmerg)
   
-  df_RateEmerg %>%
+  
+  
+```
+
+graph and save a dataframe as txt
+```{r}
+df_RateEmerg %>%
   group_by(SowingDate, Cultivar) %>%
   dplyr::select(Rate) %>%
   summarise_each(funs(mean,sd)) %>%
@@ -263,14 +269,11 @@ df_RateEmerg <- df_tt_50p_emerg %>%
   theme_bw()
   
   write.table(df_RateEmerg, "df_RateEmerg.txt")
-  
 ```
 
 
 
-
-
-graph with TT50E 
+graph with rate and thermal time to 50% 
 
 ```{r, fig.height=5, fig.width=10}
 
@@ -301,7 +304,7 @@ ggplot(aes(x=SowingDate, y=mean, colour=factor(Cultivar), shape=factor(Cultivar)
 
 ```
 
-
+GRaph the percentage of emergence versus the average thermal time 
 
 ```{r}
 
@@ -324,4 +327,5 @@ df_50_Perc %>%
 
 ```
 
+End of this script 
 

@@ -1,0 +1,110 @@
+---
+title: "Germination  seedlings I2"
+author: "CT"
+date: "27.07.2017"
+output: html_document
+---
+
+This script does this:
+
+- get the dataframe produced in Calc1  
+- Calculate the DAS and TT for the 50% emergence by a loop interpolating points
+
+
+```{r loadLibraries, warning=FALSE}
+library(tidyr)
+library(dplyr)
+library(ggplot2)
+library(agricolae)
+library(knitr)
+library(lubridate)
+library(mosaic)
+library(lattice)
+```
+
+
+```{r loadFile warning=FALSE }
+setwd("C:\\Users\\EdCarmen\\Documents\\CarmenProjects2016\\GitSubclover\\Germ")
+getwd()
+
+#create file
+df_g3 <- read.table("df_g2.txt",header=TRUE)
+
+# define factors for the ones that "look like" values
+# df_g3$Temp <- as.factor(df_g3$Temp)
+# df_g3$rep <- as.factor(df_g3$rep)
+# df_g3$Cv <- as.factor(df_g3$Cv)
+# df_g3$CumulativeGermPerc <- as.numeric(df_g3$CumulativeGermPerc)
+# df_g3$Germrate <- as.numeric(df_g3$Germrate)
+# df_g3$MaxGerm <- as.numeric(df_g3$MaxGerm)
+
+#df_g3$X <- as.numeric(df_g3$Temp)
+df_g3$X <- as.numeric(df_g3$Daysoftest)
+df_g3$Factor <- as.factor(df_g3$Cv)
+df_g3$Y <- as.numeric(df_g3$CumulativeGermPerc)
+#df_g3$Y <- as.numeric(df_g3$Germrate)
+# df_g3$MaxGerm <- as.numeric(df_g3$MaxGerm)
+str(df_g3)
+
+```
+
+
+```{r}
+
+#Prepare datframe as per function X Y FACTOR - rename it in mutate then select columns of interest 
+
+dt1 <-df_g3 %>%
+ dplyr:: select(X,Y,Factor)
+
+str (dt1)
+ 
+
+
+```
+
+Working here ... need to filter multiple temperatures 
+
+```{r}
+
+summary(dt1)
+
+dt <- dt1 %>%
+  filter(Factor=="Antas")%>%
+  filter(X=="5")
+  #filter(Factor=="Denmark")
+  #filter(Factor=="Monti")
+  #filter(Factor=="Narrikup")
+  
+  
+
+
+```
+
+
+
+```{r}
+
+polyType <- 1 # 
+
+polFit_df <- dt %>%
+  group_by(Factor) %>%
+  do(fittedEq = lm(Y ~ poly(X,polyType,raw = TRUE), data = .)) # note that raw is TRUE not to get orthogonal coeff
+
+
+```
+
+
+
+
+```{r}
+
+summary(polFit_df$fittedEq[[1]])
+
+```
+
+
+
+```{r}
+summary(polFit_df$fittedEq[[2]])
+```
+

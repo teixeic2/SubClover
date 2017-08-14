@@ -1,0 +1,136 @@
+---
+output:
+  word_document: default
+  html_document: default
+---
+---
+title: "TSW  "
+author: "CT"
+date: " renew 05.08.2017 (from the 28 December script 2016)"
+output:
+  word_document: default
+  pdf_document: default
+  
+  #This script  reads the SeedNumberm2_Iv2 and performs ANOVA 
+---
+
+```{r loadLibraries, warning=FALSE}
+library(tidyr)
+library (dplyr)
+library (ggplot2)
+library(agricolae)
+library(knitr)
+library (lubridate)
+library(rgr)
+```
+
+
+Aim: Statistics for variable Seed Number per 1 m2. 
+
+
+```{r loadFile}
+setwd("C:\\Users\\EdCarmen\\Documents\\CarmenProjects2016\\Gitsubclover\\SeedYieldIv2")
+getwd()
+
+#REading the dataframe generated in SeedYieldProject1 script
+
+df_seedY<- read.table("SeedNumberm2_Iv2.txt",header=TRUE)
+head(df_seedY)
+summary(df_seedY)
+
+
+```
+
+
+Define formats 
+```{r}
+
+# define factors and formats
+file <- df_seedY %>%
+  mutate(
+    #Plot = as.factor(Plot),
+    #Date = dmy(Date),
+    Block = as.factor(Block),
+    Cultivar = as.factor(Cultivar),
+    Depth = as.factor (Depth),
+    SowTreat = as.factor(SowTreat)
+  )
+
+str(file)
+summary(file)
+head(file)
+
+
+
+
+```
+
+Here only need to change df name as selection of fields were previously done. 
+
+```{r}
+
+df<- file
+#   dplyr::select(Cultivar,SowTreat,
+#                 Depth,Block)
+# 
+#   df <- as.data.frame(df)
+# head(df)
+
+
+```
+
+For graphics check  SeedYieldProject1 script 
+
+Here ANOVA according S. Saville advice : LSD test unprotected by sowing date individually.
+Use filter to sub set data (sowing date)
+
+```{r}
+#Filter  S1, S2, S3, S6 , S7 
+summary(df)
+
+df_seedYS6 <- df 
+#%>%
+  #filter(SowTreat=="S1")
+  #filter(SowTreat=="S2")
+  #filter(SowTreat=="S3")
+  #filter(SowTreat=="S4")
+  #filter(SowTreat=="S6")
+  #filter(SowTreat=="S7")
+
+
+#-------------------------------------------------
+# anova 
+file <- df_seedYS6
+
+
+file.subset <- file 
+
+head(file.subset)
+summary(file.subset)
+
+
+```
+
+Here need to change the variables (comment out/in) to get mean values and ANOVA info. 
+Select :SowTreat or Depth or Cultivar 
+
+```{r}
+#ANOVA
+
+#my.anova <- aov(SeedsNo_m2 ~ Cultivar*Depth + Block, data = file.subset)
+#my.anova <- aov(SeedsNo_m2 ~ SowTreat*Depth + Block, data = file.subset)
+my.anova <- aov(SeedsNo_m2 ~ Cultivar + Block, data = file.subset)
+#my.anova <- aov(SeedsNo_m2 ~ Depth + Block, data = file.subset)
+summary(my.anova)
+```
+
+Then use multiple comparisons of means for desired variables
+```{r}
+#Means separation after ANOVA
+#(LSD.test(my.anova, c( "SowTreat"), alpha= 0.05, p.adj="none"))
+#(LSD.test(my.anova, c("Cultivar", "Depth"), alpha= 0.05, p.adj="none")) 
+#(LSD.test(my.anova, c( "Depth"), alpha= 0.05, p.adj="none"))
+(LSD.test(my.anova, c( "Cultivar"), alpha= 0.05, p.adj="none"))
+```
+
+End of script.

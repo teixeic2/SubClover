@@ -1,7 +1,7 @@
 ---
 title: "Emergence seedlings I2"
 author: "CT"
-date: "Thursday, December 31, 2015"
+date: "31.12. 2015"
 output:
   word_document: default
   pdf_document: default
@@ -10,8 +10,8 @@ output:
 
 Purpose:
 
--Analysis of plant population 
--calculate the percentage of emergence 
+-Analysis of plant population ANOVA
+
 
 
 
@@ -32,96 +32,38 @@ setwd("C:\\Users\\EdCarmen\\Documents\\CarmenProjects2016\\GitSubclover\\Emergen
 getwd()
 
 #create file
-df_emerg <- read.table("PlantPop.txt",header=TRUE)
+df_emerg <- read.table("df_emerg_perc3.txt",header=TRUE)
 
-# define factors for the ones that "look like" values
+str(df_emerg)
+
+
+```
+
+
+```{r}
+# define factors 
 df_emerg$Plot <- as.factor(df_emerg$Plot)
 df_emerg$Block <- as.factor(df_emerg$Block)
 
- df_emerg <- df_emerg %>%
-  mutate(SowingDate = dmy(SowingDate), 
-         ReadingDate = dmy(ReadingDate),
-         PlantPop = (Sub1+Sub2+Sub3)/3/0.01)
-
-str(df_emerg)
-head(df_emerg)
-tail(df_emerg)
-
-
-df_emerg %>% filter(Plot ==1) %>% summary()
-
+ # df_emerg <- df_emerg %>%
+ #  mutate(SowingDate = dmy(SowingDate), 
+ #         ReadingDate = dmy(ReadingDate))
+      
 
 ```
-
-```{r, fig.height= 5, fig.width= 10}
-# Graph it 
-
-
-#Graph         
-  df_emerg %>%  group_by(Cultivar, SowTreat, DAS) %>%
-  #filter(SowTreat =="S2"& SowTreat =="S4")%>%
-  #dplyr::select(-SowingDate, - ReadingDate) %>%
-  summarise_each(funs(mean)) %>%
-  ggplot(aes(x=DAS, y=PlantPop)) + 
-  geom_point(aes(colour=Cultivar,shape=Cultivar)) +
-  geom_line(aes(colour=Cultivar)) +
-  #add error bar
-  geom_errorbar(aes(x=20,ymin=200,ymax=300,width=0.2))+
-  facet_wrap(~SowTreat,ncol=4, scales = "free")+
-  theme_bw()+
-  ylim(0, 2200)+
-  labs(y="Number of seedlings per m2",x="Days after sowing") +
-  geom_abline(intercept = 1000, slope = 0)
-
-```
-
-
-
-```{r CalculatePercentageEmergence }
-
-df_emerg_perc <- df_emerg %>%
-group_by(Plot) %>%
-mutate(PercEmerg = round(PlantPop/max(PlantPop)*100,digits=2))
-
-# Check
-summary(df_emerg_perc)
-tail(df_emerg_perc)
-df_emerg_perc %>%  filter(Plot=="2")
-
-
-```
-
-```{r, fig.width= 10, fig.height=7}
-#Graph         
-  df_emerg_perc %>%  group_by(Cultivar, SowTreat, DAS) %>%
-#  filter(Cultivar =="Monti") %>%
-  dplyr::select(-SowingDate, - ReadingDate) %>%
-  summarise_each(funs(mean)) %>%
-  ggplot(aes(x=DAS, y=PercEmerg)) + 
-  geom_point(aes(colour=Cultivar,shape=Cultivar)) +
-  geom_line(aes(colour=Cultivar)) +
-    theme_bw()+
-  facet_wrap (~SowTreat,ncol=4, scales = "free")+
-  labs(y="Percentage  of Seedling emergence",x="Days after sowing") +
-  geom_abline(intercept = 50, slope = 0)
-```
+Here only change the df name and removed unwanted columns 
 
 
 ```{r ANOVAMaxPlantPop}
 
 #compare max plant population among Sowing dates and cultivars
 
-df_emerg_perc3 <- df_emerg %>%
-group_by(Plot) %>%
-mutate(FinalPop= round(max(PlantPop)*1,digits=2))
+df_emerg_perc3 <- df_emerg%>%
+  dplyr::select(SowTreat,Cultivar,Block,Plot,FinalPop)
 
-head(df_emerg_perc3)
-summary (df_emerg_perc3)
-
-write.table(df_emerg_perc3, "df_emerg_perc3.txt")
 ```
 
-then select each sowing date individually 
+then to run statistic tests select each sowing date individually 
 
 
 ```{r}
@@ -133,7 +75,7 @@ summary (df_emerg_S1)
 
 
 
-Run ANOVA pure numbers 
+Run ANOVA pure numbers for S1
 
 ```{r}
 #data transf
@@ -152,15 +94,19 @@ my.anova <- aov(transf_no ~ Cultivar + Block,
 
 summary(my.anova)
 
+
+
+```
+
+```{r}
 #TukeyHSD(my.anova)
 
 #Means separation 
 (LSD.test(my.anova, c("Cultivar"), alpha= 0.05, p.adj="none") )
 #(LSD.test(my.anova, "Cultivar"))
-
 ```
 
-S2
+Stats for S2
  
 ```{r}
 
@@ -186,12 +132,17 @@ summary(my.anova)
 
 #TukeyHSD(my.anova)
 
+```
+
+
+```{r}
+
 #Means separation 
 (LSD.test(my.anova, c("Cultivar"), alpha= 0.05, p.adj="none") )
 #(LSD.test(my.anova, "Cultivar"))
 ```
 
-S3
+Stats for S3
 
 ```{r}
 df_emerg_S1 <-df_emerg_perc3 %>%
@@ -214,15 +165,19 @@ my.anova <- aov(transf_no ~ Cultivar + Block,
 
 summary(my.anova)
 
+
+```
+
+
+```{r}
 #TukeyHSD(my.anova)
 
 #Means separation 
 (LSD.test(my.anova, c("Cultivar"), alpha= 0.05, p.adj="none") )
 #(LSD.test(my.anova, "Cultivar"))
-
 ```
-S4
 
+Stats for S4
 
 ```{r}
 df_emerg_S1 <-df_emerg_perc3 %>%
@@ -247,15 +202,20 @@ summary(my.anova)
 
 #TukeyHSD(my.anova)
 
-#Means separation 
-(LSD.test(my.anova, c("Cultivar"), alpha= 0.05, p.adj="none") )
-#(LSD.test(my.anova, "Cultivar"))
+
 
 
 ```
 
-S5
 
+```{r}
+#Means separation 
+(LSD.test(my.anova, c("Cultivar"), alpha= 0.05, p.adj="none") )
+#(LSD.test(my.anova, "Cultivar"))
+```
+
+
+Stats for S5
 
 ```{r}
 
@@ -281,13 +241,16 @@ summary(my.anova)
 
 #TukeyHSD(my.anova)
 
-#Means separation 
-(LSD.test(my.anova, c("Cultivar"), alpha= 0.05, p.adj="none") )
-#(LSD.test(my.anova, "Cultivar"))
 
 ```
 
-S6
+```{r}
+#Means separation 
+(LSD.test(my.anova, c("Cultivar"), alpha= 0.05, p.adj="none") )
+#(LSD.test(my.anova, "Cultivar"))
+```
+
+Stats for S6
 
 ```{r}
 df_emerg_S1 <-df_emerg_perc3 %>%
@@ -310,16 +273,19 @@ my.anova <- aov(transf_no ~ Cultivar + Block,
 
 summary(my.anova)
 
+
+```
+
+```{r}
 #TukeyHSD(my.anova)
 
 #Means separation 
 (LSD.test(my.anova, c("Cultivar"), alpha= 0.05, p.adj="none") )
 #(LSD.test(my.anova, "Cultivar"))
-
 ```
 
 
-S7 
+Stats for S7 
 
 ```{r}
 
@@ -343,14 +309,19 @@ my.anova <- aov(transf_no ~ Cultivar + Block,
 
 summary(my.anova)
 
+
+
+```
+
+
+```{r}
 #TukeyHSD(my.anova)
 
 #Means separation 
 (LSD.test(my.anova, c("Cultivar"), alpha= 0.05, p.adj="none") )
 #(LSD.test(my.anova, "Cultivar"))
-
 ```
-S8
+Stats for S8
 
 ```{r}
 df_emerg_S1 <-df_emerg_perc3 %>%
@@ -373,6 +344,10 @@ my.anova <- aov(transf_no ~ Cultivar + Block,
 
 summary(my.anova)
 
+
+```
+
+```{r}
 #TukeyHSD(my.anova)
 
 #Means separation 
@@ -380,3 +355,4 @@ summary(my.anova)
 #(LSD.test(my.anova, "Cultivar"))
 ```
 
+End of this script.
