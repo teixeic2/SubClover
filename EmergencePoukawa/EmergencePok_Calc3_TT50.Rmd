@@ -1,7 +1,7 @@
 ---
 title: "Emergence seedlings I2"
 author: "CT"
-date: "Thursday, December 31, 2015"
+date: "3.03.2016"
 output: html_document
 ---
 
@@ -28,18 +28,24 @@ setwd("C:\\Users\\EdCarmen\\Documents\\CarmenProjects2016\\GitSubclover\\Emergen
 getwd()
 
 #create file
-df_emerg1 <- read.table("df_emerg_perc_soilTTPo.txt",header=TRUE)
+df_emerg1 <- read.table("df_emerg_perc_Po.txt",header=TRUE)
+
+#Change formats 
 df_emerg1$ReadingDate <- ymd(df_emerg1$ReadingDate )
 df_emerg1$SowingDate <- ymd(df_emerg1$SowingDate )
 df_emerg1$Block <- as.factor(df_emerg1$Block)
 df_emerg1$Plot <- as.factor(df_emerg1$Plot)
+
+#change name of column Pp.x cause Pp.x was causing  error 
+# df_emerg1 %>%
+#   mutate(Pp.x= as.numeric(Pp))%>%
+#   dplyr::select(-Pp.x)
+         
 str(df_emerg1)
-head(df_emerg1)
-summary(df_emerg1)
 
 ```
 
-Calculate 50 PercentEmergence   (stopped here)
+Calculate 50 PercentEmergence and finding out the DAS and TTAS for the 50% emergence 
 
 ```{r SummariseDf}
 
@@ -171,7 +177,8 @@ summary(df_tt_50p_emerg)
 
 ```
 
-Graph results 
+Graph results to write in cahpter 4.
+Include SowTreat and Sowind date in dataframe
 
 ```{r GraphResults}
 
@@ -201,8 +208,6 @@ summary(df_tt_50p_emerg)
 ```{r, fig.height=5, fig.width=10}
 
 #Here just to check means 
-
-
 # mean <-df_tt_50p_emerg %>%
 #   group_by(SowTreat, SowingDate, Cultivar,DAS50E) %>%
 #   summarise_each(funs(mean,sd))
@@ -237,7 +242,7 @@ ggplot(aes(x=SowingDate, y=mean, colour=factor(Cultivar), shape=factor(Cultivar)
 
 ```
 
-
+Calculate the rate of emergence (1/Days)
 
 ```{r}
 
@@ -248,7 +253,14 @@ df_RateEmerg <- df_tt_50p_emerg %>%
 
   summary(df_RateEmerg)
   
-  df_RateEmerg %>%
+  
+  
+```
+
+Graph the rate 
+
+```{r}
+df_RateEmerg %>%
   group_by(SowingDate, Cultivar) %>%
   dplyr::select(Rate) %>%
   summarise_each(funs(mean,sd)) %>%
@@ -263,14 +275,9 @@ df_RateEmerg <- df_tt_50p_emerg %>%
   theme_bw()
   
   write.table(df_RateEmerg, "df_RateEmerg.txt")
-  
 ```
 
-
-
-
-
-graph with TT50E 
+graph with variable TT50E 
 
 ```{r, fig.height=5, fig.width=10}
 
@@ -301,7 +308,7 @@ ggplot(aes(x=SowingDate, y=mean, colour=factor(Cultivar), shape=factor(Cultivar)
 
 ```
 
-
+Graph average thermal time for emergence and percentage of emergence (similar to script 1)
 
 ```{r}
 
@@ -320,8 +327,6 @@ df_50_Perc %>%
   geom_vline(xintercept = 100, linetype=2)
 
 
-
-
 ```
 
-
+End of this script.

@@ -7,8 +7,11 @@ output: html_document
 
 Purpose:
 
--Analysis of plant population 
--calculate the percentage of emergence 
+-Analysis of plant population fo Poukawa 
+
+-calculate the final plant population, the percentage of emergence and make a preliminary ANOVA
+
+-Combine with thermal time based on Air temperature  
 
 
 
@@ -22,7 +25,8 @@ library (lubridate)
 library(mosaic)
 library(lattice)
 ```
-
+In this step re3ad file and change formats 
+Calculate the seedling population (seedlings per 1m2 )
 
 ```{r loadFile, fig.height=5, fig.width= 10}
 setwd("C:\\Users\\EdCarmen\\Documents\\CarmenProjects2016\\GitSubclover\\EmergencePoukawa")
@@ -42,8 +46,8 @@ df_emerg$Block <- as.factor(df_emerg$Block)
          PlantPop = (Sub1+Sub2+Sub3)/3/0.01)
 
 str(df_emerg)
-head(df_emerg)
-tail(df_emerg)
+# head(df_emerg)
+# tail(df_emerg)
 
 
 df_emerg %>% filter(Plot ==1) %>% summary()
@@ -51,6 +55,8 @@ df_emerg %>% filter(Plot ==1) %>% summary()
 
 
 ```
+
+DAta visualisation: Graph the seedling population per 1m2
 
 ```{r,fig.height=10, fig.width=10}}
 
@@ -70,7 +76,7 @@ df_emerg %>% filter(Plot ==1) %>% summary()
 
 ```
 
-
+Calculate the percentage of emergence based on maximum plant population 
 
 
 
@@ -90,6 +96,12 @@ df_emerg_perc %>%  filter(Plot=="2")
 
 
 
+
+```
+Graph the percentage of emergence versus days after sowing 
+
+```{r}
+
  #Graph         
   df_emerg_perc %>%  group_by(Cultivar, SowTreat, DAS) %>%
 #  filter(Cultivar =="Monti") %>%
@@ -102,9 +114,9 @@ df_emerg_perc %>%  filter(Plot=="2")
   labs(y="Percentage  of Seedling emergence",x="Days after sowing") +
     theme_bw()+
   geom_abline(intercept = 50, slope = 0)
-
 ```
 
+Analysis of the Plant population with the whole dataset for mean values 
 
 ```{r ANOVAMaxPlantPop}
 
@@ -177,21 +189,16 @@ TukeyHSD(my.anova)
 
 
 
-Do not have soil Temperature for Poukawa ...used Air Temp skip this script 
-
-```{r}
-
-#empthy chunk
-
-```
-
+Do not have soil Temperature for Poukawa yet here. 
+The soil estimated data is included furhter on in script 6 (EmergSoilT).
+Below used Air Temp to continue  this script as it generated the dataframe for script 3 (50% emergence) 
 
 
 ```{r SoilTemp}
 # df_CumTT.txt is generated in folder PokWeather... basically here is the same as per TT because do not have soil Temp
 #Remember to format dates as ymd 
 
-df_SoilTT <- read.table("ThermalSumSoilPo.txt",header=TRUE)
+df_SoilTT <- read.table("df_CumTTPo.txt",header=TRUE)
 head(df_SoilTT)
 
 # convert to date format
@@ -215,13 +222,25 @@ df_emerg_perc_TT <- NULL
 df_emerg_perc_TT <- merge(df_emerg_perc,df_SoilTT,by.x="ReadingDate",by.y="Date")
 df_emerg_perc_TT <- merge(df_emerg_perc_TT,df_SoilTT,by.x="SowingDate",by.y="Date")
 
-df_emerg_perc_TT$TT_to_emerg <- df_emerg_perc_TT$TT.x-df_emerg_perc_TT$TT.y
+df_emerg_perc_TT$TT_to_emerg <- df_emerg_perc_TT$SumTTday.x-df_emerg_perc_TT$SumTTday.y
 summary(df_emerg_perc_TT)
 
+#Remove extra columns 
+df <-df_emerg_perc_TT %>%
+  dplyr::select(SowingDate:DAS, PlantPop:PercEmerg,Pp.x,TT_to_emerg)
+
+summary(df)
+
 #save as table 
-write.table(df_emerg_perc_TT, "df_emerg_perc_soilTTPo.txt")
+write.table(df, "df_emerg_perc_Po.txt")
 head(df_emerg_perc_TT )
 
+
+
+
+```
+
+```{r}
 # graph emerg x tt
 df_emerg_perc_TT %>%
   group_by(Cultivar, SowTreat, TT_to_emerg) %>%
@@ -234,10 +253,8 @@ df_emerg_perc_TT %>%
   #facet_grid (Cultivar~., scales = "free")+
   geom_abline(intercept = 50, slope = 0) +
   facet_wrap (~SowTreat,ncol=4, scales = "free")+
-  xlab("Thermal-time from sowing") +
+  xlab("Thermal-time from sowing (AirTemp") +
   ylab("Percentage emergence")
-
-
 ```
 
 

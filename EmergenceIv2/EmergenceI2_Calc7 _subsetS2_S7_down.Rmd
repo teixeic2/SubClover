@@ -9,7 +9,7 @@ This script does this:
 -get txt file produced in Calc5EmergSoilT (a sub set of  df_MeanSoilTemp50Emerg.txt)
 -graph y=Days to 50% emergence ; x= mean soil Temp between 15 and the max observed Temp depending on cultivar!!!  
 -graph y= 1/days to 50% emergence ; x= mean soil Temp subset  
--considered only S2 to S6 dataset 
+-considered only S2 to S7 dataset 
 - temperature range here > 15 - 21 
  
 
@@ -26,7 +26,7 @@ library(mosaic)
 library(lattice)
 library (gridExtra)
 ```
-
+Read file Subset down means the rate is going down with increase in temperature (Temp > 15)
 
 ```{r loadFile}
 # Get dataframe from previous script (written table )
@@ -48,7 +48,7 @@ summary(df_G)
 
 ```
 
-Include 1/DAS50E 
+Calculate and include 1/DAS50E 
 
 
 ```{r}
@@ -58,7 +58,7 @@ df_H <- df_G %>%
 
 ```
 
-
+Graph data
 ```{r, fig.height=5, fig.width=10, echo = FALSE}
 
 
@@ -107,7 +107,7 @@ fontSize <- 12.0
 
 
 
-here get the equations from all temperatures  
+here get the equations for  temperatures  
 
 ```{r, fig.height=7,fig.width=12}
 require(ggplot2)

@@ -8,7 +8,7 @@ output:
   html_document: default
 ---
 
-```{r loadLibraries}
+```{r loadLibraries, warning=FALSE}
 library(tidyr)
 library (dplyr)
 library (ggplot2)
@@ -35,7 +35,7 @@ check formats
 str(df_f)
 
 ```
-Here only graph by month of swoing for report 
+Here only graph by month of sowing for report 
 
 ```{r}
 
@@ -46,25 +46,28 @@ a <-df_f %>%
   a%>%
     #use filter to check single variables -Bud, Flowering and Bur
   filter( Cultivar == "Monti") %>%
-  filter(Variable=="Flowering")%>%
+  filter(Variable=="Flowering"| Variable == "Bur")%>%
   tidyr::gather("Variable3","Value",DAS50F:TT50F) %>%
   mutate(Variable3=as.factor(Variable3))%>%
-
   ggplot(aes(x=SowingD,y=Value,colour=Cultivar, shape=Cultivar))+
     #scale_x_discrete(name="Mon")
   geom_point()+
-  geom_line()+
+  geom_line(aes(colour=Variable))+
   facet_grid(Variable3~., scales="free")+
   theme_bw()+
  # theme(axis.text.x = element_text(angle = 0, hjust = 1.5))+
   #scale_x_date(date_breaks = "1 month",date_labels =  "%b")+
 labs(x="Sowing Month")+
-    limits = as.Date (c("2016-"))
+    #limits = as.Date (c("2016"))
 ylab(expression(Tt~"("^"o"*"Cd)"~~~~~~~~~~~~~~~~~~~~~~Days))
     
 
-write.table(a, "graph.txt")
+
   
+```
+
+```{r}
+write.table(a, "graph.txt")
 ```
 
 
@@ -75,7 +78,7 @@ Analysis of sowing date and cultivars for Bud considering Date
 
  df_50Iv <- df_f %>%
   group_by(Cultivar,SowTreat,Variable)%>%
-  filter (Variable=="Flowering")%>%
+  filter (Variable=="Flowering"| Variable== "Bur")%>%
   summarise_each(funs(mean))
 
 str(df_50Iv)
@@ -91,16 +94,15 @@ df_50Iv %>%
   filter( Cultivar == "Monti") %>%
   tidyr::gather("Variable3","Value",DAS50F:TT50F) %>%
   mutate(Variable3=as.factor(Variable3))%>%
-
-  ggplot(aes(x=SowTreat,y=Value,colour=Cultivar, shape=Cultivar))+
+  ggplot(aes(x=SowTreat,y=Value,colour=Variable3, shape=Variable3))+
   geom_point()+
   geom_line()+
   facet_grid(Variable3~., scales="free")+
   theme_bw()+
  # theme(axis.text.x = element_text(angle = 0, hjust = 1.5))+
   #scale_x_date(date_breaks = "1 month",date_labels =  "%b")+
-labs(x="Sowing Month")+
-ylab(expression(1/Tt~"("^"o"*"Cd)"~~~~~~~~~~~~~~~~~~~~~~1/Days))
+labs(x="SowTreat")+
+ylab(expression(Tt~"("^"o"*"Cd)"~~~~~~~~~~~~~~~~~~~~~~1/Days))
 ```
 
 

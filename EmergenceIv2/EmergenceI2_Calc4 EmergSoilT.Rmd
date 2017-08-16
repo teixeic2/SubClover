@@ -1,7 +1,7 @@
 ---
 title: "Emergence seedlings I2"
 author: "CT"
-date: "Thursday, December 31, 2015"
+date: "29.12.2015"
 output: html_document
 ---
 
@@ -84,7 +84,7 @@ df_emerg5 <- NULL
 
 ```
 
-Merge
+Merge dataframes 
 
 ```{r}
 
@@ -132,9 +132,7 @@ TRy to erase duplicated rows
 
 ```
 
-
-
-
+Read the soil data and adjust formats 
 
 ```{r}
 
@@ -157,7 +155,7 @@ head(df_emerg6)
 
 ```
 
-do sum of soil temp for calc later
+Add the accumulation of of soil temperatures to calculate the average temperature during emergence. +
 ```{r}
 df_soilTemp <- df_emerg6 %>%
   mutate(soilTempAcc = cumsum(TempSoil10mm)) %>%
@@ -171,6 +169,7 @@ df_emerg6 <- NULL
 
 ```
 
+check data with graph
 ```{r}
 
 df_soilTemp %>%
@@ -179,8 +178,7 @@ df_soilTemp %>%
 
 ```
 
-
-
+Merge dataframes by date
 
 ```{r}
 
@@ -192,10 +190,12 @@ df1 <- merge(df_MD,df_soilTemp, by.x="SowingDate",by.y="Date") %>%
 str(df1)
 ```
 
+check data 
 ```{r}
 summary(df1)
 ```
-
+Need to force a date for 50 % emergence (round) to calculate the average temperature during emergence
+Save dataframe as txt file 
 
 ```{r}
 
@@ -214,6 +214,7 @@ summary(df_merge)
 write.table(df_merge, "df_MeanSoilTemp50Emerg.txt") 
 ```
 
+Graph results 
 ```{r}
 
 df_merge %>%

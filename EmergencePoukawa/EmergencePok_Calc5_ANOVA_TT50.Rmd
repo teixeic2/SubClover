@@ -9,10 +9,8 @@ output:
 
 Purpose:
 
--Analysis of TT50 Pokawa site  
+-Statistical analysis of thermal time for 50% emergence for  Pokawa site  
  
-
-
 
 ```{r loadLibraries}
 library(tidyr)
@@ -25,6 +23,8 @@ library(mosaic)
 library(lattice)
 ```
 
+Read files and change formats
+Check data 
 
 ```{r loadFile}
 setwd("C:\\Users\\EdCarmen\\Documents\\CarmenProjects2016\\GitSubclover\\EmergencePoukawa")
@@ -48,8 +48,7 @@ df_emerg %>% filter(Plot ==1) %>% summary()
 str(df_emerg)
 ```
 
-
-
+Here only change dataframe name to match the script below
 
 ```{r ANOVA TTAS 50% Emerg}
 
@@ -65,8 +64,9 @@ summary (df_emerg_perc3)
 str(df_emerg_perc3)
 ```
 
-then select each sowing date individually; here starting with S1  
+Then select each sowing date individually for statistical tests; here starting with S1  
 
+Repeat the process for each sowing date 
 
 ```{r}
 df_emerg_S1 <-df_emerg_perc3 %>%
@@ -308,3 +308,5 @@ summary(my.anova)
 
 ```
 
+End of this script. 
+Further analysis in script 6. 

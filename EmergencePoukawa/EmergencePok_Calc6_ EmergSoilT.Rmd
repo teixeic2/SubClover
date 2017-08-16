@@ -8,7 +8,7 @@ output: html_document
 This script does this:
 
 - get the dataframe with sowing dates and date to 50% Emergence  
-- get the dataframe with soil temperature 
+- get the dataframe with estimated soil temperature (Poukawa)
 - merge the two dataframes to calculate the mean temperature during emergence
 -graph y=Days to 50% emergence ; x= mean soil Temp
 -graph y= 1/days to 50% emergence ; x= mean soil Temp
@@ -25,7 +25,7 @@ library(mosaic)
 library(lattice)
 ```
 
-
+Read file , change formats and check data 
 ```{r loadFile}
 # Get dataframe 1 with the soil Temp 
 setwd("C:\\Users\\EdCarmen\\Documents\\CarmenProjects2016\\GitSubclover\\EmergencePoukawa")
@@ -51,6 +51,7 @@ df_emerg4 <- NULL
 
 ```
 
+Read file, adjust formats and check (generated in Calculation 3)
 
 ```{r}
 
@@ -71,6 +72,8 @@ head(df_emerg5)
 
 
 ```
+
+Select columns of interest and rename dataframes 
 Days to reach 50% from sowing date
 
 ```{r}
@@ -84,7 +87,7 @@ df_emerg5 <- NULL
 
 ```
 
-Merge
+Merge the dataframes 
 
 ```{r}
 
@@ -113,12 +116,14 @@ E <- D <- df_M <- NULL
 ```
 
 
+Check data in new dataframe 
 ```{r}
 summary(df_MD)
 ```
 
 
-
+Bring estimated soil temperature data to merge 
+Read and check data 
 
 ```{r}
 
@@ -143,7 +148,7 @@ head(df_emerg6)
 
 ```
 
-do sum of soil temp for calc later
+Create accumulated soil temperature for calculations  later
 ```{r}
 df_soilTemp <- df_emerg6 %>%
   mutate(soilTempAcc = cumsum(TempSoil10mm)) %>%
@@ -157,6 +162,7 @@ df_emerg6 <- NULL
 
 ```
 
+check data in graph
 ```{r}
 
 df_soilTemp %>%
@@ -168,7 +174,7 @@ df_soilTemp %>%
 
 ```
 
-
+Merge the dataframes by dates 
 
 
 ```{r}
@@ -180,11 +186,15 @@ df1 <- merge(df_MD,df_soilTemp, by.x="SowingDate",by.y="Date") %>%
 
 str(df1)
 ```
+Check data 
 
 ```{r}
 summary(df1)
 ```
 
+Then find out the date of 50% emergence to calculate the mean temperature during the emergence period (soilTempAcc_em-soilTempAcc_sow)/DAS50E).
+
+Check data and save in file 
 
 ```{r}
 
@@ -203,6 +213,7 @@ summary(df_merge)
 write.table(df_merge, "df_MeanSoilTemp50EmergPo.txt") 
 ```
 
+Graph results eliminating S1 (problematic Sowing treatment? )
 ```{r}
 
 df_merge %>%

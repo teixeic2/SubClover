@@ -9,8 +9,7 @@ This script does this:
 -get txt file produced in Calc5EmergSoilT (a sub set of  df_MeanSoilTemp50Emerg.txt)
 -graph y=Days to 50% emergence ; x= mean soil Temp between 5 -18 
 -graph y= 1/days to 50% emergence ; x= mean soil Temp subset 5-18 
--tried to exclude S1 from data set but did not improve equations;
--eliminated S1 and S8 bad establishment
+-eliminated S1 and S8 bad establishment 
 -best R2 from 5 to 15 
 
 
@@ -26,13 +25,13 @@ library(lattice)
 library (gridExtra)
 ```
 
-
+Read file and adjust formats 
 ```{r loadFile}
 # Get dataframe from previous script (written table )
 setwd("C:\\Users\\EdCarmen\\Documents\\CarmenProjects2016\\GitSubclover\\EmergenceIv2")
 getwd()
 
-#create file
+#create file. This file is created in Excel from df_MeanSoilTemp.txt
 df_G <- read.table("SubsetS2_S7.txt",header=TRUE)
 
 
@@ -47,7 +46,7 @@ summary(df_G)
 
 ```
 
-Include 1/DAS50E 
+Include a column with 1/DAS50E 
 
 
 ```{r}
@@ -57,7 +56,7 @@ df_H <- df_G %>%
 
 ```
 
-
+Graph and check data 
 ```{r, fig.height=5, fig.width=10, echo = FALSE}
 
 
@@ -103,9 +102,6 @@ fontSize <- 12.0
 ```
 
 
-
-
-
 here get the equations from all temperatures  
 
 ```{r, fig.height=7,fig.width=12}
@@ -148,3 +144,6 @@ p1 <- p + geom_text(data=eq,aes(x = xn, y = yx,label=V1), parse = TRUE, inherit.
   
 p1
 ```
+
+End of this script. 
+continue in Calc7 (subset data)

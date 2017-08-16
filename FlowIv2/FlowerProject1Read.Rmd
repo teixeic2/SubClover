@@ -1,12 +1,15 @@
 ---
 title: "Flowering 6CV"
 author: "CT"
-date: "Thursday, December 31, 2015"
+date: "31.12.2015"
 output:
   word_document: default
   pdf_document: default
   html_document: default
 ---
+Aim: to calculate the percent of plants in specific reproductive phases : Bud, Early, Open, Petal, Bur1 _Bur4.
+
+ATTENTION : this script has to run as continuous as the final dataframe generated (df_flower) is saved for further analysis and other scripts 
 
 ```{r loadLibraries}
 library(tidyr)
@@ -17,7 +20,7 @@ library(knitr)
 library (lubridate)
 
 ```
-
+Read file and adjust formats 
 
 ```{r loadFile}
 
@@ -40,6 +43,7 @@ head(df_flower)
 tail(df_flower)
 ```
 
+Check data 
 ```{r}
 summary(df_flower)
 ```
@@ -79,7 +83,7 @@ summary (df_flower)
 
 ```
 
-
+This data frame was created to visualise means and write in chapter 4 
 
 ```{r}
 
@@ -97,7 +101,7 @@ summary (df_2)
 
 
 
-Analysis of Sowing dates and variables (from bud to bur4) considering DAS 
+Analysis of Sowing dates and variables (from bud to bur4) considering DAS ; graph it . 
 
 ```{r GraphSowingDateAndVariable,fig.height=4, fig.width=10}
 
@@ -120,8 +124,7 @@ df_flower %>%
 
 ```
 
-
-
+Graph of different variables for contrasting cultivars . Writing up chapter 4.
 
 ```{r GraphSowingDateAndVariable,fig.height=4, fig.width=10}
 
@@ -180,7 +183,7 @@ dplyr::select(Date,SumTTday) %>%
 head(df_TTSum)
 
 ```
-
+Check data 
 ```{r}
 summary(df_TTSum)
 ```
@@ -192,42 +195,53 @@ Merge dfs TTSum at Measurement and Sowing Date into Flowering df
 df_flower <- merge(df_flower,df_TTSum, by="Date")
 
 summary(df_flower)
+
 ```
 
+Change column names and select only columns of interest (tidy up)
 
 ```{r}
 
 
-# change name SumTTday to TT at measurement
+# change name SumTTday to TT at measurement used mutate 1 x cause rename was faulty 
 df_flower <- df_flower %>%
-rename(TT_meas = SumTTday)
-head(df_flower)
+mutate(TT_meas = 1*(SumTTday))
+#check the data 
+str(df_flower)
 
+#select only columns of interest 
+df_flower <- df_flower %>%
+dplyr::select (-S1, -S2, -S3, -S4, -S5) 
+
+#check data 
+str(df_flower)
+```
+Need to modify the column name to be able to merge 
+```{r}
 # Add Tt at sowing date
 df_TTSum_mod <- df_TTSum %>%
   mutate (SowingD = Date) %>%
   dplyr::select (-Date)
-  
+ 
 
+```
+Merge data frames 
+```{r}
 df_flower <- merge(df_flower,df_TTSum_mod, by = "SowingD")
+
+str(df_flower)
 
 # change name TT to TT at measurement
 df_flower <- df_flower %>%
-rename(TT_sow = SumTTday)
-head(df_flower)
-
+mutate(TT_sow = 1*(SumTTday.y))
 #check
-head(df_flower)
-summary(df_flower )
+str(df_flower)
 
-#FIX ME HERE duplicated columns!! x y 
 ```
 
-
+Graphic
 
 ```{r MergeTTSumDate}
-
-
 
 #aqi
 # TT from Bud to Bur 3 
@@ -261,11 +275,12 @@ df_Photo <- read.table("Photoperiod.txt",header=TRUE)
 # convert to date format
 df_Photo <- df_Photo %>%
 mutate(Date=dmy(Date))
-head(df_Photo)
+
+str(df_Photo)
 
 # rename date column for merge
 df_Photo <- df_Photo %>%
-rename(SowingD = Date)
+mutate(SowingD = Date)
 head(df_Photo)
 
 #Add Pp to df_flower (merge by SowinD)
@@ -274,10 +289,10 @@ head(df_flower)
 summary(df_flower)
 
 
-# # change name PP to PP at sowing date
+ # change name PP to PP at sowing date
 df_flower <- df_flower %>%
-rename(Pp_sow = Pp)
-head(df_flower)
+mutate(Pp_sow = Pp)
+str(df_flower)
 
 
 
@@ -291,6 +306,32 @@ df_flower$TTAS <- df_flower$TT_meas-df_flower$TT_sow
 head(df_flower)
 
 
+summary(df_flower)
+
+
+
+```
+Tidy up dataframe and remove extra columns 
+```{r}
+
+df_flower <- df_flower %>%
+mutate (Date= (Date.x))%>%
+dplyr:: select(SowingD:Percent, Pp_sow, TTAS, Date, -Date.x)
+  
+str(df_flower)
+
+```
+
+
+```{r}
+# save final DF
+write.table(df_flower, "df_flower.txt")
+
+```
+
+Graphics 
+
+```{r}
 # graph
 df_flower %>%
   mutate(Variable = 
@@ -309,16 +350,9 @@ theme(axis.text.x = element_text(angle = 60, hjust = 1))+
 labs(y="Percent of Plants with Floral bud ")+
 xlab(expression(Thermal~time~~"("^"o"*"Cd)"))
  
-
-summary(df_flower)
-
-
-
-#Graph only Bud and Bur 4 
-
 ```
 
-Here analyse per stages 
+Here analyse per stages means to write in chapter 4. 
 
 ```{r}
 
@@ -355,8 +389,7 @@ df_flower %>%
 theme(axis.text.x = element_text(angle = 60, hjust = 1))
 
 
-# save final DF
-write.table(df_flower, "df_flower.txt")
+
 
 
 ```
@@ -388,8 +421,7 @@ theme(axis.text.x = element_text(angle = 60, hjust = 1))
 ```
 
 
-
-
+End of this script.
 
 
 

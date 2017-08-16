@@ -39,6 +39,16 @@ df_WePo$Date<-dmy(df_WePo$Date)
 str(df_WePo)
 
 ```
+Add meant Temperature (TMean) column and ajust format Date
+
+```{r}
+df_WePo <-df_WePo %>%
+  mutate(Date=dmy(Date))%>%
+  mutate (TmeanAir=(Tx+Tm)/2)
+
+str(df_WePo)
+```
+
 
 ## Graph it 
 
@@ -46,23 +56,23 @@ str(df_WePo)
 
 df_WePo %>%
   #filter(LocationYear != "Mininera2005") %>%
-  tidyr::gather("Variable", "Value",Tx:Pp) %>%
+  tidyr::gather("Variable", "Value",Tx:TmeanAir) %>%
   ggplot(aes(x=Date,y=Value))+
   geom_line(aes(colour=factor(Variable))) +
   #facet_wrap(~LocationYear,scale="free") +
-  scale_color_manual(values=c("#333333", "#9999CC", "#CC3300"))+
+  scale_color_manual(values=c("black","blue", "green","#CC3300"))+
   theme_bw()+
-  labs(x=" Date", y=" degree Celsius/hours ")+
+  labs(x=" Date", y=" degree Celsius/hours") +
+  scale_x_date(date_breaks = "4 month", 
+                 #date_labels = "%B",
+                 limits = as.Date(c('2016-02-01','2017-05-07')))+
   theme(axis.text.y = element_text(size=18))+
-  theme(axis.title.y = element_text(size=22))+
-  theme(legend.text = element_text(size=22))+
-  theme(axis.title.x = element_text(size=22))+
-  
-  theme(axis.text.x = element_text(angle = 45, hjust = 1, size=14)) 
+  theme(axis.title.y = element_text(size=18))+
+  theme(legend.text = element_text(size=18))+
+  theme(axis.title.x = element_text(size=16))+
+  theme(axis.text.x = element_text(angle = 0, hjust = 0.5, size=14)) 
 
  
-
-
 ```
 
 ## Define Tt cardinal temperatures

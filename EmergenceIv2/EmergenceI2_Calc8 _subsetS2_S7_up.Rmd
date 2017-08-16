@@ -25,7 +25,8 @@ library(mosaic)
 library(lattice)
 library (gridExtra)
 ```
-
+Read file, change formats and check data 
+Sub set up has the mean soil temperatures between 5 and 15. 
 
 ```{r loadFile}
 # Get dataframe from previous script (written table )
@@ -106,7 +107,7 @@ fontSize <- 12.0
 
 
 
-here get the equations from all temperatures  
+here get the equations from the subset of  temperatures (5-15)  
 
 ```{r, fig.height=7,fig.width=12}
 require(ggplot2)

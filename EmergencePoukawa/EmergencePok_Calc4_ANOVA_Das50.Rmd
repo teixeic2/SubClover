@@ -9,10 +9,8 @@ output:
 
 Purpose:
 
--Analysis of DAS50 Pokawa site  
+-Analysis of DAS50 Pokawa site dataset 
  
-
-
 
 ```{r loadLibraries}
 library(tidyr)
@@ -25,7 +23,8 @@ library(mosaic)
 library(lattice)
 ```
 
-
+Read dataframe created in previous script (EmergencePok_Calc3)
+Change formats and check the data frame 
 ```{r loadFile}
 setwd("C:\\Users\\EdCarmen\\Documents\\CarmenProjects2016\\GitSubclover\\EmergencePoukawa")
 getwd()
@@ -47,6 +46,7 @@ df_emerg %>% filter(Plot ==1) %>% summary()
 
 str(df_emerg)
 ```
+
 
 ```{r, fig.height= 7, fig.width= 10}
 # Graph it 
@@ -70,10 +70,10 @@ str(df_emerg)
 
 ```
 
+Here only change dataframe name and check
 
 
-
-```{r ANOVA DEAS 50% Emerg}
+```{r ANOVA DAS 50% Emerg}
 
 #compare DAS 50% emerg in eavh Sowing dates and cultivars
 
@@ -87,7 +87,7 @@ write.table(df_emerg_perc3, "df_emerg_perc3.txt")
 str(df_emerg_perc3)
 ```
 
-then select each sowing date individually; here starting with S1  
+then select each sowing date individually for statistics; here starting with S1  
 
 
 ```{r}
@@ -98,8 +98,9 @@ summary (df_emerg_S1)
 ```
 
 
-
 Run ANOVA pure numbers for DAS50Emergence
+Repeat the process for all sowing dates 
+Write in Chapter 4 
 
 ```{r}
 #data transf
@@ -329,4 +330,6 @@ summary(my.anova)
 (LSD.test(my.anova, c("Cultivar"), alpha= 0.05, p.adj="none") )
 
 ```
+End of this script. 
+Continue with ANOVA for TT50 in the next script. 
 

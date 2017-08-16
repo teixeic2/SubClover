@@ -1,4 +1,4 @@
-Cultivar	IncubationDays 	Wavelenght	Absorbance
+Cultivar	IncubationDays 	Wavelength	Absorbance
 Antas 	0	3997.74114	-0.00394
 Antas 	0	3995.81266	-0.00397
 Antas 	0	3993.88418	-0.00394

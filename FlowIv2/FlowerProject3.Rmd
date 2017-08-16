@@ -34,8 +34,8 @@ df_bud_flow_bur_simple <- read.table("df_bud_flow_bur_simple.txt",header=TRUE)
 # change formats
 df_bud_flow_bur_simple <- df_bud_flow_bur_simple %>%
 mutate(Date=ymd(Date),SowingD=ymd(SowingD)) %>%
-mutate(Percent=as.numeric(SimpleCat_Perc))
-
+mutate(Percent=as.numeric(Percent))%>%
+mutate(SimpleCat_Perc=as.numeric(Percent))
 summary(df_bud_flow_bur_simple)
 ```
 
@@ -46,8 +46,7 @@ summary(df_bud_flow_bur_simple)
 ```{r}
 
 df_50_P <- df_bud_flow_bur_simple %>%
-dplyr::select(SowingD:Variable,Percent:TTAS) %>%
-  mutate(SimpleCat_Perc=as.numeric(SimpleCat_Perc)) %>%
+dplyr::select(SowingD:Variable,TTAS:SimpleCat_Perc) %>%
   group_by(SowingD, Date, Cultivar,SowTreat,Block, Plot,Variable) %>%
   na.omit() %>%
   summarise_each(funs(max)) %>% # avoids repeated records FIXME: how to better do it?
@@ -58,7 +57,7 @@ str(df_50_P)
 
 ```
 
--Dataframe still containing the repeated values (21549 rows!!! )
+
 
 ```{r}
 summary(df_50_P)
@@ -77,91 +76,78 @@ summary(df_50_P)
 
 Fix me here: how to loop unique variable and plot number ? It is producing dataframe with no values! 
 
-```{r Calc50PercFlower}
+Check data plot 2 Monti in S1 . right order? 
 
-
+```{r}
 
 #Loop each plot to make it simple
-
-#  loop to calculate tt_50p_flow for each var x sd x cv x block
-#cv <- unique(df_50_P$Cultivar)
-var <- unique(df_50_P$Variable)
-#sow <- unique(df_50_P$SowTreat)
-#sowd <- unique(df_50_P$SowingD)
-#block <- unique(df_50_P$Block)
+var <- unique(df_50_P$Variable    )
 plots <- unique(df_50_P$Plot)
 
 
 # create empty df
-#df_tt_50p_flow <- data.frame(Variable = NULL,
-#                              Cultivar = NULL, 
-#                              SowTreat = NULL,
-#                              SowingD = NULL,
-#                              Block=NULL,
-#                              Plot=NULL,
-#                              DAS= NULL,
-#                              TT50F = NULL)
+df_tt_50p_flow <- data.frame(Variable = NULL,
+                             Cultivar = NULL,
+                             SowTreat = NULL,
+                             SowingD = NULL,
+                             Block=NULL,
+                             Plot=NULL,
+                             DAS= NULL,
+                             TT50F = NULL)
 
-#i=j=k=b=1
-
-#loop trough each combination of factor levels
-
-#for(i in 1:length(cv)){
+#i=p=1
+# 
+# #loop trough each combination of factor levels
   for(j in 1:length(var)){
-    #for(k in 1:length(sow)){
       for(p in 1:length(plots)){
-        
+
       # clean value holders
       DAS_50p_flow <- 0
       tt_50p_flow <- 0
       
-    
       #print(paste0(cv[i]," ",var[j]," ", sow[k], " B", block[b]))
-      # filter for each combination
-
+  
+  # filter for each combination
   df_sub <- df_50_P %>%
-    subset(Plot == as.character(plots[p])) &
-    #Block == as.character(block[b]) &
-    Variable == as.character(var[j]) 
-    #SowTreat == as.character(sow[k]))
-  
+    filter(Plot == as.character(plots[p]) &
+    Variable == as.character(var[j]))
+
   summary(df_sub)
-  
-  # create percentage with maximum value recorded 
+
+  # create percentage with maximum value recorded
   # to avoid crossing the 50% line twice when flowering decreassed
-  
   df_sub$av_Perc_max <- 0 # create new col
-  
+
   for(z in 1:nrow(df_sub)) {
-    
-    df_sub$av_Perc_max[z] <- max(df_sub$av_Perc[z],
-                                 df_sub$av_Perc_max[z-1])
-    
+
+    df_sub$av_Perc_max[z] <- max(df_sub$SimpleCat_Perc[z],
+                                 df_sub$av_Perc_max[z-1]) # keeps the highest value found
+
   }
-  
+
  # df_sub
  # head(df_sub)
  # tail(df_sub)
-
-  # Interpolate 
+# 
+  # Interpolate
   y_ref <- 50 # y value where we want to find x by interpolation
-  
-  # interpolate
-  #find DAS at 50 Pecent Flower 
 
-  tryCatch(  
-  DAS_50p_flow <- approx(df_sub$av_Perc_max, 
-  df_sub$av_DAS , xout = y_ref, rule = 1)$y,
-  error = function(e) 
+  # interpolate
+  #find DAS at 50 Pecent Flower
+
+  tryCatch(
+  DAS_50p_flow <- approx(df_sub$SimpleCat_Perc,
+  df_sub$DAS , xout = y_ref, rule = 1)$y,
+  error = function(e)
   {
   DAS_50p_flow <- NA
   }
 )
   #find TT at 50 Pecent Flower
-  tryCatch(  
-  tt_50p_flow <- approx(df_sub$av_Perc_max, 
-  df_sub$av_TT , xout = y_ref, rule = 1)$y,
-  error = function(e) 
+  tryCatch(
+  tt_50p_flow <- approx(df_sub$SimpleCat_Perc,
+  df_sub$TTAS , xout = y_ref, rule = 1)$y,
+  error = function(e)
   {
   tt_50p_flow <- NA
   }
@@ -169,24 +155,145 @@ plots <- unique(df_50_P$Plot)
 
   df_temp <- NULL
   df_temp <- data.frame(Cultivar = df_sub$Cultivar[1],
-                             Variable = df_sub$Variable[1], 
+                             Variable = df_sub$Variable[1],
                              SowTreat = df_sub$SowTreat[1],
-                             SowingD = df_sub$SowingD[1], 
+                             SowingD = df_sub$SowingD[1],
                              Block = df_sub$Block[1],
-                             #Plot = df_sub$Plot[1],
+                             Plot = df_sub$Plot[1],
                              DAS50F = DAS_50p_flow,
                              TT50F = tt_50p_flow)
-                        
-  
+
+
   df_tt_50p_flow <- rbind(df_tt_50p_flow,df_temp)
-  
+
       }
-    } 
-  }
- }
-
-
+    }
+  
 summary(df_tt_50p_flow)
+```
+check graphically
+
+```{r, fig.width= 12, fig.height=10}
+df_tt_50p_flow %>%
+  mutate(TT50F=ifelse(TT50F==0,NA,as.numeric(TT50F))) %>%
+  na.omit() %>%
+  ggplot(aes(x=SowingD,y=TT50F, linetype=factor(Block), colour=factor(Block))) +
+  geom_point() +
+  geom_line() +
+  facet_grid(Variable~Cultivar)
+```
+
+
+```{r Calc50PercFlower}
+
+
+
+# #Loop each plot to make it simple
+# 
+# #  loop to calculate tt_50p_flow for each var x sd x cv x block
+# # cv <- unique(df_50_P$Cultivar)
+# var <- unique(df_50_P$Variable)
+# #sow <- unique(df_50_P$SowTreat)
+# #sowd <- unique(df_50_P$SowingD)
+# #block <- unique(df_50_P$Block)
+# plots <- unique(df_50_P$Plot)
+# 
+# 
+# # create empty df
+# df_tt_50p_flow <- data.frame(Variable = NULL,
+# #                              Cultivar = NULL,
+# #                              SowTreat = NULL,
+# #                              SowingD = NULL,
+# #                              Block=NULL,
+#                              Plot=NULL)
+# #                              DAS= NULL,
+# #                              TT50F = NULL)
+# 
+# #i=j=k=b=1
+# # 
+# # #loop trough each combination of factor levels
+# # 
+# # #for(i in 1:length(cv)){
+#   for(j in 1:length(var)){
+# #     #for(k in 1:length(sow)){
+#       for(p in 1:length(plots)){
+# 
+#       # clean value holders
+#       DAS_50p_flow <- 0
+#       tt_50p_flow <- 0
+# 
+# 
+#       #print(paste0(cv[i]," ",var[j]," ", sow[k], " B", block[b]))
+#       # filter for each combination
+# 
+#   df_sub <- df_50_P %>%
+#     subset(Plot == as.character(plots[p])) &
+#     #Block == as.character(block[b]) &
+#     Variable == as.character(var[j])
+#     #SowTreat == as.character(sow[k]))
+# 
+#   summary(df_sub)
+# 
+#   # create percentage with maximum value recorded
+#   # to avoid crossing the 50% line twice when flowering decreassed
+# 
+#   df_sub$av_Perc_max <- 0 # create new col
+# 
+#   for(z in 1:nrow(df_sub)) {
+# 
+#     df_sub$SimpleCat_Perc_max[z] <- max(df_sub$SimpleCat_Perc[z],
+#                                  df_sub$SimpleCat_Perc_max[z-1])
+# 
+#   }
+# 
+#  # df_sub
+#  # head(df_sub)
+#  # tail(df_sub)
+# # 
+#   # Interpolate
+#   y_ref <- 50 # y value where we want to find x by interpolation
+# 
+#   # interpolate
+#   #find DAS at 50 Pecent Flower
+# 
+#   tryCatch(
+#   DAS_50p_flow <- approx(df_sub$SimpleCat_Perc_max,
+#   df_sub$av_DAS , xout = y_ref, rule = 1)$y,
+#   error = function(e)
+#   {
+#   DAS_50p_flow <- NA
+#   }
+# )
+#   #find TT at 50 Pecent Flower
+#   tryCatch(
+#   tt_50p_flow <- approx(df_sub$SimpleCat_Perc_max,
+#   df_sub$av_TT , xout = y_ref, rule = 1)$y,
+#   error = function(e)
+#   {
+#   tt_50p_flow <- NA
+#   }
+# )
+# 
+#   df_temp <- NULL
+#   df_temp <- data.frame(Cultivar = df_sub$Cultivar[1],
+#                              Variable = df_sub$Variable[1],
+#                              SowTreat = df_sub$SowTreat[1],
+#                              SowingD = df_sub$SowingD[1],
+#                              Block = df_sub$Block[1],
+#                              #Plot = df_sub$Plot[1],
+#                              DAS50F = DAS_50p_flow,
+#                              TT50F = tt_50p_flow)
+# 
+# 
+#   df_tt_50p_flow <- rbind(df_tt_50p_flow,df_temp)
+# 
+#       }
+#     }
+#   
+#  
+# 
+# # 
+# # summary(df_tt_50p_flow)
 
 
 
