@@ -49,7 +49,7 @@ df_Weiv %>%
   ggplot(aes(x=Date,y=Value))+
   geom_line(aes(colour=factor(Variable))) +
   #facet_wrap(~LocationYear,scale="free") +
-  scale_color_manual(values=c("#8399CC","#333333", "#3355CC","#CC3300"))+
+  scale_color_manual(values=c("green","#333333", "#3355CC","#CC3300"))+
   theme_bw()+
   labs(x=" Date")+
   ylab(expression(Temperature~time~~"("^"o"*"C)/hours"))+
