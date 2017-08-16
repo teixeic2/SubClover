@@ -180,7 +180,9 @@ df_tt_50p_flow %>%
   ggplot(aes(x=SowingD,y=TT50F, linetype=factor(Block), colour=factor(Block))) +
   geom_point() +
   geom_line() +
+  theme_bw()+
   facet_grid(Variable~Cultivar)
+
 ```
 
 
