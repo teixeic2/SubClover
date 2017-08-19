@@ -35,9 +35,17 @@ getwd()
 
 ```{r}
 #get dataframe created similar to ReAnalysis4 which is Rea6 - use Iversen DAS50Flwoering data
-df_t <- read.table("df_tt_50p_flow.txt",header=TRUE) 
+df_tt_flow <- read.table("df_tt_50p_flow.txt",header=TRUE) 
 
-summary(df_t)
+# force date format
+df_tt_flow$SowingD <- ymd(df_tt_flow$SowingD)
+str(df_tt_flow)
+
+
+```
+
+```{r}
+summary(df_tt_flow)
 ```
 
 Bring weather dataset which is in df_CumTTIv.txt
@@ -63,24 +71,22 @@ df_weather <- df_CumTT %>%
 
 ```
 
-Merge the two datasets 
+Merge and calculate the two datasets 
 
-```{r, fig.width= 12,fig.height=5, warning=FALSE}
-
-# force date format
-df_t$SowingD <- ymd(df_t$SowingD)
-str(df_t)
-
-```
-
-- Sum TT is from 24 Jun 2015
+- SumTT is value at sowing from 24 Jun 2015 
+- ttJuvMax (at flowering time) sets a limit for juvenile period
 
 ```{r}
 # get TTsum at sowing
-df_Iv <- merge(df_t, df_weather,
+# estimates Tt with running TT sum from weather file
+df_Iv <- merge(df_tt_flow, df_weather,
                by.x=c("SowingD"), 
                by.y=c("Date")) %>%
-  mutate(ttJuvMax = TT50F+SumTTday)
+  ungroup()%>%
+ # na.omit() %>%
+  mutate(SumTtAtSowing = SumTTday) %>%
+  dplyr::select(-SumTTday) %>%
+  mutate(ttJuvMax = TT50F + SumTtAtSowing) 
 
 # df_Iv$TTSumAtSow <- df_Iv$SumTTday
 # 
@@ -112,33 +118,15 @@ df_Iv %>%
 
 ```
 
-## Select weather fields needed
+## calc
 
-- SumTTday is running sum from 24 Jun 2015
-
-```{r}
-
-# Select columns of interest 
-# df_weather <- df_CumTT2 %>%
-# dplyr::select(LocationYear,Date, Pp, SumTTday)
-# 
-# str(df_weather)
-
-```
-
-Note that SumTTday does not zero at sowing, keeps going 
-
-```{r}
-#summary(df_weather)
-```
-
-find running sumTT for each sowing date at sowing
+Find running sumTT for each sowing date at sowing
 
 - only to have a small df for function below
 
 ```{r}
 sumTTatSow <- df_Iv %>%
-  dplyr::select(SowTreat, SumTTday) %>%
+  dplyr::select(SowTreat, SumTtAtSowing) %>%
   unique() %>%
   as.data.frame()
 
@@ -158,16 +146,16 @@ Create function for retrieving photoperiod as a function of TT after sowing and 
 Pp_finder_func <- function(sowT, tt_target){
   
   #isolate the experiment and cultivar 
-   df_temp_wea <- df_weather 
-   sTT <- sumTTatSow %>% dplyr::filter(SowTreat == sowT) %>% dplyr::select(SumTTday)
+   df_tt_flowemp_wea <- df_weather 
+   sTT <- sumTTatSow %>% dplyr::filter(SowTreat == sowT) %>% dplyr::select(SumTtAtSowing)
    
    # sum target to sumTT at time of sowing for this spesific sd
    tt_target_adj <- tt_target + sTT 
    
   # lookup for Pp at new tt sum in weather file
   tryCatch(  
-  Pp_target <- approx(df_temp_wea$SumTTday, 
-  df_temp_wea$Pp, xout = tt_target_adj, rule = 1)$y,
+  Pp_target <- approx(df_tt_flowemp_wea$SumTTday, 
+  df_tt_flowemp_wea$Pp, xout = tt_target_adj, rule = 1)$y,
   error = function(e) 
   {
   Pp_target <- NA
@@ -193,11 +181,18 @@ tt_target <- 300
 Pp_finder_func(st, tt_target)
 ```
 
-Create the loop to identify each combination of cultivars - isolate and calculate stats for each Pp target.
-maybe use concatenate fro sowing date treatment and cultivar
+# Find Pp at a given Tt sum after sowing
+
+- Sums ftxed Tt to sowing Tt and see what Pp is there
+- Plots this Pp against TT to flowering
+- See if there is a stronger relationship beteen Pp and Tt
 
 
 ```{r}
+
+
+#Create the loop to identify each combination of cultivars - isolate and calculate stats for each Pp target.
+#maybe use concatenate fro sowing date treatment and cultivar
 #FIXME: use RMSE instrad of R2 to find best fit
 
 #Flowering reference = flowRefPerc
@@ -227,32 +222,43 @@ maybe use concatenate fro sowing date treatment and cultivar
 
 Stopped here .. check repeated values
 
+```{r}
+df_Iv$cv_block_index <- as.factor(paste0(df_Iv$Cultivar,"_",df_Iv$Block))
+
+summary(df_Iv)
+```
+
+
 
 ```{r}
 
-plots <- unique(df_Iv$Plot)
+# FIXME: Has to segment many SDs foa a cv x Block x 
 
-df_Iv_flow <- df_Iv %>% dplyr::filter(Variable=="Flowering") %>%  na.omit()
+cv_block <- (unique(df_Iv$cv_block_index))
+
+df_Iv_flow <- df_Iv %>% dplyr::filter(Variable=="Flowering") %>% na.omit()
 
 #p=1
 
-for(p in 1:length(plots)) {
+for(p in 1:length(cv_block)) {
   
   # segment plot of interesst
-  df_sub <- df_Iv_flow %>% dplyr::filter(Plot==plots[p])
+  df_sub <- df_Iv_flow %>% 
+    dplyr::filter(cv_block_index==cv_block[p]) %>%
+    mutate(TtJuvMax_adj=ttJuvMax-SumTtAtSowing)
   
   # loop through Tt chuncks after sowing
-    for(t in seq(0,min(df_sub$ttJuvMax), by=100)){
+    for(t in seq(from=0, to=min(df_sub$TtJuvMax_adj), by=100)){
       
-     if(t > ttJuvMax$ttJuvMax) {
-     
-     break # do not allow TTjuv > min of TT to flower
-     
-     }
-      
+     # if(t > ttJuvMax$ttJuvMax) {
+     # 
+     # break # do not allow TTjuv > min of TT to flower
+     # 
+     # }
       
       
       print(t)
+      
       
     }
 }

@@ -32,7 +32,7 @@ setwd("C:\\Users\\EdCarmen\\Documents\\CarmenProjects2016\\GitSubclover\\Emergen
 getwd()
 
 #create file
-df_emerg4 <- read.table("df_emerg_perc_soilTTPo.txt",header=TRUE)
+df_emerg4 <- read.table("df_emerg_perc_Po.txt",header=TRUE)
 #head(df_emerg4)
 
 df_emerg4$ReadingDate <- ymd(df_emerg4$ReadingDate )

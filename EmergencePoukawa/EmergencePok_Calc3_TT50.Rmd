@@ -69,7 +69,7 @@ head(df_50_Perc)
 #var <- unique(df_50_Perc$PercEmerg)
 #sow <- unique(df_50_Perc$SowTreat)
 #sowd <- unique(df_50_Perc$SowingDate)
-plots <- unique(df_50_Perc$Plot)
+plots<- unique(df_50_Perc$Plot)
  
 
 # create empty df
@@ -274,7 +274,7 @@ df_RateEmerg %>%
   ymax=mean+sd/2))+
   theme_bw()
   
-  write.table(df_RateEmerg, "df_RateEmerg.txt")
+  write.table(df_RateEmerg, "df_RateEmergPo.txt")
 ```
 
 graph with variable TT50E 

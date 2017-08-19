@@ -120,7 +120,7 @@ Merge dfs TTSum at Measurement and Sowing Date into Flowering df
 #But does make sense to plot Mean temperature at sowing date? would be necessary to make mean temperature of the whole period untill flowering? 
 
 df_fa <- df_f %>%
-rename( Date = SowingD)
+mutate( Date = SowingD)
 str(df_fa)
 
 # Add Tt at measurement date

@@ -8,10 +8,10 @@ output: html_document
 This script does this:
 
 - get the dataframe with sowing dates and date to 50% Emergence  
-- get the dataframe with soil temperature 
-- merge the two dataframes to calculate the mean temperature during emergence
--graph y=Days to 50% emergence ; x= mean soil Temp
--graph y= 1/days to 50% emergence ; x= mean soil Temp
+- get the dataframe with air temperature 
+- merge the two dataframes to calculate the mean temperature during leaf appearance 
+-graph y=Days to 50% emergence ; x= mean Air Temp
+-graph y= 1/days to 50% emergence ; x= mean Air Temp
 
 
 ```{r loadLibraries, warning=FALSE}

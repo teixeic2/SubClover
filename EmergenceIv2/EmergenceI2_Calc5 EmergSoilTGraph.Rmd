@@ -138,13 +138,16 @@ p <- ggplot(data = df, aes(x = x, y = y)) +
   geom_smooth(method = "lm", se=FALSE, color="black", formula = y ~ x) +
   geom_point()+
   theme_bw()+
-  scale_x_continuous(limits = c(0,25))
+  scale_x_continuous(limits = c(0,25))+
+  scale_y_continuous(limits = c(0,0.45))
 
 p1 <- p + geom_text(data=eq,aes(x = xn, y = yx,label=V1), parse = TRUE, inherit.aes=FALSE) + 
   facet_grid(Cultivar~.,scales="free")
   
 p1
 ```
+
+
 
 
 Try to leave S1 out of that and see if it improves  

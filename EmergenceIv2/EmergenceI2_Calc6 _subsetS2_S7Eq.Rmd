@@ -136,6 +136,7 @@ p <- ggplot(data = df, aes(x = x, y = y)) +
   geom_point()+
   theme_bw()+
   scale_x_continuous(limits = c(0,25))+
+  scale_y_continuous (limits = c(0, 0.3))+
   xlab("Mean Soil Temp (oC)") + 
   ylab(" Rate (1/ Days) to 50% emergence") 
 

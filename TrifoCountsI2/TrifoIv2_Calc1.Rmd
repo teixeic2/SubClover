@@ -31,7 +31,7 @@ head(df_trifo)
 
 
 ```
-Define formats and calculate the number of trifoliates considering the sub samples (S1-S10)
+Define formats and calculate the mean number of trifoliates considering the sub samples (S1-S10)
 
 ```{r loadFile}
 
@@ -71,10 +71,10 @@ Graph the results : DAS and number of trifoliates
   labs(y="Number of trifoliates",x="Days after sowing")+
   theme_bw()+
     #geom_abline(intercept = 6, slope = 0)
-   geom_abline(intercept = 4:6, slope = 0)
+   geom_abline(intercept = 5, slope = 0)
 ```
 
-Other graphics same graph 
+Other graphics with same dat 
 ```{r}
 #Graph         
   df_trifo %>%  group_by(Cultivar, SowTreat, DAS) %>%
@@ -121,4 +121,4 @@ compare sowing dates
 ```
 
 End of this script Calc 1. 
-Move to script 2 to calculate rate of leaf appearance 
+Move to script 2 to calculate percent and rate of leaf appearance 
