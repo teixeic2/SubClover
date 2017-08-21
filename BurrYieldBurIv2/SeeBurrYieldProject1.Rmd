@@ -4,8 +4,10 @@ author: "CT"
 date: "Friday, March 18, 2016"
 output: html_document
 ---
-
-
+Purpose : 
+calculations of burr yield per 1m 2 and total burr yield
+Calculation for the percentage of buried burs 
+ANOVA for the variate : precentage of buried burs 
 
 ```{r, warning=FALSE}
 #Load libraries 
@@ -26,7 +28,7 @@ head(file)
 summary(file)
 ```
 
-Calculations 
+Define the formats  
 
 ```{r}
 
@@ -44,7 +46,7 @@ str(file)
 summary(file)
 
 ```
-
+Calculate the Individual burr weight and the number of burrs 
 
 ```{r}
 
@@ -88,9 +90,9 @@ dodge_x <- position_dodge(width = 0.9)
   mutate(PropBurrBuried= Below/(Below+Above)*100)
 
 
-
-
 ```
+
+Graph the percentage of buried burrs 
 
 ```{r, fig.height= 5, fig.width=10 , warning=FALSE}
 df_bur %>%
@@ -142,7 +144,7 @@ df_bur  %>%
 
 
 ```
-
+Graph the percentage of burrs discriminating the colours of subspecies 
 
 
 ```{r, fig.height= 5, fig.width=10 , warning=FALSE}}
@@ -162,7 +164,8 @@ head(df_bur)
 
 ```
 
-Do ANOVA simple as per D. Saville 
+Statistical Analisis 
+Do ANOVA simple as per D. Saville : each sowing date separately.
 
 ```{r}
 
@@ -190,22 +193,28 @@ summary(file.subset)
 
 ```
 
+Here Analyse the percentage of buried burs overall :
+consider sow Treat as a factor  (overview)
+and then consider cultivar within each sowing date 
 
 ```{r}
 
 #ANOVA
-my.anova <- aov(PropBurrBuried ~ Cultivar + Block, data = file.subset)
 
+my.anova <- aov(PropBurrBuried ~ Cultivar + Block, data = file.subset)
+#my.anova <- aov(PropBurrBuried ~ SowTreat + Block, data = file.subset)
 summary(my.anova)
 ```
 
 ```{r}
 #Means separation after ANOVA
+#(LSD.test(my.anova, c("SowTreat"), alpha= 0.05, p.adj="none")) 
 (LSD.test(my.anova, c("Cultivar"), alpha= 0.05, p.adj="none")) 
 ```
 
 
-The chunks below were prototypes _ Transform checks (not using it now)
+The chunks below filter each sowing date _ Transform checks (not using it now)
+
 
 ```{r}
 

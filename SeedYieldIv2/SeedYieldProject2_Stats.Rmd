@@ -6,7 +6,7 @@ output:
 ---
 title: "Seed Number and yield   "
 author: "CT"
-date: "Thursday, FEbruary 19, 2016"
+date: "19.02.2016"
 output:
   word_document: default
   pdf_document: default
@@ -40,17 +40,18 @@ summary(df_seedY)
 
 
 Here ANOVA according S. Saville advice : LSD test unprotected by sowing date individually
+Report values in chapter whcih are the sum of the Above and below seed yields. 
 
 ```{r}
 #Filter  S1, S2, S3, S6 , S7 
 summary(df_seedY)
 
-df_seedYS6 <- df_seedY #%>%
+df_seedYS6 <- df_seedY %>%
   #filter(SowingD=="2015-06-24")
   #filter(SowingD=="2015-07-28")
   #filter(SowingD=="2015-09-15")
   #filter(SowingD=="2015-11-05")
-  #filter(SowingD=="2016-02-17")
+  filter(SowingD=="2016-02-17")
   #filter(SowingD=="2016-03-15")
 
 #data transformation many possibilities but logit worked well, however little difference between real and transformed numbers 
@@ -70,15 +71,18 @@ summary(file.subset)
 
 ```{r}
 #ANOVA
-my.anova <- aov(Seedskg_ha ~ Cultivar + Block, data = file.subset)
-
+#my.anova <- aov(Seedskg_ha ~ Cultivar + Block, data = file.subset)
+#my.anova <- aov(Seedskg_ha ~ SowTreat + Block, data = file.subset)
+my.anova <- aov(Seedskg_ha ~ Depth + Block, data = file.subset)
 summary(my.anova)
 ```
 
-Then use multiple comparisons of means
+Then use multiple comparisons of means and get the standard errors (std)
 ```{r}
 #Means separation after ANOVA
-(LSD.test(my.anova, c("Cultivar"), alpha= 0.05, p.adj="none")) 
+#(LSD.test(my.anova, c("Cultivar"), alpha= 0.05, p.adj="none"))
+#(LSD.test(my.anova, c("SowTreat"), alpha= 0.05, p.adj="none"))
+(LSD.test(my.anova, c("Depth"), alpha= 0.05, p.adj="none"))
 ```
 
 

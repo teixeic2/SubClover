@@ -5,7 +5,7 @@ date: "Friday, March 18, 2016"
 output: html_document
 ---
 
-This script calculates the number of burrs per area (m2) 
+This script calculates the number of burrs per area (1m2) and run ANOVA 
 
 ```{r, warning=FALSE}
 #Load libraries 
@@ -26,7 +26,7 @@ head(file)
 summary(file)
 ```
 
-Calculations 
+Define formats 
 
 ```{r}
 
@@ -45,6 +45,7 @@ summary(file)
 
 ```
 
+Calculate the individual burr weight and burr number 
 
 ```{r}
 
@@ -66,7 +67,7 @@ head(df)
 
 ```
 
-Re start
+Calculate the total number of burs per 1 m2 . Graph it 
 
 ```{r, fig.height= 5, fig.width=10 , warning=FALSE}
 
@@ -90,6 +91,8 @@ dodge_x <- position_dodge(width = 0.9)
 
 ```
 
+Graph all dataset ; panels are sowing treatments 
+
 ```{r, fig.height= 5, fig.width=10 , warning=FALSE}
 df_bura %>%
   group_by(Cultivar, SowTreat) %>%
@@ -103,9 +106,10 @@ df_bura %>%
                 width=0.25, size=0.3,position=dodge_x)   +
   theme_grey(base_size = 18) +
     facet_grid(.~SowTreat) +
-    labs(y="% Total number of  burrs per 1 m2") +
+    #labs(y="% Total number of  burrs per 1 m2") +
+   ylab(expression(Total~number~of~burrs~per~1~m^"2")) +
   theme_bw()+
-theme(axis.text.y = element_text( size = 10))+
+theme(axis.text.y = element_text( size = 11))+
   theme(axis.title.y = element_text(face="bold", size=14))+
 theme(axis.text.x=element_text(angle = 90, hjust=0.95,vjust=0.2,size = 12))
 
@@ -130,7 +134,8 @@ df_bura %>%
                 width=0.25, size=0.3,position=dodge_x)   +
   theme_grey(base_size = 16) +
     #facet_grid(.~SowTreat) +
-    labs(y="% Total number of  burrsper 1 m2", size=16) +
+    #labs(y="% Total number of  burrsper 1 m2", size=16) +
+  ylab(expression(Total~number~of~burrs~per~1~m^"2")) +
   theme_bw()+
 theme(axis.text.y = element_text( size = 10))+
   theme(axis.title.y = element_text(face="bold", size=12))+
@@ -140,12 +145,12 @@ theme(axis.text.x=element_text(angle = 0, hjust=0.95,vjust=0.2,size = 12))
 
 ```
 
-Mean overall values per cultivar over all sowing dates  
+Mean overall values per cultivar over all sowing dates  (used to write in chapter)
 
 
 ```{r}
 
-b <- df_bura %>%
+df_bura %>%
   group_by(Cultivar) %>%
   summarise_each(funs(mean,sd)) %>%
   #mutate(colPal = ifelse(Cultivar=="Antas","Brachy",ifelse(Cultivar=="Monti","Brachy","Yanny"))) %>%
@@ -157,19 +162,70 @@ b <- df_bura %>%
                 width=0.25, size=0.3,position=dodge_x)   +
   theme_grey(base_size = 16) +
     #facet_grid(.~SowTreat) +
-    labs(y="% Total number of  burrsper 1 m2", size=16) +
+    #labs(y="% Total number of  burrsper 1 m2", size=16) +
+  ylab(expression(Total~number~of~burrs~per~1~m^"2")) +
   theme_bw()+
 theme(axis.text.y = element_text( size = 10))+
 theme(axis.title.y = element_text(face="bold", size=12))+
 theme(axis.text.x=element_text(angle = 90, hjust=0.95,vjust=0.2,size = 12))
 
-head(b)
+#head(b)
 ```
 
 
-
-
 Do ANOVA simple as per D. Saville 
+
+here analysis of overall experiment (sow Treat as a factor ) 
+```{r}
+
+summary(df_bura)
+
+df_burANOVA <- df_bura
+# anova 
+file <- df_burANOVA
+
+file.subset <- file 
+
+head(file.subset)
+summary(file.subset)
+
+#ANOVA
+my.anova <- aov(TotalBurr_m2 ~ SowTreat + Block, data = file.subset)
+
+summary(my.anova)
+
+#Means separation after ANOVA
+(LSD.test(my.anova, c("SowTreat"), alpha= 0.05, p.adj="none")) 
+
+
+```
+
+Analyse cultivars overall  
+```{r}
+summary(df_bura)
+
+df_burANOVA <- df_bura
+# anova 
+file <- df_burANOVA
+
+file.subset <- file 
+
+head(file.subset)
+summary(file.subset)
+
+#ANOVA
+my.anova <- aov(TotalBurr_m2 ~ Cultivar + Block, data = file.subset)
+
+summary(my.anova)
+
+#Means separation after ANOVA
+(LSD.test(my.anova, c("Cultivar"), alpha= 0.05, p.adj="none")) 
+
+
+```
+
+
+Analyses of individual sowing dates 
 
 ```{r}
 
@@ -188,7 +244,6 @@ df_burANOVA <- df_bura%>% #use to filter
 #-------------------------------------------------
 # anova 
 file <- df_burANOVA
-
 
 file.subset <- file 
 

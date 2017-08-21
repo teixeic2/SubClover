@@ -4,14 +4,14 @@ output:
   html_document: default
 ---
 ---
-title: "TSW  "
+title: "SeedPer1m2  "
 author: "CT"
 date: " renew 05.08.2017 (from the 28 December script 2016)"
 output:
   word_document: default
   pdf_document: default
   
-  #This script  reads the SeedNumberm2_Iv2 and performs ANOVA 
+  #This script  reads the SeedNumberm2_Iv2 and performs ANOVA on variate seednumber per1m2
 ---
 
 ```{r loadLibraries, warning=FALSE}
@@ -34,7 +34,7 @@ getwd()
 
 #REading the dataframe generated in SeedYieldProject1 script
 
-df_seedY<- read.table("SeedNumberm2_Iv2.txt",header=TRUE)
+df_seedY<- read.table("SeedNumberper1m2.txt",header=TRUE)
 head(df_seedY)
 summary(df_seedY)
 
@@ -117,20 +117,21 @@ Select :SowTreat or Depth or Cultivar
 ```{r}
 #ANOVA
 
-#my.anova <- aov(SeedsNo_m2 ~ Cultivar*Depth + Block, data = file.subset)
+#my.anova <- aov(SeedsNo_m2 ~ Cultivar*SowTreat + Block, data = file.subset)
 #my.anova <- aov(SeedsNo_m2 ~ SowTreat*Depth + Block, data = file.subset)
-my.anova <- aov(SeedsNo_m2 ~ Cultivar + Block, data = file.subset)
-#my.anova <- aov(SeedsNo_m2 ~ Depth + Block, data = file.subset)
+#my.anova <- aov(SeedsNo_m2 ~ Cultivar + Block, data = file.subset)
+my.anova <- aov(SeedsNo_m2 ~ Depth + Block, data = file.subset)
 summary(my.anova)
 ```
 
-Then use multiple comparisons of means for desired variables
+Then use multiple comparisons of means for desired variables. Remember to sum up the values of seed number (above + below) 
 ```{r}
 #Means separation after ANOVA
 #(LSD.test(my.anova, c( "SowTreat"), alpha= 0.05, p.adj="none"))
 #(LSD.test(my.anova, c("Cultivar", "Depth"), alpha= 0.05, p.adj="none")) 
-#(LSD.test(my.anova, c( "Depth"), alpha= 0.05, p.adj="none"))
-(LSD.test(my.anova, c( "Cultivar"), alpha= 0.05, p.adj="none"))
+(LSD.test(my.anova, c( "Depth"), alpha= 0.05, p.adj="none"))
+#(LSD.test(my.anova, c( "SowTreat", "Cultivar"), alpha= 0.05, p.adj="none"))
+#(LSD.test(my.anova, c("Cultivar"), alpha= 0.05, p.adj="none")) 
 ```
 
 End of script.

@@ -171,10 +171,10 @@ Pp_finder_func <- function(sowT, tt_target){
 ## Test function
 
 ```{r}
-st <- "S1"
+st <- "S7"
 
-#test
-tt_target <- 300
+-------#test
+tt_target <- 3633
 #TTsum estimated to reach 1st trifoliate 
 
 #test if function is working : example : 
@@ -228,241 +228,55 @@ df_Iv$cv_block_index <- as.factor(paste0(df_Iv$Cultivar,"_",df_Iv$Block))
 summary(df_Iv)
 ```
 
-
+## Segment df by Cv and block 
 
 ```{r}
-
-# FIXME: Has to segment many SDs foa a cv x Block x 
 
 cv_block <- (unique(df_Iv$cv_block_index))
 
 df_Iv_flow <- df_Iv %>% dplyr::filter(Variable=="Flowering") %>% na.omit()
 
-#p=1
+# Loop 
+df_pp_all <- data.frame()
 
 for(p in 1:length(cv_block)) {
+  
+  CBI <- cv_block[p]
   
   # segment plot of interesst
   df_sub <- df_Iv_flow %>% 
     dplyr::filter(cv_block_index==cv_block[p]) %>%
-    mutate(TtJuvMax_adj=ttJuvMax-SumTtAtSowing)
+    mutate(Tt_event=ttJuvMax-SumTtAtSowing) # value of Tt at Flowering or pheno phase selected
   
   # loop through Tt chuncks after sowing
-    for(t in seq(from=0, to=min(df_sub$TtJuvMax_adj), by=100)){
-      
-     # if(t > ttJuvMax$ttJuvMax) {
-     # 
-     # break # do not allow TTjuv > min of TT to flower
-     # 
-     # }
-      
-      
-      print(t)
-      
-      
+  # t is tt from sowing to the point where Pp is retrieved
+    for(t in seq(from=0, to=min(df_sub$Tt_event), by=100)){
+    
+    TT_target <- t # tt from sowing to the point where Pp is retrieved
+  
+    # Calculate Pp at this Tt sum after sowing
+    df_sub_pp <- df_sub %>%
+    rowwise() %>%
+    mutate(TT_target = t)  %>%
+    mutate(Pp_target=Pp_finder_func(SowTreat,SumTtAtSowing + TT_target))
+    
+    # Bind all results
+    df_pp_all <- rbind(df_pp_all,df_sub_pp)
+   
     }
 }
 
-summary(df_sub)
+summary(df_pp_all)
 
 ```
 
+## Check data
 
+```{r, fig.height=20}
 
-
-
-
-
-```{r, warning=FALSE}
-
-for(i in 1:length(cvGroup)){
-  
-  for(t in seq(0,max(ttJuvMax$ttJuvMax), by=100)){
-    
- #  if(t > ttJuvMax$ttJuvMax[ttJuvMax$ttJuvMax==cvGroup[i]]) {
-     if(t > ttJuvMax$ttJuvMax) {
-     
-     break # do not allow TTjuv > min of TT to flower
-     
-     }
-    
-   #print(t)
-  #print(i)
- 
-  cvG <- cvGroup[i]
-  
-  #print(s) 
-  
-  df_s <- df_Iv %>%
-    dplyr::filter(Treatcultivar == cvG) %>%
-    filter(Variable=="TTtoFlower") %>%
-    mutate(ttFlowZero = Value - (flowRefPerc*TTpercflo)) %>% 
-    mutate(z = TTSumAtSow + t) %>% #define multiple tt after sowing for which Pp needs to be retrieved 
-    mutate(TT_target= ifelse (z > ttFlowZero,
-                             ttFlowZero,
-                             z)) %>%
-    #mutate(z=TTSumSow + t) %>% #testing Pp even if Pp greater than experienced by crop
-    rowwise() %>%
-    #mutate(Pp_target=Pp_finder_func(TT_target)) # functions gets a charater therefore format changes
-     mutate(Pp_target=Pp_finder_func(SowTreat,TT_target))
-    #print(unique(df_s$indexLocCult))
-    
-    x <- as.numeric(df_s$Pp_target)
-    y <- as.numeric(df_s$Value)
-  
-  # test alternative functions - all gave highest first R2 at ~ 600oCd - Not resolved
- #  polyM <- lm(formula = y ~ poly(x, 3)) # testing simple polinomial
- #  expM <- lm(log(y)~ x)
- #  print(t)
- #  print( summary(polyM)$r.squared*100)
- #  summary(polyM)
-  # -------
-  
-  out.lm <-lm(Value~Pp_target,data=df_s)
-  
-    # way to get eq coeff  
-  summary(out.lm) 
-  intT <- out.lm$coefficients[1]
-  slopeT<- out.lm$coefficients[2]
-  
-  tryCatch(  
-  o <- segmented(out.lm,seg.Z=~Pp_target,psi=list(Pp_target=13),
-                   control=seg.control(display=FALSE)),
-  
-  error = function(e) 
-  {
-  o <- NA
-  }
-)
-  
-  
-  # test plot FIXME: Does not display what we expected?
-  print(t)
-  plot(x,y, pch=16)
-  plot(o, add=T, link=TRUE)
-  
-      
-  
-  # find stats
-      s <- slope(o)$Pp[,1]    
-      interc <- intercept(o)
-    
-    #  r2 <- round(summary.segmented(o)$adj.r.squared*100,digits=5)
-      r2 <- round(summary.segmented(o)$r.squared*100,digits=5)
-      slope1 <- round(s[1], digits = 4)
-      slope2 <- round(s[2], digits = 4)
-      pVs1 <- summary.segmented(o)$coefficients[14]#pvalue slope1
-      pVs2 <-summary.segmented(o)$coefficients[15]#pvalue slope2
-      
-      # find breaks
-      b = o$psi[,2]
-      
-      vc_temp <- c(as.character(cvG),t, r2,slope1,slope2,pVs1,pVs2,b)
-      vc_all <- rbind(vc_all,vc_temp)
-      # show slopes and breakpoints
-      #print(paste0(" slope: ",s, " break: ", b))
-      
-      print(r2)
-      r2 <-NA
-      slope1 <- NA
-      slope2 <- NA
-      pVs1 <- NA
-      pVs2 <-NA
-     # print(summary(o))
-  
-    }  #this ends the loop of multiple thermal time
-vc_temp <-NULL
-
- } #end loop group
-  
- #Here need to include sowing date
- df_all <-data.frame(vc_all)
- colnames(df_all) <-c("CvGroup","TTjuv", "r2","slope1","slope2","pVs1","pVs2","b")
- 
- # FIXME: The resulting model does not align with the best "visual" fit at 900oCd Tt juveline
-```
-
-
-
-```{r, fig.height=5, fig.width=12 }
-#Graph : FIX ME why the R2 is the same in some of the TT?
-
-#graph it 
-
-df_all %>%
-  #filter(CvGroup == "Antas")%>%
-   ggplot(aes(x=as.numeric(as.character(TTjuv)),
-              y=as.numeric(as.character(r2)), colour=CvGroup)) +
-  labs(x="Thermal Time target after sowing (oCd)", y="R2")+
-  theme_bw()+
-  geom_point() +
-  geom_line()+
-   facet_wrap(~CvGroup,ncol=3)+
-  ylim(0,100)
-  
-```
-
-gfhgfhgfhgfhgfhgf
-```{r , warning = FALSE}
-
-# find highest r2
-
-#graph PPat 1000TTjuv 
-df_opt <- df_all %>%
-group_by(CvGroup) %>%
-filter(r2==max(as.numeric(as.character(r2))))
-
-#tt_extra_opt <- 700
-
-#for(gg in 1:length(ggg)) {
-# for(tte in 1:length(tt_extra_opt)) {
-  
-   dt1 <- df_Iv %>%
-     rowwise() %>%
-     filter(Variable == "TTtoFlower") %>%
-     mutate(tt_extra_opt = 700) %>%
-     mutate(TT_target = TTSumAtSow + tt_extra_opt) %>% #define multiple thermal time after sowing for which photoperiod needs to be retrieved 
-    mutate(Pp_target = Pp_finder_func("S1",TT_target)) %>%
-    mutate(tt_juv_toflower=Value-tt_extra_opt)
-   
-   
-  # 
-  # 
- 
-  
-   
-
-  
-# }
-# 
-# }
-
-# loop acros multiple TT extras
-# select best stats or simply store all (better I think) and test in next chunck
-   
+df_pp_all %>%
+  ggplot(aes(x=Pp_target,y=Tt_event,colour=factor(TT_target),shape=factor(Block))) +
+  geom_point() + geom_line() +facet_grid(factor(TT_target)~Cultivar)
 
 ```
-
-
-
-```{r}
-   
-  g <- dt1 %>%
-    ggplot(aes(x=Pp_target,y=Value)) +
-     #ggplot(aes(x=Pp_target,y=tt_juv_toflower)) + #test Pp versus the TTdiferential form Juvenile to    flower
-    geom_point(aes(colour=(SowTreat))) +
-    # stat_smooth(method = "lm", formula = y ~ x + I(x^2), size = 1) + 
-     stat_smooth(method = "lm", formula = y ~ poly(x, 2), size = 1)+
-     geom_vline(xintercept = 14, linetype=2)+
-     labs(x="Photoperiod at inductive phase (hours)", y="Thermal Time to flower (degree days)")+
-     facet_wrap(~Treatcultivar)+
-     theme(legend.position="top") +
-    labs(shape="SowTreat", colour="SowingDate")
-
-   
-   print(g)
-```
-
-
-Stopped here.... why don;t see all 8 sowing dates above ?
 

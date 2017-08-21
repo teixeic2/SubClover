@@ -43,18 +43,34 @@ Graph starting with month Feb
 
 ```{r fig.height=5, fig.width=10}
 
+#Create average of 
 
 
-
- df_f%>%
-    #use filter to check single variables -Bud, Flowering and Bur
+ df_f1<- df_f %>%
+  #use filter to check single variables -Bud, Flowering and Bur
   filter( Cultivar == "Monti"|Cultivar=="Antas") %>%
   tidyr::gather("Variable3","Value",DAS50F:TT50F) %>%
-  mutate(Variable3=as.factor(Variable3))%>%
+  mutate(Variable3=as.factor(Variable3))
+  #group_by(Cultivar, Variable3)%>%
+  #summarise_each(funs(mean)) %>%
   
+   
+  df_f2 <-df_f1 %>%
+  group_by (Cultivar,SowTreat, Variable3)%>%
+  dplyr::select( Value, Month, Cultivar)%>%
+  summarise_each(funs(mean)) 
+   
+  
+
+```
+
+Graph 
+```{r}
+df_f2%>%
   ggplot(aes(x=Month,y=Value,colour=Cultivar, shape=Cultivar))+
   geom_point()+
-  geom_smooth()+
+  #geom_smooth()+
+  geom_line()+
   facet_grid(Variable3~., scales="free")+
   theme_bw()+
  theme(axis.text.y = element_text(angle = 0, size = 14))+
@@ -64,9 +80,8 @@ scale_x_continuous(limits=c(0,12))+
   scale_x_continuous(breaks = c(2,4,6,8,10,12))+
 ylab(expression(Tt~"("^"o"*"Cd)"~~~~~~~~~~~~~~~~~~~~~~Days))
 
+
 ```
-
-
 
 
 
@@ -75,17 +90,17 @@ Graph modifications
 
 ```{r GraphSowingDateAndVariable,fig.width=10}
 
-df_f%>%
-    #use filter to check single variables -Bud, Flowering and Bur
-  filter( Cultivar == "Monti"|Cultivar=="Antas") %>%
-  tidyr::gather("Variable3","Value",DAS50F:TT50F) %>%
-  mutate(Variable3=as.factor(Variable3))%>%
+df_f2%>%
+  #   #use filter to check single variables -Bud, Flowering and Bur
+  # filter( Cultivar == "Monti"|Cultivar=="Antas") %>%
+  # tidyr::gather("Variable3","Value",DAS50F:TT50F) %>%
+  # mutate(Variable3=as.factor(Variable3))%>%
   
   ggplot(aes(x=Month,y=Value,colour=Cultivar, shape=Cultivar))+
   #ggplot(aes(x=Month,y=Value))+
-  #geom_line(aes(colour=Cultivar, shape=Cultivar, size = 0.1))+
+  geom_line(aes(colour=Cultivar, shape=Cultivar, size = 0.1))+
   geom_point()+
-  geom_smooth(aes(size=0.06))+
+  #geom_smooth(aes(size=0.06))+
   facet_grid(Variable3~., scales="free")+
   theme_bw()+
  theme(axis.text.y = element_text(angle = 0, size = 14))+

@@ -1,11 +1,11 @@
 ---
 title: "Seed Yield Analysis"
 author: "CT"
-date: "Friday, March 18, 2016"
+date: "18.03.2016"
 output: html_document
 ---
 This script :
-reads the file with burrs and seeds quantification
+reads the file with burrs and seeds numbers and yields 
 
 
 
@@ -29,8 +29,7 @@ head(file)
 summary(file)
 ```
 
-Calculations 
-
+Define formats 
 ```{r}
 
 # define factors and formats
@@ -49,7 +48,7 @@ summary(file)
 head(file)
 
 ```
-
+Calculate the number of seeds per 1 m2 
 
 ```{r}
 
@@ -66,6 +65,8 @@ df<- file %>%
   df <- as.data.frame(df)
 head(df)
 
+#write a table to run statistics in another script 
+write.table(df, "SeedNumberper1m2.txt")
 ```
 Re start
 
@@ -95,7 +96,8 @@ dodge_x <- position_dodge(width = 0.9)
   theme_grey(base_size = 16) +
     theme_bw()+
   facet_grid(Depth~SowTreat, scales="free") +
-    labs(y= "Seed Number per m2")+
+    #labs(y= "Seed Number per m2")+
+    ylab(expression(Seed~number~per~1~m^"2"))+
 theme(axis.text.x=element_text(angle = +90, hjust = 0))+
   theme(text = element_text(size = 14))
 
