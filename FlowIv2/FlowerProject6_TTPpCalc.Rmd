@@ -1,5 +1,5 @@
 ---
-title: "ReAnalysis Table"
+title: "similar to ReAnalysis Table"
 author: "CT"
 date: "24.04.2017"
 output:
@@ -52,21 +52,11 @@ Bring weather dataset which is in df_CumTTIv.txt
 
 ```{r}
 
-df_CumTT <- read.table("df_CumTTIv.txt",header=TRUE) %>%
+df_weather <- read.table("df_CumTTIv.txt",header=TRUE) %>%
   mutate(Date=ymd(Date)) %>%
-  dplyr::select(-LocationYear,-Country)
+  dplyr::select(-LocationYear,-Country) %>%
+  dplyr::select(Date, SumTTday,Pp) # FIXME: this is also run Tt - change name to SumTTday_run?
 
-summary(df_CumTT)
-
-```
-
-Then select just columns of interest 
-```{r}
-
-df_weather <- df_CumTT %>%
-    dplyr::select(Date, SumTTday,Pp)
-
-#  summary(df_CumTT2)
   summary(df_weather)
 
 ```
@@ -74,7 +64,7 @@ df_weather <- df_CumTT %>%
 Merge and calculate the two datasets 
 
 - SumTT is value at sowing from 24 Jun 2015 
-- ttJuvMax (at flowering time) sets a limit for juvenile period
+- TT50F_run (at flowering time) sets a limit for juvenile period
 
 ```{r}
 # get TTsum at sowing
@@ -84,16 +74,12 @@ df_Iv <- merge(df_tt_flow, df_weather,
                by.y=c("Date")) %>%
   ungroup()%>%
  # na.omit() %>%
-  mutate(SumTtAtSowing = SumTTday) %>%
-  dplyr::select(-SumTTday) %>%
-  mutate(ttJuvMax = TT50F + SumTtAtSowing) 
-
-# df_Iv$TTSumAtSow <- df_Iv$SumTTday
-# 
-# #df_Iv$Index <- as.factor(paste0(df_Iv$SowTreat,"_",df_Iv$Treatcultivar)) # used for loop later
-# 
-# df_Iv$SumTTday <- NULL
-
+   mutate(Pp_sow = Pp) %>%
+  mutate(TtAtSowing_run = SumTTday) %>%
+  dplyr::select(-SumTTday, -Pp) %>%
+  mutate(TT50F_run = TT50F + TtAtSowing_run) %>% # Tt running at flowering
+  mutate(cv_block_index = as.factor(paste0(Cultivar,"_",Block))) 
+ 
 str(df_Iv)
 ```
 
@@ -107,14 +93,16 @@ summary(df_Iv)
 ```{r}
 
 df_Iv %>%
-  dplyr::select(Cultivar, SowTreat, Variable, TT50F, Pp) %>%
+  na.omit() %>%
+  dplyr::select(Cultivar, SowTreat, Variable, TT50F, Pp_sow) %>%
   group_by(Cultivar, SowTreat, Variable) %>%
   summarise_each(funs(mean,sd)) %>%
-#  na.omit() %>%
-  ggplot(aes(x=Pp_mean,y=TT50F_mean, colour=Cultivar)) +
+  ggplot(aes(x=Pp_sow_mean,y=TT50F_mean, colour=Cultivar)) +
   geom_point()+
   geom_line()+
   facet_grid(Variable~.)
+
+#FIME: Why 0 for Leura & xxxx? Should be NA? when no flowerng
 
 ```
 
@@ -124,9 +112,11 @@ Find running sumTT for each sowing date at sowing
 
 - only to have a small df for function below
 
+- Obs: lebel tt as "_run" when using runnibng sum of Tt across all sow dates
+
 ```{r}
 sumTTatSow <- df_Iv %>%
-  dplyr::select(SowTreat, SumTtAtSowing) %>%
+  dplyr::select(SowTreat, TtAtSowing_run) %>%
   unique() %>%
   as.data.frame()
 
@@ -146,16 +136,15 @@ Create function for retrieving photoperiod as a function of TT after sowing and 
 Pp_finder_func <- function(sowT, tt_target){
   
   #isolate the experiment and cultivar 
-   df_tt_flowemp_wea <- df_weather 
-   sTT <- sumTTatSow %>% dplyr::filter(SowTreat == sowT) %>% dplyr::select(SumTtAtSowing)
+   sTT <- sumTTatSow %>% dplyr::filter(SowTreat == sowT) %>% dplyr::select(TtAtSowing_run)
    
    # sum target to sumTT at time of sowing for this spesific sd
    tt_target_adj <- tt_target + sTT 
    
   # lookup for Pp at new tt sum in weather file
   tryCatch(  
-  Pp_target <- approx(df_tt_flowemp_wea$SumTTday, 
-  df_tt_flowemp_wea$Pp, xout = tt_target_adj, rule = 1)$y,
+  Pp_target <- approx(df_weather$SumTTday, 
+  df_weather$Pp, xout = tt_target_adj, rule = 1)$y,
   error = function(e) 
   {
   Pp_target <- NA
@@ -173,7 +162,7 @@ Pp_finder_func <- function(sowT, tt_target){
 ```{r}
 st <- "S7"
 
--------#test
+#test
 tt_target <- 3633
 #TTsum estimated to reach 1st trifoliate 
 
@@ -187,50 +176,11 @@ Pp_finder_func(st, tt_target)
 - Plots this Pp against TT to flowering
 - See if there is a stronger relationship beteen Pp and Tt
 
-
-```{r}
-
-
-#Create the loop to identify each combination of cultivars - isolate and calculate stats for each Pp target.
-#maybe use concatenate fro sowing date treatment and cultivar
-#FIXME: use RMSE instrad of R2 to find best fit
-
-#Flowering reference = flowRefPerc
-#flowRefPerc <- 50
-
-#TTpercflo <- 2.6 # degree days from 5 to full (100) flowering 
-# #value calculated from DearEtAL1993_Reanalysis3 script
-# 
-# # # find max value of TTjuv possible per  group (i.e. Tt at slowering time)
-# #  ttJuvMax <- df_Iv %>%
-# #    filter(Variable=="Flowering") %>%
-# #  #  group_by(SowTreat,Cultivar,Block) %>%
-# #    rowwise() %>%
-# #   mutate(ttJuvMax = TT50F+SumTTday)
-# 
-# #loop
-# cvGroup <- unique(df_Iv$Treatcultivar)
-# vc_temp <- vector()
-# vc_all <- vector()
-# 
-# #i=t=1
-# 
-# summary(ttJuvMax)
-
-
-```
-
-Stopped here .. check repeated values
-
-```{r}
-df_Iv$cv_block_index <- as.factor(paste0(df_Iv$Cultivar,"_",df_Iv$Block))
-
-summary(df_Iv)
-```
-
 ## Segment df by Cv and block 
 
 ```{r}
+
+# FIXME: This logic is currepted as graph for target ==0 is not as above
 
 cv_block <- (unique(df_Iv$cv_block_index))
 
@@ -245,20 +195,19 @@ for(p in 1:length(cv_block)) {
   
   # segment plot of interesst
   df_sub <- df_Iv_flow %>% 
-    dplyr::filter(cv_block_index==cv_block[p]) %>%
-    mutate(Tt_event=ttJuvMax-SumTtAtSowing) # value of Tt at Flowering or pheno phase selected
+    dplyr::filter(cv_block_index==cv_block[p])
   
   # loop through Tt chuncks after sowing
   # t is tt from sowing to the point where Pp is retrieved
-    for(t in seq(from=0, to=min(df_sub$Tt_event), by=100)){
+    for(t in seq(from=0, to=min(df_sub$TT50F), by=100)){
     
-    TT_target <- t # tt from sowing to the point where Pp is retrieved
+ #   TT_target <- t # tt from sowing to the point where Pp is retrieved
   
     # Calculate Pp at this Tt sum after sowing
     df_sub_pp <- df_sub %>%
     rowwise() %>%
     mutate(TT_target = t)  %>%
-    mutate(Pp_target=Pp_finder_func(SowTreat,SumTtAtSowing + TT_target))
+    mutate(Pp_target=Pp_finder_func(SowTreat,TtAtSowing_run + TT_target))
     
     # Bind all results
     df_pp_all <- rbind(df_pp_all,df_sub_pp)
@@ -268,15 +217,18 @@ for(p in 1:length(cv_block)) {
 
 summary(df_pp_all)
 
+# FIXME: The extreme value of Tt target goes beyond current weather, need to expand it a bit
+
 ```
 
 ## Check data
 
-```{r, fig.height=20}
+```{r}
 
 df_pp_all %>%
-  ggplot(aes(x=Pp_target,y=Tt_event,colour=factor(TT_target),shape=factor(Block))) +
-  geom_point() + geom_line() +facet_grid(factor(TT_target)~Cultivar)
+  filter(TT_target==0) %>%
+  ggplot(aes(x=Pp_target,y=TT50F,colour=factor(Cultivar))) +
+  geom_point() + geom_line() +facet_grid(Block~.)
 
 ```
 
