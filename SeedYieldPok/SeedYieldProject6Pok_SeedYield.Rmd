@@ -1,0 +1,394 @@
+---
+output:
+  word_document: default
+  html_document: default
+---
+---
+title: "kg seeds per ha in  Poukawa  "
+author: "CT"
+date: " 29.08.2017 "
+output:
+  word_document: default
+  pdf_document: default
+  
+  #This script  reads the SeedBurrYieldPok2 and performs ANOVA on variate seedyield
+---
+
+```{r loadLibraries, warning=FALSE}
+library(tidyr)
+library (dplyr)
+library (ggplot2)
+library(agricolae)
+library(knitr)
+library (lubridate)
+library(rgr)
+```
+
+
+Aim: Statistics for variable kg Seed/ha. 
+
+
+```{r loadFile}
+setwd("C:\\Users\\EdCarmen\\Documents\\CarmenProjects2016\\Gitsubclover\\SeedYieldPok")
+getwd()
+
+#REading the dataframe generated in SeedYieldProject1 script
+
+df_seedY<- read.table("SeedBurrYieldPok2.txt",header=TRUE)
+head(df_seedY)
+summary(df_seedY)
+
+
+```
+
+
+Define formats 
+```{r}
+
+# define factors and formats
+file <- df_seedY %>%
+  mutate(
+    #Plot = as.factor(Plot),
+    #Date = dmy(Date),
+    Block = as.factor(Block),
+    Cultivar = as.factor(Cultivar),
+    Depth = as.factor (Depth),
+    SowTreat = as.factor(SowTreat)
+  )
+
+str(file)
+summary(file)
+head(file)
+
+
+
+
+```
+
+Calculate the yield 
+
+```{r}
+df1<- file %>%
+  dplyr::select(Cultivar, Block,SowingD, SowTreat,sample_area_m2,Block,
+                Depth,bur_total_weight_g,
+                bur_no_subSample,
+                bur_weight_subSample_g,seed_weight_g) %>%
+  #stop here calculate kg seed / ha
+  mutate(Seedskg_ha = (((seed_weight_g/bur_weight_subSample_g)*
+           bur_total_weight_g)/sample_area_m2)*10 ) 
+
+  df1 <- as.data.frame(df1)
+summary(df1)
+```
+
+
+
+Now go for Stats for variate Seed yield 
+Select columns to be used 
+
+Here only need to change df name as selection of fields were previously done. 
+
+```{r}
+
+
+df <- df1 %>%
+  dplyr::select(Cultivar,SowTreat, Depth,Block,Seedskg_ha)
+# 
+#   df <- as.data.frame(df)
+ head(df)
+
+
+```
+
+For graphics check  SeedYieldProject1 script 
+
+Here ANOVA according S. Saville advice : LSD test unprotected by sowing date individually.
+Use filter to sub set data (sowing date)
+
+```{r}
+#Filter  S1, S2, S3, S6 , S7 
+summary(df)
+
+df_seedYS6 <- df 
+#%>%
+  #filter(SowTreat=="S1")
+  #filter(SowTreat=="S2")
+  #filter(SowTreat=="S3")
+  #filter(SowTreat=="S4")
+  #filter(SowTreat=="S6")
+  #filter(SowTreat=="S7")
+
+
+#-------------------------------------------------
+# anova 
+file <- df_seedYS6
+
+
+file.subset <- file 
+
+head(file.subset)
+summary(file.subset)
+
+
+```
+
+Here need to change the variables (comment out/in) to get mean values and ANOVA info. 
+Select :SowTreat or Depth or Cultivar 
+
+```{r}
+#ANOVA
+
+#my.anova <- aov(Seedskg_ha ~ Cultivar*SowTreat + Block, data = file.subset)
+#my.anova <- aov(Seedskg_ha ~ SowTreat*Depth + Block, data = file.subset)
+my.anova <- aov(Seedskg_ha ~ Cultivar*Depth + Block, data = file.subset)
+#my.anova <- aov(Seedskg_ha ~ Depth + Block, data = file.subset)
+summary(my.anova)
+```
+
+Then use multiple comparisons of means for desired variables. Remember to sum up the values of seed yield (above + below) 
+```{r}
+#Means separation after ANOVA
+#(LSD.test(my.anova, c( "SowTreat", "Depth"), alpha= 0.05, p.adj="none"))
+#(LSD.test(my.anova, c("Cultivar", "Depth"), alpha= 0.05, p.adj="none")) 
+(LSD.test(my.anova, c( "Depth"), alpha= 0.05, p.adj="none"))
+#(LSD.test(my.anova, c( "SowTreat", "Cultivar"), alpha= 0.05, p.adj="none"))
+#(LSD.test(my.anova, c("Cultivar"), alpha= 0.05, p.adj="none")) 
+```
+Considered the sum values for total kg of seeds per hectare (kg seeds -- std) 
+
+S1:Above	221.2449	296.23187
+S1:Below	31.60278	44.05156
+Sum	252.84768	340.28343
+S2:Above	574.54945	644.14118
+S2:Below	173.68471	288.69963
+Sum	748.23416	932.84081
+S3:Above	1468.81588	976.11587
+S3:Below	136.57364	133.74631
+Sum	1605.38952	1109.86218
+S4:Above	1437.39442	1375.16921
+S4:Below	76.87602	68.19927
+Sum	1514.27044	1443.36848
+S5:Above	311.27763	352.08012
+S5:Below	58.54861	80.10387
+Sum	369.82624	432.18399
+
+-----------------------------------------------------------------
+
+Now check each sowing date 
+S1 filter 
+
+```{r}
+#Filter  S1, S2, S3, S6 , S7 
+summary(df)
+
+df_seedYS6 <- df %>%
+  filter(SowTreat=="S1")
+  #filter(SowTreat=="S2")
+  #filter(SowTreat=="S3")
+  #filter(SowTreat=="S4")
+  #filter(SowTreat=="S6")
+  #filter(SowTreat=="S7")
+
+
+#-------------------------------------------------
+# anova 
+file <- df_seedYS6
+
+
+file.subset <- file 
+
+head(file.subset)
+summary(file.subset)
+
+```
+
+ANOVA S1
+```{r}
+#ANOVA
+
+#my.anova <- aov(Seedskg_ha ~ Cultivar*SowTreat + Block, data = file.subset)
+#my.anova <- aov(Seedskg_ha ~ SowTreat*Depth + Block, data = file.subset)
+my.anova <- aov(Seedskg_ha ~ Cultivar*Depth + Block, data = file.subset)
+#my.anova <- aov(Seedskg_ha ~ Depth + Block, data = file.subset)
+summary(my.anova)
+```
+
+means S1
+```{r}
+#Means separation after ANOVA
+#(LSD.test(my.anova, c( "SowTreat", "Depth"), alpha= 0.05, p.adj="none"))
+(LSD.test(my.anova, c("Cultivar","Depth"), alpha= 0.05, p.adj="none")) 
+#(LSD.test(my.anova, c( "Depth"), alpha= 0.05, p.adj="none"))
+#(LSD.test(my.anova, c( "SowTreat", "Cultivar"), alpha= 0.05, p.adj="none"))
+#(LSD.test(my.anova, c("Cultivar"), alpha= 0.05, p.adj="none")) 
+```
+S2 
+```{r}
+#Filter  S1, S2, S3, S6 , S7 
+summary(df)
+
+df_seedYS6 <- df %>%
+  #filter(SowTreat=="S1")
+  filter(SowTreat=="S2")
+  #filter(SowTreat=="S3")
+  #filter(SowTreat=="S4")
+  #filter(SowTreat=="S6")
+  #filter(SowTreat=="S7")
+
+
+#-------------------------------------------------
+# anova 
+file <- df_seedYS6
+
+
+file.subset <- file 
+
+head(file.subset)
+summary(file.subset)
+```
+
+s2 anova
+
+```{r}
+#ANOVA
+
+#my.anova <- aov(Seedskg_ha ~ Cultivar*SowTreat + Block, data = file.subset)
+#my.anova <- aov(Seedskg_ha ~ SowTreat*Depth + Block, data = file.subset)
+my.anova <- aov(Seedskg_ha ~ Cultivar*Depth + Block, data = file.subset)
+#my.anova <- aov(Seedskg_ha ~ Depth + Block, data = file.subset)
+summary(my.anova)
+```
+means S2
+```{r}
+
+#Means separation after ANOVA
+#(LSD.test(my.anova, c( "SowTreat", "Depth"), alpha= 0.05, p.adj="none"))
+(LSD.test(my.anova, c("Cultivar","Depth"), alpha= 0.05, p.adj="none")) 
+#(LSD.test(my.anova, c( "Depth"), alpha= 0.05, p.adj="none"))
+#(LSD.test(my.anova, c( "SowTreat", "Cultivar"), alpha= 0.05, p.adj="none"))
+#(LSD.test(my.anova, c("Cultivar"), alpha= 0.05, p.adj="none"))
+```
+
+S3filter 
+```{r}
+#Filter  S1, S2, S3, S6 , S7 
+summary(df)
+
+df_seedYS6 <- df %>%
+  #filter(SowTreat=="S1")
+  #filter(SowTreat=="S2")
+  filter(SowTreat=="S3")
+#-------------------------------------------------
+# anova 
+file <- df_seedYS6
+file.subset <- file 
+head(file.subset)
+summary(file.subset)
+```
+
+S3 anova
+```{r}
+#ANOVA
+#my.anova <- aov(Seedskg_ha ~ Cultivar*SowTreat + Block, data = file.subset)
+#my.anova <- aov(Seedskg_ha ~ SowTreat*Depth + Block, data = file.subset)
+my.anova <- aov(Seedskg_ha ~ Cultivar*Depth + Block, data = file.subset)
+#my.anova <- aov(Seedskg_ha ~ Depth + Block, data = file.subset)
+summary(my.anova)
+```
+
+
+S3 means 
+
+```{r}
+#Means separation after ANOVA
+#(LSD.test(my.anova, c( "SowTreat", "Depth"), alpha= 0.05, p.adj="none"))
+(LSD.test(my.anova, c("Cultivar","Depth"), alpha= 0.05, p.adj="none")) 
+#(LSD.test(my.anova, c( "Depth"), alpha= 0.05, p.adj="none"))
+#(LSD.test(my.anova, c( "SowTreat", "Cultivar"), alpha= 0.05, p.adj="none"))
+#(LSD.test(my.anova, c("Cultivar"), alpha= 0.05, p.adj="none"))
+```
+
+S4
+
+```{r}
+#Filter  S1, S2, S3, S6 , S7 
+summary(df)
+
+df_seedYS6 <- df %>%
+  #filter(SowTreat=="S1")
+  #filter(SowTreat=="S2")
+  filter(SowTreat=="S4")
+#-------------------------------------------------
+# anova 
+file <- df_seedYS6
+file.subset <- file 
+head(file.subset)
+summary(file.subset)
+```
+
+S4
+
+```{r}
+#ANOVA
+#my.anova <- aov(Seedskg_ha ~ Cultivar*SowTreat + Block, data = file.subset)
+#my.anova <- aov(Seedskg_ha ~ SowTreat*Depth + Block, data = file.subset)
+my.anova <- aov(Seedskg_ha ~ Cultivar*Depth + Block, data = file.subset)
+#my.anova <- aov(Seedskg_ha ~ Depth + Block, data = file.subset)
+summary(my.anova)
+```
+
+S4
+```{r}
+#Means separation after ANOVA
+#(LSD.test(my.anova, c( "SowTreat", "Depth"), alpha= 0.05, p.adj="none"))
+(LSD.test(my.anova, c("Cultivar","Depth"), alpha= 0.05, p.adj="none")) 
+#(LSD.test(my.anova, c( "Depth"), alpha= 0.05, p.adj="none"))
+#(LSD.test(my.anova, c( "SowTreat", "Cultivar"), alpha= 0.05, p.adj="none"))
+#(LSD.test(my.anova, c("Cultivar"), alpha= 0.05, p.adj="none"))
+```
+
+
+S5filter  
+
+```{r}
+#Filter  S1, S2, S3, S6 , S7 
+summary(df)
+
+df_seedYS6 <- df %>%
+  #filter(SowTreat=="S1")
+  #filter(SowTreat=="S2")
+  filter(SowTreat=="S5")
+#-------------------------------------------------
+# anova 
+file <- df_seedYS6
+file.subset <- file 
+head(file.subset)
+summary(file.subset)
+```
+
+S5 Anova
+```{r}
+#ANOVA
+#my.anova <- aov(Seedskg_ha ~ Cultivar*SowTreat + Block, data = file.subset)
+#my.anova <- aov(Seedskg_ha ~ SowTreat*Depth + Block, data = file.subset)
+my.anova <- aov(Seedskg_ha ~ Cultivar*Depth + Block, data = file.subset)
+#my.anova <- aov(Seedskg_ha ~ Depth + Block, data = file.subset)
+summary(my.anova)
+```
+
+S5 means 
+
+```{r}
+#Means separation after ANOVA
+#(LSD.test(my.anova, c( "SowTreat", "Depth"), alpha= 0.05, p.adj="none"))
+(LSD.test(my.anova, c("Cultivar","Depth"), alpha= 0.05, p.adj="none")) 
+#(LSD.test(my.anova, c( "Depth"), alpha= 0.05, p.adj="none"))
+#(LSD.test(my.anova, c( "SowTreat", "Cultivar"), alpha= 0.05, p.adj="none"))
+#(LSD.test(my.anova, c("Cultivar"), alpha= 0.05, p.adj="none"))
+```
+
+
+
+
+
+End of script.

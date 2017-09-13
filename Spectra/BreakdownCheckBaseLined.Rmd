@@ -1,0 +1,85 @@
+---
+title: "Seeds S2 "
+author: "CT"
+date: "21 March 2017"
+output: html_document
+#this script only reads the single spectra txt files and combine them in a dataframe. This is for S2 seeds. 
+---
+
+```{r setup, include=FALSE, loadlibraires}
+#knitr::opts_chunk$set(echo = TRUE)
+library(tidyr)
+library (dplyr)
+library (ggplot2)
+library(agricolae)
+library(knitr)
+library (lubridate)
+library(scales)
+
+```
+
+
+
+```{r readData}
+
+#here program reads individual files (spectra) and bind into a dataframe
+
+filePath <- "C:\\Users\\EdCarmen\\Documents\\CarmenProjects2016\\GitSubclover\\Spectra\\testMicro\\"
+
+# Test if there are not scraps of .csv files in folder
+micro.files <- list.files(filePath,
+                        pattern = '*.dpt', full.names=F, 
+                        recursive = TRUE, include.dirs = F) # if true gets path
+
+
+all_Data <- data.frame() # hold all data
+   
+for (i in 1:length(micro.files)) { 
+  
+  #split name
+  splitName <- unlist(strsplit(micro.files[i],"[_,.,),(]"))
+  
+  # allocate name to vectors
+  seed <- as.character(splitName[1]) # FIXME: see if first number is indeed row
+  cult <-  as.character(splitName[2])
+  plot <- as.numeric(splitName[3])
+  loc <-  as.character(splitName[4])
+  code <- as.numeric(splitName[6])
+  
+  # read data
+  thisOutFile <- read.table(paste0(filePath,micro.files[i]), header=FALSE, sep="," )
+  
+  # Add additional columns to identify factorial combination
+  l <- length(thisOutFile$V1) # fills the variable vector with the number of lines needed
+  seedNo<-rep(seed, l)
+  thisCult<-rep(cult, l) 
+  thisPlot<-rep(plot, l)
+  thisLoc<-rep(loc, l)
+  thisCode<-rep(code, l)
+
+  # create dataframe of file
+  thisOutFile <- data.frame(seedNo, thisCult, thisPlot, thisLoc, thisCode, thisOutFile)
+  
+  # check
+  head(thisOutFile)
+  
+  # append with other files
+  all_Data <- rbind(all_Data, thisOutFile)
+  
+  } # end loop files
+
+
+
+# Set colum names for first columns (attention here, done by hand!)
+all.col.names <- c("SeedName", "Cultivar", "Plot","Location", "Code", "Wavelength", "Absorbance")
+
+colnames(all_Data) <- all.col.names
+
+summary(all_Data)
+
+write.csv(all_Data,file=paste0(filePath,"All_data.csv"), row.names=FALSE)
+
+
+   
+   
+```

@@ -1,0 +1,236 @@
+---
+title: "Flowering 6CV autmn sown treatments"
+author: "CT"
+date: "26.08.2017"
+output:
+  word_document: default
+  pdf_document: default
+  html_document: default
+---
+Aim: to calculate the percent of plants in specific open flower phase for blog purpose.
+It is a  subset of S7 in open flower. 
+
+ATTENTION : this script has to run as continuous as the final dataframe generated (df_flower) is saved for further analysis and other scripts 
+
+```{r loadLibraries}
+library(tidyr)
+library (dplyr)
+library (ggplot2)
+library(agricolae)
+library(knitr)
+library (lubridate)
+library (scales)
+
+```
+Read file and adjust formats 
+
+```{r loadFile}
+
+setwd("C:\\Users\\EdCarmen\\Documents\\CarmenProjects2016\\GitSubclover\\BlogFlowIv2")
+
+getwd()
+
+#create file
+df_flower <- read.table("df_bud_flow_bur_simple.txt",header=TRUE)
+
+#colnames(df_flower)[1] <- "Cultivar" # fix bug of extra characters in name
+
+# convert to date format
+df_flower <- df_flower %>%
+mutate(Date=ymd(Date),SowingD=ymd(SowingD))
+       
+       #Percent=(S1+S2+S3+S4+S5)/5*100)
+
+str(df_flower)
+# head(df_flower)
+# tail(df_flower)
+```
+
+Check data 
+```{r}
+summary(df_flower)
+```
+
+Subset SowTreat S7 ( March 2016) 
+
+
+```{r}
+
+  #subset SowTreat, Variable(Open)
+
+df_A <- df_flower %>%
+subset(SowTreat=="S7")%>%
+subset(Variable=="Flowering" )
+  
+ #select columns of interest 
+df_B <- df_A%>%
+dplyr::select (Cultivar:Variable, Percent, Date)
+
+  
+# note that column flowering has three values for each DAS (3 merged categories) need to make the average of the 3. 
+df_B1<-df_B%>%
+  group_by(DAS,Date,Cultivar,SowTreat,Variable)%>%
+  summarise_each(funs(mean))
+
+write.table(df_B1, "df_Blog4.txt")
+#used this one to create Blog graph on 08.09.2017
+
+```
+
+
+
+
+
+Graph for all cultivars 
+
+```{r Graph, fig.height= 5, fig.width= 8}
+
+ df_B%>%
+  group_by(DAS,Date,Cultivar,SowTreat,Variable)%>%
+  summarise_each(funs(mean)) %>%
+  #select(Variable,Percent,Cultivar,Date,SowTreat)%>%
+  #filter(Variable=="Bud") %>%
+  ggplot(aes(x=DAS, y=Percent)) + 
+  geom_line(aes(colour=Cultivar)) +
+  #acet_grid(SowTreat~Cultivar, scales = "free")+
+  #facet_grid(Cultivar~., scales = "free")+
+  geom_abline(intercept = 50, slope = 0) +
+  theme_bw()+
+  theme(axis.text.x = element_text(angle = 90, hjust = 1))
+
+
+```
+
+Select Monti, Woog and Leura to compare and use date as x Axis
+
+
+```{r}
+
+ df_B%>%
+  mutate (Date= as.Date(Date))%>%
+  group_by(DAS,Date,Cultivar,SowTreat,Variable)%>%
+  summarise_each(funs(mean)) %>%
+  #select(Variable,Percent,Cultivar,Date,SowTreat)%>%
+  filter(Cultivar=="Monti"|Cultivar=="Woogenellup" 
+        |Cultivar=="Denmark" ) %>%
+  #filter(Cultivar=="Woogenellup")%>%
+  #filter(Cultivar=="Leura")%>%
+  ggplot(aes(x=Date, y=Percent)) + 
+  #geom_line(aes(colour=Cultivar)) +
+  geom_smooth (aes(colour=Cultivar),alpha=0.01)+
+  #acet_grid(SowTreat~Cultivar, scales = "free")+
+  #facet_grid(Cultivar~., scales = "free")+
+  geom_abline(intercept = 20, slope = 0) +
+  theme_bw()+
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))+
+  xlab("Date ") +
+  ylab("Percent of plants with open flowers (%)") +
+  
+  scale_y_continuous(limits = c(0, 100))+
+  scale_x_date(date_breaks = "1 week", 
+                 labels=date_format("%d-%m"),
+                 limits = as.Date(c('2016-08-22','2016-12-01')))
+  #scale_x_date(labels = date_format("%d-%m"))
+```
+
+If need to write the data as a table ... 
+
+
+```{r}
+#save final DF 
+
+
+
+```
+
+
+make it cumulative number of open flowers using df_B1
+
+
+
+```{r}
+
+
+# create an ID of each chunk
+df_temp <- df_B1 %>%
+  dplyr::select(-Block) %>%
+  mutate(codeID = as.factor(paste0(Plot)))
+
+# define unique factors to loop around
+codesNames <- unique(df_temp$codeID)
+
+# prepare final df to store data
+df_final <- data.frame()
+
+# loop
+for(i in 1:length(codesNames)) {
+  
+  df_sub <- data.frame() # empty df
+  
+  df_sub <- df_temp %>%
+    subset(codeID == codesNames[i]) %>% # segment one unique combination
+    mutate(codeID = factor(codeID)) %>%
+    arrange(DAS) %>%
+    mutate(Flo_cum = cumsum(Percent))%>%
+    mutate(CumulativePercent = Flo_cum/1)
+  
+  df_final <- rbind(df_final,df_sub)
+    
+  
+  df_final <- rbind(df_final,df_sub)
+  
+}
+
+summary(df_final)
+
+
+
+```
+
+
+then graph the cumulative until 100 % of plants with flower 
+
+```{r}
+
+df_C <- df_final %>%
+  subset(Flo_cum > -1 & Flo_cum < 105)
+
+
+#save final DF 
+
+write.table(df_C, "df_flowBlog3.txt")
+
+df_C%>%
+  mutate (Date= as.Date(Date))%>%
+  group_by(DAS,Date,Cultivar,SowTreat,Variable)%>%
+  summarise_each(funs(mean)) %>%
+  #select(Variable,Percent,Cultivar,Date,SowTreat)%>%
+  filter(Cultivar=="Monti"|Cultivar=="Woogenellup" 
+        |Cultivar=="Denmark" ) %>%
+  #filter(Cultivar=="Woogenellup")%>%
+  #filter(Cultivar=="Leura")%>%
+  ggplot(aes(x=Date, y=Flo_cum)) + 
+  #geom_line(aes(colour=Cultivar)) +
+  geom_smooth (aes(colour=Cultivar),alpha=0.01)+
+  #acet_grid(SowTreat~Cultivar, scales = "free")+
+  #facet_grid(Cultivar~., scales = "free")+
+  geom_abline(intercept = 20, slope = 0) +
+  theme_bw()+
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))+
+  xlab("Date ") +
+  ylab("Percent of plants with open flowers (%)") +
+  
+  scale_y_continuous(limits = c(0, 150))+
+
+  scale_x_date(date_breaks = "1 week", 
+                 labels=date_format("%d-%m"),
+                 limits = as.Date(c('2016-08-22','2016-12-01')))
+  #scale_x_date(labels = date_format("%d-%m"))
+
+```
+
+
+End of this script.
+
+
+

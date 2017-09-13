@@ -1,0 +1,104 @@
+
+---
+title: "ThermalTime"
+author: "CT"
+date: "Friday, January 01, 2016"
+output: html_document
+---
+
+
+```{r}
+library(tidyr)
+library (dplyr)
+library (ggplot2)
+library (lubridate)
+```
+
+Note: the file is called HistoricMeanTemp but actually contains the hobologger data Iversen 2
+
+```{r, load file}
+
+setwd("C:\\Users\\EdCarmen\\Documents\\CarmenProjects2016\\GitSubclover\\EmergencePoukawa")
+getwd()
+
+df_file <- read.table("SoilTempPo.txt", header=TRUE)
+
+head(df_file)
+
+#keep this scirpt for the real weather data
+
+
+str(df_file)
+df_file<- df_file%>%
+  mutate(Date=dmy(Date))
+str(df_file)
+
+```
+
+
+Then simply graph it! 
+
+
+
+
+
+```{r, fig.height=5, fig.width=8}
+
+
+ df_file %>%
+  #filter(year %in% 2015:2017) %>%
+  group_by(Date) %>%
+ summarise_each(funs(mean)) %>%
+  ggplot(aes(x=Date, y= TempSoil10mm))  +
+  #geom_point(colour= "darkblue", alpha=0.2) +
+  geom_line()+
+  #stat_smooth(level = 0.9, size = 1, colour="white") + 
+  theme_bw() +
+ xlab("Date") + 
+  ylab(expression(Daily~mean~soil~temperature~~"( "*C^"o"*")"))+
+  scale_x_date(date_breaks = "3 month", 
+                 date_labels = "%B",
+                 limits = as.Date(c('2016-02-01','2017-05-07')))
+
+
+
+
+```
+
+
+Calculate accumulated TT
+
+```{r}
+
+df_file <- df_file%>%
+group_by(Date) %>%
+summarise_each(funs(mean))%>%
+  mutate(TT = cumsum(TempSoil10mm))%>%
+ # dplyr::select(-hour,-Air)
+  dplyr::select(-TempSoil10mm) # 
+
+write.table(df_file, "ThermalSumSoilPo.txt")
+
+```
+
+
+Graph it 
+
+
+```{r graph}
+
+df_file %>% 
+ggplot(aes(x=Date, y= TT)) +
+   labs(y="Accumulated Thermal time (DCd)",x="Date")+ geom_line()+
+  theme_bw()
+
+```
+
+Make a graph Soil and Air temperature next script 
+
+```{r}
+
+
+
+```
+

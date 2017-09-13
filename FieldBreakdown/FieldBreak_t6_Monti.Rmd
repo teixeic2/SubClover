@@ -1,0 +1,167 @@
+---
+title: "Hardseeds breakdown field"
+author: "CT"
+date: 07.09.2016"
+output:
+  word_document: default
+  
+---
+Purpose : 
+This script reads the data from the field seed hardness breakdown generated in script 2  (buried mesh bags for Monti )
+ 
+
+```{r loadLibraries}
+library (lubridate)
+library(tidyr)
+library (dplyr)
+library (ggplot2)
+library(agricolae)
+library(knitr)
+library(rgr)
+```
+
+Read file and check data  
+```{r, loadFile}
+setwd("C:\\Users\\EdCarmen\\Documents\\CarmenProjects2016\\Gitsubclover\\FieldBreakdown")
+getwd()
+
+#create file
+df_seed <- read.table("FieldBreakdown.txt",header=TRUE)
+head(df_seed)
+summary(df_seed)
+
+df_seed %>%
+  filter(Plot==1)
+
+
+
+```
+
+Adjust formats 
+```{r}
+# change format with basic R 
+#df_seed$Date <- dmy(df_seed$Date)
+
+
+df_seed <- df_seed %>%
+   mutate(Plot = as.factor(Plot), Block = as.factor(Block)) %>%
+  mutate(Germinated = as.numeric(Germinated)) %>%
+  mutate(DAB = as.numeric(DAB))%>%
+  mutate(PercCumGerm = as.numeric(PercCumGerm))
+
+  
+  
+
+str(df_seed) # check formats
+
+```
+
+Select the rows of interest here . Call for cultivar Monti 
+
+```{r, fig.height=5, fig.width=10}
+#subset Cultivar
+
+df_L <-df_seed %>%
+subset(Cultivar=="Monti")
+
+
+```
+
+change names of variables for x and y 
+```{r}
+
+df_L1<-df_L %>% 
+group_by(Cultivar,Plot, Block) %>%
+  #summarise_each(funs(mean)) %>%
+  mutate(y=PercCumGerm,x=DAB) %>%
+  dplyr::select(-DAB, -PercCumGerm, -Plot)
+
+#str (df_A1)
+```
+
+
+Check datapoints and Then try to fit lm 
+
+
+```{r}
+
+df_L1 %>%
+  dplyr::select(Cultivar, Block, x,y)%>%
+  ggplot( aes (x=x, y=y), colour = Block)+
+  geom_point(alpha=0.8, size= 3)+
+  theme_bw()
+  
+          
+```
+
+Adjust y axis to 40 for Monti
+```{r}
+df_L1 %>%
+dplyr::select(Cultivar, Block, x,y)%>%
+ggplot(aes(x=x, y=y)) +
+  geom_point(alpha=0.8, size= 3) +
+  #geom_smooth(colour="red")+
+  #stat_smooth(level = 0.9, size = 1, colour="white") + 
+  theme_bw() +
+  xlab(expression(Days~"(days)")) + 
+  ylab("% germinated seeds") +
+  facet_grid(.~Block, scales="free")+
+  theme(text = element_text(size=12))+
+ scale_x_continuous(limits = c(0,600))+
+  scale_y_continuous(limits = c(0,40))
+
+```
+use dataframe df_L1 
+
+```{r}
+
+require(ggplot2)
+require(plyr)
+require(dplyr)
+
+lm_eqn = function(df){
+  m = lm(y ~ x, df);
+  eq <- substitute(italic(y) == a + b %.% italic(x)*","~~italic(r)^2~"="~r2, 
+                   list(a = format(coef(m)[1], digits = 2), 
+                        b = format(coef(m)[2], digits = 2), 
+                        r2 = format(summary(m)$r.squared, digits = 3)))
+  as.character(as.expression(eq));                 
+}
+
+#use all datapoints 
+df <- df_L1 %>%
+  dplyr::select(Cultivar, Plot, Block, y, x) %>%
+  group_by(Cultivar, Block, Plot) 
+  
+
+
+eq <- ddply(df,.(Cultivar),lm_eqn)
+
+yx<-quantile(df$y,0.75)
+xn<- quantile(df$x,0.25)
+
+p <- ggplot(data = df, aes(x = x, y = y)) +
+  geom_smooth(method = "lm", se=FALSE, color="black", formula = y ~ x) +
+  geom_point(aes(colour = factor(Block)), size=3) + scale_shape(solid = FALSE)+ 
+  
+  theme_bw()+
+  scale_x_continuous(limits = c(0,600))+
+  scale_y_continuous(limits = c(0,40))
+
+p1 <- p + geom_text(data=eq,aes(x = xn, y = yx,label=V1), parse = TRUE, inherit.aes=FALSE) + 
+  facet_grid(Cultivar~.,scales="free")
+  
+p1
+
+
+
+
+```
+
+```{r}
+#get statistical summary here 
+summary(lm(y ~ x, df))
+```
+
+End of this script . 
+Carry on with other cultivars. 

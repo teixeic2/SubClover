@@ -1,0 +1,123 @@
+---
+title: "Seed Breakdown  Test base line corrected"
+author: "CT"
+date: "22.08.2017"
+output: html_document
+---
+Purpose: read file matrix of baselined corrected spectra of Breakdown (test for saville analysis)
+
+```{r setup, include=FALSE, loadlibraires}
+#knitr::opts_chunk$set(echo = TRUE)
+library(tidyr)
+library (dplyr)
+library (ggplot2)
+library(agricolae)
+library(knitr)
+library (lubridate)
+library(scales)
+
+```
+
+
+
+```{r readData}
+setwd("C:\\Users\\EdCarmen\\Documents\\CarmenProjects2016\\GitSubclover\\SpectraBreakSaville")
+getwd()
+
+#create file
+df_sp <- read.table("MatrixBreakBaseL.txt",header=TRUE)
+
+#head(df_sp)
+
+summary(df_sp)
+```
+
+
+
+```{r}
+df_sp
+```
+
+
+## Graph it 
+
+```{r, fig.height=5, fig.width=10}
+
+df_sp %>%
+  ggplot(aes(x=Wavelength,y=Absorbance))+
+  geom_line(aes(colour=Cultivar))+
+  theme_bw()+
+scale_x_continuous(breaks=seq(min(df_sp$Wavelength),max(df_sp$Wavelength),100))+
+  #labs(x=" Wavelength", y=" Absorbance")+
+  #scale_color_manual(values=c("#333333", "#9999CC", "#CC3300"))+
+  #facet_wrap(~IncubationDays,scale="free")+
+  #facet_wrap(~Cultivar,scale="free")+
+  facet_grid(IncubationDays ~.) +
+  theme_bw()+
+scale_x_continuous(breaks=seq(min(df_sp$Wavelength),max(df_sp$Wavelength),400))+
+  scale_x_reverse()+
+ # scale_x_reverse(lim=c(650,4000))+
+  theme(axis.text.x = element_text(angle = 90, hjust = 1)) +
+  expand_limits(y=c(0,0.2)) +
+  geom_abline(intercept = 0.1, slope = 0)
+  #geom_vline(intercept = 1000, slope = 0)
+    #scale_x_date(labels = date_format("%b-%Y"))
+
+
+```
+
+
+
+Graph the effect of temperature 
+
+
+```{r, fig.height=4, fig.width=8}
+
+df_sp %>%
+     filter( IncubationDays != "42")%>%
+  ggplot(aes(x=Wavelength,y=Absorbance))+
+  geom_line(aes(colour=factor(IncubationDays)))+
+  theme_bw()+
+scale_x_continuous(breaks=seq(min(df_sp$Wavelength),max(df_sp$Wavelength),100))+
+  #labs(x=" Wavelength", y=" Absorbance")+
+  #scale_color_manual(values=c("#333333", "#9999CC", "#CC3300"))+
+  #facet_wrap(~IncubationDays,scale="free")+
+  #facet_wrap(Cultivar~,scale="free")+
+  facet_grid(~Cultivar) +
+  theme_bw()+
+#scale_x_continuous(breaks=seq(min(df_sp$Wavelength),max(df_sp$Wavelength),400))+
+  scale_x_reverse()+
+ scale_x_reverse(lim=c(3000,2800))+
+  theme(axis.text.x = element_text(angle = 90, hjust = 1)) +
+  #expand_limits(y=c(0,0.05)) +
+  ylim(0, 0.06)+
+  geom_abline(intercept = 0.02, slope = 0)
+  #geom_vline(intercept = 1000, slope = 0)
+    #scale_x_date(labels = date_format("%b-%Y"))
+```
+
+
+```{r, fig.height=5, fig.width=10}
+
+df_sp %>%
+  
+  ggplot(aes(x=Wavelength,y=Absorbance))+
+  geom_line(aes(colour=IncubationDays))+
+  #geom_line(aes(colour= factor(IncubationDays)))+
+  scale_colour_gradient(low="red")+
+    theme_bw()+
+   #scale_x_continuous(breaks=seq(min(df_sp$Wavelength),max(df_sp$Wavelength),400))+
+  scale_x_reverse()+
+ # scale_x_reverse(lim=c(650,4000))+
+  theme(axis.text.x = element_text(angle = 90, hjust = 1)) +
+  expand_limits(y=c(0,0.2)) +
+  geom_abline(intercept = 0.1, slope = 0)
+  #geom_vline(intercept = 1000, slope = 0)
+    #scale_x_date(labels = date_format("%b-%Y"))
+
+
+
+```
+
+
+#

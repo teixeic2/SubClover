@@ -1,0 +1,138 @@
+---
+title: "Flowering 6CV autmn sown treatments"
+author: "CT"
+date: "26.08.2017"
+output:
+  word_document: default
+  pdf_document: default
+  html_document: default
+---
+Aim: to calculate the percent of plants in specific open flower phase for blog purpose.
+It is a  subset of S7 in open flower. 
+
+ATTENTION : this script has to run as continuous as the final dataframe generated (df_flower) is saved for further analysis and other scripts 
+
+```{r loadLibraries}
+library(tidyr)
+library (dplyr)
+library (ggplot2)
+library(agricolae)
+library(knitr)
+library (lubridate)
+
+```
+Read file and adjust formats 
+
+```{r loadFile}
+
+setwd("C:\\Users\\EdCarmen\\Documents\\CarmenProjects2016\\GitSubclover\\BlogFlowIv2")
+
+getwd()
+
+#create file
+df_flower <- read.table("F_Flower.txt",header=TRUE)
+
+colnames(df_flower)[1] <- "Cultivar" # fix bug of extra characters in name
+
+# convert to date format
+df_flower <- df_flower %>%
+mutate(Date=dmy(Date),SowingD=dmy(SowingD), 
+       Percent=(S1+S2+S3+S4+S5)/5*100)
+
+str(df_flower)
+head(df_flower)
+tail(df_flower)
+```
+
+Check data 
+```{r}
+summary(df_flower)
+```
+
+Subset SowTreat S7 ( March 2016) 
+
+
+```{r}
+
+  #subset SowTreat, Variable(Open)
+
+df_A <- df_flower %>%
+subset(SowTreat=="S7")%>%
+subset(Variable=="Petal" )
+  
+ #select columns of interest 
+df_B <- df_A%>%
+dplyr::select (Cultivar:Variable, Percent)
+
+  
+
+```
+Graph for all cultivars 
+
+```{r Graph, fig.height= 5, fig.width= 8}
+
+ df_B%>%
+  group_by(DAS,Date,Cultivar,SowTreat,Variable)%>%
+  summarise_each(funs(mean)) %>%
+  #select(Variable,Percent,Cultivar,Date,SowTreat)%>%
+  #filter(Variable=="Bud") %>%
+  ggplot(aes(x=DAS, y=Percent)) + 
+  geom_line(aes(colour=Cultivar)) +
+  #acet_grid(SowTreat~Cultivar, scales = "free")+
+  #facet_grid(Cultivar~., scales = "free")+
+  geom_abline(intercept = 50, slope = 0) +
+  theme_bw()+
+  theme(axis.text.x = element_text(angle = 90, hjust = 1))
+
+
+```
+
+Select Monti, Woog and Leura to compare and use date as x Axis
+
+
+```{r}
+
+ df_B%>%
+   group_by(DAS,Date,Cultivar,SowTreat,Variable)%>%
+  summarise_each(funs(mean)) %>%
+  #select(Variable,Percent,Cultivar,Date,SowTreat)%>%
+  filter(Cultivar=="Monti"|Cultivar=="Woogenellup" 
+        |Cultivar=="Denmark" ) %>%
+  #filter(Cultivar=="Woogenellup")%>%
+  #filter(Cultivar=="Leura")%>%
+  ggplot(aes(x=Date, y=Percent)) + 
+  #geom_line(aes(colour=Cultivar)) +
+  geom_smooth (aes(colour=Cultivar),alpha=0.01)+
+  #acet_grid(SowTreat~Cultivar, scales = "free")+
+  #facet_grid(Cultivar~., scales = "free")+
+  geom_abline(intercept = 20, slope = 0) +
+  theme_bw()+
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))+
+  xlab("Date ") +
+  ylab("Percent of plants with open flowers (%)") +
+  
+  scale_y_continuous(limits = c(0, 80))+
+  scale_x_date(date_breaks = "1 week", 
+                 #labels=date_format("ymd"),
+                 limits = as.Date(c('2016-08-20','2016-12-01')))
+ 
+```
+
+If need to write the data as a table ... 
+
+
+```{r}
+# save final DF
+write.table(df_B, "df_flowBlog.txt")
+
+```
+
+
+
+
+
+
+End of this script.
+
+
+

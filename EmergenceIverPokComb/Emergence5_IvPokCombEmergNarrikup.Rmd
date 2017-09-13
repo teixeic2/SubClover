@@ -1,0 +1,168 @@
+---
+title: "Emergence seedlings I2 and Pok graphs with Mean Soil Temp extended range "
+author: "CT"
+date: "17.08.2017"
+output: html_document
+---
+
+This script does this:
+
+-get dataframe combined with Iversen and Pok RAte  Emergence and mean soil Temp for Narrikup only between 5 and 15.60 degrees 
+- optimum mean Temp for Narrikup is 15.60  
+
+
+stopped here 
+```{r loadLibraries, warning=FALSE}
+library(tidyr)
+library(dplyr)
+library(ggplot2)
+library(agricolae)
+library(knitr)
+library(lubridate)
+library(mosaic)
+library(lattice)
+library (gridExtra)
+```
+
+get file 
+
+```{r loadFile}
+# Get dataframe from previous script (written table )
+setwd("C:\\Users\\EdCarmen\\Documents\\CarmenProjects2016\\GitSubclover\\EmergenceIverPokComb")
+getwd()
+
+#create file
+df_G <- read.table("RateEmerg_SoilTemp_IverPokComb.txt",header=TRUE)
+
+
+
+```
+
+select columns of interest and Adjust formats 
+```{r}
+
+#change formats
+df_G$Cultivar <- as.factor(df_G$Cultivar)
+df_G$Block <- as.factor(df_G$Block)
+df_G$Plot <- as.factor(df_G$Plot)
+df_G$Location <- as.factor(df_G$Location)
+
+#select columns 
+df_G <-df_G %>%
+dplyr:: select(Plot,Block,Cultivar,SowTreat,meanTemp_Em, InvDAS50E,Location)
+
+
+str(df_G)
+
+# this is to "clean previous dfs : df_emerg4 <- NULL
+```
+
+Subset cultivars Narrikup between temperature 5 to max 15.6 
+
+```{r}
+
+#subset Cultivar
+
+df_N <-df_G %>%
+subset(Cultivar=="Narrikup")
+
+#subset Temperature range 
+df_N1 <-df_N %>%
+  subset (meanTemp_Em>5 & meanTemp_Em<15.6)
+
+str(df_N1)
+
+#remove SowingDate 1and 8  from both locations 
+df_N2 <- df_N1 %>%
+   subset (SowTreat=="S2"| SowTreat=="S3"|SowTreat=="S3"|SowTreat=="S4"|  SowTreat=="S5"|
+             SowTreat=="S6"|SowTreat=="S7") 
+          
+
+```
+
+
+
+```{r}
+
+
+df_N3 <-df_N2 %>%
+  dplyr::select(SowTreat,Cultivar, Plot, meanTemp_Em, InvDAS50E, Location) %>%
+  group_by(SowTreat,Cultivar, Location) %>%
+  summarise_each(funs(mean)) %>%
+  mutate(y=InvDAS50E,x=meanTemp_Em) %>%
+  dplyr::select(-meanTemp_Em, -InvDAS50E, -Plot)
+
+str(df_N3)
+
+```
+
+got the means here ... and graph it
+
+```{r, fig.height=5, fig.width=10, echo = FALSE}
+df_N3%>%
+ggplot(aes(x=x, y=y, colour=SowTreat, shape=Location))  +
+  geom_point(alpha=0.8, size= 3) +
+  #geom_smooth(colour="red")+
+  #stat_smooth(level = 0.9, size = 1, colour="white") + 
+  theme_bw() +
+  xlab(expression(Soil~temperature~~"("^"o"*"C)")) + 
+  ylab(" Mean Rate (1/ Days) to 50% emergence") +
+  facet_grid(.~Cultivar, scales="free")+
+  theme(text = element_text(size=12))+
+ scale_x_continuous(limits = c(0,25))+
+  scale_y_continuous(limits = c(0,0.25))
+
+
+# 
+
+```
+
+
+
+here get the equations for the Denmark subset (min to optimum)  
+
+```{r, fig.height=5,fig.width=10}
+require(ggplot2)
+require(plyr)
+require(dplyr)
+
+lm_eqn = function(df){
+  m = lm(y ~ x, df);
+  eq <- substitute(italic(y) == a + b %.% italic(x)*","~~italic(r)^2~"="~r2, 
+                   list(a = format(coef(m)[1], digits = 2), 
+                        b = format(coef(m)[2], digits = 2), 
+                        r2 = format(summary(m)$r.squared, digits = 3)))
+  as.character(as.expression(eq));                 
+}
+
+#use all datapoints 
+df <- df_N2 %>%
+  dplyr::select(SowTreat,Cultivar, Plot, meanTemp_Em, InvDAS50E, Location) %>%
+  group_by(SowTreat,Cultivar, Location) %>%
+  summarise_each(funs(mean)) %>%
+  mutate(y=InvDAS50E,x=meanTemp_Em) %>%
+  dplyr::select(-meanTemp_Em, -InvDAS50E)
+
+eq <- ddply(df,.(Cultivar),lm_eqn)
+
+yx<-quantile(df$y,0.75)
+xn<- quantile(df$x,0.25)
+
+p <- ggplot(data = df, aes(x = x, y = y)) +
+  #ggplot(data = df, aes(x=x, y=y, colour=SowTreat, shape=Location))+
+  #ggplot(aes(x=x, y=y, colour=SowTreat, shape=Location))
+  geom_smooth(method = "lm", se=FALSE, color="black", formula = y ~ x) +
+  geom_point(aes(colour = factor(Location)), size=5) + scale_shape(solid = FALSE)+ 
+  
+  theme_bw()+
+  scale_x_continuous(limits = c(0,25))+
+  scale_y_continuous(limits = c(0,0.25))
+
+p1 <- p + geom_text(data=eq,aes(x = xn, y = yx,label=V1), parse = TRUE, inherit.aes=FALSE) + 
+  facet_grid(Cultivar~.,scales="free")
+  
+p1
+```
+
+End of this script
+ 

@@ -1,0 +1,109 @@
+---
+title: "Spectra of S2All FTIR test"
+author: "CT"
+date: "21 March 2017"
+output: html_document
+#here files have already been baselined corrected in OPUS. Raw data is on folder Bionami Maatrix 25.04; worksheet Columns to R. In this script the analysis of wavenumber ranges and ANOVAS 
+---
+
+
+```{r setup, include=FALSE, loadlibraires}
+#knitr::opts_chunk$set(echo = TRUE)
+library(tidyr)
+library (dplyr)
+library (ggplot2)
+library(agricolae)
+library(knitr)
+library (lubridate)
+library(scales)
+library(hyperSpec)
+
+```
+
+
+```{r readData}
+setwd("C:\\Users\\EdCarmen\\Documents\\CarmenProjects2016\\GitSubclover\\Spectra_S2_Anovas")
+getwd()
+file <- read.table ("S2All.txt",  header = TRUE)
+
+summary (file)
+
+```
+Adjust formats 
+
+```{r}
+
+file1 <- file %>%
+mutate(
+    Plot = as.factor(Plot),
+    #wavelength = leave as integer for greaphics 
+    Block = as.factor(Block),
+    Cultivar = as.factor(Cultivar),
+    Hardness = as.numeric(Hardness),
+    Seed = as.factor(Seed),
+    wavelength=as.factor(wavelength)
+  )  %>%
+  group_by(Cultivar, Block, Plot,wavelength) %>%
+  summarise(Absorbance=mean(Absorbance)) %>%
+  mutate(wavelength=as.numeric(as.character(wavelength)))
+
+summary (file1)
+
+
+```
+
+Loop throup spectra
+
+
+```{r}
+# set limits
+mn<-min(file1$wavelength)
+mx<-max(file1$wavelength)
+wv<- unique(file1$wavelength)
+
+
+print(paste0("Loop from ",mn," to ", mx))
+
+data.all <- data.frame()
+
+#select the inteval of the spectra to analyse 
+for(i in seq(from=1, to=length(wv), by=1)) {
+  
+  #print(wv[i])
+  #print(paste0("Wavelength ",wv[i]))
+  
+  df <- file1 %>%
+  subset(wavelength == wv[i])
+  
+  my.anova <- aov(Absorbance ~ Cultivar + Block, data = df)
+  
+#  print(summary(my.anova))
+  
+  pVals <- summary(my.anova)[[1]][["Pr(>F)"]]
+  
+  this.data = data.frame(WL = wv[i], PV= pVals[1])
+  
+  data.all <- rbind(data.all, this.data)
+  
+}
+
+summary(data.all)
+
+
+
+#discover how to extract thge P value 
+```
+
+```{r}
+data.all %>%
+  ggplot(aes(x=WL,y=PV)) +
+  geom_line() +
+  theme_bw()+
+  geom_rect(data=NULL,aes(xmin=650,xmax=4000,ymin=0,ymax=0.05),fill="lightpink", alpha = 0.01) +
+  geom_abline(slope=0, intercept=0.05, linetype=2)+
+  scale_x_continuous(breaks = seq(650, 4000, by = 100))+
+  scale_x_reverse(breaks = seq(650, 4000, by = 100))+
+  theme(axis.text.x = element_text(angle = 90, hjust = 1)) +
+  xlab(expression(Wavenumber~"(cm"^"-1"*")"))+
+  ylab(expression(P~value ~"(P)"))
+```

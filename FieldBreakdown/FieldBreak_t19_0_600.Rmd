@@ -1,0 +1,183 @@
+---
+title: "Hardseeds breakdown field"
+author: "CT"
+date: 07.09.2016"
+output:
+  word_document: default
+  
+---
+Purpose : 
+This script reads the raw data from the field seed hardness breakdown (buried mesh bags) considering a zero starting point untill last day (~ 600) 
+  
+
+```{r loadLibraries}
+library (lubridate)
+library(tidyr)
+library (dplyr)
+library (ggplot2)
+library(agricolae)
+library(knitr)
+library(rgr)
+```
+
+Read file and check data 
+```{r, loadFile}
+setwd("C:\\Users\\EdCarmen\\Documents\\CarmenProjects2016\\Gitsubclover\\FieldBreakdown")
+getwd()
+
+#create file
+df_seed <- read.table("FieldBreakData0_600.txt",header=TRUE)
+head(df_seed)
+summary(df_seed)
+
+df_seed %>%
+  filter(Plot==1)
+
+
+
+```
+
+Adjust formats and calculate the percentage of germinated seeds 
+```{r}
+# change format with basic R 
+#df_seed$Date <- dmy(df_seed$Date)
+
+# change formats with dplyr 
+
+df_seed <- df_seed %>%
+  mutate(Plot = as.factor(Plot), Block = as.factor(Block)) %>%
+  mutate(Germinated = as.numeric(Germinated)) %>%
+  mutate(DAB = as.numeric(DAB))%>%
+  mutate(PercCumGerm = as.numeric(PercCumGerm))
+  
+
+#summary(df_seed) # explore values
+str(df_seed) # check formats
+# head(df_seed) # see to rows
+# tail(df_seed)
+
+# df_seed %>%
+#   filter(Plot==1)
+```
+
+Calculate and Graph the potential Hardseeds (hardseed = 100 - Propsoftseeds) 
+111 Days here was selected to be the first autumn measurement as the hardseeds percentage (compare with the laboratory results! )
+
+```{r, fig.height=5, fig.width=10}
+df_seed %>%
+  mutate(hardSeed = 100-PercCumGerm) %>%
+  #mutate(SowingD = dmy(SowingD)) %>%
+  filter(DAB == 111) %>%  #need to keep filter to get first and max hardseed percent
+  #mutate(Depth = factor(Depth,levels=c( "Above","Below"))) %>%
+  group_by(Cultivar) %>%
+  dplyr::select(hardSeed) %>%
+  summarise_each(funs(mean,sd)) %>%
+  ggplot(aes(x=Cultivar, y=mean, colour=factor(Cultivar), shape=factor(Cultivar))) +
+  geom_point() +
+  geom_line() +
+ #facet_grid(.~Depth) +
+  labs(x="DAB",y="Maximum Percentage of Hardseeds") +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1))+
+  geom_errorbar(aes(ymin=mean-sd/2,
+                    ymax=mean+sd/2))+
+  theme_bw()+
+  ylim(0,100)
+
+head(df_seed)
+
+summary(df_seed)
+
+```
+
+Select columns of interest 
+
+Calculate the cumulative number of germinated seeds 
+stopped here fix nujmber 
+
+```{r, warning=FALSE}
+
+ 
+g1 <-df_seed %>%
+  dplyr::select(-SowTreat, -SowingDate:-ReadingDate, - MeshBagburrs, -NumberSeedsPerBurr) 
+
+write.table(g1, "FieldBreakdown0_600.txt")
+```
+
+graph the Cummulative percentage of seedlings 
+
+
+```{r ,fig.height=5, fig.width= 10}
+
+
+
+
+g <- g1 %>%
+  #ungroup() %>%
+#mutate(Depth = factor(Depth,levels=c( "Above","Below"))) %>%
+  group_by(Cultivar, DAB) %>%
+  dplyr::select(PercCumGerm , DAB) %>%
+  summarise_each(funs(mean,sd))
+# then graph the means 
+g %>%
+ggplot(aes(x=DAB, y=mean, colour=Cultivar, shape=Cultivar)) +
+  geom_point() +
+  geom_line() +
+  #facet_grid(Depth~SowTreat) +
+  theme_bw()+
+  ylim(0,60)+
+  #geom_vline(xintercept = 5, linetype=2)+
+   labs(x="Field exposure Days",y="Cumulative Percentage of Germinated seeds")
+
+
+
+```
+
+
+Graph the opposite , percentage of hardseeds 
+
+```{r, fig.height=5, fig.width= 10}
+
+
+
+g2 <- g1 %>%
+ mutate(CumhardSeed = 1*(100-PercCumGerm)) %>%
+group_by(Cultivar, DAB) %>%
+  dplyr::select(CumhardSeed , DAB) %>%
+  summarise_each(funs(mean,sd)) 
+
+summary (g2) 
+
+g2 %>%
+  ggplot(aes(x=DAB, y=mean, colour=factor(Cultivar), shape=factor(Cultivar))) +
+  geom_point() +
+  geom_line() +
+ #facet_grid(.~Depth) +
+  labs(x="DAB",y="Percentage of Hardseeds") +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1))+
+  # geom_errorbar(aes(ymin=mean_sd/2,
+  #                   ymax=mean_sd/2))+
+  theme_bw()+
+  ylim(0,100)
+
+
+```
+
+```{r}
+
+
+g1 %>%
+  dplyr::select(Plot,PercCumGerm,Cultivar,DAB) %>%
+  #tidyr::spread(Depth, PercSoftCum) %>%
+  ggplot(aes(x=DAB,y=PercCumGerm))+
+  geom_point(aes(colour=factor(Cultivar))) +
+  stat_smooth(method = "lm") +
+  facet_grid(Cultivar~.)
+
+
+
+```
+
+This script ends here. 
+Analysis in script 2 
+
+

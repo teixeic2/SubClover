@@ -1,0 +1,141 @@
+
+---
+title: "Graph  Soil Temperature Mesh bag (sensor a 1)"
+author: "CT"
+date: "23.08.2017"
+output: html_document
+---
+
+Purpose : graph the soil temperatures recorded in S1 for the field breakdown experiment. Sensor a1.
+```{r}
+library(tidyr)
+library (dplyr)
+library (ggplot2)
+library (lubridate)
+library (scales)
+library(gridExtra)
+```
+
+Note: this file produces the graphs for soil  temperatures from hobologger data Iversen 2
+
+```{r, load file}
+
+setwd("C:\\Users\\EdCarmen\\Documents\\CarmenProjects2016\\GitSubclover\\FieldBreakdown")
+getwd()
+#read soil and Air data 
+df_file <- read.table("SoilTempMesh.txt", header=TRUE)
+#df_Air <- read.table("RawWeaIv2.txt", header=TRUE)
+
+head(df_file)
+#head (df_Air)
+#keep this scirpt for the real weather data
+
+str(df_file)
+
+
+```
+Adjust formats 
+
+```{r}
+
+DF <- df_file %>%
+  mutate (Date= dmy(Date),
+          TempSoilA1 = as.numeric(TempSoilA1),
+          DOT = as.numeric(DOT),
+          Season = as.factor(Season))
+```
+
+
+Then graph soil 
+ 
+```{r, fig.height=5, fig.width= 10, Soiltemp_mean}
+
+
+DF  %>%
+  #group_by(Date) %>%
+  #summarise_each(funs(mean)) %>%
+  ggplot(aes(x=Date, y= TempSoilA1))  +
+  geom_point(shape = factor("Season"), alpha=0.1) +
+  geom_line(colour= "black")+
+  #stat_smooth(level = 0.9, size = 1, colour="white") + 
+  theme_bw() +
+  xlab("Date (Month-Year)") + 
+  ylab(expression(Mean~Daily~soil~temperature~~"("^"o"*"C)"))+
+  theme(text = element_text(size=10))+
+  scale_x_date(date_breaks = "3 month", 
+                 #date_labels = "%B "
+                 limits = as.Date(c('2016-02-25','2017-08-22')))+
+  scale_x_date(labels=date_format("%B-%Y"))
+
+
+
+```
+
+then graph Air 
+
+```{r, fig.height=5, fig.width=8}
+
+
+ df_Air %>%
+  mutate(Date = dmy(Date))%>% #(need to reformat date here)
+  #filter(year %in% 2015:2017) %>%
+  group_by(Date) %>%
+  summarise_each(funs(mean))%>%
+  ggplot(aes(x=Date, y= MeanTt))  +
+  #geom_point(colour= "darkblue", alpha=0.2) +
+  geom_line(colour= "blue")+
+  #stat_smooth(level = 0.9, size = 1, colour="white") + 
+  theme_bw() +
+  xlab("Date") + 
+  theme(text = element_text(size=10))+
+  ylab(expression(Mean~air~temperature~~"("^"o"*"C)"))+
+  scale_x_date(date_breaks = "3 month", 
+                 date_labels = "%B",
+                 limits = as.Date(c('2015-06-01','2017-07-07')))
+
+
+
+
+```
+
+
+then create an object g2 for the grid 
+```{r}
+g2 <-df_Air %>%
+  mutate(Date = dmy(Date))%>% #(need to reformat date here)
+  #filter(year %in% 2015:2017) %>%
+  group_by(Date) %>%
+  summarise_each(funs(mean))%>%
+  ggplot(aes(x=Date, y= MeanTt))  +
+  #geom_point(colour= "darkblue", alpha=0.2) +
+  geom_line(colour= "blue")+
+  #stat_smooth(level = 0.9, size = 1, colour="white") + 
+  theme_bw() +
+ xlab("Date") + 
+  ylab(expression(Mean~air~temperature~~"("^"o"*"C)"))+
+  theme(text = element_text(size=10))+
+  scale_x_date(date_breaks = "3 month", 
+                 date_labels = "%B",
+                 limits = as.Date(c('2015-06-01','2017-07-07'))) 
+
+
+
+```
+
+
+Then create a grid with two graphs 
+
+```{r}
+
+
+grid.arrange(g2, g1)
+
+
+
+```
+
+
+
+then continue in next script AirSoilTempCorrelat....
+
+
