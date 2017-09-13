@@ -24,7 +24,7 @@ Read File
 
 setwd("C:\\Users\\EdCarmen\\Documents\\CarmenProjects2016\\Gitsubclover\\SeedYieldPok")
 getwd()
-file <- read.table("SeedBurrYieldPok.txt",header=TRUE)
+file <- read.table("SeedBurrYieldPok2.txt",header=TRUE)
 head(file)
 summary(file)
 ```
@@ -95,10 +95,43 @@ dodge_x <- position_dodge(width = 0.9)
   theme_grey(base_size = 16) +
     theme_bw()+
   facet_grid(Depth~SowTreat, scales="free") +
-    labs(y= "Seed Number per m2")+
+    labs(y= "Seed Number per 1 m2")+
 theme(axis.text.x=element_text(angle = +90, hjust = 0))+
   theme(text = element_text(size = 14))
 
+
+```
+
+graph as per SowTreat
+
+```{r}
+#barplot for seed density  
+#The palette with grey:
+cbPalette <- c("#999999", "#666666", "#56B4E9", "#009E73", "#D55E00", "#0072B2","#999999", "#E69F00", "#56B4E9", "#009E73", "#D55E00", "#0072B2","#56B4E9", "#009E73")
+
+
+# define position of bar and errorbar
+dodge_x <- position_dodge(width = 0.9)
+
+# splitting and df due bug in tidyr (https://github.com/hadley/tidyr/issues/32)
+  df %>%
+  #tidyr::spread(Depth,SeedsNo_m2) %>%
+  #mutate(SeedsNo_m2= Down/(Down+Up)*100) %>%
+  #mutate(Depth = factor(Depth,levels=c( "Above","Below"))) %>%
+
+  group_by(SowTreat) %>%
+  summarise_each(funs(mean,sd)) %>%
+  ggplot(aes(x=SowTreat, y=(SeedsNo_m2_mean), fill=SowTreat)) +
+  geom_bar(stat="identity",position = dodge_x) +
+  geom_errorbar(aes(ymin=SeedsNo_m2_mean-SeedsNo_m2_sd/2,
+                    ymax=SeedsNo_m2_mean+SeedsNo_m2_sd/2),
+                width=0.25, size=0.3,position=dodge_x)   +
+  theme_grey(base_size = 16) +
+    theme_bw()+
+  #facet_grid(Depth~SowTreat, scales="free") +
+    labs(y= "Seed Number per 1 m2")+
+theme(axis.text.x=element_text(angle = 0, hjust = 0))+
+  theme(text = element_text(size = 14))
 
 ```
 

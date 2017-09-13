@@ -5,7 +5,7 @@ author: "CT"
 date: "05.07.2017"
 output: html_document
 ---
-
+Purpose: Correlate soil and air temperature from Iversen 2 collected data 
 
 ```{r}
 library(tidyr)
@@ -84,7 +84,7 @@ the use geom ab line to see a stright line
 ```{r, fig.height=5, fig.width=8}
 
 df_AS %>%
- select(Date, TempSoil10mm, MeanTt)%>%
+ #select(Date, TempSoil10mm, MeanTt)%>%
  # summarise_each(funs(mean)) %>%
   ggplot(aes(x=MeanTt, y= TempSoil10mm))  +
   geom_point(colour= "darkblue", alpha=0.2) +
@@ -131,6 +131,6 @@ grid.arrange(g2, g1)
 
 
 
-then continue in next script AirSoilTempCorrelat....
+End of the script 
 
 

@@ -115,7 +115,8 @@ plot(h)
 bl <- spc.rubberband(h[,, 400 ~ 4400], noise = 300, df = 200) # note obj has 3 dimensions
 plot(bl, add = TRUE, col = 2)
 
-plot (h[,, 400 ~ 4400] - bl)
+plot (h[,, 400 ~ 4400] - bl) 
+  
 
 
 ```

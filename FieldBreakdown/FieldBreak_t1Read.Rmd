@@ -8,7 +8,7 @@ output:
 ---
 Purpose : 
 This script reads the raw data from the field seed hardness breakdown (buried mesh bags)
-It calculates the percentage of germinated seeds and accumulated percentage of seedlings  
+  
 
 ```{r loadLibraries}
 library (lubridate)
@@ -42,19 +42,22 @@ Adjust formats and calculate the percentage of germinated seeds
 # change format with basic R 
 #df_seed$Date <- dmy(df_seed$Date)
 
-# jeito 2 de trocar formato (usando dplyr)
+# change formats with dplyr 
+
 df_seed <- df_seed %>%
   mutate(Plot = as.factor(Plot), Block = as.factor(Block)) %>%
-#  mutate(Soft = as.numeric(Soft)) %>%
-  mutate(PropSoft = round(Germinated/NumberSeedsPerBag*100,digits=2))
+  mutate(Germinated = as.numeric(Germinated)) %>%
+  mutate(DAB = as.numeric(DAB))%>%
+  mutate(PercCumGerm = as.numeric(PercCumGerm))
+  
 
-summary(df_seed) # explore values
+#summary(df_seed) # explore values
 str(df_seed) # check formats
-head(df_seed) # see to rows
-tail(df_seed)
+# head(df_seed) # see to rows
+# tail(df_seed)
 
-df_seed %>%
-  filter(Plot==1)
+# df_seed %>%
+#   filter(Plot==1)
 ```
 
 Calculate and Graph the potential Hardseeds (hardseed = 100 - Propsoftseeds) 
@@ -62,9 +65,9 @@ Calculate and Graph the potential Hardseeds (hardseed = 100 - Propsoftseeds)
 
 ```{r, fig.height=5, fig.width=10}
 df_seed %>%
-  mutate(hardSeed = 100-PropSoft) %>%
+  mutate(hardSeed = 100-PercCumGerm) %>%
   #mutate(SowingD = dmy(SowingD)) %>%
-    filter(DAB == 111) %>%  #need to keep filter to get first and max hardseed percent
+  filter(DAB == 111) %>%  #need to keep filter to get first and max hardseed percent
   #mutate(Depth = factor(Depth,levels=c( "Above","Below"))) %>%
   group_by(Cultivar) %>%
   dplyr::select(hardSeed) %>%
@@ -86,53 +89,63 @@ summary(df_seed)
 
 ```
 
+Select columns of interest 
+
 Calculate the cumulative number of germinated seeds 
+stopped here fix nujmber 
 
 ```{r, warning=FALSE}
 
-g1 <- df_seed %>%
-  dplyr::select(-SowingDate) %>% #
-  group_by(Cultivar, Plot) %>% # need to keep level in which cumulation occurs
-  arrange(DAB) %>% # need to tell which factor to accumulate within
-  mutate(Germ_cum = cumsum(Germinated)) %>%
-  mutate(PercSoftCum=Germ_cum/NumberSeedsPerBag)%>%
-  group_by(Cultivar, DAB) %>%
-  summarise_each(funs(mean)) 
+ 
+g1 <-df_seed %>%
+  dplyr::select(-SowTreat, -SowingDate:-ReadingDate, - MeshBagburrs, -NumberSeedsPerBurr) 
+
+write.table(g1, "FieldBreakdown.txt")
 ```
 
 graph the Cummulative percentage of seedlings 
 
 
-```{r ,CreatePercentHard}
+```{r ,fig.height=5, fig.width= 10}
 
-summary (g1)
 
-# per round
-g1 %>%
-  ungroup() %>%
+
+
+g <- g1 %>%
+  #ungroup() %>%
 #mutate(Depth = factor(Depth,levels=c( "Above","Below"))) %>%
-ggplot(aes(x=DAB, y=100*(PercSoftCum), colour=Cultivar, shape=Cultivar)) +
+  group_by(Cultivar, DAB) %>%
+  dplyr::select(PercCumGerm , DAB) %>%
+  summarise_each(funs(mean,sd))
+# then graph the means 
+g %>%
+ggplot(aes(x=DAB, y=mean, colour=Cultivar, shape=Cultivar)) +
   geom_point() +
   geom_line() +
+  # geom_errorbar(aes(x=50,ymin=40,ymax=43,width=0.3, colour = "blue"))+ #LSD value
   #facet_grid(Depth~SowTreat) +
   theme_bw()+
+  theme(text = element_text(size=12))+
+  geom_errorbar(aes(ymin=mean-sd/2,
+                   ymax=mean+sd/2))+
   ylim(0,60)+
   #geom_vline(xintercept = 5, linetype=2)+
-   labs(x="Days",y="Cumulative Percentage of Seedlings")
+   labs(x="Burial period (days) ",y="Cumulative Percentage of Germination (%) ")
+  
 
 
 
 ```
 
 
+Graph the opposite , percentage of hardseeds 
+
+```{r, fig.height=5, fig.width= 10}
 
 
-```{r}
-
-summary (g1)
 
 g2 <- g1 %>%
- mutate(CumhardSeed = 100*(1-PercSoftCum)) %>%
+ mutate(CumhardSeed = 1*(100-PercCumGerm)) %>%
 group_by(Cultivar, DAB) %>%
   dplyr::select(CumhardSeed , DAB) %>%
   summarise_each(funs(mean,sd)) 
@@ -146,14 +159,10 @@ g2 %>%
  #facet_grid(.~Depth) +
   labs(x="DAB",y="Percentage of Hardseeds") +
   theme(axis.text.x = element_text(angle = 90, hjust = 1))+
-  geom_errorbar(aes(ymin=sd/2,
-                    ymax=sd/2))+
+  # geom_errorbar(aes(ymin=mean_sd/2,
+  #                   ymax=mean_sd/2))+
   theme_bw()+
   ylim(0,100)
-
-
-
-
 
 
 ```
@@ -162,21 +171,15 @@ g2 %>%
 
 
 g1 %>%
-  dplyr::select(Plot,PercSoftCum,Cultivar, SowTreat,DAB) %>%
+  dplyr::select(Plot,PercCumGerm,Cultivar,DAB) %>%
   #tidyr::spread(Depth, PercSoftCum) %>%
-  ggplot(aes(x=DAB,y=PercSoftCum))+
+  ggplot(aes(x=DAB,y=PercCumGerm))+
   geom_point(aes(colour=factor(Cultivar))) +
   stat_smooth(method = "lm") +
-  facet_grid(SowTreat~.)
+  facet_grid(Cultivar~.)
 
 
-#Check for outliers _Boxplot 
-# df_seed %>%
-#   ggplot(aes(x=Cultivar, y=Soft, colour=factor(SowTreat)))+
-#   geom_boxplot() +
-#   geom_jitter() +
-#   theme(axis.text.x=element_text(angle = +90, hjust = 0))+
-#   facet_grid(SowTreat~Depth+Round)
+
 ```
 
 This script ends here. 

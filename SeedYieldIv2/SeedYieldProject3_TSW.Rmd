@@ -11,7 +11,7 @@ output:
   word_document: default
   pdf_document: default
   
-  #This script  reads the SeedBurrYield data and calculates the TSW (g)
+  #Aim: this script  reads the SeedBurrYield data and calculates the TSW (g)
 ---
 
 ```{r loadLibraries}

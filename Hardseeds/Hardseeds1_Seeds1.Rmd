@@ -1,10 +1,10 @@
 ---
-title: "Hardseeds Total Max 6CV"
+title: "Hardseeds Total Max 6CV and rounds "
 author: "CT"
 date: "Thursday, 22 September , 2015"
 output: pdf_document
 ---
-
+This script aims to calculate the percentage of hardseeds over time 
 ```{r loadLibraries}
 library(tidyr)
 library (dplyr)
@@ -15,7 +15,7 @@ library (lubridate)
 
 
 ```
-
+Read file and change formats 
 
 ```{r loadFile}
 setwd("C:\\Users\\EdCarmen\\Documents\\CarmenProjects2016\\Gitsubclover\\Hardseeds")
@@ -47,7 +47,7 @@ df_seed %>%
 
 
 
-Graph the potential Hardseededness 
+Graph the potential Hardseededness (first reading at 14 days)
 good ref font size control :http://stackoverflow.com/questions/25061822/ggplot-geom-text-font-size-control
 
 
@@ -83,7 +83,7 @@ summary(df_seed)
 ```
 
 
-
+Graph all the cultivars and stdeviation
 ```{r fig.height=5, fig.width=10}
 
 
@@ -119,38 +119,89 @@ summary(df_seed)
 
 
 
+Here make a loop to calculate the cumulative number of soft seeds  
+
+Then create a column called SoftCumProp to store the cumulative values of proportional soft seeds. 
 
 
 ```{r, warning=FALSE}
 
 
+# create an ID of each chunk
+df_temp <- df_seed %>%
+  dplyr::select(-Date) %>%
+  mutate(codeID = as.factor(paste0(Plot,"_",Depth)))
+
+# define unique factors to loop around
+codesNames <- unique(df_temp$codeID)
+
+# prepare final df to store data
+df_final <- data.frame()
+
+# loop
+for(i in 1:length(codesNames)) {
+  
+  df_sub <- data.frame() # empty df
+  
+  df_sub <- df_temp %>%
+    subset(codeID == codesNames[i]) %>% # segment one unique combination
+    mutate(codeID = factor(codeID)) %>%
+    arrange(Round) %>%
+    mutate(Soft_cum = cumsum(Soft)) %>%
+    mutate(SoftCumProp = Soft_cum/max(SeedNumber))
+  
+  df_final <- rbind(df_final,df_sub)
+  
+}
+
+summary(df_final)
 
 
-g1 <- df_seed %>%
-  dplyr::select(-Date) %>% #
-  group_by(SowTreat,Cultivar,Depth, Plot) %>% # need to keep level in which cumulation occurs
-  arrange(Round) %>% # need to tell which factor to accumulate within
-  mutate(Soft_cum = cumsum(Soft)) %>%
-  mutate(PercSoftCum=Soft_cum/max(SeedNumber))%>%
-  group_by(SowTreat,Cultivar,Depth, Round) %>%
-  summarise_each(funs(mean)) 
+```
+
+Then graph SoftCumProp focusing on blocks 
+
+```{r,fig.width=12, fig.height=12}
+
+df_final %>%
+ggplot(aes(x=Round, y=SoftCumProp, colour=factor(Block))) +
+  geom_line() +
+  facet_grid(SowTreat+Depth~Cultivar) 
 
 
 
 ```
 
+Graph the mean Proportion of soft seeds per cultivar . 
+add a dashed line to indicate the scarification 
 
+```{r, fig.height= 5, fig.width=10}
+
+g2 <-df_final %>%
+  group_by(Cultivar,SowTreat,Depth, Round) %>%
+  dplyr::select(SoftCumProp) %>%
+  summarise_each(funs(mean,sd))
+g2 %>%  
+ggplot(aes(x=Round, y=mean, colour=factor(Cultivar), shape=factor(Cultivar))) +
+  geom_line() +
+  geom_point ()+
+  theme_bw()+
+  # changes axis labels
+  theme(axis.text = element_text(size = 8))+ 
+  geom_vline(xintercept = 98, linetype=2)+
+   labs(x="Days ",y="Cumulative Proportion of Soft Seeds ")+
+  facet_grid(Depth~SowTreat)
+  
+```
+
+This graphs shows the overall mean (above_below average) of maximum hardseeds. 
 
 ```{r, fig.height=4, fig.width=10}
 
-head(df_seed)
-  df_seed %>%
-  mutate(SumPropSoft = cumsum(PropSoft))
+
   
-  
-  
-  df_seed %>%
-  mutate(hardSeed = 100-PropSoft) %>%
+  df_final %>%
+  mutate(hardSeed = 1-SoftCumProp) %>%
   mutate(SowingD = dmy(SowingD)) %>%
     filter(Round == 14) %>%  #need to keep filter to get first and max hardseed percent
   #mutate(Depth = factor(Depth,levels=c( "Above","Below"))) %>%
@@ -161,12 +212,12 @@ head(df_seed)
   geom_point() +
   geom_line() +
  facet_grid(. ~ Cultivar) +
-  labs(x="Sowing Date",y="Maximum Percentage of Hardseeds") +
+  labs(x="Sowing Date",y="Mean proportion of Hardseeds") +
   theme(axis.text.x = element_text(angle = 90, hjust = 1))+
   geom_errorbar(aes(ymin=mean-sd/2,
                     ymax=mean+sd/2))+
   theme_bw()+
-  ylim(0,100)
+  ylim(0,1)
 
 
 
@@ -178,15 +229,9 @@ here looking cultivars individually
 
 ```{r, fig.height=5, fig.width=10}
 
-
-head(df_seed)
-  df_seed %>%
-  mutate(SumPropSoft = cumsum(PropSoft))
   
-  
-  
-  df_seed %>%
-  mutate(hardSeed = 100-PropSoft) %>%
+  df_final %>%
+  mutate(hardSeed = 1-SoftCumProp) %>%
   mutate(SowingD = dmy(SowingD)) %>%
     filter(Round == 14) %>%  #need to keep filter to get first and max hardseed percent
   mutate(Depth = factor(Depth,levels=c( "Above","Below"))) %>%
@@ -202,7 +247,7 @@ head(df_seed)
   geom_errorbar(aes(ymin=mean-sd/2,
                     ymax=mean+sd/2))+
   theme_bw()+
-  ylim(0,100)
+  ylim(0,1)
 
 #head(df_seed)
 
@@ -211,7 +256,7 @@ head(df_seed)
 ```
 
 
-
+Stopped documentation here for while (30.08.2017)
 
 
 
@@ -219,21 +264,26 @@ head(df_seed)
 
   # Create percent soft seeds 
 
-g1 <- df_seed %>%
+g1 <- df_final %>%
   dplyr::select(-Date) %>% #
-  group_by(SowTreat,Cultivar,Depth, Plot) %>% # need to keep level in which cumulation occurs
-  arrange(Round) %>% # need to tell which factor to accumulate within
-  mutate(Soft_cum = cumsum(Soft)) %>%
-  mutate(PercSoftCum=Soft_cum/max(SeedNumber))%>%
-  group_by(SowTreat,Cultivar,Depth, Round) %>%
+  group_by(SowTreat,Cultivar,Depth, Plot)%>% 
   summarise_each(funs(mean)) 
 
+summary (g1)
 # per round
+
+
+
+
+
+```
+
+```{r}
 g1 %>%
   ungroup() %>%
 mutate(Depth = factor(Depth,levels=c( "Above","Below"))) %>%
  filter(Cultivar == "Antas"| Cultivar == "Monti") %>%
-ggplot(aes(x=Round, y=100*(1-PercSoftCum), colour=Cultivar, shape=Cultivar)) +
+ggplot(aes(x=Round, y=100*(1-SoftCumProp), colour=Cultivar, shape=Cultivar)) +
   geom_point() +
   geom_line() +
   facet_grid(Depth~SowTreat) +
@@ -242,10 +292,6 @@ ggplot(aes(x=Round, y=100*(1-PercSoftCum), colour=Cultivar, shape=Cultivar)) +
   theme(axis.text = element_text(size = 8))+ 
   geom_vline(xintercept = 98, linetype=2)+
    labs(x="Days ",y="Cumulative Proportion Hardseeds")
-
-
-
-
 
 ```
 

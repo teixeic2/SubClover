@@ -1,4 +1,4 @@
-wavelength	spc
+wavelength	Absorbance
 4497.49600	0.02399
 4495.56740	0.02396
 4493.63880	0.02394

@@ -42,6 +42,7 @@ Then graph soil
 
 g1<- df_file %>%
   mutate(Date = dmy(Date))%>% #(need to reformat date here)
+  mutate(TempSoil10mm= as.numeric(TempSoil10mm))%>%
   #filter(year %in% 2015:2017) %>%
   group_by(Date) %>%
  summarise_each(funs(mean)) %>%

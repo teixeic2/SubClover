@@ -74,7 +74,7 @@ scale_x_continuous(breaks=seq(min(df_sp$Wavelength),max(df_sp$Wavelength),100))+
   #scale_color_manual(values=c("#333333", "#9999CC", "#CC3300"))+
   #facet_wrap(~IncubationDays,scale="free")+
   #facet_wrap(Cultivar~,scale="free")+
-  facet_grid(~Cultivar) +
+  facet_grid(~Incubation) +
   theme_bw()+
 #scale_x_continuous(breaks=seq(min(df_sp$Wavelength),max(df_sp$Wavelength),400))+
   scale_x_reverse()+

@@ -1,12 +1,12 @@
 ---
 title: "BurrBurialAnalysis Poukawa site"
 author: "CT"
-date: "Friday,2, June  2017"
+date: "02.062017"
 output: html_document
 #This script calculates burr yields from Poukawa experimental site 
 ---
 
-
+Purpose: to calculate the percentage of burr burial in Poukawa site and make the stats
 
 ```{r, warning=FALSE}
 #Load libraries 
@@ -17,7 +17,7 @@ library(agricolae)
 library(lubridate)
 ```
 
-Read File 
+Read File with raw data 
 
 ```{r, echo=FALSE}
 setwd("C:\\Users\\EdCarmen\\Documents\\CarmenProjects2016\\Gitsubclover\\BurrYieldBurPok")
@@ -27,7 +27,7 @@ head(file)
 summary(file)
 ```
 
-Calculations 
+Define formats here prior calculations 
 
 ```{r}
 
@@ -45,10 +45,9 @@ str(file)
 summary(file)
 
 ```
-Calculate the weight of individual burrs and calculate the number of total burrs 
+Calculate the weight of individual burrs and then  calculate the number of total burrs 
 
 ```{r}
-
 
 
 df <- file %>%
@@ -99,7 +98,7 @@ df_bur %>%
                 width=0.25, size=0.3,position=dodge_x)   +
   theme_grey(base_size = 16) +
     facet_grid(.~SowTreat) +
-    labs(y="% Buried burrs") +
+    labs(y="Percentage of Buried burrs (%)") +
   theme_bw()+
 theme(axis.text.x=element_text(angle = +89, hjust = 0.95, size = 12))
 
@@ -107,7 +106,7 @@ head(df_bur)
 ```
 
 
-Try another style 
+Try another graph style 
 
 
 ```{r,  fig.height= 5, fig.width=10 , warning=FALSE}}
@@ -155,11 +154,11 @@ head(df_bur)
 
 ```
 
-Do ANOVA simple as per D. Saville 
+Do ANOVA simple as per D. Saville here overview of the experiments (no filter )
 
 ```{r}
 
-#Filter  S1, S2, S3, S4, S6 , S7 
+#Filter  S1, S2, S3, S4, S5
 summary(df_bur)
 
 df_burANOVA <- df_bur #use to filter%>%
@@ -167,8 +166,7 @@ df_burANOVA <- df_bur #use to filter%>%
   #filter(SowTreat=="S2")
   #filter(SowTreat=="S3")
   #filter(SowTreat=="S4")
-  #filter(SowTreat=="S6")
-  #filter(SowTreat=="S7")
+  
 
 
 #-------------------------------------------------
@@ -183,19 +181,270 @@ summary(file.subset)
 
 ```
 
+summary of ANOVA overall SowTreat as factor 
+```{r}
+
+#ANOVA
+#my.anova <- aov(PropBurrBuried ~ Cultivar + Block, data = file.subset)
+my.anova <- aov(PropBurrBuried ~ SowTreat + Block, data = file.subset)
+summary(my.anova)
+
+```
+
+```{r}
+#Means separation after ANOVA
+(LSD.test(my.anova, c("SowTreat"), alpha= 0.05, p.adj="none")) 
+#(LSD.test(my.anova, c("Cultivar"), alpha= 0.05, p.adj="none"))
+```
+
+Analyse overall cultivar
+
+
+```{r}
+#Filter  S1, S2, S3, S4, S5
+summary(df_bur)
+
+df_burANOVA <- df_bur #use to filter%>%
+  #filter(SowTreat=="S1")
+  #filter(SowTreat=="S2")
+  #filter(SowTreat=="S3")
+  #filter(SowTreat=="S4")
+  
+
+
+#-------------------------------------------------
+# anova 
+file <- df_burANOVA
+
+
+file.subset <- file 
+
+head(file.subset)
+summary(file.subset)
+```
+
+Summary Anova cultivar
 
 ```{r}
 
 #ANOVA
 my.anova <- aov(PropBurrBuried ~ Cultivar + Block, data = file.subset)
-
+#my.anova <- aov(PropBurrBuried ~ SowTreat + Block, data = file.subset)
 summary(my.anova)
+
 ```
+
+
+mean separation cultivar
 
 ```{r}
 #Means separation after ANOVA
-(LSD.test(my.anova, c("Cultivar"), alpha= 0.05, p.adj="none")) 
+#(LSD.test(my.anova, c("SowTreat"), alpha= 0.05, p.adj="none")) 
+(LSD.test(my.anova, c("Cultivar"), alpha= 0.05, p.adj="none"))
+
 ```
+
+
+
+select individual sowing dates
+s1
+
+```{r}
+#Filter  S1, S2, S3, S4, S5
+summary(df_bur)
+
+df_burANOVA <- df_bur %>%
+  filter(SowTreat=="S1")
+  #filter(SowTreat=="S2")
+  #filter(SowTreat=="S3")
+  #filter(SowTreat=="S4")
+  
+#-------------------------------------------------
+# anova 
+file <- df_burANOVA
+
+
+file.subset <- file 
+
+head(file.subset)
+summary(file.subset)
+```
+
+anovas1
+```{r}
+#ANOVA
+my.anova <- aov(PropBurrBuried ~ Cultivar + Block, data = file.subset)
+#my.anova <- aov(PropBurrBuried ~ SowTreat + Block, data = file.subset)
+summary(my.anova)
+```
+
+
+mean separation s1
+```{r}
+
+#Means separation after ANOVA
+#(LSD.test(my.anova, c("SowTreat"), alpha= 0.05, p.adj="none")) 
+(LSD.test(my.anova, c("Cultivar"), alpha= 0.05, p.adj="none"))
+```
+
+S2
+
+```{r}
+#Filter  S1, S2, S3, S4, S5
+summary(df_bur)
+
+df_burANOVA <- df_bur %>%
+  filter(SowTreat=="S2")
+  #filter(SowTreat=="S2")
+  #filter(SowTreat=="S3")
+  #filter(SowTreat=="S4")
+  
+#-------------------------------------------------
+# anova 
+file <- df_burANOVA
+
+
+file.subset <- file 
+
+head(file.subset)
+summary(file.subset)
+```
+
+Anova s2
+```{r}
+#ANOVA
+my.anova <- aov(PropBurrBuried ~ Cultivar + Block, data = file.subset)
+#my.anova <- aov(PropBurrBuried ~ SowTreat + Block, data = file.subset)
+summary(my.anova)
+```
+
+mean separation S2
+```{r}
+#Means separation after ANOVA
+#(LSD.test(my.anova, c("SowTreat"), alpha= 0.05, p.adj="none")) 
+(LSD.test(my.anova, c("Cultivar"), alpha= 0.05, p.adj="none"))
+```
+
+S3
+
+```{r}
+#Filter  S1, S2, S3, S4, S5
+summary(df_bur)
+
+df_burANOVA <- df_bur %>%
+  filter(SowTreat=="S3")
+  #filter(SowTreat=="S2")
+  #filter(SowTreat=="S3")
+  #filter(SowTreat=="S4")
+  
+#-------------------------------------------------
+# anova 
+file <- df_burANOVA
+
+
+file.subset <- file 
+
+head(file.subset)
+summary(file.subset)
+```
+
+Anova S3
+
+```{r}
+#ANOVA
+my.anova <- aov(PropBurrBuried ~ Cultivar + Block, data = file.subset)
+#my.anova <- aov(PropBurrBuried ~ SowTreat + Block, data = file.subset)
+summary(my.anova)
+```
+
+mean separations S3
+```{r}
+#Means separation after ANOVA
+#(LSD.test(my.anova, c("SowTreat"), alpha= 0.05, p.adj="none")) 
+(LSD.test(my.anova, c("Cultivar"), alpha= 0.05, p.adj="none"))
+```
+
+
+S4 
+
+```{r}
+#Filter  S1, S2, S3, S4, S5
+summary(df_bur)
+
+df_burANOVA <- df_bur %>%
+  filter(SowTreat=="S4")
+  #filter(SowTreat=="S2")
+  #filter(SowTreat=="S3")
+  #filter(SowTreat=="S4")
+  
+#-------------------------------------------------
+# anova 
+file <- df_burANOVA
+
+
+file.subset <- file 
+
+head(file.subset)
+summary(file.subset)
+
+```
+anovaS4
+```{r}
+#ANOVA
+my.anova <- aov(PropBurrBuried ~ Cultivar + Block, data = file.subset)
+#my.anova <- aov(PropBurrBuried ~ SowTreat + Block, data = file.subset)
+summary(my.anova)
+
+```
+
+summary S4
+```{r}
+
+#Means separation after ANOVA
+#(LSD.test(my.anova, c("SowTreat"), alpha= 0.05, p.adj="none")) 
+(LSD.test(my.anova, c("Cultivar"), alpha= 0.05, p.adj="none"))
+```
+S5
+
+```{r}
+#Filter  S1, S2, S3, S4, S5
+summary(df_bur)
+
+df_burANOVA <- df_bur %>%
+  filter(SowTreat=="S5")
+  #filter(SowTreat=="S2")
+  #filter(SowTreat=="S3")
+  #filter(SowTreat=="S4")
+  
+#-------------------------------------------------
+# anova 
+file <- df_burANOVA
+
+
+file.subset <- file 
+
+head(file.subset)
+summary(file.subset)
+```
+S5 Anova
+
+```{r}
+
+#ANOVA
+my.anova <- aov(PropBurrBuried ~ Cultivar + Block, data = file.subset)
+#my.anova <- aov(PropBurrBuried ~ SowTreat + Block, data = file.subset)
+summary(my.anova)
+
+```
+
+S5 means 
+
+```{r}
+#Means separation after ANOVA
+#(LSD.test(my.anova, c("SowTreat"), alpha= 0.05, p.adj="none")) 
+(LSD.test(my.anova, c("Cultivar"), alpha= 0.05, p.adj="none"))
+```
+
 
 
 The chunks below were prototypes _ Transform checks (not using it now)
