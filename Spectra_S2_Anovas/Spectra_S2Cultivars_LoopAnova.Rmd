@@ -66,6 +66,8 @@ print(paste0("Loop from ",mn," to ", mx))
 
 data.all <- data.frame()
 
+counter <- 0 # for t test
+
 #select the inteval of the spectra to analyse 
 for(i in seq(from=1, to=length(wv), by=1)) {
   
@@ -81,7 +83,24 @@ for(i in seq(from=1, to=length(wv), by=1)) {
   
   pVals <- summary(my.anova)[[1]][["Pr(>F)"]]
   
-  this.data = data.frame(WL = wv[i], PV= pVals[1])
+  
+  
+  # T test when P<0.05
+  if(!is.nan(pVals[1]) & pVals[1] < 0.05) {
+  counter <- counter + 1
+  ttest <-  LSD.test(my.anova, c("Cultivar"), alpha= 0.05, p.adj="none")
+  lsd <- ttest$statistics[4]
+ # treats <- t(ttest$groups)[1,] # FIXME: in the case we need more info
+ # mSep <- t(ttest$groups)[3,]
+ # ttest
+
+  } else {
+    
+   lsd <- NA
+   
+  }
+  
+  this.data = data.frame(WL = wv[i], PV= pVals[1], LSD = lsd)
   
   data.all <- rbind(data.all, this.data)
   
@@ -89,9 +108,6 @@ for(i in seq(from=1, to=length(wv), by=1)) {
 
 summary(data.all)
 
-
-
-#discover how to extract thge P value 
 ```
 
 ```{r}
@@ -101,9 +117,30 @@ data.all %>%
   geom_line() +
   theme_bw()+
   geom_abline(slope=0, intercept=0.05, linetype=2)+
-  scale_x_continuous(breaks = seq(650, 4000, by = 100))+
-  scale_x_reverse(breaks = seq(650, 4000, by = 100))+
+   scale_x_reverse(breaks = seq(650, 4000, by = 100))+
   theme(axis.text.x = element_text(angle = 90, hjust = 1)) +
   xlab(expression(Wavenumber~"(cm"^"-1"*")"))+
   ylab(expression(P~value ~"(P)"))
 ```
+
+## T test 
+
+```{r}
+
+#Means separation after ANOVA
+#(LSD.test(my.anova, c( "SowTreat", "Depth"), alpha= 0.05, p.adj="none"))
+
+```
+
+
+write data frame as table for subsequent analysis 
+
+```{r}
+
+#write table in file 
+write.table(data.all, "WavePvalues.txt")
+getwd()
+```
+
+Then continue analysis in script 2 
+

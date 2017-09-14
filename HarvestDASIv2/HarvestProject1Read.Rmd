@@ -73,6 +73,16 @@ group_by(Cultivar, SowingD, SowTreat) %>%
 
 ```
 
+filter specific dates for each harvest 
+
+```{r}
+
+
+
+```
+
+
+
 Here overall anova for sowTreat and cultivar (overview here; individual SowTreat analysis in script 2 )
 ```{r ANOVA}
 

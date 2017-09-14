@@ -56,7 +56,7 @@ Subset a range of interest: between
 
 df_1200<-file1 %>%
   #subset range 
-  subset (wavelength<1200 & wavelength>1100)
+  subset (wavelength<1200 & wavelength>1000)
 
 ```
 
