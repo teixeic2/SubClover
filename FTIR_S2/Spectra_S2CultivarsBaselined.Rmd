@@ -84,6 +84,7 @@ file1 %>%
   dplyr::select(Cultivar,Absorbance, wavelength)%>%
   group_by(Cultivar,wavelength)%>%
   summarise_each(funs(mean))%>%
+  filter(Cultivar=="Monti"|Cultivar=="Woogenellup")%>%
   ggplot(aes(x=wavelength,y=Absorbance, colour=Cultivar))+
            geom_line()+
   theme_bw()+
@@ -106,13 +107,5 @@ file1 %>%
 ```
 End of this script. Analysis continue in script 2  
 
-```{r}
-
- 
-
-  
-
-
-```
 
 

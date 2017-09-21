@@ -160,5 +160,13 @@ p1 <- p + geom_text(data=eq,aes(x = xn, y = yx,label=V1), parse = TRUE, inherit.
 p1
 ```
 
+
+```{r}
+#get statistical summary here 
+summary(lm(y ~ x, df))
+```
+
+
+
 End of this script
 next script generate equations for each cultivar separately from 5 to 15.4-5 degrees. 

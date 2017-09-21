@@ -58,7 +58,7 @@ df_trifo %>% filter(Plot ==1) %>% summary()
   labs(y="Number of trifoliates",x="Days after sowing")+
     theme_bw()+
     #geom_abline(intercept = 6 slope = 0)
-  geom_abline(intercept = 4:6, slope = 0)
+  geom_abline(intercept = 5, slope = 0)
 
 ```
 

@@ -1,9 +1,9 @@
 ---
 title: "Spectra of S2All FTIR test"
 author: "CT"
-date: "21 March 2017"
+date: "17.09.2017"
 output: html_document
-#here files have already been baselined corrected in OPUS. Raw data is on folder Bionami Maatrix 25.04; worksheet Columns to R. In this script the analysis of wavenumber ranges and ANOVAS 
+#here files have already been baselined corrected in OPUS. Raw data is on folder Bionami Maatrix 25.04; worksheet Columns to R. In this script the analysis of wavenumber ranges and ANOVAS.
 ---
 
 
@@ -24,31 +24,31 @@ library(hyperSpec)
 ```{r readData}
 setwd("C:\\Users\\EdCarmen\\Documents\\CarmenProjects2016\\GitSubclover\\Spectra_S2_Anovas")
 getwd()
-file <- read.table ("S2All.txt",  header = TRUE)
 
-summary (file)
+info <- read.table ("S2All.txt",  header = TRUE)
+
+summary (info)
 
 ```
+```{r}
+str(info)
+```
+
+
 Adjust formats 
 
 ```{r}
 
-file1 <- file %>%
-mutate(
-    Plot = as.factor(Plot),
-    #wavelength = leave as integer for greaphics 
-    Block = as.factor(Block),
-    Cultivar = as.factor(Cultivar),
-    Hardness = as.numeric(Hardness),
-    Seed = as.factor(Seed),
-    wavelength=as.factor(wavelength)
-  )  %>%
-  group_by(Cultivar, Block, Plot,wavelength) %>%
-  summarise(Absorbance=mean(Absorbance)) %>%
-  mutate(wavelength=as.numeric(as.character(wavelength)))
+info_av <- info %>%
+  mutate(Plot=factor(Plot), Block=factor(Block), wavelength=factor(wavelength)) %>%
+    dplyr::select(-Seed) %>%
+  group_by(Plot, Cultivar,Block,wavelength) %>%
+  summarise_each(funs(mean)) %>%
+  mutate(wavelength=as.numeric(as.character(wavelength))) 
 
-summary (file1)
+summary(info_av)
 
+write.table(info_av, "Absorb_Per_WL.txt")
 
 ```
 
@@ -57,16 +57,16 @@ Loop throup spectra
 
 ```{r}
 # set limits
-mn<-min(file1$wavelength)
-mx<-max(file1$wavelength)
-wv<- unique(file1$wavelength)
+mn<-min(info_av$wavelength)
+mx<-max(info_av$wavelength)
+wv <- unique(info_av$wavelength)
 
 
-print(paste0("Loop from ",mn," to ", mx))
+##print(paste0("Loop from ",mn," to ", mx))
 
 data.all <- data.frame()
 
-counter <- 0 # for t test
+x <- 0 # for t test
 
 #select the inteval of the spectra to analyse 
 for(i in seq(from=1, to=length(wv), by=1)) {
@@ -74,7 +74,7 @@ for(i in seq(from=1, to=length(wv), by=1)) {
   #print(wv[i])
   #print(paste0("Wavelength ",wv[i]))
   
-  df <- file1 %>%
+  df <- info_av %>%
   subset(wavelength == wv[i])
   
   my.anova <- aov(Absorbance ~ Cultivar + Block, data = df)
@@ -84,15 +84,15 @@ for(i in seq(from=1, to=length(wv), by=1)) {
   pVals <- summary(my.anova)[[1]][["Pr(>F)"]]
   
   
-  
   # T test when P<0.05
   if(!is.nan(pVals[1]) & pVals[1] < 0.05) {
-  counter <- counter + 1
-  ttest <-  LSD.test(my.anova, c("Cultivar"), alpha= 0.05, p.adj="none")
-  lsd <- ttest$statistics[4]
+  
+  x <- x + 1
+  t_test <-  LSD.test(my.anova, c("Cultivar"), alpha= 0.05, p.adj="none")
+  lsd <- t_test$statistics[4]
+  
  # treats <- t(ttest$groups)[1,] # FIXME: in the case we need more info
  # mSep <- t(ttest$groups)[3,]
- # ttest
 
   } else {
     
@@ -100,17 +100,21 @@ for(i in seq(from=1, to=length(wv), by=1)) {
    
   }
   
-  this.data = data.frame(WL = wv[i], PV= pVals[1], LSD = lsd)
+  this.data = data.frame(WL = wv[i], PV = pVals[1], LSD = lsd)
   
   data.all <- rbind(data.all, this.data)
   
 }
 
-summary(data.all)
+x
 
 ```
 
 ```{r}
+summary(data.all)
+```
+
+```{r, warning=FALSE}
 data.all %>%
   ggplot(aes(x=WL,y=PV)) +
   geom_rect(data=NULL,aes(xmin=650,xmax=4000,ymin=0,ymax=0.05),fill="lightpink", alpha = 0.01) +
@@ -123,17 +127,9 @@ data.all %>%
   ylab(expression(P~value ~"(P)"))
 ```
 
-## T test 
+## Write data frame 
 
-```{r}
-
-#Means separation after ANOVA
-#(LSD.test(my.anova, c( "SowTreat", "Depth"), alpha= 0.05, p.adj="none"))
-
-```
-
-
-write data frame as table for subsequent analysis 
+- as table for subsequent analysis 
 
 ```{r}
 

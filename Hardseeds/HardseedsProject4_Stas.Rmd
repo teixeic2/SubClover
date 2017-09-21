@@ -107,11 +107,11 @@ summary(df_seedH)
 
 df_seedHS6 <- df_seedH %>%
   #filter(SowingD=="2015-06-24")
-  #filter(SowingD=="2015-07-28")
+  filter(SowingD=="2015-07-28")
   #filter(SowingD=="2015-09-15")
   #filter(SowingD=="2015-11-05")
   #filter(SowingD=="2016-02-17")
-  filter(SowingD=="2016-03-15")
+  #filter(SowingD=="2016-03-15")
 
 #data transformation many possibilities but logit worked well, however little difference between real and transformed numbers 
 
