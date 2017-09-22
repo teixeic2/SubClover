@@ -83,10 +83,24 @@ summary(df1)
 
 
 
+```{r}
+
+
+
+```
+
+
+
+
+
 Now go for Stats for variate Seed yield 
 Select columns to be used 
 
 Here only need to change df name as selection of fields were previously done. 
+
+
+
+
 
 ```{r}
 
@@ -138,9 +152,9 @@ Select :SowTreat or Depth or Cultivar
 ```{r}
 #ANOVA
 
-#my.anova <- aov(Seedskg_ha ~ Cultivar*SowTreat + Block, data = file.subset)
+my.anova <- aov(Seedskg_ha ~ Cultivar*SowTreat + Block, data = file.subset)
 #my.anova <- aov(Seedskg_ha ~ SowTreat*Depth + Block, data = file.subset)
-my.anova <- aov(Seedskg_ha ~ Cultivar*Depth + Block, data = file.subset)
+#my.anova <- aov(Seedskg_ha ~ Cultivar*Depth + Block, data = file.subset)
 #my.anova <- aov(Seedskg_ha ~ Depth + Block, data = file.subset)
 summary(my.anova)
 ```
@@ -206,9 +220,9 @@ ANOVA S1
 ```{r}
 #ANOVA
 
-#my.anova <- aov(Seedskg_ha ~ Cultivar*SowTreat + Block, data = file.subset)
+my.anova <- aov(Seedskg_ha ~ Cultivar + Block, data = file.subset)
 #my.anova <- aov(Seedskg_ha ~ SowTreat*Depth + Block, data = file.subset)
-my.anova <- aov(Seedskg_ha ~ Cultivar*Depth + Block, data = file.subset)
+#my.anova <- aov(Seedskg_ha ~ Cultivar*Depth + Block, data = file.subset)
 #my.anova <- aov(Seedskg_ha ~ Depth + Block, data = file.subset)
 summary(my.anova)
 ```
@@ -217,10 +231,10 @@ means S1
 ```{r}
 #Means separation after ANOVA
 #(LSD.test(my.anova, c( "SowTreat", "Depth"), alpha= 0.05, p.adj="none"))
-(LSD.test(my.anova, c("Cultivar","Depth"), alpha= 0.05, p.adj="none")) 
+#(LSD.test(my.anova, c("Cultivar","Depth"), alpha= 0.05, p.adj="none")) 
 #(LSD.test(my.anova, c( "Depth"), alpha= 0.05, p.adj="none"))
 #(LSD.test(my.anova, c( "SowTreat", "Cultivar"), alpha= 0.05, p.adj="none"))
-#(LSD.test(my.anova, c("Cultivar"), alpha= 0.05, p.adj="none")) 
+(LSD.test(my.anova, c("Cultivar"), alpha= 0.05, p.adj="none")) 
 ```
 S2 
 ```{r}

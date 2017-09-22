@@ -26,12 +26,12 @@ library(rgr)
 
 
 ```{r loadFile}
-setwd("C:\\Users\\EdCarmen\\Documents\\CarmenProjects2016\\Gitsubclover\\SeedYieldIv2")
+setwd("C:\\Users\\EdCarmen\\Documents\\CarmenProjects2016\\Gitsubclover\\SeedYieldPok")
 getwd()
 
 
 
-df_seedY <- read.table("SeedYieldIv2.txt",header=TRUE)
+df_seedY <- read.table("SeedYielPok2.txt",header=TRUE)
 head(df_seedY)
 summary(df_seedY)
 

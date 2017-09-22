@@ -153,7 +153,7 @@ df1<- file %>%
   df1 <- as.data.frame(df1)
 summary(df1)
 
-write.table(df1, "SeedYieldIv2.txt", row.names=FALSE)
+write.table(df1, "SeedYielPok2.txt", row.names=FALSE)
 
 ```
 
