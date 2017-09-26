@@ -85,7 +85,7 @@ head(df)
 Data visualisation: effects of sowing date and cultivar on TSW.
 
 
-```{r}
+```{r, fig.height=5, fig.width=10}
 
 #barplot for seed density  
 #The palette with grey:

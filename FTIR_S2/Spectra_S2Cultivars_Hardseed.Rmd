@@ -1,0 +1,251 @@
+---
+title: "Spectra of S2 FTIR test"
+author: "CT"
+date: "18.09.2017"
+output: html_document
+#here files have already been baselined corrected in OPUS. 
+#Raw data is on folder Bionami Maatrix 25.04; worksheet Columns to R.
+#In this script the analysis of wavenumber range 650 and 670 is performed. find peaks in this region   
+---
+
+
+```{r setup, include=FALSE, loadlibraires}
+#knitr::opts_chunk$set(echo = TRUE)
+library(tidyr)
+library (dplyr)
+library (ggplot2)
+library(agricolae)
+library(knitr)
+library (lubridate)
+library(scales)
+library(hyperSpec)
+
+```
+
+
+```{r readData}
+setwd("C:\\Users\\EdCarmen\\Documents\\CarmenProjects2016\\GitSubclover\\FTIR_S2")
+getwd()
+file <- read.table ("S2.txt",  header = TRUE)
+
+str (file)
+
+```
+Adjust formats 
+
+```{r}
+
+file1 <-file %>%
+mutate(
+    Plot = as.factor(Plot),
+    #wavelength = leave as integer for greaphics 
+    Block = as.factor(Block),
+    Cultivar = as.factor(Cultivar),
+    Hardness = as.numeric (Hardness),
+    Seed = as.factor(Seed)
+  )  
+
+str (file1)
+
+
+```
+Subset a range of interest
+
+
+```{r}
+
+df_1500<-file1 %>%
+  #subset range 
+  subset (wavelength==1500)
+
+```
+
+
+Graph wavenumber 742, 769, 1209, 1211, 1971, 3716
+
+
+```{r}
+
+df_1500%>%
+  dplyr::select(Cultivar,Absorbance, wavelength, Hardness)%>%
+  group_by(Cultivar)%>%
+  summarise_each(funs(mean))%>%
+  ggplot(aes(x=Absorbance,y=Hardness, colour=Cultivar, shape=Cultivar))+
+           geom_point(size=3)+
+  theme_bw()+
+#scale_x_continuous(breaks=seq(min(file1$wavelength),max(file1$wavelength),10))+
+  #scale_x_reverse()+
+  #scale_x_continuous(lim=c(650,4000))+
+  theme(axis.text.x = element_text(angle = 90, hjust = 1)) +
+  expand_limits(y=c(0,0.01)) +
+ ylab(expression(Hardness~"(%)"))+
+  xlab(expression(Absorbance~"(1500 cm"^"-1"*")"))#expand_limits(x=650, 4000)+
+  geom_abline(intercept = 0.1, slope = 0)
+  
+  
+
+
+```
+  
+
+```{r}
+
+df_1250 <-file1 %>%
+  #subset peak
+  subset (wavelength==1250)
+  
+
+```
+
+then check with hardness 
+
+```{r}
+df_1250 %>%
+  dplyr::select(Cultivar,Absorbance, wavelength, Hardness)%>%
+  group_by(Cultivar)%>%
+  summarise_each(funs(mean))%>%
+  ggplot(aes(x=Absorbance,y=Hardness, colour=Cultivar, shape=Cultivar))+
+           geom_point(size=3)+
+  theme_bw()+
+#scale_x_continuous(breaks=seq(min(file1$wavelength),max(file1$wavelength),10))+
+  #scale_x_reverse()+
+  #scale_x_continuous(lim=c(650,4000))+
+  theme(axis.text.x = element_text(angle = 90, hjust = 1)) +
+  expand_limits(y=c(0,0.01)) +
+ ylab(expression(Hardness~"(%)"))+
+  xlab(expression(Absorbance~"(1250 cm"^"-1"*")"))#expand_limits(x=650, 4000)+
+  geom_abline(intercept = 0.1, slope = 0)
+
+```
+
+then try another wavenumber 897
+
+```{r}
+
+df_1209 <-file1 %>%
+  #subset peak
+  subset (wavelength==1209)
+
+```
+
+
+
+```{r}
+
+df_1209 %>%
+  dplyr::select(Cultivar,Absorbance, wavelength, Hardness)%>%
+  group_by(Cultivar)%>%
+  summarise_each(funs(mean))%>%
+ ggplot(aes(x=Absorbance,y=Hardness, colour=Cultivar, shape=Cultivar))+
+           geom_point(size=3)+
+  theme_bw()+
+#scale_x_continuous(breaks=seq(min(file1$wavelength),max(file1$wavelength),10))+
+  #scale_x_reverse()+
+  #scale_x_continuous(lim=c(650,4000))+
+  theme(axis.text.x = element_text(angle = 90, hjust = 1)) +
+  expand_limits(y=c(0,0.01)) +
+ ylab(expression(Hardness~"(%)"))+
+  xlab(expression(Absorbance~"(1209 cm"^"-1"*")"))#expand_limits(x=650, 4000)+
+  geom_abline(intercept = 0.1, slope = 0)
+```
+
+Then try for 710 WL 
+
+```{r}
+df_select <- file1 %>%
+  #subset peak
+  subset (wavelength==2451)
+
+
+```
+
+
+
+```{r}
+df_select %>%
+  dplyr::select(Cultivar,Absorbance, wavelength, Hardness)%>%
+  group_by(Cultivar)%>%
+  summarise_each(funs(mean))%>%
+  ggplot(aes(x=Absorbance,y=Hardness))+
+           geom_point(size=3,aes(colour=Cultivar, shape=Cultivar))+
+  geom_smooth(method = "lm")+
+  theme_bw()+
+#scale_x_continuous(breaks=seq(min(file1$wavelength),max(file1$wavelength),10))+
+  #scale_x_reverse()+
+  #scale_x_continuous(lim=c(650,4000))+
+ # theme(axis.text.x = element_text(angle = 90, hjust = 1)) +
+#  expand_limits(y=c(0,0.01)) +
+ ylab(expression(Hardness~"(%)"))+
+  xlab(expression(Absorbance~"(2451 cm"^"-1"*")"))#expand_limits(x=650, 4000)+
+  #geom_abline(intercept = 0.1, slope = 0)
+
+```
+
+
+675
+
+```{r}
+df_675 <-file1 %>%
+  #subset peak
+  subset (wavelength==675)
+
+```
+
+
+
+```{r}
+df_675 %>%
+  dplyr::select(Cultivar,Absorbance, wavelength, Hardness)%>%
+  group_by(Cultivar)%>%
+  summarise_each(funs(mean))%>%
+  ggplot(aes(x=Absorbance,y=Hardness, colour=Cultivar, shape=Cultivar))+
+           geom_point(size=3)+
+  theme_bw()+
+#scale_x_continuous(breaks=seq(min(file1$wavelength),max(file1$wavelength),10))+
+  #scale_x_reverse()+
+  #scale_x_continuous(lim=c(650,4000))+
+  theme(axis.text.x = element_text(angle = 90, hjust = 1)) +
+  expand_limits(y=c(0,0.01)) +
+ ylab(expression(Hardness~"(%)"))+
+  xlab(expression(Absorbance~"(675 cm"^"-1"*")"))#expand_limits(x=650, 4000)+
+  geom_abline(intercept = 0.1, slope = 0)
+
+```
+
+
+
+
+
+Try 669 (that's is confirmed P < 0.05 in the Hardseed script !!)
+
+```{r}
+
+df_669<-file1 %>%
+  #subset peak
+  subset (wavelength==669)
+
+```
+
+
+
+```{r}
+
+df_669 %>%
+  dplyr::select(Cultivar,Absorbance, wavelength, Hardness)%>%
+  group_by(Cultivar)%>%
+  summarise_each(funs(mean))%>%
+  ggplot(aes(x=Absorbance,y=Hardness, colour=Cultivar, shape=Cultivar))+
+           geom_point(size=3)+
+  theme_bw()+
+#scale_x_continuous(breaks=seq(min(file1$wavelength),max(file1$wavelength),10))+
+  #scale_x_reverse()+
+  #scale_x_continuous(lim=c(650,4000))+
+  theme(axis.text.x = element_text(angle = 90, hjust = 1)) +
+  expand_limits(y=c(0,0.01)) +
+ ylab(expression(Hardness~"(%)"))+
+  xlab(expression(Absorbance~"(669 cm"^"-1"*")"))#expand_limits(x=650, 4000)+
+  geom_abline(intercept = 0.1, slope = 0)
+
+
+```
+

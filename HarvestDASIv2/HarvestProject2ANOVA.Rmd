@@ -1,11 +1,11 @@
 ---
-title: "Harvest time of the  6CV Iversen 2"
+title: "Senescence - Harvest time of the  6CV Iversen 2"
 author: "CT"
 date: " 07.06.2016"
 output: html_document
 ---
 Purpose of this script : 
-calculate the days to harvest from Iversen 2 dataset 
+calculate the days to 100 senescence from Iversen 2 dataset 
 
 ```{r loadLibraries}
 library(tidyr)
@@ -24,12 +24,12 @@ setwd("C:\\Users\\EdCarmen\\Documents\\CarmenProjects2016\\GitSubclover\\Harvest
 getwd()
 
 #create file
-df_Hvst <- read.table("DAStoHarvest.txt",header=TRUE)
+df_Hvst <- read.table("DAStoSenescence.txt",header=TRUE)
 head(df_Hvst)
 
 
 # define formats 
-df_Hvst$HarvestDate <- dmy(df_Hvst$HarvestDate )
+df_Hvst$ReadDate <- dmy(df_Hvst$ReadDate )
 df_Hvst$SowingD <- dmy(df_Hvst$SowingD)
 df_Hvst$SowTreat <- as.factor(df_Hvst$SowTreat)
 df_Hvst$Block <- as.factor(df_Hvst$Block)

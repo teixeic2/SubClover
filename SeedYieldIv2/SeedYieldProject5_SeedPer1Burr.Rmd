@@ -81,10 +81,46 @@ df<- file %>%
 ```
 
 
-If need a graph create a new chunk here. 
+If need a graph create a new chunk here. Here created already with SE instead of std.
+
+
+
+```{r,fig.height=5, fig.width=10}
+
+
+
+df_seedburSE <-df %>%
+  group_by(Cultivar, SowTreat, Depth) %>%
+  summarise_each(funs(mean,sd)) %>%
+  mutate(SE=SeedsPerBur_sd/1.73)
+  
+# define position of bar and errorbar
+dodge_x <- position_dodge(width = 0.9)
+  
+  df_seedburSE %>%
+  ggplot(aes(x=Cultivar, y=(SeedsPerBur_mean), fill=Cultivar)) +
+  geom_bar(stat="identity",position = dodge_x) +
+  geom_errorbar(aes(ymin=SeedsPerBur_mean-SE/2,
+                    ymax=SeedsPerBur_mean+SE/2),
+                width=0.25, size=0.3,position=dodge_x)   +
+  theme_grey(base_size = 16) +
+    theme_bw()+
+  facet_grid(Depth~SowTreat, scales="free") +
+    labs(y= "Number of seeds per 1 burr ")+
+   theme(axis.text.x=element_text(angle = +90, hjust = 0))+
+   theme(text = element_text(size = 14))
+
+
+
+
+```
 
 
 Here only need to change df name as selection of fields were previously done. 
+
+
+
+
 
 ```{r}
 
@@ -98,21 +134,22 @@ Here only need to change df name as selection of fields were previously done.
 
 ```
 
-For graphics check  SeedYieldProject1 script 
+
 
 Here ANOVA according S. Saville advice : LSD test unprotected by sowing date individually.
 Use filter to sub set data (sowing date)
+
 
 ```{r}
 #Filter  S1, S2, S3, S6 , S7 
 summary(df)
 
-df_seedYS6 <- df %>%
+df_seedYS6 <- df #%>%
   #filter(SowTreat=="S1")
   #filter(SowTreat=="S2")
   #filter(SowTreat=="S3")
   #filter(SowTreat=="S4")
-  filter(SowTreat=="S6")
+  #filter(SowTreat=="S6")
   #filter(SowTreat=="S7")
 
 
@@ -150,5 +187,294 @@ Then use multiple comparisons of means for desired variables
 #(LSD.test(my.anova, c( "Depth"), alpha= 0.05, p.adj="none"))
 (LSD.test(my.anova, c( "Cultivar"), alpha= 0.05, p.adj="none"))
 ```
+
+S1
+
+
+```{r}
+#Filter  S1, S2, S3, S6 , S7 
+summary(df)
+
+df_seedYS6 <- df %>%
+  filter(SowTreat=="S1")
+  #filter(SowTreat=="S2")
+  #filter(SowTreat=="S3")
+  #filter(SowTreat=="S4")
+  #filter(SowTreat=="S6")
+  #filter(SowTreat=="S7")
+
+
+#-------------------------------------------------
+# anova 
+file <- df_seedYS6
+
+
+file.subset <- file 
+
+head(file.subset)
+summary(file.subset)
+
+
+```
+
+Here need to change the variables (comment out/in) to get mean values and ANOVA info. 
+Select :SowTreat or Depth or Cultivar 
+
+```{r}
+#ANOVA
+
+#my.anova <- aov(SeedsPerBur ~ Cultivar*Depth + Block, data = file.subset)
+#my.anova <- aov(SeedsPerBur ~ SowTreat*Depth + Block, data = file.subset)
+my.anova <- aov(SeedsPerBur ~ Cultivar + Block, data = file.subset)
+#my.anova <- aov(SeedsPerBur ~ Depth + Block, data = file.subset)
+summary(my.anova)
+```
+
+Then use multiple comparisons of means for desired variables
+```{r}
+#Means separation after ANOVA
+#(LSD.test(my.anova, c( "SowTreat"), alpha= 0.05, p.adj="none"))
+#(LSD.test(my.anova, c("Cultivar", "Depth"), alpha= 0.05, p.adj="none")) 
+#(LSD.test(my.anova, c( "Depth"), alpha= 0.05, p.adj="none"))
+(LSD.test(my.anova, c( "Cultivar"), alpha= 0.05, p.adj="none"))
+```
+
+S2
+
+
+
+```{r}
+#Filter  S1, S2, S3, S6 , S7 
+summary(df)
+
+df_seedYS6 <- df %>%
+  #filter(SowTreat=="S1")
+  filter(SowTreat=="S2")
+  
+#-------------------------------------------------
+# anova 
+file <- df_seedYS6
+
+file.subset <- file 
+head(file.subset)
+summary(file.subset)
+```
+
+Here need to change the variables (comment out/in) to get mean values and ANOVA info. 
+Select :SowTreat or Depth or Cultivar 
+
+```{r}
+#ANOVA
+
+#my.anova <- aov(SeedsPerBur ~ Cultivar*Depth + Block, data = file.subset)
+#my.anova <- aov(SeedsPerBur ~ SowTreat*Depth + Block, data = file.subset)
+my.anova <- aov(SeedsPerBur ~ Cultivar + Block, data = file.subset)
+#my.anova <- aov(SeedsPerBur ~ Depth + Block, data = file.subset)
+summary(my.anova)
+```
+
+Then use multiple comparisons of means for desired variables
+```{r}
+#Means separation after ANOVA
+#(LSD.test(my.anova, c( "SowTreat"), alpha= 0.05, p.adj="none"))
+#(LSD.test(my.anova, c("Cultivar", "Depth"), alpha= 0.05, p.adj="none")) 
+#(LSD.test(my.anova, c( "Depth"), alpha= 0.05, p.adj="none"))
+(LSD.test(my.anova, c( "Cultivar"), alpha= 0.05, p.adj="none"))
+```
+
+S3
+
+
+
+```{r}
+#Filter  S1, S2, S3, S6 , S7 
+summary(df)
+
+df_seedYS6 <- df %>%
+  #filter(SowTreat=="S1")
+  #filter(SowTreat=="S2")
+  filter(SowTreat=="S3")
+  
+#-------------------------------------------------
+# anova 
+file <- df_seedYS6
+
+file.subset <- file 
+
+head(file.subset)
+summary(file.subset)
+
+
+```
+
+Here need to change the variables (comment out/in) to get mean values and ANOVA info. 
+Select :SowTreat or Depth or Cultivar 
+
+```{r}
+#ANOVA
+
+#my.anova <- aov(SeedsPerBur ~ Cultivar*Depth + Block, data = file.subset)
+#my.anova <- aov(SeedsPerBur ~ SowTreat*Depth + Block, data = file.subset)
+my.anova <- aov(SeedsPerBur ~ Cultivar + Block, data = file.subset)
+#my.anova <- aov(SeedsPerBur ~ Depth + Block, data = file.subset)
+summary(my.anova)
+```
+
+Then use multiple comparisons of means for desired variables
+```{r}
+#Means separation after ANOVA
+#(LSD.test(my.anova, c( "SowTreat"), alpha= 0.05, p.adj="none"))
+#(LSD.test(my.anova, c("Cultivar", "Depth"), alpha= 0.05, p.adj="none")) 
+#(LSD.test(my.anova, c( "Depth"), alpha= 0.05, p.adj="none"))
+(LSD.test(my.anova, c( "Cultivar"), alpha= 0.05, p.adj="none"))
+```
+
+S4
+
+
+
+```{r}
+#Filter  S1, S2, S3, S6 , S7 
+summary(df)
+
+df_seedYS6 <- df %>%
+  
+  filter(SowTreat=="S4")
+  #filter(SowTreat=="S6")
+  #filter(SowTreat=="S7")
+
+
+#-------------------------------------------------
+# anova 
+file <- df_seedYS6
+
+
+file.subset <- file 
+
+head(file.subset)
+summary(file.subset)
+
+
+```
+
+Here need to change the variables (comment out/in) to get mean values and ANOVA info. 
+Select :SowTreat or Depth or Cultivar 
+
+```{r}
+#ANOVA
+
+#my.anova <- aov(SeedsPerBur ~ Cultivar*Depth + Block, data = file.subset)
+#my.anova <- aov(SeedsPerBur ~ SowTreat*Depth + Block, data = file.subset)
+my.anova <- aov(SeedsPerBur ~ Cultivar + Block, data = file.subset)
+#my.anova <- aov(SeedsPerBur ~ Depth + Block, data = file.subset)
+summary(my.anova)
+```
+
+Then use multiple comparisons of means for desired variables
+```{r}
+#Means separation after ANOVA
+#(LSD.test(my.anova, c( "SowTreat"), alpha= 0.05, p.adj="none"))
+#(LSD.test(my.anova, c("Cultivar", "Depth"), alpha= 0.05, p.adj="none")) 
+#(LSD.test(my.anova, c( "Depth"), alpha= 0.05, p.adj="none"))
+(LSD.test(my.anova, c( "Cultivar"), alpha= 0.05, p.adj="none"))
+```
+
+S6
+
+
+
+```{r}
+#Filter  S1, S2, S3, S6 , S7 
+summary(df)
+
+df_seedYS6 <- df %>%
+
+  filter(SowTreat=="S6")
+  #filter(SowTreat=="S7")
+
+#-------------------------------------------------
+# anova 
+file <- df_seedYS6
+
+file.subset <- file 
+head(file.subset)
+summary(file.subset)
+
+
+```
+
+Here need to change the variables (comment out/in) to get mean values and ANOVA info. 
+Select :SowTreat or Depth or Cultivar 
+
+```{r}
+#ANOVA
+
+#my.anova <- aov(SeedsPerBur ~ Cultivar*Depth + Block, data = file.subset)
+#my.anova <- aov(SeedsPerBur ~ SowTreat*Depth + Block, data = file.subset)
+my.anova <- aov(SeedsPerBur ~ Cultivar + Block, data = file.subset)
+#my.anova <- aov(SeedsPerBur ~ Depth + Block, data = file.subset)
+summary(my.anova)
+```
+
+Then use multiple comparisons of means for desired variables
+```{r}
+#Means separation after ANOVA
+#(LSD.test(my.anova, c( "SowTreat"), alpha= 0.05, p.adj="none"))
+#(LSD.test(my.anova, c("Cultivar", "Depth"), alpha= 0.05, p.adj="none")) 
+#(LSD.test(my.anova, c( "Depth"), alpha= 0.05, p.adj="none"))
+(LSD.test(my.anova, c( "Cultivar"), alpha= 0.05, p.adj="none"))
+```
+
+S7
+
+
+```{r}
+#Filter  S1, S2, S3, S6 , S7 
+summary(df)
+
+df_seedYS6 <- df %>%
+    #filter(SowTreat=="S6")
+  filter(SowTreat=="S7")
+
+#-------------------------------------------------
+# anova 
+file <- df_seedYS6
+
+
+file.subset <- file 
+
+head(file.subset)
+summary(file.subset)
+
+
+```
+
+Here need to change the variables (comment out/in) to get mean values and ANOVA info. 
+Select :SowTreat or Depth or Cultivar 
+
+```{r}
+#ANOVA
+
+#my.anova <- aov(SeedsPerBur ~ Cultivar*Depth + Block, data = file.subset)
+#my.anova <- aov(SeedsPerBur ~ SowTreat*Depth + Block, data = file.subset)
+my.anova <- aov(SeedsPerBur ~ Cultivar + Block, data = file.subset)
+#my.anova <- aov(SeedsPerBur ~ Depth + Block, data = file.subset)
+summary(my.anova)
+```
+
+Then use multiple comparisons of means for desired variables
+```{r}
+#Means separation after ANOVA
+#(LSD.test(my.anova, c( "SowTreat"), alpha= 0.05, p.adj="none"))
+#(LSD.test(my.anova, c("Cultivar", "Depth"), alpha= 0.05, p.adj="none")) 
+#(LSD.test(my.anova, c( "Depth"), alpha= 0.05, p.adj="none"))
+(LSD.test(my.anova, c( "Cultivar"), alpha= 0.05, p.adj="none"))
+```
+
+
+
+
+
+
 
 End of script.

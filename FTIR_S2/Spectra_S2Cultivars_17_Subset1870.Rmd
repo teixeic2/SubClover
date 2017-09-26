@@ -1,0 +1,145 @@
+---
+title: "Spectra of S2 FTIR test"
+author: "CT"
+date: "18.09.2017"
+output: html_document
+#here files have already been baselined corrected in OPUS. 
+#Raw data is on folder Bionami Maatrix 25.04; worksheet Columns to R.
+#In this script the analysis of wavenumber range 1860 and 1875 is performed. find peaks in this region   
+---
+
+
+```{r setup, include=FALSE, loadlibraires}
+#knitr::opts_chunk$set(echo = TRUE)
+library(tidyr)
+library (dplyr)
+library (ggplot2)
+library(agricolae)
+library(knitr)
+library (lubridate)
+library(scales)
+library(hyperSpec)
+
+```
+
+
+```{r readData}
+setwd("C:\\Users\\EdCarmen\\Documents\\CarmenProjects2016\\GitSubclover\\FTIR_S2")
+getwd()
+file <- read.table ("S2.txt",  header = TRUE)
+
+str (file)
+
+```
+Adjust formats 
+
+```{r}
+
+file1 <-file %>%
+mutate(
+    Plot = as.factor(Plot),
+    #wavelength = leave as integer for greaphics 
+    Block = as.factor(Block),
+    Cultivar = as.factor(Cultivar),
+    Hardness = as.numeric (Hardness),
+    Seed = as.factor(Seed)
+  )  
+
+str (file1)
+
+
+```
+Subset a range of interest: between 
+
+
+```{r}
+
+df_1870<-file1 %>%
+  #subset range 
+  subset (wavelength<1880 & wavelength>1866)
+
+```
+
+## Graph it all data 
+
+```{r, fig.height=4, fig.width=10}
+
+df_1870 %>%
+  dplyr::select(Cultivar,Absorbance, wavelength, Block)%>%
+  group_by(Cultivar,Block,wavelength)%>%
+  ggplot(aes(x=wavelength,y=Absorbance))+
+  geom_line(aes(colour=Block))+
+  theme_bw()+
+scale_x_continuous(breaks=seq(min(file1$wavelength),max(file1$wavelength),1))+
+  scale_x_reverse()+
+  #scale_x_continuous(lim=c(650,4000))+
+  theme(axis.text.x = element_text(angle = 90, hjust = 1)) +
+  expand_limits(y=c(0,0.05)) +
+  #expand_limits(x=650, 4000)+
+  geom_abline(intercept = 0.1, slope = 0)
+
+
+```
+Graph average spectra for each cultivar 
+
+
+```{r}
+
+df_1870 %>%
+  dplyr::select(Cultivar,Absorbance, wavelength)%>%
+  group_by(Cultivar,wavelength)%>%
+  summarise_each(funs(mean))%>%
+  ggplot(aes(x=wavelength,y=Absorbance, colour=Cultivar))+
+           geom_line()+
+  theme_bw()+
+scale_x_continuous(breaks=seq(min(file1$wavelength),max(file1$wavelength),10))+
+  scale_x_reverse()+
+  #scale_x_continuous(lim=c(650,4000))+
+  theme(axis.text.x = element_text(angle = 90, hjust = 1)) +
+  expand_limits(y=c(0,0.0025)) +
+ xlab(expression(Wavenumber~"(cm"^"-1"*")"))+
+  #expand_limits(x=650, 4000)+
+  geom_abline(intercept = 0.1, slope = 0)
+  
+  
+
+
+```
+take apart the  peak 669  subset data for this peak   
+
+```{r}
+
+df_1871 <-file1 %>%
+  #subset peak
+  subset (wavelength==1871)
+  
+
+```
+
+Now with the subset run ANOVA
+
+```{r}
+file.subset <- df_1871
+
+head(file.subset)
+summary(file.subset)
+
+```
+
+```{r}
+#ANOVA
+my.anova <- aov(Absorbance ~ Cultivar + Block, data = file.subset)
+#my.anova <- aov(Absorbance ~ Cultivar*Seed + Block, data = file.subset)
+
+summary(my.anova)
+```
+
+
+
+```{r}
+
+(LSD.test(my.anova, c( "Cultivar"), alpha= 0.05, p.adj="none"))
+
+```
+
+End of this script. 

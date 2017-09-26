@@ -70,7 +70,7 @@ write.table(df, "df.txt")
 
 ```
 
-Here calculates the percentage of buried burrs 
+Here calculates the percentage of buried burrs and graph with std.
 
 ```{r, fig.height= 5, fig.width=10 , warning=FALSE}
 
@@ -114,6 +114,41 @@ theme(axis.text.x=element_text(angle = 90, hjust=0.95,vjust=0.2,size = 12))
 
 head(df_bur)
 ```
+
+Here graph with the SE (SE = std/ sqrt n ; n=3)
+
+```{r,fig.height= 5, fig.width=10 , warning=FALSE}
+
+df_burSE<-df_bur %>%
+  group_by(Cultivar, SowTreat) %>%
+  summarise_each(funs(mean,sd)) %>%
+  mutate(SE=PropBurrBuried_sd/1.73)
+  
+  
+  df_burSE %>%
+  #mutate(colPal = ifelse(Cultivar=="Antas","Brachy",ifelse(Cultivar=="Monti","Brachy","Yanny"))) %>%
+  #ggplot(aes(x=Cultivar, y=(PropBurrBuried_mean),fill=colPal)) +
+  ggplot(aes(x=Cultivar, y=(PropBurrBuried_mean),fill=Cultivar))+
+  geom_bar(stat="identity", position = dodge_x) +
+  geom_errorbar(aes(ymin=PropBurrBuried_mean-SE/2, ymax=PropBurrBuried_mean+SE/2),
+                width=0.25, size=0.3,position=dodge_x)   +
+  theme_grey(base_size = 16) +
+    facet_grid(.~SowTreat) +
+    labs(y="% Buried burrs") +
+  theme_bw()+
+theme(axis.text.y = element_text( size = 10))+
+theme(axis.title.y = element_text(face="bold", size=12))+
+theme(axis.text.x=element_text(angle = 90, hjust=0.95,vjust=0.2,size = 12))
+
+head(df_bur)
+
+
+
+
+```
+
+
+
 
 
 Try another style 
@@ -211,6 +246,299 @@ summary(my.anova)
 #(LSD.test(my.anova, c("SowTreat"), alpha= 0.05, p.adj="none")) 
 (LSD.test(my.anova, c("Cultivar"), alpha= 0.05, p.adj="none")) 
 ```
+
+Perform anova in single sowing dates : S1 
+
+
+
+```{r}
+
+#Filter  S1, S2, S3, S4, S6 , S7 
+summary(df_bur)
+
+df_burANOVA <- df_bur %>%    #use to filter%>%
+  filter(SowTreat=="S1")
+  #filter(SowTreat=="S2")
+  #filter(SowTreat=="S3")
+  #filter(SowTreat=="S4")
+  #filter(SowTreat=="S6")
+  #filter(SowTreat=="S7")
+
+
+#-------------------------------------------------
+# anova 
+file <- df_burANOVA
+
+
+file.subset <- file 
+
+head(file.subset)
+summary(file.subset)
+
+```
+
+Here Analyse the percentage of buried burs overall :
+consider sow Treat as a factor  (overview)
+and then consider cultivar within each sowing date 
+
+```{r}
+
+#ANOVA
+
+my.anova <- aov(PropBurrBuried ~ Cultivar + Block, data = file.subset)
+#my.anova <- aov(PropBurrBuried ~ SowTreat + Block, data = file.subset)
+summary(my.anova)
+```
+
+```{r}
+#Means separation after ANOVA
+#(LSD.test(my.anova, c("SowTreat"), alpha= 0.05, p.adj="none")) 
+(LSD.test(my.anova, c("Cultivar"), alpha= 0.05, p.adj="none")) 
+```
+
+S2 
+
+
+```{r}
+
+#Filter  S1, S2, S3, S4, S6 , S7 
+summary(df_bur)
+
+df_burANOVA <- df_bur %>% #use to filter%>%
+  #filter(SowTreat=="S1")
+  filter(SowTreat=="S2")
+  #filter(SowTreat=="S3")
+  #filter(SowTreat=="S4")
+  #filter(SowTreat=="S6")
+  #filter(SowTreat=="S7")
+
+
+#-------------------------------------------------
+# anova 
+file <- df_burANOVA
+
+
+file.subset <- file 
+
+head(file.subset)
+summary(file.subset)
+
+```
+
+Here Analyse the percentage of buried burs overall :
+consider sow Treat as a factor  (overview)
+and then consider cultivar within each sowing date 
+
+```{r}
+
+#ANOVA
+
+my.anova <- aov(PropBurrBuried ~ Cultivar + Block, data = file.subset)
+#my.anova <- aov(PropBurrBuried ~ SowTreat + Block, data = file.subset)
+summary(my.anova)
+```
+
+```{r}
+#Means separation after ANOVA
+#(LSD.test(my.anova, c("SowTreat"), alpha= 0.05, p.adj="none")) 
+(LSD.test(my.anova, c("Cultivar"), alpha= 0.05, p.adj="none")) 
+```
+
+
+
+S3
+
+
+```{r}
+
+#Filter  S1, S2, S3, S4, S6 , S7 
+summary(df_bur)
+
+df_burANOVA <- df_bur %>% #use to filter%>%
+  #filter(SowTreat=="S1")
+  #filter(SowTreat=="S2")
+  filter(SowTreat=="S3")
+  #filter(SowTreat=="S4")
+  #filter(SowTreat=="S6")
+  #filter(SowTreat=="S7")
+
+
+#-------------------------------------------------
+# anova 
+file <- df_burANOVA
+
+
+file.subset <- file 
+
+head(file.subset)
+summary(file.subset)
+
+```
+
+Here Analyse the percentage of buried burs overall :
+consider sow Treat as a factor  (overview)
+and then consider cultivar within each sowing date 
+
+```{r}
+
+#ANOVA
+
+my.anova <- aov(PropBurrBuried ~ Cultivar + Block, data = file.subset)
+#my.anova <- aov(PropBurrBuried ~ SowTreat + Block, data = file.subset)
+summary(my.anova)
+```
+
+```{r}
+#Means separation after ANOVA
+#(LSD.test(my.anova, c("SowTreat"), alpha= 0.05, p.adj="none")) 
+(LSD.test(my.anova, c("Cultivar"), alpha= 0.05, p.adj="none")) 
+```
+
+Then S4 
+
+
+```{r}
+
+#Filter  S1, S2, S3, S4, S6 , S7 
+summary(df_bur)
+
+df_burANOVA <- df_bur%>%  #use to filter%>%
+  #filter(SowTreat=="S1")
+  #filter(SowTreat=="S2")
+  #filter(SowTreat=="S3")
+  filter(SowTreat=="S4")
+  #filter(SowTreat=="S6")
+  #filter(SowTreat=="S7")
+
+
+#-------------------------------------------------
+# anova 
+file <- df_burANOVA
+
+
+file.subset <- file 
+
+head(file.subset)
+summary(file.subset)
+
+```
+
+Here Analyse the percentage of buried burs overall :
+consider sow Treat as a factor  (overview)
+and then consider cultivar within each sowing date 
+
+```{r}
+
+#ANOVA
+
+my.anova <- aov(PropBurrBuried ~ Cultivar + Block, data = file.subset)
+#my.anova <- aov(PropBurrBuried ~ SowTreat + Block, data = file.subset)
+summary(my.anova)
+```
+
+```{r}
+#Means separation after ANOVA
+#(LSD.test(my.anova, c("SowTreat"), alpha= 0.05, p.adj="none")) 
+(LSD.test(my.anova, c("Cultivar"), alpha= 0.05, p.adj="none")) 
+```
+
+S6
+
+
+```{r}
+
+#Filter  S1, S2, S3, S4, S6 , S7 
+summary(df_bur)
+
+df_burANOVA <- df_bur%>% #use to filter%>%
+  #filter(SowTreat=="S1")
+  #filter(SowTreat=="S2")
+  #filter(SowTreat=="S3")
+  #filter(SowTreat=="S4")
+  filter(SowTreat=="S6")
+  #filter(SowTreat=="S7")
+
+
+#-------------------------------------------------
+# anova 
+file <- df_burANOVA
+
+
+file.subset <- file 
+
+head(file.subset)
+summary(file.subset)
+
+```
+
+Here Analyse the percentage of buried burs overall :
+consider sow Treat as a factor  (overview)
+and then consider cultivar within each sowing date 
+
+```{r}
+
+#ANOVA
+
+my.anova <- aov(PropBurrBuried ~ Cultivar + Block, data = file.subset)
+#my.anova <- aov(PropBurrBuried ~ SowTreat + Block, data = file.subset)
+summary(my.anova)
+```
+
+```{r}
+#Means separation after ANOVA
+#(LSD.test(my.anova, c("SowTreat"), alpha= 0.05, p.adj="none")) 
+(LSD.test(my.anova, c("Cultivar"), alpha= 0.05, p.adj="none")) 
+```
+
+And finally S7
+
+
+```{r}
+
+#Filter  S1, S2, S3, S4, S6 , S7 
+summary(df_bur)
+
+df_burANOVA <- df_bur %>% #use to filter%>%
+  #filter(SowTreat=="S1")
+  #filter(SowTreat=="S2")
+  #filter(SowTreat=="S3")
+  #filter(SowTreat=="S4")
+  #filter(SowTreat=="S6")
+  filter(SowTreat=="S7")
+
+
+#-------------------------------------------------
+# anova 
+file <- df_burANOVA
+
+
+file.subset <- file 
+
+head(file.subset)
+summary(file.subset)
+
+```
+
+Here Analyse the percentage of buried burs overall :
+consider sow Treat as a factor  (overview)
+and then consider cultivar within each sowing date 
+
+```{r}
+
+#ANOVA
+
+my.anova <- aov(PropBurrBuried ~ Cultivar + Block, data = file.subset)
+#my.anova <- aov(PropBurrBuried ~ SowTreat + Block, data = file.subset)
+summary(my.anova)
+```
+
+```{r}
+#Means separation after ANOVA
+#(LSD.test(my.anova, c("SowTreat"), alpha= 0.05, p.adj="none")) 
+(LSD.test(my.anova, c("Cultivar"), alpha= 0.05, p.adj="none")) 
+```
+
+
 
 
 The chunks below filter each sowing date _ Transform checks (not using it now)
