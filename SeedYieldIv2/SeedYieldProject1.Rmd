@@ -22,7 +22,9 @@ Read File
 
 ```{r, echo=FALSE}
 
-setwd("C:\\Users\\EdCarmen\\Documents\\CarmenProjects2016\\Gitsubclover\\SeedYieldIv2")
+#olde folder setwd("C:\\Users\\EdCarmen\\Documents\\CarmenProjects2016\\Gitsubclover\\SeedYieldIv2")
+setwd("C:\\GitHubRepos\\SubcloverPhD\\Subclover\\SeedYieldIv2")
+
 getwd()
 file <- read.table("SeedBurrYield.txt",header=TRUE)
 head(file)
@@ -108,7 +110,7 @@ then do the graph with standard error
 Need to calculate as SE = sd / 1.73 (1.73 is the sqrt of n = 3)
 
 
-```{r}
+```{r, fig.height=5, fig.width=10}
 
 
 #barplot for seed density  

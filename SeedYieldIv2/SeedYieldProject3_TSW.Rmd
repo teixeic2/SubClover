@@ -1,7 +1,8 @@
 ---
 output:
-  word_document: default
+  pdf_document: default
   html_document: default
+  word_document: default
 ---
 ---
 title: "TSW  "
@@ -28,7 +29,8 @@ Aim: calculate the Thousand seed weight for each treatment combination (Sowing d
 
 
 ```{r loadFile}
-setwd("C:\\Users\\EdCarmen\\Documents\\CarmenProjects2016\\Gitsubclover\\SeedYieldIv2")
+setwd("C:\\GitHubRepos\\SubcloverPhD\\Subclover\\SeedYieldIv2")
+#C:\GitHubRepos\SubCloverPhD\SubClover\SeedYieldIv2
 getwd()
 
 
@@ -118,20 +120,71 @@ theme(axis.text.x=element_text(angle = +90, hjust = 0))+
 ```
 
 
+Here create the graph with SE 
+
+
+```{r, fig.height=5, fig.width=10, warning=FALSE}
+
+#barplot for seed density  
+#The palette with grey:
+cbPalette <- c("#999999", "#666666", "#56B4E9", "#009E73", "#D55E00", "#0072B2","#999999", "#E69F00", "#56B4E9", "#009E73", "#D55E00", "#0072B2","#56B4E9", "#009E73")
+
+
+# define position of bar and errorbar
+dodge_x <- position_dodge(width = 0.9)
+
+# splitting and df due bug in tidyr (https://github.com/hadley/tidyr/issues/32)
+ dfSE <-  df %>%
+  
+  mutate(Depth = factor(Depth,levels=c( "Above","Below"))) %>%
+
+  group_by(Cultivar, SowTreat,Depth) %>%
+  summarise_each(funs(mean,sd)) %>%
+  mutate(SE=TSW_sd/1.73)  
+    
+  dfSE %>%
+    ggplot(aes(x=Cultivar, y=(TSW_mean), fill=Cultivar)) +
+  geom_bar(stat="identity",position = dodge_x) +
+  geom_errorbar(aes(ymin=TSW_mean-SE/2,
+                    ymax=TSW_mean+SE/2),
+                width=0.25, size=0.3,position=dodge_x)   +
+  theme_grey(base_size = 16) +
+  theme_bw()+
+  facet_grid(Depth~SowTreat, scales="free") +
+  labs(y= "Thousand Seed weight (g) ")+
+  theme(axis.text.x=element_text(angle = +90, hjust = 0))+
+  theme(text = element_text(size = 14))
+
+
+```
+
+
+
+```{r}
+
+
+
+```
+
+
+
+
+
 Here ANOVA according S. Saville advice: LSD test unprotected by sowing date individually.
 Use filters to select treatments. 
+S1
 
 ```{r}
 #Filter  S1, S2, S3, S6 , S7 
 summary(df)
 
 df_seedYS6 <- df %>%
-  #filter(SowTreat=="S1")
+  filter(SowTreat=="S1")
   #filter(SowTreat=="S2")
   #filter(SowTreat=="S3")
   #filter(SowTreat=="S4")
   #filter(SowTreat=="S6")
-  filter(SowTreat=="S7")
+  #filter(SowTreat=="S7")
 
 #data transformation many possibilities but logit worked well, however little difference between real and transformed numbers 
 
@@ -168,5 +221,253 @@ Then use multiple comparisons of means when applicable (P<0.05)
 (LSD.test(my.anova, c( "Cultivar"), alpha= 0.05, p.adj="none"))
 #(LSD.test(my.anova, c( "SowTreat"), alpha= 0.05, p.adj="none"))
 ```
+
+
+S2
+
+```{r}
+#Filter  S1, S2, S3, S6 , S7 
+summary(df)
+
+df_seedYS6 <- df %>%
+  #filter(SowTreat=="S1")
+  filter(SowTreat=="S2")
+  #filter(SowTreat=="S3")
+  
+#data transformation many possibilities but logit worked well, however little difference between real and transformed numbers 
+
+#-------------------------------------------------
+# anova 
+file <- df_seedYS6
+
+
+file.subset <- file 
+
+head(file.subset)
+summary(file.subset)
+
+
+```
+
+Here need to change  the variables to get mean values. 
+Use :comment out or in to select  SowTreat or Depth or Cultivar 
+
+```{r}
+#ANOVA
+#my.anova <- aov(TSW ~ SowTreat + Block, data = file.subset)
+#my.anova <- aov(TSW ~ Cultivar*Depth + Block, data = file.subset)
+my.anova <- aov(TSW ~ Cultivar + Block, data = file.subset)
+#my.anova <- aov(TSW ~ Depth + Block, data = file.subset)
+summary(my.anova)
+```
+
+Then use multiple comparisons of means when applicable (P<0.05)
+```{r}
+#Means separation after ANOVA
+#(LSD.test(my.anova, c("Cultivar", "Depth"), alpha= 0.05, p.adj="none")) 
+#(LSD.test(my.anova, c( "Depth"), alpha= 0.05, p.adj="none"))
+(LSD.test(my.anova, c( "Cultivar"), alpha= 0.05, p.adj="none"))
+#(LSD.test(my.anova, c( "SowTreat"), alpha= 0.05, p.adj="none"))
+```
+
+
+
+S3
+
+
+```{r}
+#Filter  S1, S2, S3, S6 , S7 
+summary(df)
+
+df_seedYS6 <- df %>%
+  #filter(SowTreat=="S1")
+  #filter(SowTreat=="S2")
+  filter(SowTreat=="S3")
+  
+#data transformation many possibilities but logit worked well, however little difference between real and transformed numbers 
+
+#-------------------------------------------------
+# anova 
+file <- df_seedYS6
+
+
+file.subset <- file 
+
+head(file.subset)
+summary(file.subset)
+
+
+```
+
+Here need to change  the variables to get mean values. 
+Use :comment out or in to select  SowTreat or Depth or Cultivar 
+
+```{r}
+#ANOVA
+#my.anova <- aov(TSW ~ SowTreat + Block, data = file.subset)
+#my.anova <- aov(TSW ~ Cultivar*Depth + Block, data = file.subset)
+my.anova <- aov(TSW ~ Cultivar + Block, data = file.subset)
+#my.anova <- aov(TSW ~ Depth + Block, data = file.subset)
+summary(my.anova)
+```
+
+Then use multiple comparisons of means when applicable (P<0.05)
+```{r}
+#Means separation after ANOVA
+#(LSD.test(my.anova, c("Cultivar", "Depth"), alpha= 0.05, p.adj="none")) 
+#(LSD.test(my.anova, c( "Depth"), alpha= 0.05, p.adj="none"))
+(LSD.test(my.anova, c( "Cultivar"), alpha= 0.05, p.adj="none"))
+#(LSD.test(my.anova, c( "SowTreat"), alpha= 0.05, p.adj="none"))
+```
+
+S4
+
+
+```{r}
+#Filter  S1, S2, S3, S6 , S7 
+summary(df)
+
+df_seedYS6 <- df %>%
+  filter(SowTreat=="S4")
+  #filter(SowTreat=="S6")
+  #filter(SowTreat=="S7")
+  
+#data transformation many possibilities but logit worked well, however little difference between real and transformed numbers 
+
+#-------------------------------------------------
+# anova 
+file <- df_seedYS6
+
+
+file.subset <- file 
+
+head(file.subset)
+summary(file.subset)
+
+
+```
+
+Here need to change  the variables to get mean values. 
+Use :comment out or in to select  SowTreat or Depth or Cultivar 
+
+```{r}
+#ANOVA
+#my.anova <- aov(TSW ~ SowTreat + Block, data = file.subset)
+#my.anova <- aov(TSW ~ Cultivar*Depth + Block, data = file.subset)
+my.anova <- aov(TSW ~ Cultivar + Block, data = file.subset)
+#my.anova <- aov(TSW ~ Depth + Block, data = file.subset)
+summary(my.anova)
+```
+
+Then use multiple comparisons of means when applicable (P<0.05)
+```{r}
+#Means separation after ANOVA
+#(LSD.test(my.anova, c("Cultivar", "Depth"), alpha= 0.05, p.adj="none")) 
+#(LSD.test(my.anova, c( "Depth"), alpha= 0.05, p.adj="none"))
+(LSD.test(my.anova, c( "Cultivar"), alpha= 0.05, p.adj="none"))
+#(LSD.test(my.anova, c( "SowTreat"), alpha= 0.05, p.adj="none"))
+```
+
+S6
+
+```{r}
+#Filter  S1, S2, S3, S6 , S7 
+summary(df)
+
+df_seedYS6 <- df %>%
+  #filter(SowTreat=="S4")
+  filter(SowTreat=="S6")
+  #filter(SowTreat=="S7")
+  
+#data transformation many possibilities but logit worked well, however little difference between real and transformed numbers 
+
+#-------------------------------------------------
+# anova 
+file <- df_seedYS6
+
+
+file.subset <- file 
+
+head(file.subset)
+summary(file.subset)
+
+
+```
+
+Here need to change  the variables to get mean values. 
+Use :comment out or in to select  SowTreat or Depth or Cultivar 
+
+```{r}
+#ANOVA
+#my.anova <- aov(TSW ~ SowTreat + Block, data = file.subset)
+#my.anova <- aov(TSW ~ Cultivar*Depth + Block, data = file.subset)
+my.anova <- aov(TSW ~ Cultivar + Block, data = file.subset)
+#my.anova <- aov(TSW ~ Depth + Block, data = file.subset)
+summary(my.anova)
+```
+
+Then use multiple comparisons of means when applicable (P<0.05)
+```{r}
+#Means separation after ANOVA
+#(LSD.test(my.anova, c("Cultivar", "Depth"), alpha= 0.05, p.adj="none")) 
+#(LSD.test(my.anova, c( "Depth"), alpha= 0.05, p.adj="none"))
+(LSD.test(my.anova, c( "Cultivar"), alpha= 0.05, p.adj="none"))
+#(LSD.test(my.anova, c( "SowTreat"), alpha= 0.05, p.adj="none"))
+```
+
+S7
+
+
+```{r}
+#Filter  S1, S2, S3, S6 , S7 
+summary(df)
+
+df_seedYS6 <- df %>%
+  #filter(SowTreat=="S4")
+  #filter(SowTreat=="S6")
+  filter(SowTreat=="S7")
+  
+#data transformation many possibilities but logit worked well, however little difference between real and transformed numbers 
+
+#-------------------------------------------------
+# anova 
+file <- df_seedYS6
+file.subset <- file 
+
+head(file.subset)
+summary(file.subset)
+
+```
+
+Here need to change  the variables to get mean values. 
+Use :comment out or in to select  SowTreat or Depth or Cultivar 
+
+```{r}
+#ANOVA
+#my.anova <- aov(TSW ~ SowTreat + Block, data = file.subset)
+#my.anova <- aov(TSW ~ Cultivar*Depth + Block, data = file.subset)
+my.anova <- aov(TSW ~ Cultivar + Block, data = file.subset)
+#my.anova <- aov(TSW ~ Depth + Block, data = file.subset)
+summary(my.anova)
+```
+
+Then use multiple comparisons of means when applicable (P<0.05)
+```{r}
+#Means separation after ANOVA
+#(LSD.test(my.anova, c("Cultivar", "Depth"), alpha= 0.05, p.adj="none")) 
+#(LSD.test(my.anova, c( "Depth"), alpha= 0.05, p.adj="none"))
+(LSD.test(my.anova, c( "Cultivar"), alpha= 0.05, p.adj="none"))
+#(LSD.test(my.anova, c( "SowTreat"), alpha= 0.05, p.adj="none"))
+```
+
+
+
+
+```{r}
+
+```
+
+
+
 
 End of this script. 

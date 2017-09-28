@@ -20,7 +20,9 @@ library(lubridate)
 Read File with raw data 
 
 ```{r, echo=FALSE}
-setwd("C:\\Users\\EdCarmen\\Documents\\CarmenProjects2016\\Gitsubclover\\BurrYieldBurPok")
+#setwd("C:\\Users\\EdCarmen\\Documents\\CarmenProjects2016\\Gitsubclover\\BurrYieldBurPok")
+setwd("C:\\GitHubRepos\\SubcloverPhD\\Subclover\\BurrYieldBurPok")
+
 getwd()
 file <- read.table("SeedBurrYieldPok.txt",header=TRUE)
 head(file)
@@ -102,8 +104,41 @@ df_bur %>%
   theme_bw()+
 theme(axis.text.x=element_text(angle = +89, hjust = 0.95, size = 12))
 
-head(df_bur)
+#head(df_bur)
 ```
+
+
+
+make a graph with the SE 
+
+```{r, fig.width=10, fig.height=5}
+
+# define position of bar and errorbar; do not remove this line !
+dodge_x <- position_dodge(width = 0.9)
+
+
+df_burSE <- df_bur %>%
+  group_by(Cultivar, SowTreat) %>%
+  summarise_all(funs(mean,sd)) %>%
+  mutate(SE=PropBurrBuried_sd/1.73 )
+  
+  df_burSE %>%
+  
+  ggplot(aes(x=Cultivar, y=(PropBurrBuried_mean),fill=Cultivar))+
+   geom_bar(stat="identity", position = dodge_x) +
+  geom_errorbar(aes(ymin=PropBurrBuried_mean-SE/2, ymax=PropBurrBuried_mean+SE/2),
+                width=0.25, size=0.3,position=dodge_x)   +
+  theme_grey(base_size = 16) +
+    facet_grid(.~SowTreat) +
+    labs(y="Percentage of Buried burrs (%)") +
+  theme_bw()+
+theme(axis.text.x=element_text(angle = +89, hjust = 0.95, size = 12))
+
+
+
+
+```
+
 
 
 Try another graph style 

@@ -1,0 +1,89 @@
+---
+title: "Emergence seedlings I2"
+author: "CT"
+date: "29.12.2015"
+output: html_document
+---
+
+This script does this:
+
+- get the dataframe with ssoil temperatures and work out mean temperatures during emergence  
+
+
+
+```{r loadLibraries, warning=FALSE}
+library(tidyr)
+library(dplyr)
+library(ggplot2)
+library(agricolae)
+library(knitr)
+library(lubridate)
+library(mosaic)
+library(lattice)
+```
+
+
+Read the soil data and adjust formats 
+
+```{r}
+
+# Get dataframe 1 with the soil Temp 
+#setwd("C:\\Users\\EdCarmen\\Documents\\CarmenProjects2016\\GitSubclover\\EmergenceIv2")
+setwd("C:\\GitHubRepos\\SubcloverPhD\\Subclover\\EmergenceIv2")
+getwd()
+
+#create file
+df_emerg6 <- read.table("SoilTemp.txt",header=TRUE)
+head(df_emerg6)
+
+df_emerg6$Date <- dmy(df_emerg6$Date )
+# df_emerg4$SowingDate <- ymd(df_emerg4$SowingDate )
+# df_emerg4$Block <- as.factor(df_emerg4$Block)
+# df_emerg4$Plot <- as.factor(df_emerg4$Plot)
+str(df_emerg6)
+head(df_emerg6)
+
+
+
+```
+
+Subset to find mean temperatures in S2, S3, S4 and S6 
+```{r}
+df_soilTempS2 <- df_emerg6 %>%
+  subset(Date> as.Date("2015-07-28")  & Date< as.Date("2015-08-18"))%>%
+ summarise_all(funs(mean,sd))
+
+#Mean temp soil 6.6 
+
+```
+
+subset S3 
+```{r}
+
+
+df_soilTempS3 <- df_emerg6 %>%
+  subset(Date> as.Date("2015-09-15")  & Date< as.Date("2015-09-30"))%>%
+ summarise_all(funs(mean,sd))
+
+#Mean temp 10.4
+
+```
+
+subset S4 
+
+```{r}
+
+df_soilTempS4 <- df_emerg6 %>%
+  subset(Date> as.Date("2015-11-05")  & Date< as.Date("2015-11-12"))%>%
+ summarise_all(funs(mean,sd))
+#Mean temp 15.04
+```
+
+subset  S6  
+```{r}
+df_soilTempS6 <- df_emerg6 %>%
+  subset(Date> as.Date("2016-02-17")  & Date< as.Date("2016-02-24"))%>%
+ summarise_all(funs(mean,sd))
+# mean temp 19.2
+
+```
