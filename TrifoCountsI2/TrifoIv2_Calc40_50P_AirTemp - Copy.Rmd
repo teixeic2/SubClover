@@ -25,7 +25,7 @@ library(lattice)
 
 
 ```{r}
-setwd("C:\\Users\\EdCarmen\\Documents\\CarmenProjects2016\\GitSubclover\\TrifoCountsI2")
+setwd("C:\\GitHubRepos\\SubCloverPhD\\SubClover\\TrifoCountsI2")
 getwd()
 #create file
 df_trif <- read.table("RateTrifo.txt",header=TRUE)
@@ -62,7 +62,7 @@ Then merge with dates for seedling emergence to find out how many days from 50 %
 ```{r loadFile}
 
 
-setwd("C:\\Users\\EdCarmen\\Documents\\CarmenProjects2016\\GitSubclover\\TrifoCountsI2")
+setwd("C:\\GitHubRepos\\SubCloverPhD\\SubClover\\TrifoCountsI2")
 getwd()
 #create file
 df_S <- read.table("DASSeedEmer.txt",header=TRUE)
@@ -84,7 +84,7 @@ Now bring the Air temperature data
 ```{r}
 
 
-setwd("C:\\Users\\EdCarmen\\Documents\\CarmenProjects2016\\GitSubclover\\TrifoCountsI2")
+setwd("C:\\GitHubRepos\\SubCloverPhD\\SubClover\\TrifoCountsI2")
 getwd()
 #create file
 df_A <- read.table("AirTemp.txt",header=TRUE)

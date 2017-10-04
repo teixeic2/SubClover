@@ -23,7 +23,7 @@ library(lattice)
 
 
 ```{r}
-setwd("C:\\Users\\EdCarmen\\Documents\\CarmenProjects2016\\GitSubclover\\TrifoCountsI2")
+setwd("C:\\GitHubRepos\\SubCloverPhD\\SubClover\\TrifoCountsI2")
 getwd()
 #create file
 df_trifo <- read.table("TrifoCountall.txt",header=TRUE)

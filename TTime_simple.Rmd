@@ -18,7 +18,7 @@ Note: the file is called HistoricMeanTemp but actually contains the hobologger d
 
 
 ```{r}
-setwd("C:\\Users\\EdCarmen\\Documents\\CarmenProjects2016\\GitSubclover")
+setwd("C:\\GitHubRepos\\SubCloverPhD\\SubClover")
 getwd()
 df_file <- read.table("HistoricMeanTemp.txt", header=TRUE)
 

@@ -16,7 +16,7 @@ library (lubridate)
 This script calculates the 50 % Flowering - DAS and TTAS for Poukawa based on script FlowPok1
 
 ```{r loadFile}
-setwd("C:\\Users\\EdCarmen\\Documents\\CarmenProjects2016\\GitSubclover\\FlowPok")
+setwd("C:\\GitHubRepos\\SubCloverPhD\\SubClover\\FlowPok")
 getwd()
 
 #create file ; this file was generated in the previous script FlowerProject2

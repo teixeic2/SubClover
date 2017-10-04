@@ -18,7 +18,7 @@ Note: the file is called HistoricMeanTemp but actually contains the hobologger d
 
 ```{r, load file}
 
-setwd("C:\\Users\\EdCarmen\\Documents\\CarmenProjects2016\\GitSubclover\\EmergenceIv2")
+setwd("C:\\GitHubRepos\\SubCloverPhD\\SubClover\\EmergenceIv2")
 getwd()
 
 df_file <- read.table("SoilTemp.txt", header=TRUE)

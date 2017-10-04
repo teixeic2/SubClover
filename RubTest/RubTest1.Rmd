@@ -22,7 +22,7 @@ Read File
 
 ```{r, echo=FALSE}
 
-setwd("C:\\Users\\EdCarmen\\Documents\\CarmenProjects2016\\Gitsubclover\\RubTest")
+setwd("C:\\GitHubRepos\\SubCloverPhD\\SubClover\\RubTest")
 getwd()
 file <- read.table("RubTest.txt",header=TRUE)
 head(file)

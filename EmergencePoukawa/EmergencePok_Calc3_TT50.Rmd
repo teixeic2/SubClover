@@ -24,7 +24,7 @@ library(lattice)
 
 
 ```{r loadFile}
-setwd("C:\\Users\\EdCarmen\\Documents\\CarmenProjects2016\\GitSubclover\\EmergencePoukawa")
+setwd("C:\\GitHubRepos\\SubCloverPhD\\SubClover\\EmergencePoukawa")
 getwd()
 
 #create file

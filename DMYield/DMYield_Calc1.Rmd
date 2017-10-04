@@ -28,7 +28,7 @@ library(reshape2)
 
 
 ```{r loadFile}
-setwd("C:\\Users\\EdCarmen\\Documents\\CarmenProjects2016\\GitSubclover\\DMYield")
+setwd("C:\\GitHubRepos\\SubCloverPhD\\SubClover\\DMYield")
 getwd()
 
 #create file

@@ -28,7 +28,7 @@ Read the soil data and adjust formats
 ```{r}
 
 # Get dataframe 1 with the soil Temp 
-#setwd("C:\\Users\\EdCarmen\\Documents\\CarmenProjects2016\\GitSubclover\\EmergenceIv2")
+#setwd("C:\\GitHubRepos\\SubCloverPhD\\SubClover\\EmergenceIv2")
 setwd("C:\\GitHubRepos\\SubcloverPhD\\Subclover\\EmergenceIv2")
 getwd()
 

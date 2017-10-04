@@ -27,7 +27,7 @@ library (gridExtra)
 
 ```{r loadFile}
 # Get dataframe from previous script (written table )
-setwd("C:\\Users\\EdCarmen\\Documents\\CarmenProjects2016\\GitSubclover\\EmergencePoukawa")
+setwd("C:\\GitHubRepos\\SubCloverPhD\\SubClover\\EmergencePoukawa")
 getwd()
 
 #create file

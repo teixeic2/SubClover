@@ -14,7 +14,7 @@ library(dplyr)
 ##read
 
 ```{r}
-setwd("C:\\Users\\EdCarmen\\Documents\\CarmenProjects2016\\GitSubclover\\CurveFitStudy")
+setwd("C:\\GitHubRepos\\SubCloverPhD\\SubClover\\CurveFitStudy")
 
 getwd()
 

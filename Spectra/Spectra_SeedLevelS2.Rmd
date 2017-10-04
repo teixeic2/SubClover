@@ -24,7 +24,7 @@ library(scales)
 
 #here program reads individual files (spectra) and bind into a dataframe
 
-filePath <- "C:\\Users\\EdCarmen\\Documents\\CarmenProjects2016\\GitSubclover\\Spectra\\testMicro\\"
+filePath <- "C:\\GitHubRepos\\SubCloverPhD\\SubClover\\Spectra\\testMicro\\"
 
 # Test if there are not scraps of .csv files in folder
 micro.files <- list.files(filePath,

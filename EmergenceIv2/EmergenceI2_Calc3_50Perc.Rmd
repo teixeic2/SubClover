@@ -26,7 +26,8 @@ library(lattice)
 
 
 ```{r loadFile}
-setwd("C:\\Users\\EdCarmen\\Documents\\CarmenProjects2016\\GitSubclover\\EmergenceIv2")
+#setwd("C:\\GitHubRepos\\SubCloverPhD\\SubClover\\EmergenceIv2")
+setwd("C:\\GitHubRepos\\SubcloverPhD\\Subclover\\EmergenceIv2")
 getwd()
 
 #create file
@@ -256,6 +257,8 @@ graph and save a dataframe as txt
 ```{r}
 df_RateEmerg %>%
   group_by(SowingDate, Cultivar) %>%
+  #filter(Cultivar=="Woogenellup")%>%
+ # filter (SowTreat== "S2"| SowTreat== "S2"|SowTreat== "S2"|)
   dplyr::select(Rate) %>%
   summarise_each(funs(mean,sd)) %>%
   #Graph
@@ -270,6 +273,37 @@ df_RateEmerg %>%
   
   write.table(df_RateEmerg, "df_RateEmerg.txt")
 ```
+
+Graph here only for "Woogenellup (draft paper") . Here alread with Stanard error (1.73)
+
+```{r}
+
+df_RateEmerg %>%
+  group_by(SowingDate, Cultivar) %>%
+  filter(Cultivar=="Woogenellup")%>%
+  filter (SowTreat== "S2"| SowTreat== "S3"|SowTreat== "S4"|SowTreat== "S6")%>%
+  dplyr::select(Rate) %>%
+  summarise_each(funs(mean,sd)) %>%
+  #Graph
+  ggplot(aes(x=SowingDate, y=mean, colour=factor(Cultivar), shape=factor(Cultivar))) +
+  geom_point() +
+  geom_line() +
+  labs(x="Sowing Date",y="1/ Days to 50% emergence ") +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1))+
+  geom_errorbar(aes(ymin=mean-(sd/1.73)/2,
+  ymax=mean+(sd/1.73)/2))+
+  theme_bw()
+
+
+
+
+
+
+
+
+
+```
+
 
 
 

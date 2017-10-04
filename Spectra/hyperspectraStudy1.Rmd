@@ -18,9 +18,9 @@ library(hyperSpec)
 
 
 ```{r readData}
-#loc <- "C:\\Users\\EdCarmen\\Documents\\CarmenProjects2016\\GitSubclover\\Spectra\\suberin.txt"
+#loc <- "C:\\GitHubRepos\\SubCloverPhD\\SubClover\\Spectra\\suberin.txt"
 
-loc <- "C:\\Users\\EdCarmen\\Documents\\CarmenProjects2016\\GitSubclover\\Spectra\\AverageSpectra - Copy.txt"
+loc <- "C:\\GitHubRepos\\SubCloverPhD\\SubClover\\Spectra\\AverageSpectra - Copy.txt"
 
 thisFile <- read.table(loc,header=TRUE)
 

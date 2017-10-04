@@ -28,7 +28,7 @@ Aim: calculate the Thousand seed weight for each treatment combination (Sowing d
 
 
 ```{r loadFile}
-#setwd("C:\\Users\\EdCarmen\\Documents\\CarmenProjects2016\\Gitsubclover\\SeedYieldPok")
+#setwd("C:\\GitHubRepos\\SubCloverPhD\\SubClover\\SeedYieldPok")
 setwd("C:\\GitHubRepos\\SubcloverPhD\\Subclover\\SeedYieldPok")
 
 getwd()

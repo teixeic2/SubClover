@@ -19,7 +19,7 @@ library(lubridate)
 Read File 
 
 ```{r, echo=FALSE}
-setwd("C:\\Users\\EdCarmen\\Documents\\CarmenProjects2016\\Gitsubclover\\BurrYieldBurIv2")
+setwd("C:\\GitHubRepos\\SubCloverPhD\\SubClover\\BurrYieldBurIv2")
 getwd()
 file <- read.table("SeedBurrYield.txt",header=TRUE)
 head(file)

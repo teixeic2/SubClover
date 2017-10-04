@@ -21,7 +21,7 @@ Here loading the database : publication, location and dates of experiments
 
 
 ```{r   loadFile}
-setwd("C:\\Users\\EdCarmen\\Documents\\CarmenProjects2016\\GitSubclover\\ReAnalysis")
+setwd("C:\\GitHubRepos\\SubCloverPhD\\SubClover\\ReAnalysis")
 getwd()
 
 

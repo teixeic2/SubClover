@@ -20,7 +20,7 @@ Note: this file produces the graphs for soil  temperatures from hobologger data 
 
 ```{r, load file}
 
-setwd("C:\\Users\\EdCarmen\\Documents\\CarmenProjects2016\\GitSubclover\\FieldBreakdown")
+setwd("C:\\GitHubRepos\\SubCloverPhD\\SubClover\\FieldBreakdown")
 getwd()
 #read soil and Air data 
 df_file <- read.table("SoilTempMesh.txt", header=TRUE)

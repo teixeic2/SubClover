@@ -21,7 +21,7 @@ library(scales)
 Merge the dataframes 
 
 ```{r readData}
-setwd("C:\\Users\\EdCarmen\\Documents\\CarmenProjects2016\\GitSubclover\\Rio2018")
+setwd("C:\\GitHubRepos\\SubCloverPhD\\SubClover\\Rio2018")
 getwd()
 
 #create file

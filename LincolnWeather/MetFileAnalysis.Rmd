@@ -22,7 +22,7 @@ library(gridExtra)
 ```{r DirSet, echo=FALSE}
 
 #Set paths
-setwd("C:\\Users\\EdCarmen\\Documents\\CarmenProjects2016\\GitSubclover")
+setwd("C:\\GitHubRepos\\SubCloverPhD\\SubClover")
 
 # Get file
 metFile <- read.table(paste0("lincoln.met"), skip = 5, header = TRUE, comment.char = "(", blank.lines.skip = TRUE)

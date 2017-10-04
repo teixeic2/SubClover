@@ -22,7 +22,7 @@ Read File
 
 ```{r, echo=FALSE}
 
-#setwd("C:\\Users\\EdCarmen\\Documents\\CarmenProjects2016\\Gitsubclover\\SeedYieldPok")
+#setwd("C:\\GitHubRepos\\SubCloverPhD\\SubClover\\SeedYieldPok")
 setwd("C:\\GitHubRepos\\SubcloverPhD\\Subclover\\SeedYieldPok")
 
 getwd()
@@ -196,6 +196,9 @@ write.table(df1, "SeedYielPok2.txt", row.names=FALSE)
 
 ```
 
+This graph is already with SE (std/1.73)
+
+
 ```{r, fig.heigt=5, fig.width=10}
 # Graph Seed kg ha
 
@@ -215,8 +218,8 @@ dodge_x <- position_dodge(width = 0.9)
   summarise_each(funs(mean,sd)) %>%
   ggplot(aes(x= Cultivar, y=(Seedskg_ha_mean),fill= Cultivar)) +
   geom_bar(stat="identity",position = dodge_x) +
-  geom_errorbar(aes(ymin=Seedskg_ha_mean-Seedskg_ha_sd/2,
-                    ymax=Seedskg_ha_mean+Seedskg_ha_sd/2),
+  geom_errorbar(aes(ymin=Seedskg_ha_mean-(Seedskg_ha_sd/1.73)/2,
+                    ymax=Seedskg_ha_mean+(Seedskg_ha_sd/1.73)/2),
                 width=0.25, size=0.3,position=dodge_x)   +
   theme_grey(base_size = 16) +
   theme_bw()+

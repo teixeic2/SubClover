@@ -20,7 +20,7 @@ SoilTempPo was created based on Mean Air Temperature (excel file; Zheng et al 19
 
 ```{r, load file}
 
-setwd("C:\\Users\\EdCarmen\\Documents\\CarmenProjects2016\\GitSubclover\\Pok_SoilAirTemp")
+setwd("C:\\GitHubRepos\\SubCloverPhD\\SubClover\\Pok_SoilAirTemp")
 getwd()
 #read soil and Air data 
 df_file <- read.table("SoilTempPo.txt", header=TRUE)

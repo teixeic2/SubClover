@@ -19,7 +19,7 @@ This file produces the estimated soil temperature based on  Air temperatures for
 
 ```{r, load file}
 
-setwd("C:\\Users\\EdCarmen\\Documents\\CarmenProjects2016\\GitSubclover\\Pok_SoilAirTemp")
+setwd("C:\\GitHubRepos\\SubCloverPhD\\SubClover\\Pok_SoilAirTemp")
 getwd()
 
 

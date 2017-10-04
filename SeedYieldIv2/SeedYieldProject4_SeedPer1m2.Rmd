@@ -29,7 +29,7 @@ Aim: Statistics for variable Seed Number per 1 m2.
 
 
 ```{r loadFile}
-#old folder setwd("C:\\Users\\EdCarmen\\Documents\\CarmenProjects2016\\Gitsubclover\\SeedYieldIv2")
+#old folder setwd("C:\\GitHubRepos\\SubCloverPhD\\SubClover\\SeedYieldIv2")
 setwd("C:\\GitHubRepos\\SubcloverPhD\\Subclover\\SeedYieldIv2")
 getwd()
 

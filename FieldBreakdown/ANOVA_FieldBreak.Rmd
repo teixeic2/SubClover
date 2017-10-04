@@ -28,7 +28,7 @@ Aim: compare the percentage of germinated seeds among different cultivars over t
 
 
 ```{r loadFile}
-setwd("C:\\Users\\EdCarmen\\Documents\\CarmenProjects2016\\Gitsubclover\\FieldBreakdown")
+setwd("C:\\GitHubRepos\\SubCloverPhD\\SubClover\\FieldBreakdown")
 getwd()
 
 

@@ -31,7 +31,7 @@ library(hyperSpec)
 
 
 ```{r readData}
-setwd("C:\\Users\\EdCarmen\\Documents\\CarmenProjects2016\\GitSubclover\\Spectra")
+setwd("C:\\GitHubRepos\\SubCloverPhD\\SubClover\\Spectra")
 getwd()
 file <- read.table ("suberin.txt",  header = TRUE, dec = ".",sep = "\t" )
 
@@ -40,7 +40,7 @@ file <- read.table ("suberin.txt",  header = TRUE, dec = ".",sep = "\t" )
 #read.txt.long("suberin.txt")
 
 
-file <- read.table ("C:\\Users\\EdCarmen\\Documents\\CarmenProjects2016\\GitSubclover\\Spectra\\AverageSpectra - Copy.txt",  header = TRUE, dec = ".",sep = "\t" )
+file <- read.table ("C:\\GitHubRepos\\SubCloverPhD\\SubClover\\Spectra\\AverageSpectra - Copy.txt",  header = TRUE, dec = ".",sep = "\t" )
 
 
 suberin <- new ("hyperSpec", spc = data,
@@ -92,7 +92,7 @@ scale_x_continuous(breaks=seq(min(df_sp$Wavelength),max(df_sp$Wavelength),400))+
 #now perform a spectra normalization using The rubberband baseline correction which is already implemented  (function spc.rubberband)
 
 
-setwd("C:\\Users\\EdCarmen\\Documents\\CarmenProjects2016\\GitSubclover\\Spectra")
+setwd("C:\\GitHubRepos\\SubCloverPhD\\SubClover\\Spectra")
 
 file <- read.table ("suberin.txt",  header = TRUE)
 

@@ -27,7 +27,7 @@ library(lattice)
 
 
 ```{r loadFile}
-setwd("C:\\Users\\EdCarmen\\Documents\\CarmenProjects2016\\GitSubclover\\EmergencePoukawa")
+setwd("C:\\GitHubRepos\\SubCloverPhD\\SubClover\\EmergencePoukawa")
 getwd()
 
 #create file
@@ -67,6 +67,43 @@ summary (df_emerg_perc3)
 
 write.table(df_emerg_perc3, "df_emerg_perc3.txt")
 ```
+
+Run anova general (get means to write about it in chapters )
+
+```{r}
+
+df_emerg_S1 <-df_emerg_perc3 
+#filter(SowTreat=="S1") 
+summary (df_emerg_S1)
+
+
+#data transf
+file <- df_emerg_S1
+file$transf_no <- 1*(df_emerg_S1$FinalPop)
+head(file)
+
+#-------------------------------------------------
+# ANOVA 
+file.subset <- file 
+
+head(file.subset, 50)
+summary(file.subset)
+#To get means select the factor : SowTreat or Cultivar
+my.anova <- aov(transf_no ~ SowTreat + Block, 
+                data = file.subset)
+
+summary(my.anova)
+
+#Means separation 
+(LSD.test(my.anova, c("SowTreat"), alpha= 0.05, p.adj="none") )
+
+
+```
+
+
+
+
+
 
 Then select each sowing date individually to perform ANOVA; here starting with S1  
 

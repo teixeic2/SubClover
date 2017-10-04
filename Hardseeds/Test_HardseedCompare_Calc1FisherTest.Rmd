@@ -28,7 +28,7 @@ library(lattice)
 
 
 ```{r loadFile}
-setwd("C:\\Users\\EdCarmen\\Documents\\CarmenProjects2016\\GitSubclover")
+setwd("C:\\GitHubRepos\\SubCloverPhD\\SubClover")
 getwd()
 
 #create file
@@ -90,7 +90,7 @@ summary(my.anova)
 Create Graph Percent emergence with Mean Soil Temperature 
 ```{r}
 
-setwd("C:\\Users\\EdCarmen\\Documents\\CarmenProjects2016\\GitSubclover\\EmergenceIv2")
+setwd("C:\\GitHubRepos\\SubCloverPhD\\SubClover\\EmergenceIv2")
 getwd()
 
 

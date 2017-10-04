@@ -21,7 +21,7 @@ library(scales)
 
 
 ```{r readData}
-setwd("C:\\Users\\EdCarmen\\Documents\\CarmenProjects2016\\GitSubclover\\Spectra")
+setwd("C:\\GitHubRepos\\SubCloverPhD\\SubClover\\Spectra")
 getwd()
 
 #create file

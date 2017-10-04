@@ -30,7 +30,8 @@ Read file Subset down means the rate is going down with increase in temperature 
 
 ```{r loadFile}
 # Get dataframe from previous script (written table )
-setwd("C:\\Users\\EdCarmen\\Documents\\CarmenProjects2016\\GitSubclover\\EmergenceIv2")
+#setwd("C:\\GitHubRepos\\SubCloverPhD\\SubClover\\EmergenceIv2")
+setwd("C:\\GitHubRepos\\SubcloverPhD\\Subclover\\EmergenceIv2")
 getwd()
 
 #create file

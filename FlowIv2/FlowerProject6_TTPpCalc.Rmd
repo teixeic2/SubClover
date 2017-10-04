@@ -26,7 +26,7 @@ AIM:
 - Do this by looking at figuest R2 fot Tt50 x Pp
 
 ```{r   loadFile}
-setwd("C:\\Users\\EdCarmen\\Documents\\CarmenProjects2016\\GitSubclover\\FlowIv2")
+setwd("C:\\GitHubRepos\\SubCloverPhD\\SubClover\\FlowIv2")
 
 getwd()
 

@@ -22,7 +22,7 @@ library(hyperSpec)
 
 
 ```{r readData}
-setwd("C:\\Users\\EdCarmen\\Documents\\CarmenProjects2016\\GitSubclover\\FTIR_S2")
+setwd("C:\\GitHubRepos\\SubCloverPhD\\SubClover\\FTIR_S2")
 getwd()
 file <- read.table ("S2.txt",  header = TRUE)
 

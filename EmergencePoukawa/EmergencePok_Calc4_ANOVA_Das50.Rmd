@@ -26,7 +26,7 @@ library(lattice)
 Read dataframe created in previous script (EmergencePok_Calc3)
 Change formats and check the data frame 
 ```{r loadFile}
-setwd("C:\\Users\\EdCarmen\\Documents\\CarmenProjects2016\\GitSubclover\\EmergencePoukawa")
+setwd("C:\\GitHubRepos\\SubCloverPhD\\SubClover\\EmergencePoukawa")
 getwd()
 
 #create file

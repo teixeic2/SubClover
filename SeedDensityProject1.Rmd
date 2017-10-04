@@ -19,7 +19,7 @@ library(lubridate)
 Read File 
 
 ```{r, echo=FALSE}
-setwd("C:\\Users\\EdCarmen\\Documents\\CarmenProjects2016\\Gitsubclover")
+setwd("C:\\GitHubRepos\\SubCloverPhD\\SubClover")
 getwd()
 file <- read.table("SeedDense.txt",header=TRUE)
 head(file)

@@ -22,7 +22,7 @@ Read File
 
 ```{r, echo=FALSE}
 
-#olde folder setwd("C:\\Users\\EdCarmen\\Documents\\CarmenProjects2016\\Gitsubclover\\SeedYieldIv2")
+#olde folder setwd("C:\\GitHubRepos\\SubCloverPhD\\SubClover\\SeedYieldIv2")
 setwd("C:\\GitHubRepos\\SubcloverPhD\\Subclover\\SeedYieldIv2")
 
 getwd()

@@ -21,7 +21,7 @@ This script produces the rate of flowering develop 1/DAS and 1/TT50F
 
 ```{r loadFile}
 
-setwd("C:\\Users\\EdCarmen\\Documents\\CarmenProjects2016\\GitSubclover\\FlowIv2")
+setwd("C:\\GitHubRepos\\SubCloverPhD\\SubClover\\FlowIv2")
 
 getwd()
 

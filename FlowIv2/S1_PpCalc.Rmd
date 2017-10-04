@@ -23,7 +23,7 @@ library(hydroGOF)
 
 
 ```{r   loadFile}
-setwd("C:\\Users\\EdCarmen\\Documents\\CarmenProjects2016\\GitSubclover\\FlowIv2")
+setwd("C:\\GitHubRepos\\SubCloverPhD\\SubClover\\FlowIv2")
 
 getwd()
 

@@ -21,7 +21,7 @@ library (lubridate)
 
 Read and check formats and file 
 ```{r loadFile, include=FALSE}
-setwd("C:\\Users\\EdCarmen\\Documents\\CarmenProjects2016\\GitSubclover\\FlowIv2")
+setwd("C:\\GitHubRepos\\SubCloverPhD\\SubClover\\FlowIv2")
 getwd()
 
 #create file

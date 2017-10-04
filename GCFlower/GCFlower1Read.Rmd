@@ -18,7 +18,7 @@ library (lubridate)
 
 
 ```{r loadFile}
-setwd("C:\\Users\\EdCarmen\\Documents\\CarmenProjects2016\\GitSubclover\\GCFlower")
+setwd("C:\\GitHubRepos\\SubCloverPhD\\SubClover\\GCFlower")
 getwd()
 
 #create file

@@ -21,7 +21,7 @@ This script calculates the means of DAS and TTAS50Flo for Iversen to join the Re
 
 ```{r loadFile}
 
-setwd("C:\\Users\\EdCarmen\\Documents\\CarmenProjects2016\\GitSubclover\\FlowIv2")
+setwd("C:\\GitHubRepos\\SubCloverPhD\\SubClover\\FlowIv2")
 
 getwd()
 

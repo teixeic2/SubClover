@@ -30,7 +30,7 @@ Sub set up has the mean soil temperatures between 5 and 15.
 
 ```{r loadFile}
 # Get dataframe from previous script (written table )
-setwd("C:\\Users\\EdCarmen\\Documents\\CarmenProjects2016\\GitSubclover\\EmergenceIv2")
+setwd("C:\\GitHubRepos\\SubCloverPhD\\SubClover\\EmergenceIv2")
 getwd()
 
 #create file

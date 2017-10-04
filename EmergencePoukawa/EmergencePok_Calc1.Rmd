@@ -29,7 +29,7 @@ In this step re3ad file and change formats
 Calculate the seedling population (seedlings per 1m2 )
 
 ```{r loadFile, fig.height=5, fig.width= 10}
-setwd("C:\\Users\\EdCarmen\\Documents\\CarmenProjects2016\\GitSubclover\\EmergencePoukawa")
+setwd("C:\\GitHubRepos\\SubCloverPhD\\SubClover\\EmergencePoukawa")
 getwd()
 
 #create file

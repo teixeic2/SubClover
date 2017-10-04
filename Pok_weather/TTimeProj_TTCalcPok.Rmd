@@ -19,7 +19,7 @@ library (lubridate)
 
 
 ```{r readData}
-setwd("C:\\Users\\EdCarmen\\Documents\\CarmenProjects2016\\GitSubclover\\Pok_weather")
+setwd("C:\\GitHubRepos\\SubCloverPhD\\SubClover\\Pok_weather")
 getwd()
 
 #create file this is already updated with station 40256 Marakakeho

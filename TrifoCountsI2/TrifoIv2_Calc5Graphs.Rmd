@@ -28,7 +28,7 @@ library (gridExtra)
 Read file and correct formats 
 ```{r loadFile}
 # Get dataframe from previous script (written table )
-setwd("C:\\Users\\EdCarmen\\Documents\\CarmenProjects2016\\GitSubclover\\TrifoCountsI2")
+setwd("C:\\GitHubRepos\\SubCloverPhD\\SubClover\\TrifoCountsI2")
 getwd()
 
 #create file

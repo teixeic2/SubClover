@@ -19,7 +19,7 @@ Note: this file produces the graphs for soil and Air temperatures from hobologge
 
 ```{r, load file}
 
-setwd("C:\\Users\\EdCarmen\\Documents\\CarmenProjects2016\\GitSubclover\\Iv2_SoilAirTemp")
+setwd("C:\\GitHubRepos\\SubCloverPhD\\SubClover\\Iv2_SoilAirTemp")
 getwd()
 #read soil and Air data 
 df_file <- read.table("SoilTemp.txt", header=TRUE)
@@ -77,6 +77,47 @@ df_AS %>%
 
 
 ```
+
+then subset to fit woogenellup paper (subset 28 July 2015 - ealry march 2016)
+
+```{r}
+
+dfW <- df_AS %>%
+  subset(Date>"2015-07-27"  & Date<"2016-03-20")
+
+dfW%>%
+ #  select(Date, TempSoil10mm, MeanTt)%>%
+ # summarise_each(funs(mean)) %>%
+  ggplot(aes(x=MeanTt, y= TempSoil10mm))  +
+  geom_point(colour= "black", alpha=0.2) +
+  #geom_line(colour= "bl")+
+  #stat_smooth(level = 0.9, size = 1, colour="white") + 
+   geom_smooth(method='lm',formula=y~x)+
+  theme_bw() +
+  xlab(expression(Mean~air~temperature~~"( "^"o"*"C)"))+ 
+  ylab(expression(Mean~soil~temperature~~"( "^"o"*"C)"))+
+  theme(text = element_text(size=20))
+  #theme(title =  element_text(size=14))
+  
+
+  # #scale_x_date(date_breaks = "3 month", 
+  #                date_labels = "%B",
+  #                limits = as.Date(c('2015-06-01','2017-07-07')))
+
+
+```
+
+
+get a summary of the lm of the geom method
+
+```{r}
+summary(lm(TempSoil10mm ~ MeanTt, dfW))
+```
+
+
+
+
+
 
 the use geom ab line to see a stright line 
 

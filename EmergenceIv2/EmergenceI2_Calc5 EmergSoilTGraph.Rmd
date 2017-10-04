@@ -28,7 +28,7 @@ library (gridExtra)
 Read file and correct formats 
 ```{r loadFile}
 # Get dataframe from previous script (written table )
-setwd("C:\\Users\\EdCarmen\\Documents\\CarmenProjects2016\\GitSubclover\\EmergenceIv2")
+setwd("C:\\GitHubRepos\\SubCloverPhD\\SubClover\\EmergenceIv2")
 getwd()
 
 #create file
@@ -100,6 +100,54 @@ fontSize <- 12.0
 # 
 
 # 
+
+```
+
+
+Do a graph fo woogenellup only and for S2, S3, S4 and S6 
+
+```{r}
+
+fontSize <- 14.0
+
+
+
+#DAS50E
+#g1 <- df_H %>%
+  #filter(year %in% 1960:2000) %>%
+  #group_by(day) %>%
+ # summarise_each(funs(mean)) %>%
+  g3 <- df_H %>%
+  filter(Cultivar=="Woogenellup")%>%
+  filter (SowTreat== "S2"| SowTreat== "S3"|SowTreat== "S4"|SowTreat== "S6")%>%
+  ggplot(aes(x=meanTemp_Em, y=DAS50E, colour=SowTreat))  +
+  geom_point(alpha=0.8) +
+  #geom_smooth()+
+  #stat_smooth(level = 0.9, size = 1, colour="white") + 
+  theme_bw() +
+  xlab(expression(Soil~temperature~~"("^"o"*"C)")) +  
+  ylab("Days to 50% emergence  (days)") +
+    facet_grid(.~Cultivar, scales="free")+
+  theme(text = element_text(size=11))+
+  scale_x_continuous(limits = c(0,25))+
+  scale_y_continuous(limits = c(0,20))
+
+# 1/DAS50E
+  g4 <- df_H %>%
+   filter(Cultivar=="Woogenellup")%>%
+  filter (SowTreat== "S2"| SowTreat== "S3"|SowTreat== "S4"|SowTreat== "S6")%>% 
+  ggplot(aes(x=meanTemp_Em, y=InvDAS50E, colour=SowTreat))  +
+  geom_point(alpha=0.8) +
+  #geom_smooth(colour="red")+
+  #stat_smooth(level = 0.9, size = 1, colour="white") + 
+  theme_bw() +
+  xlab(expression(Soil~temperature~~"("^"o"*"C)")) + 
+  ylab(" Rate (1/ Days) to 50% emergence") +
+  facet_grid(.~Cultivar, scales="free")+
+  theme(text = element_text(size=11))+
+ scale_x_continuous(limits = c(0,25))+
+  scale_y_continuous(limits = c(0,0.20))
+  grid.arrange(g3, g4)
 
 ```
 

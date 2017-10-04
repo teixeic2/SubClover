@@ -20,7 +20,7 @@ library (lubridate)
 Read the file and check formats 
 
 ```{r loadFile}
-setwd("C:\\Users\\EdCarmen\\Documents\\CarmenProjects2016\\GitSubclover\\HarvestDASIv2")
+setwd("C:\\GitHubRepos\\SubCloverPhD\\SubClover\\HarvestDASIv2")
 getwd()
 
 #create file

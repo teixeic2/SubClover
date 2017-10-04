@@ -18,7 +18,7 @@ library (lubridate)
 
 
 ```{r loadFile}
-setwd("C:\\Users\\EdCarmen\\Documents\\CarmenProjects2016\\GitSubclover\\FlowPok")
+setwd("C:\\GitHubRepos\\SubCloverPhD\\SubClover\\FlowPok")
 getwd()
 
 #create file

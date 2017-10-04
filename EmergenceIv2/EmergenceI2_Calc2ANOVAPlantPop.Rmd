@@ -28,7 +28,9 @@ library(lattice)
 
 
 ```{r loadFile}
-setwd("C:\\Users\\EdCarmen\\Documents\\CarmenProjects2016\\GitSubclover\\EmergenceIv2")
+#setwd("C:\\GitHubRepos\\SubCloverPhD\\SubClover\\EmergenceIv2")
+setwd("C:\\GitHubRepos\\SubcloverPhD\\Subclover\\EmergenceIv2")
+
 getwd()
 
 #create file
@@ -62,6 +64,54 @@ df_emerg_perc3 <- df_emerg%>%
   dplyr::select(SowTreat,Cultivar,Block,Plot,FinalPop)
 
 ```
+here overall from selected sowingdates (S2,S3,S4 and S6) and cultivar Woogenelup only
+
+```{r}
+
+df_emerg_Woog <-df_emerg_perc3 %>%
+filter(Cultivar=="Woogenellup")%>%
+filter (SowTreat== "S2"| SowTreat== "S3"|SowTreat== "S4"|SowTreat== "S6")
+
+str(df_emerg_Woog)
+
+summary (df_emerg_Woog)
+
+
+```
+
+
+```{r}
+file <- df_emerg_Woog
+file$transf_no <- 1*(df_emerg_Woog$FinalPop)
+head(file)
+
+#-------------------------------------------------
+# ANOVA 
+file.subset <- file 
+
+head(file.subset)
+summary(file.subset)
+my.anova <- aov(transf_no ~ SowTreat + Block, 
+                data = file.subset)
+
+summary(my.anova)
+
+```
+
+```{r}
+#then ttest 
+
+#TukeyHSD(my.anova)
+
+#Means separation 
+#(LSD.test(my.anova, c( "Block", "Sowtreat"), alpha= 0.05, p.adj="none") )
+(LSD.test(my.anova, c( "SowTreat"), alpha= 0.05, p.adj="none"))
+#(LSD.test(my.anova, "Block"))
+
+```
+
+
+
 
 then to run statistic tests select each sowing date individually 
 

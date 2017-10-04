@@ -28,7 +28,7 @@ library(lattice)
 
 ```{r loadFile}
 # Get dataframe 1 with the soil Temp 
-setwd("C:\\Users\\EdCarmen\\Documents\\CarmenProjects2016\\GitSubclover\\EmergenceIv2")
+setwd("C:\\GitHubRepos\\SubCloverPhD\\SubClover\\EmergenceIv2")
 getwd()
 
 #create file
@@ -55,7 +55,7 @@ df_emerg4 <- NULL
 ```{r}
 
 # Get dataframe 2 with the date to 50 % Emerg
-setwd("C:\\Users\\EdCarmen\\Documents\\CarmenProjects2016\\GitSubclover\\EmergenceIv2")
+setwd("C:\\GitHubRepos\\SubCloverPhD\\SubClover\\EmergenceIv2")
 getwd()
 
 #create file
@@ -137,7 +137,7 @@ Read the soil data and adjust formats
 ```{r}
 
 # Get dataframe 1 with the soil Temp 
-setwd("C:\\Users\\EdCarmen\\Documents\\CarmenProjects2016\\GitSubclover\\EmergenceIv2")
+setwd("C:\\GitHubRepos\\SubCloverPhD\\SubClover\\EmergenceIv2")
 getwd()
 
 #create file

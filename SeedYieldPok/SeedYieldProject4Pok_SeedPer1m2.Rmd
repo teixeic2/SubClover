@@ -29,7 +29,8 @@ Aim: Statistics for variable Seed Number per 1 m2.
 
 
 ```{r loadFile}
-setwd("C:\\Users\\EdCarmen\\Documents\\CarmenProjects2016\\Gitsubclover\\SeedYieldPok")
+#setwd("C:\\GitHubRepos\\SubCloverPhD\\SubClover\\SeedYieldPok")
+setwd("C:\\GitHubRepos\\SubcloverPhD\\Subclover\\SeedYieldPok")
 getwd()
 
 #REading the dataframe generated in SeedYieldProject1 script
@@ -380,8 +381,8 @@ S5 means
 ```{r}
 #Means separation after ANOVA
 #(LSD.test(my.anova, c( "SowTreat", "Depth"), alpha= 0.05, p.adj="none"))
-#(LSD.test(my.anova, c("Cultivar","Depth"), alpha= 0.05, p.adj="none")) 
-(LSD.test(my.anova, c( "Depth"), alpha= 0.05, p.adj="none"))
+(LSD.test(my.anova, c("Cultivar","Depth"), alpha= 0.05, p.adj="none")) 
+#(LSD.test(my.anova, c( "Depth"), alpha= 0.05, p.adj="none"))
 #(LSD.test(my.anova, c( "SowTreat", "Cultivar"), alpha= 0.05, p.adj="none"))
 #(LSD.test(my.anova, c("Cultivar"), alpha= 0.05, p.adj="none"))
 ```

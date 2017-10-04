@@ -22,7 +22,7 @@ library(rgr)
 
 
 ```{r loadFile}
-setwd("C:\\Users\\EdCarmen\\Documents\\CarmenProjects2016\\Gitsubclover\\Hardseeds")
+setwd("C:\\GitHubRepos\\SubCloverPhD\\SubClover\\Hardseeds")
 getwd()
 
 #create file dftablehardseeds1 is created in HardseedsProject1 script

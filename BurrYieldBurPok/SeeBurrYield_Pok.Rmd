@@ -20,7 +20,7 @@ library(lubridate)
 Read File with raw data 
 
 ```{r, echo=FALSE}
-#setwd("C:\\Users\\EdCarmen\\Documents\\CarmenProjects2016\\Gitsubclover\\BurrYieldBurPok")
+#setwd("C:\\GitHubRepos\\SubCloverPhD\\SubClover\\BurrYieldBurPok")
 setwd("C:\\GitHubRepos\\SubcloverPhD\\Subclover\\BurrYieldBurPok")
 
 getwd()

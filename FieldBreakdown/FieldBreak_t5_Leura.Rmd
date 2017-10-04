@@ -22,7 +22,7 @@ library(rgr)
 
 Read file and 
 ```{r, loadFile}
-setwd("C:\\Users\\EdCarmen\\Documents\\CarmenProjects2016\\Gitsubclover\\FieldBreakdown")
+setwd("C:\\GitHubRepos\\SubCloverPhD\\SubClover\\FieldBreakdown")
 getwd()
 
 #create file

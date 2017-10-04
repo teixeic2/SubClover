@@ -28,7 +28,7 @@ library(lattice)
 Read file , change formats and check data 
 ```{r loadFile}
 # Get dataframe 1 with the soil Temp 
-setwd("C:\\Users\\EdCarmen\\Documents\\CarmenProjects2016\\GitSubclover\\EmergencePoukawa")
+setwd("C:\\GitHubRepos\\SubCloverPhD\\SubClover\\EmergencePoukawa")
 getwd()
 
 #create file
@@ -56,7 +56,7 @@ Read file, adjust formats and check (generated in Calculation 3)
 ```{r}
 
 # Get dataframe 2 with the date to 50 % Emerg
-setwd("C:\\Users\\EdCarmen\\Documents\\CarmenProjects2016\\GitSubclover\\EmergencePoukawa")
+setwd("C:\\GitHubRepos\\SubCloverPhD\\SubClover\\EmergencePoukawa")
 getwd()
 
 #create file
@@ -128,7 +128,7 @@ Read and check data
 ```{r}
 
 # Get dataframe 1 with the soil TempPo changed directory ! 
-setwd("C:\\Users\\EdCarmen\\Documents\\CarmenProjects2016\\GitSubclover\\EmergencePoukawa")
+setwd("C:\\GitHubRepos\\SubCloverPhD\\SubClover\\EmergencePoukawa")
 getwd()
 
 #create file; here got the estimated soil temnp for sandy soil based on Langholz 1989 and Zheng 1993 papers 

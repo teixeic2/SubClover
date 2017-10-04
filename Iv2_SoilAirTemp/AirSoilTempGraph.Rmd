@@ -20,7 +20,7 @@ Note: this file produces the graphs for soil and Air temperatures from hobologge
 
 ```{r, load file}
 
-setwd("C:\\Users\\EdCarmen\\Documents\\CarmenProjects2016\\GitSubclover\\Iv2_SoilAirTemp")
+setwd("C:\\GitHubRepos\\SubCloverPhD\\SubClover\\Iv2_SoilAirTemp")
 getwd()
 #read soil and Air data 
 df_file <- read.table("SoilTemp.txt", header=TRUE)

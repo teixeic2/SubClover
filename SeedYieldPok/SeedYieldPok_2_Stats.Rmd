@@ -26,7 +26,7 @@ library(rgr)
 
 
 ```{r loadFile}
-setwd("C:\\Users\\EdCarmen\\Documents\\CarmenProjects2016\\Gitsubclover\\SeedYieldPok")
+setwd("C:\\GitHubRepos\\SubCloverPhD\\SubClover\\SeedYieldPok")
 getwd()
 
 
@@ -70,7 +70,8 @@ summary(file.subset)
 
 ```{r}
 #ANOVA
-my.anova <- aov(Seedskg_ha ~ Cultivar + Block, data = file.subset)
+#my.anova <- aov(Seedskg_ha ~ Cultivar + Block, data = file.subset)
+my.anova <- aov(Seedskg_ha ~ SowTreat + Block, data = file.subset)
 
 summary(my.anova)
 ```
@@ -78,7 +79,8 @@ summary(my.anova)
 Then use multiple comparisons of means
 ```{r}
 #Means separation after ANOVA
-(LSD.test(my.anova, c("Cultivar"), alpha= 0.05, p.adj="none")) 
+#(LSD.test(my.anova, c("Cultivar"), alpha= 0.05, p.adj="none")) 
+(LSD.test(my.anova, c("SowTreat"), alpha= 0.05, p.adj="none"))
 ```
 
 

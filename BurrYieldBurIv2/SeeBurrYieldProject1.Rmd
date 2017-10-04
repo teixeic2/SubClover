@@ -21,7 +21,7 @@ library(lubridate)
 Read File 
 
 ```{r, echo=FALSE}
-setwd("C:\\Users\\EdCarmen\\Documents\\CarmenProjects2016\\Gitsubclover\\BurrYieldBurIv2")
+setwd("C:\\GitHubRepos\\SubCloverPhD\\SubClover\\BurrYieldBurIv2")
 getwd()
 file <- read.table("SeedBurrYield.txt",header=TRUE)
 head(file)
@@ -236,15 +236,15 @@ and then consider cultivar within each sowing date
 
 #ANOVA
 
-my.anova <- aov(PropBurrBuried ~ Cultivar + Block, data = file.subset)
-#my.anova <- aov(PropBurrBuried ~ SowTreat + Block, data = file.subset)
+#my.anova <- aov(PropBurrBuried ~ Cultivar + Block, data = file.subset)
+my.anova <- aov(PropBurrBuried ~ SowTreat + Block, data = file.subset)
 summary(my.anova)
 ```
 
 ```{r}
 #Means separation after ANOVA
-#(LSD.test(my.anova, c("SowTreat"), alpha= 0.05, p.adj="none")) 
-(LSD.test(my.anova, c("Cultivar"), alpha= 0.05, p.adj="none")) 
+(LSD.test(my.anova, c("SowTreat"), alpha= 0.05, p.adj="none")) 
+#(LSD.test(my.anova, c("Cultivar"), alpha= 0.05, p.adj="none")) 
 ```
 
 Perform anova in single sowing dates : S1 

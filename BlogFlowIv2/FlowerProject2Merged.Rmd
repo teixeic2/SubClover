@@ -26,7 +26,7 @@ Read file and adjust formats
 
 ```{r loadFile}
 
-setwd("C:\\Users\\EdCarmen\\Documents\\CarmenProjects2016\\GitSubclover\\BlogFlowIv2")
+setwd("C:\\GitHubRepos\\SubCloverPhD\\SubClover\\BlogFlowIv2")
 
 getwd()
 

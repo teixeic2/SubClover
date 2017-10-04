@@ -17,7 +17,7 @@ library(dplyr)
 ## Get data and sort formats
 
 ```{r}
-info<-read.table("C:\\Users\\EdCarmen\\Documents\\CarmenProjects2016\\GitSubclover\\New\\HeatStressFinalData_2017.txt", header=TRUE)
+info<-read.table("C:\\GitHubRepos\\SubCloverPhD\\SubClover\\New\\HeatStressFinalData_2017.txt", header=TRUE)
 
 info$scenario <- as.factor(info$scenario)
 
