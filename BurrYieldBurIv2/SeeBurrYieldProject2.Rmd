@@ -106,8 +106,8 @@ df_bura %>%
                 width=0.25, size=0.3,position=dodge_x)   +
   theme_grey(base_size = 18) +
     facet_grid(.~SowTreat) +
-    #labs(y="% Total number of  burrs per 1 m2") +
-   ylab(expression(Total~number~of~burrs~per~1~m^"2")) +
+    #labs(y="% Total number of  burrs per m2") +
+   ylab(expression(Total~number~of~burrs~per~m^"2")) +
   theme_bw()+
 theme(axis.text.y = element_text( size = 11))+
   theme(axis.title.y = element_text(face="bold", size=14))+

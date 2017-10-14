@@ -64,7 +64,7 @@ DAta visualisation: Graph the seedling population per 1m2
   df_emerg %>%  group_by(Cultivar, SowTreat, DAS) %>%
 #  filter(Cultivar =="Monti") %>%
   #dplyr::select(-SowingDate, - ReadingDate) %>%
-  summarise_each(funs(mean)) %>%
+  summarise_all(funs(mean)) %>%
   ggplot(aes(x=DAS, y=PlantPop)) + 
   geom_point(aes(colour=Cultivar)) +
   geom_line(aes(colour=Cultivar)) +

@@ -44,7 +44,7 @@ summary (df_CumTT)
 
 ```{r}
 df_CumTT2 <- df_CumTT %>%
-  select(LocationYear, Date, SumTTday,Pp)
+  dplyr:: select(LocationYear, Date, SumTTday,Pp)
 
   summary (df_CumTT2)
 ```
@@ -151,7 +151,7 @@ df_ReaSlop <- df_Rea3 %>%
   group_by(SowingDate,Treatcultivar)%>%
 do(mod = lm(PercentFlower ~ TTtoFlower, data = .)) %>%
   mutate(Slope = summary(mod)$coeff[2]) %>%
-  select(-mod)
+  dplyr::select(-mod)
 
 #note: slope is PercentFlower/TToCd!!
 ```
@@ -175,8 +175,20 @@ df_ReaSlop %>%
   mutate(TT=95/Slope)%>%
   summarise(mean=mean(Slope), sd=sd(Slope),meanTT=mean(TT), sdTT=sd(TT))
   
-# calculate Standard error as  <- function(x) sd(x)/sqrt(smaple size(x))
+# calculate Standard error as  <- function(x) sd(x)/sqrt(smaple size(n)) for dear et al n=4
+
+```
 
 
+```{r}
+
+#str(df_Rea3)
+
+d <-df_Rea3 %>%
+  filter(LocationYear=="Waggawagga1985"&  AuthorYear=="DearEtal1993") %>%
+  group_by(SowingDate)%>%
+  
+ # mutate(DaysToFlower= as.numeric(DaysToFlower))%>%
+  summarise(mean=mean(DaysToFlower), sd=sd(DaysToFlower))
 ```
 

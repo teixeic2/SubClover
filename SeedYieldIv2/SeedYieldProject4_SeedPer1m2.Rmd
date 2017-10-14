@@ -111,7 +111,7 @@ dodge_x <- position_dodge(width = 0.9)
     theme_bw()+
   facet_grid(Depth~SowTreat, scales="free") +
     #labs(y= "Seed Number per m2")+
-    ylab(expression(Seed~number~per~1~m^"2"))+
+    ylab(expression(Seed~number~per~m^"2"))+
 theme(axis.text.x=element_text(angle = +90, hjust = 0))+
   theme(text = element_text(size = 14))
 ```

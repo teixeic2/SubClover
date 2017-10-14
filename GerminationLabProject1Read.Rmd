@@ -17,7 +17,7 @@ library (lubridate)
 
 
 ```{r loadFile}
-setwd("C:\\GitHubRepos\\SubCloverPhD\\SubClover")
+setwd("C:\\GitHubRepos\\SubCloverPhD\\SubClover\\SeedGermTemp")
 getwd()
 
 #create file
@@ -34,50 +34,41 @@ df_seed <- df_seed %>%
 
 summary(df_seed) # explore values
 str(df_seed) # check formats
-head(df_seed) # see to rows
-tail(df_seed)
+# head(df_seed) # see to rows
+# tail(df_seed)
 
 ```
 
-```{r}
+
+
+```{r, fig.width=14, fig.height= 5}
 #graph it
  df_seed %>%
   group_by(Temp,Cv,rep) %>% # need to keep level in which cumulation occurs
-  arrange(HoursofTest) %>% # need to tell which factor to accumulate within
+  #arrange(HoursofTest) %>% # need to tell which factor to accumulate within
+  arrange(DOT) %>%
   mutate(PropGerm_cum = cumsum(CountedGerm)) %>%
   #mutate(PropGermCum=PropGerm_cum/max(CountedGerm))%>%
-  group_by(Temp,Cv,HoursofTest) %>%
-  dplyr::select(Temp,Cv,HoursofTest,PropGerm_cum) %>%
-  summarise_each(funs(mean)) %>%
-ggplot(aes(x=HoursofTest, y=PropGerm_cum/50*100, colour=factor(Cv))) + # do percentage here
+  #group_by(Temp,Cv,HoursofTest) %>%
+  group_by(Temp,Cv,DOT)%>%
+  dplyr::select(Temp,Cv,DOT,PropGerm_cum) %>%
+  summarise_all(funs(mean)) %>%
+ggplot(aes(x=DOT, y=(PropGerm_cum/50)*100, colour=factor(Cv))) + # do percentage here
   geom_point()+
   geom_line()+
-  labs(x="Hours",y="Cummulative Germination Percnet(%)")+
-  facet_grid(.~Temp)
+  theme_bw()+
+  labs(x="Days",y="Cummulative Germination Percent (%)")+
+  facet_wrap (~Temp,ncol=6, scales = "free")+
+  ylim (0,100)+
+  xlim(0,14)+
+  geom_abline(intercept = 50, slope = 0)
+#facet_grid(.~Temp, ncol=4, scales = "free")
 
 head(df_seed)
 
 ```
 
 
-```{rCreate }
-df_seed <- df_seed %>%
-  group_by(Temp,Cv,rep) %>% # need to keep level in which cumulation occurs
-  arrange(HoursofTest) %>% # need to tell which factor to accumulate within
-  mutate(PropGerm_cum = cumsum(CountedGerm)) %>%
-  #mutate(PropGermCum=PropGerm_cum/max(CountedGerm))%>%
-  group_by(Temp,Cv,HoursofTest) %>%
-  
-  #parei aqui - fix me stdev and sE 
-  head(df_seed)
-  dplyr::select(PropGerm_cum)%>%
-  summarise_each(funs(mean,sd)) %>%
-  ggplot(aes(x=HoursofTest, y=mean, colour=factor(Cv), shape=factor(Cv))) +
-  geom_point() +
-  geom_line() +
- facet_grid(.~Temp) +
-  labs(x="Sowing Date",y="Maximum Percentage of Hardseeds") +
-  geom_errorbar(aes(ymin=mean-sd/2,
-                    ymax=mean+sd/2))
+
 
 

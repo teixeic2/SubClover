@@ -45,7 +45,7 @@ summary (df_CumTTvern)
 
 ```{r}
 df_CumTTvern2 <- df_CumTTvern %>%
-  select(LocationYear, Date, SumVernDay,Pp)
+  dplyr::select(LocationYear, Date, SumVernDay,Pp)
 
   summary (df_CumTTvern2)
 ```

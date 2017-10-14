@@ -75,18 +75,27 @@ Hang on a minute .... linear increase in Pp
 ```{r}
 
 #Create Photoperiod  factor ! based on Nori  2012; annual clovers; Pb = 10; Popt=16
+#keep as tt to simplify script
 
-Pp_card <- data.frame(Pp=c(10,16.5,24),TT=c(0,1,1))
-Pp_card %>%
-  ggplot(aes(x=Pp, y=TT))+
-  labs(x="Photoperiod (hours) ")+
-  labs(y="PpFactor (day) ") +
+tt_card <- data.frame(temp=c(10,16.5,24),TT=c(0,1,1))
+tt_card %>%
+  ggplot(aes(x=temp, y=TT))+
+  #labs(x="Photoperiod (hours) ")+
+  #labs(y="PpFactor (day) ") +
  # ylim(0,max(tt_card$TT))
-  geom_line()
+  geom_line()+
+theme_bw()+
+ylim(0,1)+
+xlab(expression(Temperature~"("^"o"*"C)"))+
+  ylab(expression(Pp~factor~"(days)"))+
+  theme(axis.text.x=element_text(angle = 0, hjust = 0, size= 14))+
+  theme(axis.title.x=element_text(angle = 0, hjust = 0.5, size= 14))+
+  theme(axis.text.y=element_text(angle = 0, hjust = 0, size= 14))+
+  theme(axis.title.y=element_text(size= 14))
   
 #Daily increment of photoperiod factor is  based on daily average photoperiod. Each average Pp will accumulate between 0 and 1 factor >16.5 hours 
 ```
-Continue from here ... 
+Continue from here ... do not know how to handle the Pp.
 
 ```{r}
 

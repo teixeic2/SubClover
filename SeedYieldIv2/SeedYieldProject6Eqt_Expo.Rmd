@@ -1,0 +1,115 @@
+---
+title: "Correlation Seed Yield and Plant population - Iversen 2 and Pok"
+author: "CT"
+date: " 04.10.2017"
+output: html_document
+---
+Purpose of this script : 
+calculate the relationship between seed yield and plant population from Iversen 2 and pok datasets 
+
+```{r loadLibraries}
+library(tidyr)
+library (dplyr)
+library (ggplot2)
+library(agricolae)
+library(knitr)
+library (lubridate)
+
+```
+
+Read the file and check formats 
+
+```{r loadFile}
+setwd("C:\\GitHubRepos\\SubCloverPhD\\SubClover\\SeedYieldIv2")
+getwd()
+
+#create file
+df_Hvst <- read.table("SeedYieldvsPlantPop.txt",header=TRUE)
+head(df_Hvst)
+
+str(df_Hvst)
+#
+
+
+
+```
+
+```{r}
+ # define formats 
+#df_Hvst$ReadDate <- dmy(df_Hvst$ReadDate )
+#df_Hvst$DAS <- as.numeric(df_Hvst$DAS)
+df_Hvst$SowTreat <- as.factor(df_Hvst$SowTreat)
+df_Hvst$PlantPopIv <- as.numeric(df_Hvst$PlantPopIv)
+df_Hvst$seedyieldIv2 <- as.numeric(df_Hvst$seedyieldIv2)
+
+#df_Hvst$PlantPopPok <- as.numeric(df_Hvst$PlantPopPok)
+#df_Hvst$SeedYieldPok <- as.numeric(df_Hvst$SeedYieldPok)
+
+str(df_Hvst)
+# head(df_Hvst)
+# summary(df_Hvst)
+# tail(df_Hvst)
+```
+do for Iversen
+
+```{r}
+
+df <- df_Hvst %>%
+  
+  mutate(y=seedyieldIv2,x=PlantPopIv) %>%
+  dplyr::select(-seedyieldIv2, -PlantPopIv)
+
+
+Iv <-df %>%
+  dplyr::select(x,y)
+
+Iv %>%
+  ggplot(aes(x = x, y = y)) +
+  #geom_line()+
+  geom_smooth(method = "lm", se=FALSE, color="black", formula = y ~ exp(x)) +
+    geom_point() +
+               
+    theme_bw()+
+  scale_x_continuous(limits = c(0,2500))+
+  scale_y_continuous(limits = c(0,1500))
+
+```
+get summary for Iversen could not get the summary!!!!
+
+```{r}
+#get statistical summary here 
+
+summary(lm(y ~ exp(x), Iv))
+```
+
+
+
+Correlate Pp with DAS 
+
+```{r}
+
+dfP <- df_Hvst %>%
+  
+  mutate(y=DAS,x=Pp) %>%
+  dplyr::select(-DAS, -Pp)
+
+dfP %>%
+  ggplot(aes(x = x, y = y)) +
+  #geom_line()+
+  geom_smooth(method = "lm", se=FALSE, color="black", formula = y ~ x) +
+  geom_point() +
+               
+    theme_bw()+
+  scale_x_continuous(limits = c(0,20))+
+  scale_y_continuous(limits = c(0,350))
+
+
+```
+
+
+```{r}
+#get statistical summary here 
+summary(lm(y ~ x, dfP))
+```
+
+

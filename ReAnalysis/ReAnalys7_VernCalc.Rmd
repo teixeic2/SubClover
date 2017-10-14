@@ -74,15 +74,23 @@ Tmax: 12
 
 ```{r}
 
-#Create Accumulated vernalize temperatures need REF! 
+#Create Accumulated vernalize temperatures by  Aitken 1955.
 
 tt_card <- data.frame(temp=c(-3,1,10,12,25),TT=c(0,1,1,0,0))
 tt_card %>%
   ggplot(aes(x=temp, y=TT))+
-  labs(x="Temperature (degree Celsius) ")+
+  #labs(x="Temperature (degree Celsius) ")+
   labs(y="Vernalization (day) ") +
  # ylim(0,max(tt_card$TT))
-  geom_line()
+  geom_line()+
+theme_bw()+
+ylim(0,1)+
+xlab(expression(Temperature~"("^"o"*"C)"))+
+  ylab(expression(Vernalisation~"(days)"))+
+  theme(axis.text.x=element_text(angle = 0, hjust = 0, size= 14))+
+  theme(axis.title.x=element_text(angle = 0, hjust = 0.5, size= 14))+
+  theme(axis.text.y=element_text(angle = 0, hjust = 0, size= 14))+
+  theme(axis.title.y=element_text(size= 14))
   
 #Daily increment of vernalization-days based on daily average temperature. Each daily average temperature will accumulate between 0 and 1 vernalization-days dependent on the effectiveness of the temperature on vernalization response. See text for explanation of conditions of de-vernalization when daily average temperatures are >25 °C 
 ```

@@ -62,18 +62,26 @@ REFS: MonksEtAl2009	,LonatiEtAl2009	,MootEtal2003, SilsburyetAl1984.
 							
 
 
-```{r}
+```{r, fig.height=5, fig.width=10}
 
-#Create Thermal time cardinal temperatures see REFs! 
+#Create Thermal time cardinal temperatures see REFs Moot et al 2000, Lonati, 2009, Monks 2009, Silsbury 1984 ! 
 
-tt_card <- data.frame(temp=c(0,18,25,40),TT=c(0,18,18,0))
+tt_card <- data.frame(temp=c(0,15,22,35),TT=c(0,15,15,0))
 tt_card %>%
   ggplot(aes(x=temp, y=TT))+
-  labs(x="Temperature (degree Celsius)")+
-  labs(y="Thermal Time (oCd)") +
-  geom_line()
+  #labs(x="Temperature (degree Celsius)")+
+  #labs(y="Thermal Time (oCd)") +
+  geom_line()+
+  theme_bw()+
+  ylim(0,20)+
+xlab(expression(Temperature~"("^"o"*"C)"))+
+  ylab(expression(Thermal~Time~"("^"o"*"Cd)"))+
+  theme(axis.text.x=element_text(angle = 0, hjust = 0, size= 14))+
+  theme(axis.title.x=element_text(angle = 0, hjust = 0.5, size= 14))+
+  theme(axis.text.y=element_text(angle = 0, hjust = 0, size= 14))+
+  theme(axis.title.y=element_text(size= 14))
   
-#FIX ME include REF Thermal time 
+#
 ```
 
 ```{r}
