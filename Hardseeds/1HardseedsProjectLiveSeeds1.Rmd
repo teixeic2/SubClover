@@ -1,0 +1,207 @@
+---
+title: "Hardseeds Live Max 6CV"
+author: "CT"
+date: "22.09.2016"
+output:
+  word_document: default
+  pdf_document: default
+---
+
+
+```{r loadLibraries}
+library(tidyr)
+library (dplyr)
+library (ggplot2)
+library(agricolae)
+library(knitr)
+library (lubridate)
+
+```
+
+
+```{r}
+setwd("C:\\GitHubRepos\\SubCloverPhD\\SubClover\\Hardseeds")
+getwd()
+```
+
+
+
+This script reads the HardseedsLiveData (from raw data excel) with all catergories of seeds (germ, abnormal, dead)
+```{r loadFile}
+#create file
+df_seed_raw <- read.table("HardseedsLiveData.txt",header=TRUE)
+head(df_seed_raw)
+```
+
+```{r}
+# jeito 2 de trocar formato (usando dplyr)
+df_seed <- df_seed_raw %>%
+  mutate(Plot = as.factor(Plot), 
+         Block = as.factor(Block),
+         Date = dmy(Date),
+         Depth = factor(Depth,levels=c( "Above","Below")),
+         Soft = as.numeric(Soft),
+         SoftDead = as.numeric(SoftDead),
+         SoftGerm = as.numeric (SoftGerm),
+         SoftAbn = as.numeric (SoftAbn),
+         SoftUngerm = as.numeric (SoftUngerm),
+       HardUngermFinal = as.numeric (HardUngermFinal)) 
+  
+
+summary(df_seed) # explore values
+
+```
+
+```{r}
+str(df_seed) # check formats
+```
+
+
+
+```{r}
+
+
+
+# create an ID of each chunk
+df_temp <- df_seed %>%
+  dplyr::select(-Date) %>%
+  mutate(codeID = as.factor(paste0(Plot,"_",Depth)))
+
+# define unique factors to loop around
+codesNames <- unique(df_temp$codeID)
+
+# prepare final df to store data
+df_final <- data.frame()
+
+# loop
+for(i in 1:length(codesNames)) {
+  
+  df_sub <- data.frame() # empty df
+  
+  df_sub <- df_temp %>%
+    subset(codeID == codesNames[i]) %>% # segment one unique combination
+    mutate(codeID = factor(codeID)) %>%
+    arrange(Round) %>%
+    mutate(CumSoftDead = cumsum(SoftDead)) %>%
+    mutate(Total_live = InitialSeedlotR1Number-max(CumSoftDead)) %>%
+    mutate(Soft_live = SoftGerm + SoftUngerm + SoftAbn) %>%
+    filter(Round==min(Round)) %>% 
+    mutate(Hard_perc = round(100-(Soft_live/Total_live*100),2))
+  
+  df_final <- rbind(df_final,df_sub)
+  
+}
+
+summary(df_final)
+```
+
+
+
+
+
+
+```{r CreatePercentSoft}
+
+#Change name of dataframes
+
+df_hard_live_max <- df_final 
+summary (df_hard_live_max)
+
+```
+check
+
+```{r, fig.height=5, fig.width=10}
+
+#Graph the maximum percentage of Live hardseeds!!! Here graph already show SE sd/3,.46 n = 3.
+
+  df_hard_live_max %>%
+  mutate(SowingD = dmy(SowingD)) %>%
+  filter(Round == 14) %>%
+  group_by(Cultivar,SowingD, Depth) %>%
+  dplyr::select(Hard_perc) %>%
+  summarise_all(funs(mean,sd)) %>%
+  ggplot(aes(x=SowingD, y=mean, colour=Cultivar, shape=Cultivar)) +
+  geom_point() +
+  geom_line() +
+ facet_grid(Depth~Cultivar) +
+  labs(x="Sowing Date",y="Maximum Percentage of Live Hardseeds (%)") +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1))+
+                  geom_errorbar(aes(ymin=mean-sd/3.46,
+                    ymax=mean+sd/3.46))+
+  theme_bw()+
+  ylim(0,100)+
+  theme(axis.text.x=element_text(angle = 0, hjust = 0.5, size= 11))+
+  theme(axis.text.y=element_text(angle = 0, hjust = 0, size= 12))
+
+```
+
+
+
+
+```{r}
+df_cum_soft<-df_seed %>%
+  mutate(LiveSeed=InitialSeedlotR1Number-SoftDead) %>%
+  mutate(SoftLive=SoftGerm+SoftAbn)  %>%
+  mutate(PercSoft=SoftLive/LiveSeed*100) %>%
+  mutate(PercHard=100-PercSoft) %>%
+  group_by(Plot,Depth) %>%
+  arrange(Round) %>%
+  mutate(HardAccum = 100-cumsum(PercSoft))
+  
+summary(df_cum_soft)
+
+  
+```
+
+Here graph the percentage of hardseeds based on living seeds (exclude dead! )
+
+```{r, fig.height= 8, fig.width=12}
+#Graph Breakdown live hard seeds 
+
+df_cum_soft %>%
+  mutate(SowingD = dmy(SowingD)) %>%
+  mutate (SowTreat= factor(SowTreat, levels=c("S1", "S2", "S3", "S4", "S6","S7"),labels=c("June", "July", "September", "November", "February","March")))%>%
+  #filter(Round == 14) %>%
+  group_by(Cultivar,SowingD, SowTreat, Depth,Round) %>%
+  dplyr::select(HardAccum) %>%
+  summarise_all(funs(mean,sd)) %>%
+  ggplot(aes(x=Round, y=mean, colour=Cultivar, shape=Cultivar)) +
+  geom_point(size=3) +
+  geom_line() +
+ facet_grid(Depth~SowTreat) +
+  labs(x="Days",y=" Percentage of LiveHardseeds") +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1))+
+                  geom_errorbar(aes(ymin=mean-sd/3.46,
+                    ymax=mean+sd/3.46))+
+  theme_bw()+
+  ylim(0,100)+
+  xlim(0,100)+
+  ylab(expression(Percentage~of~Hardseeds~"(%)"))+
+  #theme(text = element_text(size=12))+
+  #xlab(expression(Days))+
+  theme(axis.text.x=element_text(angle = 45, hjust = 0.5, size= 11))+
+   theme(axis.title.x=element_text(angle = 0, hjust = 0.5, size= 16))+
+  theme(axis.text.y=element_text(angle = 0, hjust = 0, size= 12))+
+   theme(axis.title.y=element_text(angle = 90, hjust = 0.5, size= 16))
+
+
+
+```
+
+
+```{r}
+write.table(df_cum_soft, "dfHard_break.txt")
+```
+
+
+
+end of this script . 
+
+
+
+```{r}
+
+#markdown::render("<C:\\GitHubRepos\\SubCloverPhD\\SubClover\\HardseedsProject1Read.Rmd>") 
+```
+
+

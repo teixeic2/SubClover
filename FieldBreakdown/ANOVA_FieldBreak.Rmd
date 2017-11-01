@@ -51,6 +51,7 @@ file <- df_seedY %>%
     Block = as.factor(Block),
     Cultivar = as.factor(Cultivar),
     DAB= as.numeric (DAB),
+    TTSoilSum= as.numeric(TTSoilSum),
     ReadingDate = dmy(ReadingDate)
   )
 
@@ -69,7 +70,8 @@ Select columns of interest for ANOVA.
 ```{r}
 
 df<- file %>%
-  dplyr::select(Cultivar,Plot,Block,DAB, PercCumGerm)
+  mutate(HardSeeds=100-(PercCumGerm))%>%
+  dplyr::select(Cultivar,Plot,Block,DAB, HardSeeds)
             
 
   df <- as.data.frame(df)
@@ -90,7 +92,7 @@ Use filters to select DAB (days after burial ). Here 111 DAB represents the firs
 summary(df)
 
 df_seedYS6 <- df %>%
-  #filter(DAB=="111")
+  filter(DAB=="111")
   #filter(DAB=="111")
   #filter(DAB=="111")
   
@@ -116,7 +118,7 @@ Use :comment out or in to select  Variable of interest
 ```{r}
 #ANOVA
 
-my.anova <- aov(PercCumGerm ~ Cultivar + Block, data = file.subset)
+my.anova <- aov(HardSeeds ~ Cultivar + Block, data = file.subset)
 
 summary(my.anova)
 ```
@@ -160,7 +162,7 @@ summary(file.subset)
 ```{r}
 #ANOVA
 
-my.anova <- aov(PercCumGerm ~ Cultivar + Block, data = file.subset)
+my.anova <- aov(HardSeeds ~ Cultivar + Block, data = file.subset)
 
 summary(my.anova)
 
@@ -205,7 +207,7 @@ ANOVA 538 DAB
 
 #ANOVA
 
-my.anova <- aov(PercCumGerm ~ Cultivar + Block, data = file.subset)
+my.anova <- aov(HardSeeds ~ Cultivar + Block, data = file.subset)
 
 summary(my.anova)
 ```

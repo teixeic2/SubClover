@@ -23,7 +23,7 @@ Note: this file produces the graphs for soil  temperatures from hobologger data 
 setwd("C:\\GitHubRepos\\SubCloverPhD\\SubClover\\FieldBreakdown")
 getwd()
 #read soil and Air data 
-df_file <- read.table("SoilTempMesh.txt", header=TRUE)
+df_file <- read.table("SoilTempIv.txt", header=TRUE)
 #df_Air <- read.table("RawWeaIv2.txt", header=TRUE)
 
 head(df_file)
@@ -40,7 +40,7 @@ Adjust formats
 
 DF <- df_file %>%
   mutate (Date= dmy(Date),
-          TempSoilA1 = as.numeric(TempSoilA1),
+          TempSoil10mm = as.numeric(TempSoil10mm),
           DOT = as.numeric(DOT),
           Season = as.factor(Season))
 ```

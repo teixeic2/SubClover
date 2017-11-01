@@ -127,8 +127,8 @@ fontSize <- 12.0
  # summarise_each(funs(mean)) %>%
   g1 <- df_H %>%
   ggplot(aes(x=meanTemp_Em, y=DAS50E, colour=SowTreat))  +
-  geom_point(alpha=0.8) +
-  geom_point(aes(shape=Location))+
+  geom_point(alpha=0.8,) +
+  geom_point(aes(shape=Location, size=4))+
   #geom_smooth()+
   #stat_smooth(level = 0.9, size = 1, colour="white") + 
   theme_bw() +
@@ -144,7 +144,7 @@ fontSize <- 12.0
   g2 <- df_H %>%
   ggplot(aes(x=meanTemp_Em, y=InvDAS50E, colour=SowTreat))  +
   geom_point(alpha=0.8) +
-  geom_point(aes(shape=Location))+
+  geom_point(aes(shape=Location, size=4))+
   #geom_smooth(colour="red")+
   #stat_smooth(level = 0.9, size = 1, colour="white") + 
   theme_bw() +
@@ -161,6 +161,12 @@ fontSize <- 12.0
 # 
 
 ```
+
+make the graph with means 
+
+
+
+
 
 
 here get the equations from all temperatures 
@@ -261,5 +267,118 @@ fontSize <- 12.0
 ```
 
 
+
+
+Here get the graph for Woogenellup only 
+
+
+
+```{r, fig.height=10, fig.width=10, echo = FALSE}
+
+fontSize <- 12.0
+
+#DAS50E
+#g1 <- df_H %>%
+  #filter(year %in% 1960:2000) %>%
+  #group_by(day) %>%
+ # summarise_each(funs(mean)) %>%
+  g10 <- df_H %>%
+    filter(Cultivar=="Woogenellup")%>%
+    ggplot(aes(x=meanTemp_Em, y=DAS50E, colour=SowTreat))  +
+  geom_point(alpha=0.8) +
+  geom_point(aes(shape=Location, size=4))+
+  #geom_smooth()+
+  #stat_smooth(level = 0.9, size = 1, colour="white") + 
+  theme_bw() +
+  xlab(expression(Soil~temperature~~"("^"o"*"C)")) +  
+  ylab("Days to 50% emergence  (days)") +
+    facet_grid(.~Cultivar, scales="free")+
+  theme(text = element_text(size=11))+
+    theme(legend.position="top") +
+  scale_x_continuous(limits = c(0,25))+
+  scale_y_continuous(limits = c(0,40))
+
+# 1/DAS50E
+  g20 <- df_H %>%
+  filter(Cultivar=="Woogenellup")%>%
+  ggplot(aes(x=meanTemp_Em, y=InvDAS50E, colour=SowTreat))  +
+  geom_point(alpha=0.8) +
+  geom_point(aes(shape=Location, size=4))+
+  #geom_smooth(colour="red")+
+  #stat_smooth(level = 0.9, size = 1, colour="white") + 
+  theme_bw() +
+  xlab(expression(Soil~temperature~~"("^"o"*"C)")) + 
+  ylab(" Rate (1/ Days) to 50% emergence") +
+  facet_grid(.~Cultivar, scales="free")+
+    theme(legend.position="top") +
+  theme(text = element_text(size=11))+
+ scale_x_continuous(limits = c(0,25))+
+  scale_y_continuous(limits = c(0,0.25))
+  grid.arrange(g10, g20)
+# 
+
+# 
+
+```
+
+
+get mean and Sd for Woogenelup DAS50E 
+
+```{r, fig.height=5; fig.width=10}
+
+
+
+
+dfWoog <- df_H %>%
+    filter(Cultivar=="Woogenellup")%>%
+    group_by(Cultivar,Location, SowTreat,SowingDate) %>%
+  dplyr::select(DAS50E,meanTemp_Em) %>%
+  summarise_all(funs(mean,sd)) 
+
+str(dfWoog)
+
+ dfWoog %>%
+  ggplot(aes(x=meanTemp_Em_mean, y=DAS50E_mean, colour=SowTreat, shape=Location)) +
+  geom_point(size=4.5) +
+  #geom_line() +
+ #facet_grid(Depth~Cultivar) +
+  labs(x="Soil Temperature",y="Days to 50% Emergence for Woogenellup") +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1))+
+                  geom_errorbar(aes(ymin=DAS50E_mean-DAS50E_sd/1.73,
+                    ymax=DAS50E_mean+DAS50E_sd/1.73))+
+  theme_bw()+
+  ylim(0,60)+
+  theme(axis.text.x=element_text(angle = 0, hjust = 0.5, size= 11))+
+  theme(axis.text.y=element_text(angle = 0, hjust = 0, size= 12))
+
+
+
+
+```
+
+Woogenellup InvDAS50E
+```{r}
+dfWoog2 <- df_H %>%
+    filter(Cultivar=="Woogenellup")%>%
+    group_by(Cultivar,Location, SowTreat,SowingDate) %>%
+  dplyr::select(InvDAS50E,meanTemp_Em) %>%
+  summarise_all(funs(mean,sd)) 
+
+str(dfWoog)
+
+ dfWoog2 %>%
+  ggplot(aes(x=meanTemp_Em_mean, y=InvDAS50E_mean, colour=SowTreat, shape=Location)) +
+  geom_point(size=4.5) +
+  #geom_line() +
+ #facet_grid(Depth~Cultivar) +
+  labs(x="Soil Temperature",y="Rate (1/days) 50% Emergence for Woogenellup") +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1))+
+                  geom_errorbar(aes(ymin=InvDAS50E_mean-InvDAS50E_sd/1.73,
+                    ymax=InvDAS50E_mean+InvDAS50E_sd/1.73))+
+  theme_bw()+
+  ylim(0,0.3)+
+  theme(axis.text.x=element_text(angle = 0, hjust = 0.5, size= 11))+
+  theme(axis.text.y=element_text(angle = 0, hjust = 0, size= 12))
+```
 
 

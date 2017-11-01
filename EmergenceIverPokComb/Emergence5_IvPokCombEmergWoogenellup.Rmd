@@ -88,7 +88,7 @@ df_W2 <- df_W1 %>%
 df_W3 <-df_W2 %>%
   dplyr::select(SowTreat,Cultivar, Plot, meanTemp_Em, InvDAS50E, Location) %>%
   group_by(SowTreat,Cultivar, Location) %>%
-  summarise_each(funs(mean)) %>%
+  summarise_all(funs(mean)) %>%
   mutate(y=InvDAS50E,x=meanTemp_Em) %>%
   dplyr::select(-meanTemp_Em, -InvDAS50E, -Plot)
 
@@ -101,7 +101,7 @@ got the means here ... and graph it
 ```{r, fig.height=5, fig.width=10, echo = FALSE}
 df_W3%>%
 ggplot(aes(x=x, y=y, colour=SowTreat, shape=Location))  +
-  geom_point(alpha=0.8, size= 3) +
+  geom_point(alpha=0.8, size= 4) +
   #geom_smooth(colour="red")+
   #stat_smooth(level = 0.9, size = 1, colour="white") + 
   theme_bw() +

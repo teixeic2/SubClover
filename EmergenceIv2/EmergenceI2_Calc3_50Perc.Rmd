@@ -54,17 +54,18 @@ Calculate 50 PercentEmergence
 ```{r SummariseDf}
 
 # This step is now unnecessary as we want Plot values anyway (FIXME)
-df_50_Perc <- df_emerg1 %>%
-  mutate(DAS = as.numeric(ReadingDate-SowingDate)) %>%
-  group_by(Plot, Block,Cultivar,SowTreat, PercEmerg, ReadingDate) %>%
-  summarise(av_Perc = mean(PercEmerg), 
-            av_TT = mean(TT_to_emerg),
-            av_DAS = mean(DAS)
-            )
+# df_50_Perc <- df_emerg1 %>%
+#   mutate(DAS = as.numeric(ReadingDate-SowingDate)) %>%
+#   mutate(ReadingDate=ymd(ReadingDate)) %>%
+#   group_by(Plot, Block,Cultivar,SowTreat) %>%
+#   summarise(av_Perc = mean(PercEmerg), 
+#             av_TT = mean(TT_to_emerg),
+#             av_DAS = mean(DAS)
+#             )
 
-str(df_50_Perc)
-summary(df_50_Perc)
-head(df_50_Perc)
+# str(df_50_Perc)
+# summary(df_50_Perc)
+# head(df_50_Perc)
 
 # write.table(df_50_Perc, "df_50_PercEmerg.txt") # FIXME: this file is not yet 50%
 
@@ -73,7 +74,7 @@ head(df_50_Perc)
 #var <- unique(df_50_Perc$PercEmerg)
 #sow <- unique(df_50_Perc$SowTreat)
 #sowd <- unique(df_50_Perc$SowingDate)
-plots <- unique(df_50_Perc$Plot)
+plots <- unique(df_emerg1$Plot)
  
 
 # create empty df
@@ -100,7 +101,7 @@ for(p in 1:length(plots)) {
      # print(paste0(cv[i]," ",var[j]," ", sow[k]))
       # filter for each combination
 
-  df_sub <- df_50_Perc %>%
+  df_sub <- df_emerg1 %>%
     # subset(Cultivar == as.character(cv[i]) &
     # Plot == as.character(var[j]) &
     #   Block == as.character(var[b]) &
@@ -117,8 +118,8 @@ for(p in 1:length(plots)) {
   
   for(z in 1:nrow(df_sub)) {
     
-    df_sub$av_Perc_max[z] <- max(df_sub$av_Perc[z],
-                                 df_sub$av_Perc_max[z-1])
+    df_sub$av_Perc_max[z] <- max(df_sub$PercEmerg[z],
+                                 df_sub$PercEmerg[z-1])
     
   }
   
@@ -134,7 +135,7 @@ for(p in 1:length(plots)) {
 
   tryCatch(  
   DAS_50p_emerg <- approx(df_sub$PercEmerg, 
-  df_sub$av_DAS , xout = y_ref, rule = 1)$y,
+  df_sub$DAS , xout = y_ref, rule = 1)$y,
   error = function(e) 
   {
   DAS_50p_emerg <- NA
@@ -142,8 +143,8 @@ for(p in 1:length(plots)) {
 )
   #find TT at 50 Pecent Emergence
   tryCatch(  
-  tt_50p_emerg <- approx(df_sub$av_Perc, 
-  df_sub$av_TT , xout = y_ref, rule = 1)$y,
+  tt_50p_emerg <- approx(df_sub$PercEmerg, 
+  df_sub$TT_to_emerg , xout = y_ref, rule = 1)$y,
   error = function(e) 
   {
   tt_50p_emerg <- NA
@@ -280,7 +281,7 @@ Graph here only for "Woogenellup (draft paper") . Here alread with Stanard error
 
 df_RateEmerg %>%
   group_by(SowingDate, Cultivar) %>%
-  filter(Cultivar=="Woogenellup")%>%
+  filter(Cultivar=="Antas")%>%
   filter (SowTreat== "S2"| SowTreat== "S3"|SowTreat== "S4"|SowTreat== "S6")%>%
   dplyr::select(Rate) %>%
   summarise_each(funs(mean,sd)) %>%

@@ -165,6 +165,7 @@ explore data with mean values
 summary(df)
 
 df_seedYS6 <- df 
+  
   #filter(SowTreat=="S1")
   #filter(SowTreat=="S2")
   #filter(SowTreat=="S3")
@@ -194,9 +195,10 @@ Use :comment out or in to select  SowTreat or Depth or Cultivar
 
 ```{r}
 #ANOVA
-my.anova <- aov(TSW ~ SowTreat + Block, data = file.subset)
+#my.anova <- aov(TSW ~ SowTreat + Block, data = file.subset)
 #my.anova <- aov(TSW ~ Cultivar*Depth + Block, data = file.subset)
 #my.anova <- aov(TSW ~ Cultivar + Block, data = file.subset)
+my.anova <- aov(TSW ~ Cultivar*SowTreat + Block, data = file.subset)
 #my.anova <- aov(TSW ~ Depth + Block, data = file.subset)
 summary(my.anova)
 ```
@@ -206,8 +208,8 @@ Then use multiple comparisons of means when applicable (P<0.05)
 #Means separation after ANOVA
 #(LSD.test(my.anova, c("Cultivar", "Depth"), alpha= 0.05, p.adj="none")) 
 #(LSD.test(my.anova, c( "Depth"), alpha= 0.05, p.adj="none"))
-#(LSD.test(my.anova, c( "Cultivar"), alpha= 0.05, p.adj="none"))
-(LSD.test(my.anova, c( "SowTreat"), alpha= 0.05, p.adj="none"))
+(LSD.test(my.anova, c( "Cultivar", "SowTreat"), alpha= 0.05, p.adj="none"))
+#(LSD.test(my.anova, c( "SowTreat"), alpha= 0.05, p.adj="none"))
 ```
 
 

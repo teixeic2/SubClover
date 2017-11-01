@@ -27,6 +27,7 @@ getwd()
 
 #create file
 df_seed <- read.table("FieldBreakData.txt",header=TRUE)
+
 head(df_seed)
 summary(df_seed)
 
@@ -40,7 +41,7 @@ df_seed %>%
 Adjust formats and calculate the percentage of germinated seeds 
 ```{r}
 # change format with basic R 
-#df_seed$Date <- dmy(df_seed$Date)
+#df_seed$ReadingDate <- ymd(df_seed$ReadingDate)
 
 # change formats with dplyr 
 
@@ -48,6 +49,7 @@ df_seed <- df_seed %>%
   mutate(Plot = as.factor(Plot), Block = as.factor(Block)) %>%
   mutate(Germinated = as.numeric(Germinated)) %>%
   mutate(DAB = as.numeric(DAB))%>%
+  mutate(TTSoilSum=as.numeric(TTSoilSum))%>%
   mutate(PercCumGerm = as.numeric(PercCumGerm))
   
 
@@ -89,6 +91,11 @@ summary(df_seed)
 
 ```
 
+
+
+
+
+
 Select columns of interest 
 
 Calculate the cumulative number of germinated seeds 
@@ -98,7 +105,8 @@ stopped here fix nujmber
 
  
 g1 <-df_seed %>%
-  dplyr::select(-SowTreat, -SowingDate:-ReadingDate, - MeshBagburrs, -NumberSeedsPerBurr) 
+  dplyr::select(-SowTreat, -SowingDate:-ReadingDate, - MeshBagburrs, -NumberSeedsPerBurr)%>% 
+ mutate(CumhardSeed = 1*(100-PercCumGerm)) 
 
 write.table(g1, "FieldBreakdown.txt")
 ```
@@ -126,9 +134,9 @@ ggplot(aes(x=DAB, y=mean, colour=Cultivar, shape=Cultivar)) +
   #facet_grid(Depth~SowTreat) +
   theme_bw()+
   theme(text = element_text(size=12))+
-  geom_errorbar(aes(ymin=mean-sd/2,
-                   ymax=mean+sd/2))+
-  ylim(0,60)+
+  geom_errorbar(aes(ymin=mean-sd/3.46,
+                   ymax=mean+sd/3.46))+
+  ylim(0,100)+
   #geom_vline(xintercept = 5, linetype=2)+
    labs(x="Burial period (days) ",y="Cumulative Percentage of Germination (%) ")
   
@@ -152,20 +160,58 @@ group_by(Cultivar, DAB) %>%
 
 summary (g2) 
 
+#HERE GRAPH ALREADY WITH SE STD/SQR OF 6 
 g2 %>%
   ggplot(aes(x=DAB, y=mean, colour=factor(Cultivar), shape=factor(Cultivar))) +
   geom_point() +
   geom_line() +
  #facet_grid(.~Depth) +
-  labs(x="DAB",y="Percentage of Hardseeds") +
+  labs(x="Days",y="Percentage of Hardseeds (%)") +
   theme(axis.text.x = element_text(angle = 90, hjust = 1))+
-  # geom_errorbar(aes(ymin=mean_sd/2,
-  #                   ymax=mean_sd/2))+
+  geom_errorbar(aes(ymin=mean-sd/4.9,
+                    ymax=mean+sd/4.9))+
   theme_bw()+
+  theme(axis.text.x=element_text(angle = 0, hjust = 0.5, size= 12))+
+  theme(axis.text.y=element_text(angle = 0, hjust = 0, size= 12))+
   ylim(0,100)
 
 
 ```
+
+plot against TTsum
+
+```{r}
+
+g3 <- g1 %>%
+ mutate(CumhardSeed = 1*(100-PercCumGerm)) %>%
+group_by(Cultivar, TTSoilSum) %>%
+  dplyr::select(CumhardSeed ,TTSoilSum ) %>%
+  summarise_all(funs(mean,sd)) 
+
+summary (g3) 
+
+#HERE GRAPH ALREADY WITH SE STD/SQR OF 6 
+g3 %>%
+  ggplot(aes(x=TTSoilSum , y=mean, colour=Cultivar, shape=Cultivar)) +
+  geom_point() +
+  geom_line() +
+   xlab(expression(Accumulated~Thermal~Time~"("^"o"*"C)"))+
+  ylab(expression(Percentage~of~Hardseeds~"("^"o"*"C)"))+
+  theme(axis.text.x = element_text(angle = 90, hjust = 1))+
+  geom_errorbar(aes(ymin=mean-sd/4.9,
+                    ymax=mean+sd/4.9))+
+  theme_bw()+
+  theme(axis.text.x=element_text(angle = 0, hjust = 0.5, size= 14))+
+  theme(axis.text.y=element_text(angle = 0, hjust = 0, size= 14))+
+  ylim(0,100)
+
+
+```
+
+
+
+
+
 
 ```{r}
 

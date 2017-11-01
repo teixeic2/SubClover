@@ -68,7 +68,7 @@ Get the means
 df_I1 <- df_I %>%
   dplyr::select(SowTreat,Cultivar, Plot, meanTemp_Em, InvDAS50E, Location) %>%
   group_by(SowTreat,Cultivar, Location) %>%
-  summarise_each(funs(mean)) %>%
+  summarise_all(funs(mean)) %>%
   mutate(y=InvDAS50E,x=meanTemp_Em) %>%
   dplyr::select(-meanTemp_Em, -InvDAS50E, -Plot)
 

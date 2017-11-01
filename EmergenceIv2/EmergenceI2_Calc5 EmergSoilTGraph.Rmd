@@ -59,7 +59,7 @@ df_H <- df_G %>%
 
 Graph DAS50 Emergence and rate against meanTemp at emergence 
 
-```{r, fig.height=5, fig.width=10, echo = FALSE}
+```{r, fig.height=5, fig.width=12 echo = FALSE}
 
 
 
@@ -69,10 +69,12 @@ fontSize <- 12.0
 #g1 <- df_H %>%
   #filter(year %in% 1960:2000) %>%
   #group_by(day) %>%
- # summarise_each(funs(mean)) %>%
+ 
+
   g1 <- df_H %>%
+    filter(Cultivar=="Antas"|Cultivar=="Monti") %>%
   ggplot(aes(x=meanTemp_Em, y=DAS50E, colour=SowTreat))  +
-  geom_point(alpha=0.8) +
+  geom_point(alpha=0.8, size=3) +
   #geom_smooth()+
   #stat_smooth(level = 0.9, size = 1, colour="white") + 
   theme_bw() +
@@ -85,8 +87,9 @@ fontSize <- 12.0
 
 # 1/DAS50E
   g2 <- df_H %>%
+    filter(Cultivar=="Antas"|Cultivar=="Monti") %>%
   ggplot(aes(x=meanTemp_Em, y=InvDAS50E, colour=SowTreat))  +
-  geom_point(alpha=0.8) +
+  geom_point(alpha=0.8, size=3) +
   #geom_smooth(colour="red")+
   #stat_smooth(level = 0.9, size = 1, colour="white") + 
   theme_bw() +
@@ -104,7 +107,7 @@ fontSize <- 12.0
 ```
 
 
-Do a graph fo woogenellup only and for S2, S3, S4 and S6 
+Do a graph for woogenellup only and for S2, S3, S4 and S6.
 
 ```{r}
 
@@ -118,7 +121,7 @@ fontSize <- 14.0
   #group_by(day) %>%
  # summarise_each(funs(mean)) %>%
   g3 <- df_H %>%
-  filter(Cultivar=="Woogenellup")%>%
+  filter(Cultivar=="Monti"| Cultivar=="Antas")%>%
   filter (SowTreat== "S2"| SowTreat== "S3"|SowTreat== "S4"|SowTreat== "S6")%>%
   ggplot(aes(x=meanTemp_Em, y=DAS50E, colour=SowTreat))  +
   geom_point(alpha=0.8) +
@@ -134,7 +137,7 @@ fontSize <- 14.0
 
 # 1/DAS50E
   g4 <- df_H %>%
-   filter(Cultivar=="Woogenellup")%>%
+   filter(Cultivar=="Monti"| Cultivar=="Antas")%>%
   filter (SowTreat== "S2"| SowTreat== "S3"|SowTreat== "S4"|SowTreat== "S6")%>% 
   ggplot(aes(x=meanTemp_Em, y=InvDAS50E, colour=SowTreat))  +
   geom_point(alpha=0.8) +

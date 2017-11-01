@@ -75,11 +75,11 @@ split into early , medium late cvs and make from bud to fertilization (petal)
 ```{r}
 
 df_1<-df_flower %>%
-  group_by(DAS,Date,Cultivar,SowTreat,Variable)%>%
-  select(Variable,Percent,Cultivar,Date,SowTreat)%>%
+  group_by(DAS,Date,Cultivar,SowTreat, Variable)%>%
+  dplyr::select(Cultivar:Variable, Percent)%>%
   filter(Variable == "Bud"| Variable =="Petal"   )%>%
-summarise_each(funs(mean)) 
-summary (df_flower)
+summarise_all(funs(mean)) 
+summary (df_1)
 
 ```
 

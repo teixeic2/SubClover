@@ -62,16 +62,23 @@ DAta visualisation: Graph the seedling population per 1m2
 
 #Graph         
   df_emerg %>%  group_by(Cultivar, SowTreat, DAS) %>%
-#  filter(Cultivar =="Monti") %>%
-  #dplyr::select(-SowingDate, - ReadingDate) %>%
-  summarise_all(funs(mean)) %>%
-  ggplot(aes(x=DAS, y=PlantPop)) + 
+  #mutate (SowTreat= factor(SowTreat, levels=c("S2","S3"),labels=c( "March", "May")))%>%
+  mutate (SowTreat= factor(SowTreat, levels=c("S1", "S2", "S3", "S4", "S5", "S6","S7","S8"),labels=c("February", "March", "May", "July", "August","October","November","January")))%>%
+  filter(Cultivar =="Monti"|Cultivar== "Antas") %>%
+  filter(SowTreat=="March"|SowTreat=="May") %>%
+    #dplyr::select(-SowingDate, - ReadingDate) %>%
+  summarise_all(funs(mean,sd)) %>%
+  ggplot(aes(x=DAS, y=PlantPop_mean)) + 
   geom_point(aes(colour=Cultivar)) +
   geom_line(aes(colour=Cultivar)) +
   # facet_grid (SowTreat~., scales = "free")+
     facet_wrap (~SowTreat,ncol=4, scales = "free")+
   theme_bw()+
-  labs(y="Number of seedlings per m2",x="Days after sowing") 
+  theme(axis.text.x = element_text(angle = 90, hjust = 1))+
+                  geom_errorbar(aes(ymin=PlantPop_mean-PlantPop_sd/1.73,
+                    ymax=PlantPop_mean+PlantPop_sd/1.73))+
+  labs(y="Number of seedlings per m2",x="Days after sowing") +
+  ylim(0,2200)
   #+geom_abline(intercept = 50, slope = 0)
 
 ```
@@ -104,15 +111,23 @@ Graph the percentage of emergence versus days after sowing
 
  #Graph         
   df_emerg_perc %>%  group_by(Cultivar, SowTreat, DAS) %>%
+   #mutate (SowTreat= factor(SowTreat, levels=c("S2","S3"),labels=c( "March", "May")))%>%
+  mutate (SowTreat= factor(SowTreat, levels=c("S1", "S2", "S3", "S4", "S5", "S6","S7","S8"),labels=c("February", "March", "May", "July", "August","October","November","January")))%>%
+  filter(Cultivar =="Monti"|Cultivar== "Antas") %>%
+  filter(SowTreat=="March"|SowTreat=="May") %>%
 #  filter(Cultivar =="Monti") %>%
   dplyr::select(-SowingDate, - ReadingDate) %>%
-  summarise_each(funs(mean)) %>%
-  ggplot(aes(x=DAS, y=PercEmerg)) + 
+  summarise_each(funs(mean,sd)) %>%
+  ggplot(aes(x=DAS, y=PercEmerg_mean)) + 
   geom_point(aes(colour=Cultivar)) +
   geom_line(aes(colour=Cultivar)) +
   facet_wrap (~SowTreat,ncol=4, scales = "free")+
-  labs(y="Percentage  of Seedling emergence",x="Days after sowing") +
+  labs(y="Percentage  of Seedling emergence (%)",x="Days after sowing") +
     theme_bw()+
+  theme(axis.text.x = element_text(angle = 90, hjust = 1))+
+                  geom_errorbar(aes(ymin=PercEmerg_mean-PercEmerg_sd/1.73,
+                    ymax=PercEmerg_mean+PercEmerg_sd/1.73))+
+  ylim(0,100)+
   geom_abline(intercept = 50, slope = 0)
 ```
 

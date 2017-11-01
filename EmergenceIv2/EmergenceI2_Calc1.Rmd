@@ -60,17 +60,21 @@ df_emerg %>% filter(Plot ==1) %>% summary()
 
 
 #Graph         
-  df_emerg %>%  
+  df_emerg %>% 
+  mutate (SowTreat= factor(SowTreat, levels=c("S1", "S2", "S3", "S4", "S5", "S6","S7", "S8"),labels=c("June", "July", "September", "November", "December", "February","March", "May")))%>%
   group_by(Cultivar, SowTreat, DAS) %>%
-  filter(SowTreat =="S2"| SowTreat =="S3" |SowTreat =="S4"| SowTreat =="S6")%>%
-  filter(Cultivar =="Woogenellup")%>%
+  filter(SowTreat =="March"| SowTreat =="May" )%>%
+  filter(Cultivar =="Antas"|Cultivar =="Monti")%>%
   #dplyr::select(-SowingDate, - ReadingDate) %>%
-  summarise_all(funs(mean)) %>%
-  ggplot(aes(x=DAS, y=PlantPop)) + 
-  geom_point(aes(colour=Cultivar,shape=Cultivar)) +
-  geom_line(aes(colour=Cultivar)) +
+  summarise_all(funs(mean,sd)) %>%
+  ggplot(aes(x=DAS, y=PlantPop_mean))+ 
+  geom_point(aes(colour=Cultivar,shape=Cultivar))+
+  geom_line(aes(colour=Cultivar))+
   #add error bar
-  geom_errorbar(aes(x=20,ymin=200,ymax=300,width=0.2))+
+  geom_errorbar(aes(ymin=PlantPop_mean-PlantPop_sd/1.73,
+                    ymax=PlantPop_mean+PlantPop_sd/1.73))+
+  theme_bw()+
+  #geom_errorbar(aes(x=20,ymin=200,ymax=300,width=0.2))+
   facet_wrap(~SowTreat,ncol=4, scales = "free")+
   theme_bw()+
   ylim(0, 2200)+

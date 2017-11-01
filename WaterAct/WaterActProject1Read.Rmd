@@ -26,7 +26,7 @@ getwd()
 df_seed <- read.table("WaterAct.txt",header=TRUE)
 head(df_seed)
 # Jeito 1 de trocar formato (usando base R)
-df_seed$Date <- dmy(df_seed$Date)
+#df_seed$Date <- dmy(df_seed$Date)
 
 # change format  (with dplyr)
 df_seed <- df_seed %>%
