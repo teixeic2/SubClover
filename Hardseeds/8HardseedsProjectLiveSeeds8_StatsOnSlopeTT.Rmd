@@ -1,0 +1,360 @@
+---
+title: "Hardseeds Live Max 6CV"
+author: "CT"
+date: "22.09.2016"
+output: pdf_document
+---
+
+
+```{r loadLibraries}
+library(tidyr)
+library (dplyr)
+library (ggplot2)
+library(agricolae)
+library(knitr)
+library (lubridate)
+
+
+```
+
+This script reads the df_slopesBreak.txt produced in script number 4 and run anova in the slopes as indicator of hardseedbreakdown 
+
+```{r loadFile}
+setwd("C:\\GitHubRepos\\SubCloverPhD\\SubClover\\Hardseeds")
+getwd()
+
+#create file
+df_seed <- read.table("df_slopesBreakTT.txt",header=TRUE)
+
+
+str(df_seed)
+
+
+
+
+
+```
+
+
+
+then select columns of interest : here stats for overall means (SowTreat and Cultivar)
+
+```{r}
+
+file <- df_seed %>%
+  dplyr::select(block, cv,sow,plot,depth,slope,r2)
+ 
+
+#-------------------------------------------------
+
+```
+
+
+Then analyse overall slopes among cultivars 
+```{r}
+# select variable 
+file.subset <- file 
+
+head(file.subset, 50)
+summary(file.subset)
+#my.anova <- aov(slope~ cv*depth + block, data = file.subset)
+my.anova <- aov(slope~ cv*sow + block, data = file.subset)
+```
+
+```{r}
+summary(my.anova)
+#TukeyHSD(my.anova)
+
+
+```
+
+Check means among cultivars 
+```{r}
+#Means separation 
+#(LSD.test(my.anova, c("depth"), alpha= 0.05, p.adj="none"))
+(LSD.test(my.anova, c("sow"), alpha= 0.05, p.adj="none"))
+#(LSD.test(my.anova, c("cv"), alpha= 0.05, p.adj="none"))
+```
+
+
+
+
+
+Then select for individual sowing dates 
+S1 
+
+
+```{r}
+# select variable 
+file.subset <- file %>%
+  filter(sow=="S1")
+
+head(file.subset, 50)
+summary(file.subset)
+my.anova <- aov(slope~ cv + block, data = file.subset)
+
+```
+
+```{r}
+summary(my.anova)
+#TukeyHSD(my.anova)
+
+
+```
+
+Check means among cultivars 
+```{r}
+#Means separation 
+#(LSD.test(my.anova, c("depth"), alpha= 0.05, p.adj="none"))
+#(LSD.test(my.anova, c("sow"), alpha= 0.05, p.adj="none"))
+(LSD.test(my.anova, c("cv"), alpha= 0.05, p.adj="none"))
+```
+
+
+get the R2 
+
+```{r}
+# select variable 
+file.subset <- file %>%
+  filter(sow=="S1")
+
+head(file.subset, 50)
+summary(file.subset)
+my.anova <- aov(r2~ cv*depth + block, data = file.subset)
+
+(LSD.test(my.anova, c("cv"), alpha= 0.05, p.adj="none"))
+```
+
+
+Then do S2 
+
+
+
+```{r}
+# select variable 
+file.subset <- file %>%
+  filter(sow=="S2")
+
+head(file.subset, 50)
+summary(file.subset)
+my.anova <- aov(slope~ cv*depth + block, data = file.subset)
+
+```
+
+```{r}
+summary(my.anova)
+#TukeyHSD(my.anova)
+
+
+```
+
+Check means among cultivars 
+```{r}
+#Means separation 
+#(LSD.test(my.anova, c("depth"), alpha= 0.05, p.adj="none"))
+#(LSD.test(my.anova, c("sow"), alpha= 0.05, p.adj="none"))
+(LSD.test(my.anova, c("cv"), alpha= 0.05, p.adj="none"))
+```
+
+
+get the R2 
+
+```{r}
+# select variable 
+file.subset <- file %>%
+  filter(sow=="S2")
+
+head(file.subset, 50)
+summary(file.subset)
+my.anova <- aov(r2~ cv*depth + block, data = file.subset)
+
+(LSD.test(my.anova, c("cv"), alpha= 0.05, p.adj="none"))
+```
+
+Then run for S3 
+
+
+```{r}
+# select variable 
+file.subset <- file %>%
+  filter(sow=="S3")
+
+head(file.subset, 50)
+summary(file.subset)
+my.anova <- aov(slope~ cv + block, data = file.subset)
+
+```
+
+```{r}
+summary(my.anova)
+#TukeyHSD(my.anova)
+
+
+```
+
+Check means among cultivars 
+```{r}
+#Means separation 
+#(LSD.test(my.anova, c("depth"), alpha= 0.05, p.adj="none"))
+#(LSD.test(my.anova, c("sow"), alpha= 0.05, p.adj="none"))
+(LSD.test(my.anova, c("cv"), alpha= 0.05, p.adj="none"))
+```
+
+
+get the R2 for S3  
+
+```{r}
+# select variable 
+file.subset <- file %>%
+  filter(sow=="S3")
+
+head(file.subset, 50)
+summary(file.subset)
+my.anova <- aov(r2~ cv + block, data = file.subset)
+
+(LSD.test(my.anova, c("cv"), alpha= 0.05, p.adj="none"))
+```
+
+S4
+
+```{r}
+# select variable 
+file.subset <- file %>%
+  filter(sow=="S4")
+
+head(file.subset, 50)
+summary(file.subset)
+my.anova <- aov(slope~ cv + block, data = file.subset)
+
+```
+
+```{r}
+summary(my.anova)
+#TukeyHSD(my.anova)
+
+
+```
+
+Check means among cultivars 
+```{r}
+#Means separation 
+#(LSD.test(my.anova, c("depth"), alpha= 0.05, p.adj="none"))
+#(LSD.test(my.anova, c("sow"), alpha= 0.05, p.adj="none"))
+(LSD.test(my.anova, c("cv"), alpha= 0.05, p.adj="none"))
+```
+
+
+get the R2 for S4  
+
+```{r}
+# select variable 
+file.subset <- file %>%
+  filter(sow=="S4")
+
+head(file.subset, 50)
+summary(file.subset)
+my.anova <- aov(r2~ cv*depth + block, data = file.subset)
+
+(LSD.test(my.anova, c("cv"), alpha= 0.05, p.adj="none"))
+```
+
+
+Then do ANOVA for S6 
+
+```{r}
+# select variable 
+file.subset <- file %>%
+  filter(sow=="S6")
+
+head(file.subset, 50)
+summary(file.subset)
+my.anova <- aov(slope~ cv+ block, data = file.subset)
+
+```
+
+```{r}
+summary(my.anova)
+#TukeyHSD(my.anova)
+
+
+```
+
+Check means among cultivars 
+```{r}
+#Means separation 
+#(LSD.test(my.anova, c("depth"), alpha= 0.05, p.adj="none"))
+#(LSD.test(my.anova, c("sow"), alpha= 0.05, p.adj="none"))
+(LSD.test(my.anova, c("cv"), alpha= 0.05, p.adj="none"))
+```
+
+
+get the R2 for S6  
+
+```{r}
+# select variable 
+file.subset <- file %>%
+  filter(sow=="S6")
+
+head(file.subset, 50)
+summary(file.subset)
+my.anova <- aov(r2~ cv*depth + block, data = file.subset)
+
+(LSD.test(my.anova, c("cv"), alpha= 0.05, p.adj="none"))
+```
+ then S7 
+ 
+ 
+```{r}
+# select variable 
+file.subset <- file %>%
+  filter(sow=="S7")
+
+head(file.subset, 50)
+summary(file.subset)
+my.anova <- aov(slope~ cv + block, data = file.subset)
+
+```
+
+```{r}
+summary(my.anova)
+#TukeyHSD(my.anova)
+
+
+```
+
+Check means among cultivars 
+```{r}
+#Means separation 
+#(LSD.test(my.anova, c("depth"), alpha= 0.05, p.adj="none"))
+#(LSD.test(my.anova, c("sow"), alpha= 0.05, p.adj="none"))
+(LSD.test(my.anova, c("cv"), alpha= 0.05, p.adj="none"))
+```
+
+
+get the R2 for S7  
+
+```{r}
+# select variable 
+file.subset <- file %>%
+  filter(sow=="S7")
+
+head(file.subset, 50)
+summary(file.subset)
+my.anova <- aov(r2~ cv*depth + block, data = file.subset)
+
+(LSD.test(my.anova, c("cv"), alpha= 0.05, p.adj="none"))
+```
+ 
+
+
+
+
+
+
+
+
+
+
+
+
+

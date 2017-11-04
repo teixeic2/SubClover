@@ -1,0 +1,192 @@
+
+---
+title: "ThermalTime accumulation in Iversen mesh bags test "
+author: "CT"
+date: "19.09.2017"
+output: html_document
+---
+
+
+```{r}
+library(tidyr)
+library (dplyr)
+library (ggplot2)
+library (lubridate)
+```
+
+Note: the file is called HistoricMeanTemp but actually contains the hobologger data Iversen 2
+
+```{r, load file}
+
+setwd("C:\\GitHubRepos\\SubCloverPhD\\SubClover\\FieldBreakdown")
+getwd()
+
+df_file <- read.table("SoilTempIv.txt", header=TRUE)
+
+head(df_file)
+
+#keep this scirpt for the real weather data
+
+
+str(df_file)
+df_file<- df_file%>%
+  mutate(Date=dmy(Date))
+str(df_file)
+
+```
+
+
+Then simply graph it! 
+
+
+
+
+
+```{r, fig.height=5, fig.width=8}
+
+
+ df_file %>%
+  #filter(year %in% 2015:2017) %>%
+  group_by(Date) %>%
+ summarise_each(funs(mean)) %>%
+  ggplot(aes(x=Date, y= TempSoil10mm))  +
+  #geom_point(colour= "darkblue", alpha=0.2) +
+  geom_line()+
+  #stat_smooth(level = 0.9, size = 1, colour="white") + 
+  theme_bw() +
+  geom_abline(intercept = 15, slope = 0)+
+ xlab("Date") + 
+  theme(axis.text.x=element_text(angle = 0, hjust = 0, size= 14))+
+  theme(axis.text.y=element_text(angle = 0, hjust = 0, size= 14))+
+  ylab(expression(Daily~mean~soil~temperature~~"( "*C^"o"*")"))+
+  scale_x_date(date_breaks = "3 month", 
+                 date_labels = "%B",
+                 limits = as.Date(c('2016-02-01','2017-08-27')))
+
+
+
+
+```
+
+Calculate TT with Tb= 15 .There will be lots of negative values as TB 15 is quite high... select only values above zero to accumulate thermal time.
+Select experimental dates : 29 / 02/2016 - 20/08/2017
+
+```{r}
+
+
+df_fileTT <- df_file %>%
+  subset(Date>"2016-02-28" & Date < "2017-08-20") %>%
+  mutate(TTSoilSum= TempSoil10mm-15)%>%
+  subset(TTSoilSum>0)
+
+```
+
+
+
+Calculate accumulated TT
+
+```{r}
+
+df_fileTT2 <- df_fileTT %>%
+group_by(Date) %>%
+summarise_all(funs(mean))%>%
+  mutate(TT = cumsum(TTSoilSum))%>%
+ # dplyr::select(-hour,-Air)
+  dplyr::select(-TempSoil10mm)  
+
+write.table(df_fileTT2, "ThermalSumSoilFieldBreak.txt")
+
+```
+
+
+Graph it 
+
+
+```{r graph}
+
+df_fileTT2 %>% 
+ggplot(aes(x=Date, y= TT)) +
+   #geom_point(colour= "darkblue", alpha=0.2) +
+  geom_line()+
+  #stat_smooth(level = 0.9, size = 1, colour="white") + 
+  theme_bw() +
+  #geom_abline(intercept = 0, slope = 0)+
+ xlab("Date") + 
+  theme(axis.text.x=element_text(angle = 0, hjust = 0, size= 14))+
+  theme(axis.text.y=element_text(angle = 0, hjust = 0, size= 14))+
+  ylab(expression(Daily~mean~soil~temperature~~"( "*C^"o"*")"))+
+  scale_x_date(date_breaks = "3 month", 
+                 date_labels = "%B",
+                 limits = as.Date(c('2016-02-01','2017-08-27')))
+
+```
+
+
+Here find mean temperature in period 1 _ (February to July 2016)
+
+
+```{r}
+
+df_fileP1 <- df_file %>%
+  subset(Date>"2016-02-28" & Date < "2016-07-19") %>%
+  
+summarise_all(funs(mean))
+
+
+df_fileP1 <- df_file %>%
+  subset(Date>"2016-02-28" & Date < "2016-07-19") %>%
+summarise_all(funs(max))
+
+
+df_fileP1 <- df_file %>%
+  subset(Date>"2016-02-28" & Date < "2016-07-19") %>%
+summarise_all(funs(min))
+```
+
+July to November 
+```{r}
+
+df_fileP2 <- df_file %>%
+  subset(Date>"2016-07-19" & Date < "2017-11-19") %>%
+  
+summarise_all(funs(mean))
+
+
+
+df_fileP2 <- df_file %>%
+  subset(Date>"2016-07-19" & Date < "2017-11-19") %>%
+  
+summarise_all(funs(max))
+
+
+
+df_fileP2 <- df_file %>%
+  subset(Date>"2016-07-19" & Date < "2017-03-08") %>%
+  
+summarise_all(funs(min))
+```
+
+
+
+```{r}
+
+df_fileP3 <- df_file %>%
+  subset(Date>"2017-03-08" & Date < "2017-08-20") %>%
+  
+summarise_all(funs(mean))
+
+
+df_fileP3 <- df_file %>%
+  subset(Date>"2017-03-08" & Date < "2017-08-20") %>%
+  
+summarise_all(funs(max))
+
+
+df_fileP3 <- df_file %>%
+  subset(Date>"2017-03-08" & Date < "2017-08-20") %>%
+  
+summarise_all(funs(min))
+
+```
+
+

@@ -1,0 +1,369 @@
+---
+title: "Seed Status_ 6CV"
+author: "CT"
+date: "31.10.2017"
+output:
+  word_document: default
+  html_document: default
+---
+
+```{r loadLibraries}
+library(tidyr)
+library (dplyr)
+library (ggplot2)
+library(agricolae)
+library(knitr)
+library (lubridate)
+library(markdown)
+#install.packages(markdown)
+
+```
+Here calculate the total percentage off abnormal seeds for cultivars and sow treat 
+
+```{r loadFile}
+setwd("C:\\GitHubRepos\\SubCloverPhD\\SubClover\\DeadAbnSeeds")
+getwd()
+
+#create file
+df_seed <- read.table("HardseedsLiveData.txt",header=TRUE)
+head(df_seed)
+# change format 
+df_seed$Date <- dmy(df_seed$Date)
+
+# jeito 2 de trocar formato (usando dplyr)
+df_seed <- df_seed %>%
+  mutate(Plot = as.factor(Plot), 
+         Block = as.factor(Block),
+        Depth = as.factor(Depth),
+        Soft = as.numeric(Soft),
+         SoftDead = as.numeric(SoftDead),
+         SoftGerm = as.numeric (SoftGerm),
+         SoftAbn = as.numeric (SoftAbn),
+         SoftUngerm = as.numeric (SoftUngerm),
+       HardUngermFinal = as.numeric (HardUngermFinal)) 
+  
+
+summary(df_seed) # explore values
+str(df_seed) # check formats
+head(df_seed) # see to rows
+tail(df_seed)
+
+
+
+```
+
+Calculate the cumulative number of Abnormal seedlings (use loop to do that!)
+
+```{r}
+
+ 
+
+# create an ID of each chunk
+df_temp <- df_seed %>%
+  dplyr::select(-Date) %>%
+  mutate(codeID = as.factor(paste0(Plot,"_",Depth)))
+
+# define unique factors to loop around
+codesNames <- unique(df_temp$codeID)
+
+# prepare final df to store data
+df_final <- data.frame()
+
+# loop
+for(i in 1:length(codesNames)) {
+  
+  df_sub <- data.frame() # empty df
+  
+  df_sub <- df_temp %>%
+    subset(codeID == codesNames[i]) %>% # segment one unique combination
+    mutate(codeID = factor(codeID)) %>%
+    arrange(Round) %>%
+    mutate(SoftAbn_cum = cumsum(SoftAbn)) %>%
+    mutate(AbnCumProp = SoftAbn_cum/max(InitialSeedlotR1Number)*100)
+  
+  df_final <- rbind(df_final,df_sub)
+  
+}
+
+summary(df_final)
+
+```
+
+
+
+
+
+```{r CreatePercentSoft}
+#Rename dataframe and columns
+df_Abn <- df_final%>%
+  mutate(Abn_perc=AbnCumProp)
+
+
+
+
+```
+
+
+graph the total percentage of abnormal seedlings 
+
+```{r, fig.height=6, fig.width=10}
+
+df_Abn %>%
+  mutate (SowTreat= factor(SowTreat, levels=c("S1", "S2", "S3", "S4", "S6","S7"),labels=c("June", "July", "September", "November", "February","March")))%>%
+  filter(Round == 119) %>%
+  group_by(Cultivar,SowTreat, Depth) %>%
+  dplyr::select(Abn_perc) %>%
+  summarise_all(funs(mean,sd)) %>%
+  ggplot(aes(x=Cultivar, y=mean, colour=Cultivar, shape=Cultivar)) +
+  geom_point(size=3) +
+  #geom_line() +
+ facet_grid(Depth~SowTreat) +
+  #facet_wrap(Depth~SowTreat)+
+  labs(x="Cultivar",y=" Percentage of abnormal seedlings (%)") +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1))+
+                  geom_errorbar(aes(ymin=mean-sd/3.46,
+                    ymax=mean+sd/3.46))+
+  theme_bw()+
+  ylim(0,30)+
+  theme(axis.text.x=element_text(angle = 90, hjust = 0.5, size= 14))+
+  theme(axis.text.y=element_text(angle = 0, hjust = 0, size= 14))
+
+
+```
+
+
+
+
+
+
+then select columns of interest : here stats for overall means (SowTreat and Cultivar)
+
+```{r}
+
+file <- df_Abn %>%
+  dplyr::select(Block, Cultivar,SowTreat,Plot,Depth,Abn_perc)
+
+#-------------------------------------------------
+
+# Chosen transform log to do anova 
+file.subset <- file 
+
+head(file.subset, 50)
+summary(file.subset)
+#my.anova <- aov(Abn_perc~ Cultivar*SowTreat*Depth + Block, data = file.subset)
+#my.anova <- aov(Abn_perc~ Cultivar + Block, data = file.subset)
+#my.anova <- aov(Abn_perc~ Depth + Block, data = file.subset)
+my.anova <- aov(Abn_perc~ SowTreat + Block, data = file.subset)
+```
+
+```{r}
+summary(my.anova)
+#TukeyHSD(my.anova)
+
+
+```
+
+Check means among sowing dates 
+```{r}
+#Means separation 
+#(LSD.test(my.anova, c("Cultivar","SowTreat"), alpha= 0.05, p.adj="none"))
+ (LSD.test(my.anova, c("SowTreat"), alpha= 0.05, p.adj="none"))
+#(LSD.test(my.anova, c("Depth"), alpha= 0.05, p.adj="none"))
+#(LSD.test(my.anova, c("Cultivar"), alpha= 0.05, p.adj="none"))
+```
+
+The lowest percentage os abnormal seeds was observed in S1,S2,S3 . In S4, S6 and S7 the percentage of abnormal seeds was double. 
+
+Then test each sowing date individually 
+S1
+
+
+```{r}
+#-------------------------------------------------
+
+# Chosen transform log to do anova 
+file.subset <- file %>%
+  filter(SowTreat=="S1")
+
+head(file.subset, 50)
+summary(file.subset)
+#my.anova <- aov(Abn_perc~ Cultivar*SowTreat + Block, data = file.subset)
+my.anova <- aov(Abn_perc~ Cultivar*Depth + Block, data = file.subset)
+```
+
+```{r}
+summary(my.anova)
+#TukeyHSD(my.anova)
+
+
+```
+
+Check means among sowing dates 
+```{r}
+#Means separation 
+(LSD.test(my.anova, c("Cultivar","Depth"), alpha= 0.05, p.adj="none"))
+#(LSD.test(my.anova, c("SowTreat"), alpha= 0.05, p.adj="none"))
+#(LSD.test(my.anova, c("Cultivar"), alpha= 0.05, p.adj="none"))
+```
+
+
+
+S2
+
+```{r}
+#-------------------------------------------------
+
+# Chosen transform log to do anova 
+file.subset <- file %>%
+  filter(SowTreat=="S2")
+
+head(file.subset, 50)
+summary(file.subset)
+my.anova <- aov(Abn_perc~ Cultivar*Depth + Block, data = file.subset)
+#my.anova <- aov(Abn_perc~ Cultivar + Block, data = file.subset)
+```
+
+```{r}
+summary(my.anova)
+#TukeyHSD(my.anova)
+
+
+```
+
+Check means among sowing dates 
+```{r}
+#Means separation 
+(LSD.test(my.anova, c("Cultivar","Depth"), alpha= 0.05, p.adj="none"))
+#(LSD.test(my.anova, c("SowTreat"), alpha= 0.05, p.adj="none"))
+#(LSD.test(my.anova, c("Cultivar"), alpha= 0.05, p.adj="none"))
+```
+
+S3
+
+
+```{r}
+#-------------------------------------------------
+
+# Chosen transform log to do anova 
+file.subset <- file %>%
+  filter(SowTreat=="S3")
+
+head(file.subset, 50)
+summary(file.subset)
+my.anova <- aov(Abn_perc~ Cultivar*Depth + Block, data = file.subset)
+#my.anova <- aov(Abn_perc~ Cultivar + Block, data = file.subset)
+```
+
+```{r}
+summary(my.anova)
+#TukeyHSD(my.anova)
+
+
+```
+
+Check means among sowing dates 
+```{r}
+#Means separation 
+(LSD.test(my.anova, c("Cultivar","Depth"), alpha= 0.05, p.adj="none"))
+#(LSD.test(my.anova, c("SowTreat"), alpha= 0.05, p.adj="none"))
+#(LSD.test(my.anova, c("Cultivar"), alpha= 0.05, p.adj="none"))
+```
+
+
+
+S4
+
+```{r}
+#-------------------------------------------------
+
+# Chosen transform log to do anova 
+file.subset <- file %>%
+  filter(SowTreat=="S4")
+
+head(file.subset, 50)
+summary(file.subset)
+my.anova <- aov(Abn_perc~ Cultivar*Depth + Block, data = file.subset)
+#my.anova <- aov(Abn_perc~ Cultivar + Block, data = file.subset)
+```
+
+```{r}
+summary(my.anova)
+#TukeyHSD(my.anova)
+
+
+```
+
+Check means among sowing dates 
+```{r}
+#Means separation 
+(LSD.test(my.anova, c("Cultivar","Depth"), alpha= 0.05, p.adj="none"))
+#(LSD.test(my.anova, c("SowTreat"), alpha= 0.05, p.adj="none"))
+#(LSD.test(my.anova, c("Cultivar"), alpha= 0.05, p.adj="none"))
+```
+
+S6
+
+
+```{r}
+#-------------------------------------------------
+
+# Chosen transform log to do anova 
+file.subset <- file %>%
+  filter(SowTreat=="S6")
+
+head(file.subset, 50)
+summary(file.subset)
+my.anova <- aov(Abn_perc~ Cultivar*Depth + Block, data = file.subset)
+#my.anova <- aov(Abn_perc~ Cultivar + Block, data = file.subset)
+```
+
+```{r}
+summary(my.anova)
+#TukeyHSD(my.anova)
+
+
+```
+
+Check means among sowing dates 
+```{r}
+#Means separation 
+(LSD.test(my.anova, c("Cultivar","Depth"), alpha= 0.05, p.adj="none"))
+#(LSD.test(my.anova, c("Depth"), alpha= 0.05, p.adj="none"))
+#(LSD.test(my.anova, c("Cultivar"), alpha= 0.05, p.adj="none"))
+```
+
+
+
+S7
+
+```{r}
+#-------------------------------------------------
+
+# Chosen transform log to do anova 
+file.subset <- file %>%
+  filter(SowTreat=="S7")
+
+head(file.subset, 50)
+summary(file.subset)
+my.anova <- aov(Abn_perc~ Cultivar*Depth + Block, data = file.subset)
+#my.anova <- aov(Abn_perc~ Cultivar + Block, data = file.subset)
+```
+
+```{r}
+summary(my.anova)
+#TukeyHSD(my.anova)
+
+
+```
+
+Check means among sowing dates 
+```{r}
+#Means separation 
+(LSD.test(my.anova, c("Cultivar","Depth"), alpha= 0.05, p.adj="none"))
+#(LSD.test(my.anova, c("SowTreat"), alpha= 0.05, p.adj="none"))
+#(LSD.test(my.anova, c("Cultivar"), alpha= 0.05, p.adj="none"))
+```
+
+
+
+

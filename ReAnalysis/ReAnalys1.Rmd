@@ -8,6 +8,15 @@ output:
 note: Re analysis data compilation; Days, TT and Photop.
 ---
 
+Aim:
+
+- Reads raw data
+- Clean data (remove NAs)
+- Check the data
+- Calculate days to flowering
+- Saves technically consistent data
+
+
 ```{r loadLibraries}
 library(tidyr)
 library (dplyr)
@@ -50,9 +59,8 @@ str(df_Data)
 #Calculate DaysToFlower
 
 df_Data <- df_Data %>%
+na.omit() %>%
 mutate(DaysToFlower=(StartFlowering-SowingDate))
-
-
 ```
 
 Check data quality , graph
@@ -133,6 +141,6 @@ df_Data %>%
 
 
 ```{r}
-write.table(df_Data,"df_Data.txt")
+write.table(df_Data,file="df_DaysToFlower.txt", row.names = FALSE, quote = FALSE, sep="\t")
 ```
 

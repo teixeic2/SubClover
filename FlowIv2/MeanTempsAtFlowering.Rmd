@@ -1,0 +1,94 @@
+---
+title: "similar to ReAnalysis Table"
+author: "CT"
+date: "24.04.2017"
+output:
+  word_document: default
+  html_document: default
+note: include Pp analysis using selected datasets from Reanalysis scripts but use Iversen 2 collected data  
+---
+
+```{r loadLibraries, echo=FALSE, include=FALSE}
+library(tidyr)
+library (dplyr)
+library (ggplot2)
+library(agricolae)
+library(knitr)
+library (lubridate)
+#library (segmented)
+library(hydroGOF)
+
+```
+ 
+AIM:
+- Estimate temperature during flowering (form bud to bur 4) for individual sowing dates 
+
+```{r   loadFile}
+setwd("C:\\GitHubRepos\\SubCloverPhD\\SubClover\\FlowIv2")
+
+getwd()
+
+
+```
+
+
+Bring weather dataset which is in df_CumTTIv.txt
+
+```{r}
+
+df_weather <- read.table("df_CumTTIv.txt",header=TRUE) %>%
+  mutate(Date=ymd(Date)) %>%
+  dplyr::select(-LocationYear,-Country)
+  #dplyr::select(Date, SumTTday,Pp) # FIXME: this is also run Tt - change name to SumTTday_run?
+
+  summary(df_weather)
+
+```
+
+Get mean temperature during floweirng of S1 (24 June 2015 ) happened between 27 October  2015 and 15 December 2015 (mean flowering time 49 days)
+
+```{r}
+# determine the period and mean
+S1 <-df_weather %>%
+  subset(Date>"2015-10-27" & Date< "2015-12-15")%>%
+  dplyr::select(MeanTt)%>%
+  summarise_all(funs(mean))
+
+ 
+
+```
+Get mean temperature during flowering S2 (28 July 2015 ) happened between 5 November 2015 and 25 December 2015 (50 days)
+
+```{r}
+# determine the period and mean
+S2 <-df_weather %>%
+  subset(Date>"2015-11-05" & Date< "2015-12-25")%>%
+  dplyr::select(MeanTt)%>%
+  summarise_all(funs(mean))
+
+```
+
+
+Get mean temperature during flowering S3 (15 Sept 2015 ) happened between 29 November 2015 and 18 January 2016 (50 days)
+
+```{r}
+# determine the period and mean
+S3 <-df_weather %>%
+  subset(Date>"2015-11-29" & Date< "2016-01-18")%>%
+  dplyr::select(MeanTt)%>%
+  summarise_all(funs(mean))
+
+```
+
+Get mean temperature during flowering S4 (05 Nov 2015 ) happened between 25 December 2015 and 09 March 2016 (74 days)
+
+```{r}
+# determine the period and mean
+S4 <-df_weather %>%
+  subset(Date>"2015-12-25" & Date< "2016-03-09")%>%
+  dplyr::select(MeanTt)%>%
+  summarise_all(funs(mean))
+
+```
+
+

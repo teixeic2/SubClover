@@ -1,0 +1,86 @@
+---
+title: 'Test weibull curve '
+author: "CT"
+date: "16.10.2017"
+output:
+  pdf_document: default
+  word_document: default
+---
+
+
+```{r loadLibraries}
+library(tidyr)
+library (dplyr)
+library (ggplot2)
+library(agricolae)
+library(knitr)
+library (lubridate)
+library(markdown)
+library(easynls)
+library(survival)
+library (manipulate)
+
+```
+
+
+
+
+```{r loadFile}
+setwd("C:\\GitHubRepos\\SubCloverPhD\\SubClover\\Hardseeds")
+getwd()
+
+#create file
+df_1 <- read.table("testG.txt",header=TRUE)
+
+head(df_1)
+
+
+
+
+```
+
+
+change formats 
+
+```{r}
+
+  
+df_1%>%
+mutate(x= as.numeric(x),  y= as.numeric(y))
+
+  str(df_1)
+  
+
+```
+
+
+```{r}
+start <- df_1 %>% 
+# Generate sliders to find good initial parameter estimates 
+manipulate( 
+          { 
+           plot(y ~ x) 
+           a <- a0; b <- b0; c <- c0; d <- d0 
+           curve(a-b*exp(-c*x^d), add=TRUE) 
+           start <<- list(a=a, b=b, c=c, d=d) 
+          }, 
+          a0 = slider(10, 50, step=0.1, initial = 30), 
+          b0 = slider(0, 100, step=1, initial = 3), 
+          c0 = slider(0, 0.1, step=0.01, initial = 0.01), 
+          d0 = slider(0, 10, step=0.1, initial = 5) 
+          ) 
+
+
+# Fit the model using the estimates from the sliders 
+weibm <- nls(y ~ a-b*exp(-c*x^d), start = start) 
+summary(weibm) 
+
+# Make predictions over a sequence of x values and plot 
+ndata <- data.frame(x = seq(0, 20, by = 0.1)) 
+wpred <- predict(weibm, newdata = ndata) 
+plot(y ~ x, pch = 16) 
+lines(ndata$x, wpred, col = 'red') 
+```
+
+
+

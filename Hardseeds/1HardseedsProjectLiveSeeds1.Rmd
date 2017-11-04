@@ -56,7 +56,7 @@ summary(df_seed) # explore values
 str(df_seed) # check formats
 ```
 
-
+here get the minimum round for the maximum percentage of hardseeds 
 
 ```{r}
 
@@ -136,27 +136,66 @@ check
 ```
 
 
-
+here loop to get the cumulative hardseeds in all rounds 
 
 ```{r}
-df_cum_soft<-df_seed %>%
-  mutate(LiveSeed=InitialSeedlotR1Number-SoftDead) %>%
-  mutate(SoftLive=SoftGerm+SoftAbn)  %>%
-  mutate(PercSoft=SoftLive/LiveSeed*100) %>%
-  mutate(PercHard=100-PercSoft) %>%
-  group_by(Plot,Depth) %>%
-  arrange(Round) %>%
-  mutate(HardAccum = 100-cumsum(PercSoft))
-  
-summary(df_cum_soft)
+# df_cum_soft<-df_seed %>%
+#   mutate(LiveSeed=InitialSeedlotR1Number-SoftDead) %>%
+#   mutate(SoftLive=SoftGerm+SoftAbn)  %>%
+#   mutate(PercSoft=SoftLive/LiveSeed*100) %>%
+#   mutate(PercHard=100-PercSoft) %>%
+#   group_by(Plot,Depth) %>%
+#   arrange(Round) %>%
+#   mutate(HardAccum = 100-cumsum(PercSoft))
+#   
+# summary(df_cum_soft)
 
+
+
+
+# create an ID of each chunk
+df_temp <- df_seed %>%
+  dplyr::select(-Date) %>%
+  mutate(codeID = as.factor(paste0(Plot,"_",Depth)))
+
+# define unique factors to loop around
+codesNames <- unique(df_temp$codeID)
+
+# prepare final df to store data
+df_final2 <- data.frame()
+
+# loop
+for(i in 1:length(codesNames)) {
+  
+  df_sub <- data.frame() # empty df
+  
+  df_sub <- df_temp %>%
+    subset(codeID == codesNames[i]) %>% # segment one unique combination
+    mutate(codeID = factor(codeID)) %>%
+    arrange(Round) %>%
+    mutate(LiveSeed=InitialSeedlotR1Number-SoftDead) %>%
+    mutate(SoftLive=SoftGerm+SoftAbn)  %>%
+    mutate(PercSoft=SoftLive/LiveSeed*100) %>%
+    mutate(PercHard=100-PercSoft)%>%
+   
+    
+   # filter(Round==min(Round)) %>% 
+     mutate(HardAccum = 100-cumsum(PercSoft))
+  
+  df_final2 <- rbind(df_final2,df_sub)
+  
+}
+
+summary(df_final2)
   
 ```
 
 Here graph the percentage of hardseeds based on living seeds (exclude dead! )
 
 ```{r, fig.height= 8, fig.width=12}
-#Graph Breakdown live hard seeds 
+#change data frame name and Graph Breakdown live hard seeds 
+
+df_cum_soft<- df_final2
 
 df_cum_soft %>%
   mutate(SowingD = dmy(SowingD)) %>%
@@ -190,7 +229,11 @@ df_cum_soft %>%
 
 
 ```{r}
-write.table(df_cum_soft, "dfHard_break.txt")
+write.table(df_cum_soft, "dfHard_break.txt") #this will be used in seed breakdown stats slopes scripts
+
+
+write.table(df_hard_live_max, "MaxHardness.txt") #this will be used in scripts which need max hardness 
+
 ```
 
 

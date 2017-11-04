@@ -1,0 +1,194 @@
+---
+title: " Live Max 6CV"
+author: "CT"
+date: "Thursday, 22 September , 2016"
+output:
+  word_document: default
+  html_document: default
+---
+
+```{r loadLibraries}
+library(tidyr)
+library (dplyr)
+library (ggplot2)
+library(agricolae)
+library(knitr)
+library (lubridate)
+library(markdown)
+#install.packages(markdown)
+
+```
+This script was created to bar graph the seed categories .
+Here calculate the total cumulative and percentage of each seed status 
+
+```{r loadFile}
+setwd("C:\\GitHubRepos\\SubCloverPhD\\SubClover\\DeadAbnSeeds")
+getwd()
+
+#create file
+df_seed <- read.table("HardseedsLiveData.txt",header=TRUE)
+head(df_seed)
+# change format 
+df_seed$Date <- dmy(df_seed$Date)
+
+# jeito 2 de trocar formato (usando dplyr)
+df_seed <- df_seed %>%
+  mutate(Plot = as.factor(Plot), 
+         Block = as.factor(Block),
+        Depth = as.factor(Depth),
+        Soft = as.numeric(Soft),
+         SoftDead = as.numeric(SoftDead),
+         SoftGerm = as.numeric (SoftGerm),
+         SoftAbn = as.numeric (SoftAbn),
+         SoftUngerm = as.numeric (SoftUngerm),
+       HardUngermFinal = as.numeric (HardUngermFinal)) 
+  
+
+summary(df_seed) # explore values
+str(df_seed) # check formats
+head(df_seed) # see to rows
+tail(df_seed)
+
+
+
+```
+
+Calculate the cumulative number of categories of seedlings (use loop to do that!) and the percentages 
+
+```{r}
+
+ 
+
+# create an ID of each chunk
+df_temp <- df_seed %>%
+  dplyr::select(-Date) %>%
+  mutate(codeID = as.factor(paste0(Plot,"_",Depth)))
+
+# define unique factors to loop around
+codesNames <- unique(df_temp$codeID)
+
+# prepare final df to store data
+df_final <- data.frame()
+
+# loop
+for(i in 1:length(codesNames)) {
+  
+  df_sub <- data.frame() # empty df
+  
+  df_sub <- df_temp %>%
+    subset(codeID == codesNames[i]) %>% # segment one unique combination
+    mutate(codeID = factor(codeID)) %>%
+    arrange(Round) %>%
+    mutate(SoftAbn_cum = cumsum(SoftAbn),
+    SoftDead_cum = cumsum(SoftDead),
+    SoftGerm_cum= cumsum  (SoftGerm),
+    SoftUngerm_cum= cumsum  (SoftUngerm), 
+    HardUngermFinal_cum= cumsum  (HardUngermFinal))%>%
+       
+    
+    mutate(Abn_perc = SoftAbn_cum/max(InitialSeedlotR1Number)*100,
+           Dead_perc = SoftDead_cum/max(InitialSeedlotR1Number)*100,
+    Normal_perc = SoftGerm_cum/max(InitialSeedlotR1Number)*100,
+    SoftUngerm_perc = SoftUngerm_cum/max(InitialSeedlotR1Number)*100,    
+    HardUngermFinal_perc = HardUngermFinal_cum/max(InitialSeedlotR1Number)*100) 
+  
+  df_final <- rbind(df_final,df_sub)
+  
+}
+
+summary(df_final)
+
+```
+
+
+
+Select columns of interest 
+
+```{r CreatePercentSoft}
+#Rename dataframe and columns
+df_Percentages <- df_final%>%
+  filter(Round==119)%>%
+  dplyr::select(Block:Depth, Abn_perc:HardUngermFinal_perc )%>%
+  mutate(Total=Abn_perc+Dead_perc+Normal_perc+SoftUngerm_perc+HardUngermFinal_perc)
+ 
+str(df_Percentages)
+summary(df_Percentages)
+```
+
+USE tidy R for gathering columns 
+
+```{r}
+df_Percentages_gather<-df_Percentages%>%
+  gather(key= "status" , value = "percentage" , Abn_perc:HardUngermFinal_perc)%>%
+  group_by(Cultivar, SowTreat,status, Depth)%>%
+  dplyr::select(percentage)%>%
+  summarise_all(mean)
+  
+str(df_Percentages_gather)
+```
+
+
+
+graph as a stack bar 
+
+
+
+```{r,fig.height=6, fig.width=12}
+
+
+
+df_Percentages_gather%>%
+mutate(status = factor(status, levels = c("HardUngermFinal_perc",
+                                          "Dead_perc",
+                                  "SoftUngerm_perc",
+                                 "Abn_perc",
+                                 "Normal_perc"),
+                                 
+                                 
+                          labels = c("Hard Ungerminated",
+                                 "Dead",
+                                 "Soft Ungerminated",
+                                 "Abnormal",
+                                 "Normal")
+                          )) %>%
+   mutate (SowTreat= factor(SowTreat, levels=c("S1", "S2", "S3", "S4", "S6","S7"),labels=c("June", "July", "September", "November", "February","March")))%>%
+  ggplot(aes(x=Cultivar, y=percentage, fill=factor(status))) +
+  geom_bar(stat="identity") +
+  facet_grid(Depth~SowTreat) +
+  ylab("Percentage (%)") +
+  xlab("Cultivar") +
+  theme(axis.text.x = element_text(angle = 45, hjust=1)) + theme(legend.title=element_blank()) +
+  theme(text = element_text(size=16))
+  
+
+
+```
+
+
+
+
+
+```{r,fig.height=6, fig.width=12}
+
+
+
+df_Percentages_gather%>%
+mutate (status = factor(status, levels = c("Abn_perc",
+                                 "Dead_perc",
+                                 "Normal_perc",
+                                 "SoftUngerm_perc"),
+                          labels = c("Abnormal",
+                                 "Dead",
+                                 "Normal",
+                                 "Soft Ungerminated"))) %>%
+  ggplot(aes(x=Cultivar, y=percentage, fill=factor(status))) +
+  geom_bar(stat="identity") +
+  facet_grid(Depth~SowTreat) +
+  ylab("Percentage (%)") +
+  xlab("Cultivar") +
+  theme(axis.text.x = element_text(angle = 45, hjust=1)) + theme(legend.title=element_blank()) +
+  theme(text = element_text(size=16))
+  
+
+
+```

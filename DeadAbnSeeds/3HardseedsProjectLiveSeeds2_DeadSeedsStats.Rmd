@@ -1,10 +1,11 @@
 ---
 title: "Hardseeds Live Max 6CV"
 author: "CT"
-date: "22.09.2016"
-output: pdf_document
+date: "Thursday, 22 September , 2016"
+output:
+  word_document: default
+  html_document: default
 ---
-
 
 ```{r loadLibraries}
 library(tidyr)
@@ -13,12 +14,11 @@ library (ggplot2)
 library(agricolae)
 library(knitr)
 library (lubridate)
-
+library(markdown)
+#install.packages(markdown)
 
 ```
-
-This script reads the HardseedsLiveData (from raw data excel) with all catergories of seeds (germ, abnormal, dead). 
-Runs ANOVA on the max percentage of hardseeds 
+Here calculate the total percentage off dead seeds for cultivars and sow treat 
 
 ```{r loadFile}
 setwd("C:\\GitHubRepos\\SubCloverPhD\\SubClover\\Hardseeds")
@@ -53,7 +53,9 @@ tail(df_seed)
 ```
 
 
-```{r}
+
+```{r CreatePercentSoft}
+#Create a column that is the Accumulated Dead this is to calculate the Maximum percentage of dead seeds  
 
 
 
@@ -78,61 +80,65 @@ for(i in 1:length(codesNames)) {
     mutate(codeID = factor(codeID)) %>%
     arrange(Round) %>%
     mutate(SoftDead_cum = cumsum(SoftDead)) %>%
-    mutate(Total_live = InitialSeedlotR1Number-max(SoftDead_cum)) %>%
-    mutate(Soft_live = SoftGerm + SoftUngerm + SoftAbn) %>%
-    #mutate(Hard_perc = HardUngermFinal_cum/max(InitialSeedlotR1Number)*100)
-  filter(Round==min(Round)) %>% 
-  mutate(Hard_perc = round(100-(Soft_live/Total_live*100),2))
+    mutate(dead_perc = SoftDead_cum/max(InitialSeedlotR1Number)*100)
+  
   df_final <- rbind(df_final,df_sub)
   
 }
 
 summary(df_final)
+
+
+
 ```
 
 
+graph the total percentage of dead seeds 
+
+```{r, fig.height=6, fig.width=10}
 
 
+#change dataframe name to continue 
 
 
-```{r, fig.height=5, fig.width=10}
+df_dead <- df_final
 
-#Graph the maximum percentage of Live hardseeds!!! Here graph already show SE sd/3,.46 n = 3.
-df_hard_live_max <- df_final
+#plot results 
 
-  df_hard_live_max %>%
-  mutate(SowingD = dmy(SowingD)) %>%
-  
-  filter(Round == 14) %>%
-  group_by(Cultivar,SowingD, Depth) %>%
-  dplyr::select(Hard_perc) %>%
-  summarise_each(funs(mean,sd)) %>%
-  ggplot(aes(x=SowingD, y=mean, colour=Cultivar, shape=Cultivar)) +
+df_dead %>%
+  mutate (SowTreat= factor(SowTreat, levels=c("S1", "S2", "S3", "S4", "S6","S7"),labels=c("June", "July", "September", "November", "February","March")))%>%
+  filter(Round == 119) %>%
+  group_by(Cultivar,SowTreat, Depth) %>%
+  dplyr::select(dead_perc) %>%
+  summarise_all(funs(mean,sd)) %>%
+  ggplot(aes(x=Cultivar, y=mean, colour=Cultivar, shape=Cultivar)) +
   geom_point() +
-  geom_line() +
- facet_grid(Depth~Cultivar) +
-  labs(x="Sowing Date",y="Maximum Percentage of LiveHardseeds") +
+  #geom_line() +
+ facet_grid(Depth~SowTreat) +
+  #facet_wrap(Depth~SowTreat)+
+  labs(x="Sowing Date",y=" Percentage of Dead seeds (%)") +
   theme(axis.text.x = element_text(angle = 90, hjust = 1))+
                   geom_errorbar(aes(ymin=mean-sd/3.46,
                     ymax=mean+sd/3.46))+
   theme_bw()+
-  ylim(0,100)
-
-
-
-
-
-
+  ylim(0,30)+
+  theme(axis.text.x=element_text(angle = 90, hjust = 0.5, size= 12))+
+  theme(axis.text.y=element_text(angle = 0, hjust = 0, size= 12))
 
 
 ```
+
+
+
+
+
 
 then select columns of interest : here stats for overall means (SowTreat and Cultivar)
 
 ```{r}
 
-file <- df_hard_live_max %>%
-  dplyr::select(Block, Cultivar,SowTreat,Plot,Depth,Hard_perc)
+file <- df_dead %>%
+  dplyr::select(Block, Cultivar,SowTreat,Plot,Depth,dead_perc)
 
 #-------------------------------------------------
 
@@ -141,8 +147,9 @@ file.subset <- file
 
 head(file.subset, 50)
 summary(file.subset)
-my.anova <- aov(Hard_perc ~ Cultivar*SowTreat + Block, data = file.subset)
-
+my.anova <- aov(dead_perc ~ Cultivar*SowTreat + Block, data = file.subset)
+#my.anova <- aov(dead_perc ~ Cultivar + Block, data = file.subset)
+#my.anova <- aov(dead_perc ~ Depth + Block, data = file.subset)
 ```
 
 ```{r}
@@ -157,32 +164,27 @@ Check means among sowing dates
 #Means separation 
 #(LSD.test(my.anova, c("Cultivar","SowTreat"), alpha= 0.05, p.adj="none"))
 (LSD.test(my.anova, c("SowTreat"), alpha= 0.05, p.adj="none"))
+#(LSD.test(my.anova, c("Depth"), alpha= 0.05, p.adj="none"))
 #(LSD.test(my.anova, c("Cultivar"), alpha= 0.05, p.adj="none"))
 ```
 
+The lowest percentage os dead seeds was observed in S1 and S1. In S4, S5 and S6 the percentage of dead seeds was threefold higher. 
 
-
-
-
-Then select for individual sowing dates 
-S1 
+Then test each sowing date individually 
+S1
 
 
 ```{r}
-
-file <- df_hard_live_max %>%
-  dplyr::select(Block, Cultivar,SowTreat,Plot,Depth,Hard_perc)%>%
-  filter(SowTreat=="S1")
-
 #-------------------------------------------------
 
 # Chosen transform log to do anova 
-file.subset <- file 
+file.subset <- file %>%
+  filter(SowTreat=="S1")
 
 head(file.subset, 50)
 summary(file.subset)
-my.anova <- aov(Hard_perc ~ Cultivar*Depth + Block, data = file.subset)
-
+#my.anova <- aov(dead_perc ~ Cultivar*SowTreat + Block, data = file.subset)
+my.anova <- aov(dead_perc ~ Cultivar + Block, data = file.subset)
 ```
 
 ```{r}
@@ -192,32 +194,29 @@ summary(my.anova)
 
 ```
 
+Check means among sowing dates 
 ```{r}
 #Means separation 
+#(LSD.test(my.anova, c("Cultivar","SowTreat"), alpha= 0.05, p.adj="none"))
+#(LSD.test(my.anova, c("SowTreat"), alpha= 0.05, p.adj="none"))
 (LSD.test(my.anova, c("Cultivar"), alpha= 0.05, p.adj="none"))
 ```
-
-S1: S1 no effect of depth. cultivar had significant effect (P=0.0373, LSD=12.67). Only 'Leura' had fewer hardseeds (70 +- 11.5)than the other cvs (average of 86.5 +-3.5).
 
 
 
 S2
 
 ```{r}
-
-file <- df_hard_live_max %>%
-  dplyr::select(Block, Cultivar,SowTreat,Plot,Depth,Hard_perc)%>%
-  filter(SowTreat=="S2")
-
 #-------------------------------------------------
 
 # Chosen transform log to do anova 
-file.subset <- file 
+file.subset <- file %>%
+  filter(SowTreat=="S2")
 
 head(file.subset, 50)
 summary(file.subset)
-my.anova <- aov(Hard_perc ~ Cultivar*Depth + Block, data = file.subset)
-
+#my.anova <- aov(dead_perc ~ Cultivar*SowTreat + Block, data = file.subset)
+my.anova <- aov(dead_perc ~ Cultivar + Block, data = file.subset)
 ```
 
 ```{r}
@@ -227,38 +226,28 @@ summary(my.anova)
 
 ```
 
-
-
-S2. No effect of depth (P=0.43). Cultivar had effect (0.0088, LSD= 22.0)
+Check means among sowing dates 
 ```{r}
 #Means separation 
+#(LSD.test(my.anova, c("Cultivar","SowTreat"), alpha= 0.05, p.adj="none"))
+#(LSD.test(my.anova, c("SowTreat"), alpha= 0.05, p.adj="none"))
 (LSD.test(my.anova, c("Cultivar"), alpha= 0.05, p.adj="none"))
 ```
 
-
-
-S2 no effect of depth. cultivar had significant effect (P=0.0088, LSD=22.0). Monti (87.4 +- 2.7) and Narrikup (47+ - 7.5) were the most contrasting cultivars. 
-
-
-then for 
 S3
 
 
 ```{r}
+#-------------------------------------------------
 
-file <- df_hard_live_max %>%
-  dplyr::select(Block, Cultivar,SowTreat,Plot,Depth,Hard_perc)%>%
+# Chosen transform log to do anova 
+file.subset <- file %>%
   filter(SowTreat=="S3")
 
-#-------------------------------------------------
-
-# Chosen transform log to do anova 
-file.subset <- file 
-
 head(file.subset, 50)
 summary(file.subset)
-my.anova <- aov(Hard_perc ~ Cultivar*Depth + Block, data = file.subset)
-
+#my.anova <- aov(dead_perc ~ Cultivar*SowTreat + Block, data = file.subset)
+my.anova <- aov(dead_perc ~ Cultivar + Block, data = file.subset)
 ```
 
 ```{r}
@@ -268,43 +257,29 @@ summary(my.anova)
 
 ```
 
-
-
-
+Check means among sowing dates 
 ```{r}
 #Means separation 
+#(LSD.test(my.anova, c("Cultivar","SowTreat"), alpha= 0.05, p.adj="none"))
+#(LSD.test(my.anova, c("SowTreat"), alpha= 0.05, p.adj="none"))
 (LSD.test(my.anova, c("Cultivar"), alpha= 0.05, p.adj="none"))
 ```
 
- 
+
+
+S4
 
 ```{r}
-#Means separation 
-(LSD.test(my.anova, c("Depth"), alpha= 0.05, p.adj="none"))
-```
- 
- 
-S3 Main cultivar effect . Cultivar had effect (p<0.001, LSD= 9.44). Monti had sign more hardseeds (89 +-2.56)than Woogenellup (77 +-4.1 ) and Antas (58.5 +-9.35). Seeds above ground were sig (84.6 +-6.0 , P=0.002 harder than below ground seeds (75. 6 +-9).  
+#-------------------------------------------------
 
-
-ANOVA S4 
-
-
-```{r}
-
-file <- df_hard_live_max %>%
-  dplyr::select(Block, Cultivar,SowTreat,Plot,Depth,Hard_perc)%>%
+# Chosen transform log to do anova 
+file.subset <- file %>%
   filter(SowTreat=="S4")
 
-#-------------------------------------------------
-
-# Chosen transform log to do anova 
-file.subset <- file 
-
 head(file.subset, 50)
 summary(file.subset)
-my.anova <- aov(Hard_perc ~ Cultivar*Depth + Block, data = file.subset)
-
+#my.anova <- aov(dead_perc ~ Cultivar*SowTreat + Block, data = file.subset)
+my.anova <- aov(dead_perc ~ Cultivar + Block, data = file.subset)
 ```
 
 ```{r}
@@ -314,37 +289,28 @@ summary(my.anova)
 
 ```
 
-
-
-
+Check means among sowing dates 
 ```{r}
 #Means separation 
+#(LSD.test(my.anova, c("Cultivar","SowTreat"), alpha= 0.05, p.adj="none"))
+#(LSD.test(my.anova, c("SowTreat"), alpha= 0.05, p.adj="none"))
 (LSD.test(my.anova, c("Cultivar"), alpha= 0.05, p.adj="none"))
 ```
 
-S4: Cultivar had an sig effect (P<0.001, LSD = 12.96) .Only Antas had sig fewer hard seeds (52.7 +- 24) than the other cvs (mean 80.3 +- 6.45)
- Depth had no effect.
- 
- 
-Anova S6
-
+S6
 
 
 ```{r}
+#-------------------------------------------------
 
-file <- df_hard_live_max %>%
-  dplyr::select(Block, Cultivar,SowTreat,Plot,Depth,Hard_perc)%>%
+# Chosen transform log to do anova 
+file.subset <- file %>%
   filter(SowTreat=="S6")
 
-#-------------------------------------------------
-
-# Chosen transform log to do anova 
-file.subset <- file 
-
 head(file.subset, 50)
 summary(file.subset)
-my.anova <- aov(Hard_perc ~ Cultivar*Depth + Block, data = file.subset)
-
+#my.anova <- aov(dead_perc ~ Cultivar*SowTreat + Block, data = file.subset)
+my.anova <- aov(dead_perc ~ Cultivar + Block, data = file.subset)
 ```
 
 ```{r}
@@ -354,38 +320,29 @@ summary(my.anova)
 
 ```
 
-
-
-
+Check means among sowing dates 
 ```{r}
 #Means separation 
+#(LSD.test(my.anova, c("Cultivar","SowTreat"), alpha= 0.05, p.adj="none"))
+#(LSD.test(my.anova, c("SowTreat"), alpha= 0.05, p.adj="none"))
 (LSD.test(my.anova, c("Cultivar"), alpha= 0.05, p.adj="none"))
 ```
-
-
-
-S6: depth had no effect.  Cultivar (P=0.011, LSD 20.75) the two most contrasting cultivars were Monti (78.17 +- 3.02) differed from Antas and Woogenellup (mean of 42.5 +-12.0).
 
 
 
 S7
 
-
 ```{r}
-
-file <- df_hard_live_max %>%
-  dplyr::select(Block, Cultivar,SowTreat,Plot,Depth,Hard_perc)%>%
-  filter(SowTreat=="S7")
-
 #-------------------------------------------------
 
-# 
-file.subset <- file 
+# Chosen transform log to do anova 
+file.subset <- file %>%
+  filter(SowTreat=="S7")
 
 head(file.subset, 50)
 summary(file.subset)
-my.anova <- aov(Hard_perc ~ Cultivar*Depth + Block, data = file.subset)
-
+#my.anova <- aov(dead_perc ~ Cultivar*SowTreat + Block, data = file.subset)
+my.anova <- aov(dead_perc ~ Cultivar + Block, data = file.subset)
 ```
 
 ```{r}
@@ -395,19 +352,14 @@ summary(my.anova)
 
 ```
 
-
-
-
+Check means among sowing dates 
 ```{r}
 #Means separation 
+#(LSD.test(my.anova, c("Cultivar","SowTreat"), alpha= 0.05, p.adj="none"))
+#(LSD.test(my.anova, c("SowTreat"), alpha= 0.05, p.adj="none"))
 (LSD.test(my.anova, c("Cultivar"), alpha= 0.05, p.adj="none"))
 ```
 
-S7: no effect of depth but cultivar ws significant (P<0.001, LSD = 15.63). most contasting cultivars were monti (95.4 +- 2.7) and Denmark (86.5 +-2.83)Wooge (54.7 +- 8.8) and  Antas (42.6 +-14.7). 
 
-```{r}
-
-#markdown::render("<C:\\GitHubRepos\\SubCloverPhD\\SubClover\\HardseedsProject1Read.Rmd>") 
-```
 
 

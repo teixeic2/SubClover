@@ -1,0 +1,54 @@
+---
+title: "Radicle extension (mm)  different Temperatures  4CV"
+author: "CT"
+date: " September  , 2015"
+output: html_document
+---
+
+```{r loadLibraries}
+library(tidyr)
+library (dplyr)
+library (ggplot2)  
+library(agricolae)
+library(knitr)
+library (lubridate)
+
+```
+
+
+```{r loadFile}
+#setwd("C:\\GitHubRepos\\SubCloverPhD\\SubClover")
+setwd("C:\\Carmen")
+getwd()
+
+#create file
+df_seed <- read.table("GermRadicleLength.txt",header=TRUE)
+head(df_seed)
+
+# Jeito 1 de trocar formato (usando base R)
+df_seed$startDate <- dmy(df_seed$startDate)
+df_seed$DateRead <- dmy(df_seed$DateRead)
+
+# tell r which cols are factors (I'm using base R not dplyr mutate)
+df_seed$rep <- as.factor(df_seed$rep)
+
+summary(df_seed) # explore values
+str(df_seed) # check formats
+head(df_seed) # see to rows
+str(df_seed) # this shows that you had a "*" in the data that made R think this was a factor , not a number. I changed for NA so now R see RadicleLenghtMm is a number
+
+```
+
+```{r}
+#graph it
+ df_seed %>%
+ dplyr::select(-startDate,-DateRead) %>% # assume u do not need them here?
+ group_by(Temp,Cv,HoursofTest) %>% 
+ summarise_each(funs(mean)) %>%
+ ggplot(aes(x=HoursofTest, y=RadicleLenghtMm, 
+           colour = factor(Cv))) + # colour is a param inside aes that is inside ggplot
+ geom_point()+
+ geom_line()+
+ facet_grid(.~Temp)
+
+```

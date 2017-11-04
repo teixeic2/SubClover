@@ -24,6 +24,7 @@ getwd()
 
 #create file
 df_seed <- read.table("WaterAct.txt",header=TRUE)
+
 head(df_seed)
 # Jeito 1 de trocar formato (usando base R)
 #df_seed$Date <- dmy(df_seed$Date)
@@ -58,99 +59,110 @@ df_seed %>%
 ```
 
 
-```{r}
+```{r, fig.height=5, fig.width=10}
   df_seed %>%
-  group_by(Cultivar,SowTreat) %>%
+   mutate (SowTreat= factor(SowTreat, levels=c("S1", "S2", "S3", "S4", "S6","S7"),labels=c("June", "July", "September", "November", "February","March")))%>%
+  group_by(Cultivar,SowTreat, Depth) %>%
   dplyr::select(WaterAct)%>%
-  summarise_each(funs(mean,sd)) %>%
-  ggplot(aes(x=SowTreat, y=mean, colour=factor(Cultivar),     shape=factor(Cultivar))) +
-  geom_point() +
+  summarise_all(funs(mean,sd)) %>%
+  ggplot(aes(x=Cultivar, y=mean, colour=Cultivar,     shape=Cultivar)) +
+  geom_point(size=4, alpha=0.8) +
   geom_line() +
- facet_grid(.~Cultivar) +
-  labs(x="Sowing Treat",y="Water Activity") +
+ facet_grid(Depth~SowTreat) +
+  labs(x="Cultivar",y="Water Activity (aw)") +
   theme(axis.text.x = element_text(angle = 90, hjust = 1))+
-  geom_errorbar(aes(ymin=mean-sd/2,
-                    ymax=mean+sd/2))+
-  ylim(0,1)
+  geom_errorbar(aes(ymin=mean-sd/1.73,
+                    ymax=mean+sd/1.73))+
+  theme_bw()+
+  ylim(0,1)+
+ theme(axis.text.x=element_text(angle = 90, hjust = 0.5, size= 12))+
+  theme(axis.text.y=element_text(angle = 0, hjust = 0, size= 12))
 
 
 ```
 
 
- 
+ get the mean value of water activity 
 
 ```{r Graph}
+df_seedmean <-df_seed %>%
+  group_by(Cultivar,SowTreat) %>%
+  dplyr::select(WaterAct)%>%
+  summarise_all(funs(mean))
+
 
   
 ```
+Then bring the hardseed data 
+
+```{r}
+
+setwd("C:\\GitHubRepos\\SubCloverPhD\\SubClover\\WaterAct")
+getwd()
+df_Hard <- read.table ("MaxHardness.txt",header=TRUE)
+
+str(df_Hard)
+
+df_H <-df_Hard %>%
+  dplyr::select(Cultivar,SowTreat, Hard_perc)%>%
+  group_by(Cultivar,SowTreat)%>%
+  summarise_all(funs(mean,sd))
+  
+```
+
+then merge the two data frames by cultivar sowtreat 
 
 
 ```{r}
 
-  
+df_HAW <- merge(df_H, df_seedmean, by=c("Cultivar","SowTreat"))
+
+str(df_HAW)
 ```
-
-
 
 
 Calculate the mean and error bars for each cultivar 
 
+```{r, fig.height=5, fig.width=10}
+df_HAW %>%
+  mutate (SowTreat= factor(SowTreat, levels=c("S1", "S2", "S3", "S4", "S6","S7"),labels=c("June", "July", "September", "November", "February","March")))%>%
+  ggplot(aes(x=WaterAct, y=mean, colour=Cultivar, shape=SowTreat)) +
+  geom_point(size=4, alpha=0.8) +
+ # geom_line() +
+  #facet_grid(.~SowTreat) +
+  labs(x="Water Activity (aw) ",y="Maximum percentage of hardseeds (%) ") +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1))+
+  geom_errorbar(aes(ymin=mean-sd/1.73,
+                    ymax=mean+sd/1.73))+
+  ylim(0,100)+
+  xlim(0,0.8)+
+  theme_bw()+
+  theme(axis.text.x = element_text(angle = 0, hjust = 0.5, size = 14))+
+  theme(axis.title.x = element_text(angle = 0, hjust = 0.5, size = 16))+
+  theme(axis.text.y = element_text(angle = 0, hjust = 1, size = 14))+
+theme(axis.title.y = element_text(angle = 90, hjust = 0.5, size = 16))
+
+
+
+
+
+```
+
+
 ```{r}
-df_seed %>%
-  mutate(SowingD = dmy(SowingD)) %>%
-  #filter(Round == 1) %>%
-  group_by(Cultivar,SowingD) %>%
-  dplyr::select(WaterAct) %>%
-  summarise_each(funs(mean,sd)) %>%
-  ggplot(aes(x=SowingD, y=mean, colour=(Cultivar), shape=(Cultivar))) +
-  geom_point() +
-  geom_line() +
- #facet_grid(.~Cultivar) +
-  labs(x="Sowing Date",y="Water Activity ") +
-  #theme(axis.text.x = element_text(angle = 90, hjust = 1))+
-  geom_errorbar(aes(ymin=mean-sd/2,
-                    ymax=mean+sd/2), width = 0.8)+
-  ylim(0,1) 
 
-head(df_seed)
 
+write.table (df_HAW, "df_HAW.txt"  )
+#markdown::render("<C:\\GitHubRepos\\SubCloverPhD\\SubClover\\HardseedsProject1Read.Rmd>") 
+```
+
+
+ANOVAfor water activity 
+
+```{r}
+file <- df_seed %>%
+  dplyr::select(Block, Cultivar,SowTreat,Plot,Depth,WaterAct)
  
-
-#ANOVA
-
-#data transformation
-df_seed$transf_no <- 1*(df_seed$WaterAct)
-
-#df_seedANOVA$transf_sqr <- sqrt(df_seedANOVA$hardSeed)
-#df_seedANOVA$transf_log <- log(df_seedANOVA$hardSeed)
-#df_seedANOVA$transf_acos <- acos(df_seedANOVA$hardSeed/100)
-#df_seedANOVA$transf_power3 <- (df_seedANOVA$hardSeed)^3
-
-
-
-file <- df_seed
-
-x <- c( "transf_no",  "transf_sqr", "transf_log", "transf_acos", "transf_power3")
-
-colsSelec <- match(x,colnames(file))
-
-file %>%
-  tidyr::gather("transformation" ,"value",colsSelec) %>%
-  ggplot(aes(value)) + 
-  geom_histogram() +
-  facet_grid(.~transformation, scales="free" )
-
-head(file)
-head(df_seedANOVA)
-#normality test
-#tranform log was the best histogram so continue with it 
-shapiro.test(file$transf_acos)
-
-#QQplot
-var<-file$transf_acos
-qqnorm(var)
-qqline(var, col = 2)
-qqplot(var, rt(300))
 
 #-------------------------------------------------
 
@@ -159,21 +171,265 @@ file.subset <- file
 
 head(file.subset, 50)
 summary(file.subset)
-my.anova <- aov(transf_acos ~ Cultivar*SowTreat + Block, data = file.subset)
-
-summary(my.anova)
-TukeyHSD(my.anova)
-
-#Means separation 
-(LSD.test(my.anova, c("Cultivar","SowTreat"), alpha= 0.05, p.adj="none")) 
-
-
+#my.anova <- aov(SoftGerm_perc~ Cultivar*SowTreat + Block, data = file.subset)
+my.anova <- aov(WaterAct~ Cultivar + Block, data = file.subset)
+#my.anova <- aov(WaterAct~ Depth + Block, data = file.subset)
+#my.anova <- aov(WaterAct~ SowTreat + Block, data = file.subset)
 ```
 
 
 ```{r}
-
-markdown::render("<C:\\GitHubRepos\\SubCloverPhD\\SubClover\\HardseedsProject1Read.Rmd>") 
+summary(my.anova)
+#TukeyHSD(my.anova)
 ```
+
+
+```{r}
+#Means separation 
+#(LSD.test(my.anova, c("Cultivar","SowTreat"), alpha= 0.05, p.adj="none"))
+#(LSD.test(my.anova, c("SowTreat"), alpha= 0.05, p.adj="none"))
+#(LSD.test(my.anova, c("Depth"), alpha= 0.05, p.adj="none"))
+(LSD.test(my.anova, c("Cultivar"), alpha= 0.05, p.adj="none"))
+```
+
+
+s1
+
+
+ANOVAfor water activity 
+
+```{r}
+file <- df_seed %>%
+  dplyr::select(Block, Cultivar,SowTreat,Plot,Depth,WaterAct) %>%
+  filter(SowTreat=="S1")
+ 
+
+#-------------------------------------------------
+
+# Chosen transform log to do anova 
+file.subset <- file 
+
+head(file.subset, 50)
+summary(file.subset)
+my.anova <- aov(WaterAct~ Cultivar*Depth + Block, data = file.subset)
+#my.anova <- aov(WaterAct~ Cultivar + Block, data = file.subset)
+#my.anova <- aov(WaterAct~ Depth + Block, data = file.subset)
+#my.anova <- aov(WaterAct~ SowTreat + Block, data = file.subset)
+```
+
+
+```{r}
+summary(my.anova)
+#TukeyHSD(my.anova)
+```
+
+
+```{r}
+#Means separation 
+#(LSD.test(my.anova, c("Cultivar","SowTreat"), alpha= 0.05, p.adj="none"))
+#(LSD.test(my.anova, c("SowTreat"), alpha= 0.05, p.adj="none"))
+#(LSD.test(my.anova, c("Depth"), alpha= 0.05, p.adj="none"))
+(LSD.test(my.anova, c("Cultivar"), alpha= 0.05, p.adj="none"))
+```
+
+
+
+S2 ANOVAfor water activity 
+
+```{r}
+file <- df_seed %>%
+  dplyr::select(Block, Cultivar,SowTreat,Plot,Depth,WaterAct) %>%
+  filter(SowTreat=="S2")
+ 
+
+#-------------------------------------------------
+
+# Chosen transform log to do anova 
+file.subset <- file 
+
+head(file.subset, 50)
+summary(file.subset)
+my.anova <- aov(WaterAct~ Cultivar*Depth + Block, data = file.subset)
+#my.anova <- aov(WaterAct~ Cultivar + Block, data = file.subset)
+#my.anova <- aov(WaterAct~ Depth + Block, data = file.subset)
+#my.anova <- aov(WaterAct~ SowTreat + Block, data = file.subset)
+```
+
+
+```{r}
+summary(my.anova)
+#TukeyHSD(my.anova)
+```
+
+
+```{r}
+#Means separation 
+#(LSD.test(my.anova, c("Cultivar","SowTreat"), alpha= 0.05, p.adj="none"))
+#(LSD.test(my.anova, c("SowTreat"), alpha= 0.05, p.adj="none"))
+#(LSD.test(my.anova, c("Depth"), alpha= 0.05, p.adj="none"))
+(LSD.test(my.anova, c("Cultivar"), alpha= 0.05, p.adj="none"))
+```
+
+S3
+
+
+ANOVAfor water activity 
+
+```{r}
+file <- df_seed %>%
+  dplyr::select(Block, Cultivar,SowTreat,Plot,Depth,WaterAct) %>%
+  filter(SowTreat=="S3")
+ 
+
+#-------------------------------------------------
+
+# Chosen transform log to do anova 
+file.subset <- file 
+
+head(file.subset, 50)
+summary(file.subset)
+my.anova <- aov(WaterAct~ Cultivar*Depth + Block, data = file.subset)
+#my.anova <- aov(WaterAct~ Cultivar + Block, data = file.subset)
+#my.anova <- aov(WaterAct~ Depth + Block, data = file.subset)
+#my.anova <- aov(WaterAct~ SowTreat + Block, data = file.subset)
+```
+
+
+```{r}
+summary(my.anova)
+#TukeyHSD(my.anova)
+```
+
+
+```{r}
+#Means separation 
+#(LSD.test(my.anova, c("Cultivar","SowTreat"), alpha= 0.05, p.adj="none"))
+#(LSD.test(my.anova, c("SowTreat"), alpha= 0.05, p.adj="none"))
+#(LSD.test(my.anova, c("Depth"), alpha= 0.05, p.adj="none"))
+(LSD.test(my.anova, c("Cultivar"), alpha= 0.05, p.adj="none"))
+```
+
+
+S4
+ANOVAfor water activity 
+
+```{r}
+file <- df_seed %>%
+  dplyr::select(Block, Cultivar,SowTreat,Plot,Depth,WaterAct) %>%
+  filter(SowTreat=="S4")
+ 
+
+#-------------------------------------------------
+
+# Chosen transform log to do anova 
+file.subset <- file 
+
+head(file.subset, 50)
+summary(file.subset)
+my.anova <- aov(WaterAct~ Cultivar*Depth + Block, data = file.subset)
+#my.anova <- aov(WaterAct~ Cultivar + Block, data = file.subset)
+#my.anova <- aov(WaterAct~ Depth + Block, data = file.subset)
+#my.anova <- aov(WaterAct~ SowTreat + Block, data = file.subset)
+```
+
+
+```{r}
+summary(my.anova)
+#TukeyHSD(my.anova)
+```
+
+
+```{r}
+#Means separation 
+#(LSD.test(my.anova, c("Cultivar","SowTreat"), alpha= 0.05, p.adj="none"))
+#(LSD.test(my.anova, c("SowTreat"), alpha= 0.05, p.adj="none"))
+#(LSD.test(my.anova, c("Depth"), alpha= 0.05, p.adj="none"))
+(LSD.test(my.anova, c("Cultivar"), alpha= 0.05, p.adj="none"))
+```
+
+s6
+
+
+ANOVAfor water activity 
+
+```{r}
+file <- df_seed %>%
+  dplyr::select(Block, Cultivar,SowTreat,Plot,Depth,WaterAct) %>%
+  filter(SowTreat=="S6")
+ 
+
+#-------------------------------------------------
+
+# Chosen transform log to do anova 
+file.subset <- file 
+
+head(file.subset, 50)
+summary(file.subset)
+my.anova <- aov(WaterAct~ Cultivar*Depth + Block, data = file.subset)
+#my.anova <- aov(WaterAct~ Cultivar + Block, data = file.subset)
+#my.anova <- aov(WaterAct~ Depth + Block, data = file.subset)
+#my.anova <- aov(WaterAct~ SowTreat + Block, data = file.subset)
+```
+
+
+```{r}
+summary(my.anova)
+#TukeyHSD(my.anova)
+```
+
+
+```{r}
+#Means separation 
+#(LSD.test(my.anova, c("Cultivar","SowTreat"), alpha= 0.05, p.adj="none"))
+#(LSD.test(my.anova, c("SowTreat"), alpha= 0.05, p.adj="none"))
+#(LSD.test(my.anova, c("Depth"), alpha= 0.05, p.adj="none"))
+(LSD.test(my.anova, c("Cultivar"), alpha= 0.05, p.adj="none"))
+```
+
+s7
+
+ANOVAfor water activity 
+
+```{r}
+file <- df_seed %>%
+  dplyr::select(Block, Cultivar,SowTreat,Plot,Depth,WaterAct) %>%
+  filter(SowTreat=="S7")
+ 
+
+#-------------------------------------------------
+
+# Chosen transform log to do anova 
+file.subset <- file 
+
+head(file.subset, 50)
+summary(file.subset)
+#my.anova <- aov(WaterAct~ Cultivar*Deptht + Block, data = file.subset)
+my.anova <- aov(WaterAct~ Cultivar + Block, data = file.subset)
+#my.anova <- aov(WaterAct~ Depth + Block, data = file.subset)
+#my.anova <- aov(WaterAct~ SowTreat + Block, data = file.subset)
+```
+
+
+```{r}
+summary(my.anova)
+#TukeyHSD(my.anova)
+```
+
+
+```{r}
+#Means separation 
+#(LSD.test(my.anova, c("Cultivar","SowTreat"), alpha= 0.05, p.adj="none"))
+#(LSD.test(my.anova, c("SowTreat"), alpha= 0.05, p.adj="none"))
+#(LSD.test(my.anova, c("Depth"), alpha= 0.05, p.adj="none"))
+(LSD.test(my.anova, c("Cultivar"), alpha= 0.05, p.adj="none"))
+```
+
+
+
+
+
+
+
+
 
 

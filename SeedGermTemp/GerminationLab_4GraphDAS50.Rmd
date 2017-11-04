@@ -1,0 +1,139 @@
+---
+title: "Germination Seeds different Temperatures  4Cultivar"
+author: "CT"
+date: " September  2017"
+output: html_document
+---
+
+```{r loadLibraries}
+library(tidyr)
+library (dplyr)
+library (ggplot2)  
+library(agricolae)
+library(knitr)
+library (lubridate)
+
+```
+
+
+```{r loadFile}
+setwd("C:\\GitHubRepos\\SubCloverPhD\\SubClover\\SeedGermTemp")
+getwd()
+
+#create file
+df_seed <- read.table("df_RateGerm2.txt",header=TRUE)
+str(df_seed)
+# change format with  base R)
+#df_seed$Date <- dmy(df_seed$Date)
+
+# jeito 2 de trocar formato (usando dplyr)
+df_seed <- df_seed %>%
+  mutate(Temp = as.factor(Temp), 
+         Block = as.factor(Block),
+         Rate= as.numeric(Rate))
+
+
+summary(df_seed) # explore values
+str(df_seed) # check formats
+```
+
+Need to fix here ...Replace the NA's per zero values to graphic it  
+
+```{r}
+dfDAS50 <-df_seed %>%
+  group_by(Temp, Cultivar) %>%
+  dplyr::select(DAS50E) %>%
+  summarise_all(funs(mean,sd))
+
+str(dfDAS50)
+```
+
+
+
+Graph DAS 50 vs temperature 
+
+
+```{r, fig.height=5, fig.width=10}
+#check format
+#str(dMax)
+
+#graph it here error bars already represent the SE (std/sqrtn = 4)
+dfDAS50 %>%
+  
+  ggplot(aes(x=Temp, y=mean, colour=Cultivar, shape=Cultivar))+  # do percentage here
+  geom_point(size =4 )+
+  #geom_smooth()+
+  geom_line()+
+  geom_errorbar(aes(ymin=mean-sd/4,
+  ymax=mean+sd/4))+
+     theme_bw()+
+#   #facet_wrap (~SowTreat,ncol=4, scales = "free")+
+#   ylim(0,100)+
+#   #labs(x="Hours",y="Cummulative Germination Percnet(%)")+
+#   #facet_grid(.~Temp)
+#   #facet_wrap(.~Temp, ncol=6)
+facet_wrap(~Cultivar,ncol=2, scales = "free")+
+#   theme_bw()+
+  #scale_x_continuous(breaks = c(5,10,15,20,25,30,35))+
+  ylim(0, 10)+
+  ylab(expression(Days~to~50~"%"~Germination))+
+  #theme(text = element_text(size=12))+
+  xlab(expression(Temperature~"("^"o"*"C)"))+
+  theme(axis.text.x=element_text(angle = 0, hjust = 0, size= 11))+
+  theme(axis.text.y=element_text(angle = 0, hjust = 0, size= 12))
+  #xlim(0, 40)+
+  #labs(y="Maximum germination Percent (%)",x="Temperature") 
+  #geom_abline(intercept = 100, slope = 0)
+
+```
+
+Get the means/stats  for temperature and cultivar 
+Vaariable : DAS50E
+
+```{r}
+  #Prepare data frame for ANOVA
+df_s<- df_seed
+  
+
+
+#-------------------------------------------------
+# anova 
+file <- df_s
+
+file.subset <- file 
+
+head(file.subset)
+summary(file.subset)
+
+```
+
+```{r}
+
+#ANOVA
+my.anova <- aov(DAS50E~ Cultivar*Temp + Block, data = file.subset)
+#my.anova <- aov(TSW ~ Cultivar*Depth + Block, data = file.subset)
+summary(my.anova)
+```
+
+```{r}
+
+#(LSD.test(my.anova, c( "Cultivar"), alpha= 0.05, p.adj="none"))
+
+(LSD.test(my.anova, c("Cultivar", "Temp"), alpha= 0.05, p.adj="none"))
+#Note LSD interaction from Genstat was calculated as 0.7029 
+
+
+
+#(LSD.test(my.anova, c( "Temp"), alpha= 0.05, p.adj="none"))
+
+```
+
+
+
+```{r}
+
+(LSD.test(my.anova, c( "Temp"), alpha= 0.05, p.adj="none"))
+```
+
+ 
+

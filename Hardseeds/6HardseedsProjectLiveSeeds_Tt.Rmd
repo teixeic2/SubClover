@@ -1,0 +1,114 @@
+---
+title: "Hardseeds Live Max 6CV"
+author: "CT"
+date: "22.09.2016"
+output:
+  word_document: default
+  pdf_document: default
+---
+
+
+```{r loadLibraries}
+library(tidyr)
+library (dplyr)
+library (ggplot2)
+library(agricolae)
+library(knitr)
+library (lubridate)
+
+```
+This script reads the dfHard_Break and replaces Round days per TT sum 
+
+```{r}
+setwd("C:\\GitHubRepos\\SubCloverPhD\\SubClover\\Hardseeds")
+getwd()
+```
+
+
+```{r}
+df_seed_raw <- read.table("HardTtSum.txt", header=TRUE)%>%
+dplyr::select(Block:TtSum, HardAccum)
+
+```
+
+then replaced values of round per TT sum : 14 = 0, 35 = 420; 56 = 840; 77 = 1260; 98 = 1680.
+
+
+```{r loadFile}
+#create file
+ 
+head(df_seed_raw)
+```
+
+```{r}
+# jeito 2 de trocar formato (usando dplyr)
+df_seed <- df_seed_raw %>%
+  mutate(Plot = as.factor(Plot), 
+         Block = as.factor(Block),
+         Date = dmy(Date),
+         HardAccum = as.numeric(HardAccum))
+         
+  
+
+summary(df_seed) # explore values
+
+```
+
+```{r}
+str(df_seed) # check formats
+```
+
+
+
+Here graph the percentage of hardseeds based on living seeds (exclude dead! )
+
+```{r, fig.height= 6, fig.width=12}
+#Graph Breakdown live hard seeds 
+
+df_seed %>%
+  mutate(SowingD = dmy(SowingD)) %>%
+  mutate (SowTreat= factor(SowTreat, levels=c("S1", "S2", "S3", "S4", "S6","S7"),labels=c("June", "July", "September", "November", "February","March")))%>%
+  #filter(Round == 14) %>%
+  group_by(Cultivar,SowingD, SowTreat,TtSum) %>%
+  dplyr::select(HardAccum) %>%
+  summarise_all(funs(mean,sd)) %>%
+  ggplot(aes(x=TtSum, y=mean, colour=Cultivar, shape=Cultivar)) +
+  geom_point(size=3) +
+  geom_line() +
+ facet_grid(.~SowTreat) +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1))+
+                  geom_errorbar(aes(ymin=mean-sd/3.46,
+                    ymax=mean+sd/3.46))+
+  theme_bw()+
+  ylim(0,100)+
+  xlim(0,1700)+
+  ylab(expression(Percentage~of~Hardseeds~"(%)"))+
+  xlab(expression(Accumulated~thermal~time~"( "^"o"*"C day)"))+
+  #theme(text = element_text(size=12))+
+  #xlab(expression(Days))+
+  theme(axis.text.x=element_text(angle = 45, hjust = 0.5, size= 11))+
+   theme(axis.title.x=element_text(angle = 0, hjust = 0.5, size= 16))+
+  theme(axis.text.y=element_text(angle = 0, hjust = 0, size= 12))+
+   theme(axis.title.y=element_text(angle = 90, hjust = 0.5, size= 16))
+
+
+
+```
+
+
+```{r}
+write.table(df_seed, "dfHard_breakTT.txt")
+```
+
+
+
+end of this script . 
+
+
+
+```{r}
+
+#markdown::render("<C:\\GitHubRepos\\SubCloverPhD\\SubClover\\HardseedsProject1Read.Rmd>") 
+```
+
+

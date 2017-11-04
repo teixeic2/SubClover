@@ -1,0 +1,439 @@
+---
+title: "Hardseeds breakdown field"
+author: "CT"
+date: 07.09.2016"
+output:
+  word_document: default
+  
+---
+Purpose : 
+This script reads the raw data from the field seed hardness breakdown (buried mesh bags)
+
+It finds the linear regressions for the cultivars according to selected time periods fo TT  
+
+```{r loadLibraries}
+library (lubridate)
+library(tidyr)
+library (dplyr)
+library (ggplot2)
+library(agricolae)
+library(knitr)
+library(rgr)
+```
+
+Read file and 
+```{r, loadFile}
+setwd("C:\\GitHubRepos\\SubCloverPhD\\SubClover\\FieldBreakdown")
+getwd()
+
+#create file
+df_seed <- read.table("FieldBreakdown.txt",header=TRUE)
+str(df_seed)
+summary(df_seed)
+
+
+
+
+
+```
+
+Adjust formats and calculate the percentage of germinated seeds 
+```{r}
+# change format with basic R 
+#df_seed$Date <- dmy(df_seed$Date)
+
+
+df_seed <- df_seed %>%
+  mutate(Plot = as.factor(Plot), 
+         Block = as.factor(Block),
+         TTSoilSum = as.numeric(TTSoilSum),
+      hardSeed = as.numeric(CumhardSeed))
+  
+str(df_seed)
+#summary(df_seed) # explore values
+  # check formats
+  
+
+
+```
+
+Select the first period of decline in hardseeds : 0 - 145.
+
+Then try to fit general  lm  for each cultivar )
+
+Just change name of dataframe
+```{r}
+#Select depth of interest start with above seeds 
+
+dfSubSet<- df_seed%>%
+  subset (DAB<145) %>%
+ dplyr::select(Plot, Cultivar, Block, DAB, hardSeed, TTSoilSum)
+  
+```
+
+This loop finds the overall slope for TTSoilSum  
+
+```{r}
+all.data<-data.frame()
+counter<-0
+plots<-unique(dfSubSet$Plot)
+#depth<-unique(dfSubSet$Depth)
+
+length(plots)#*length(depth)
+#p=d=1
+for(p in 1:length(plots)) {
+  #for(d in 1:length(depth)) {
+  df_sub <- data.frame()  
+   # print(paste0(plots[p],"_",depth[d]))
+  #  counter<-counter+1
+    
+  df_sub <- dfSubSet %>% filter(Plot==plots[p]) # & Depth == depth[d])
+  
+  
+  # Linear fit
+  x <- df_sub$TTSoilSum
+  y <- df_sub$hardSeed
+  
+  #print(data.frame(x=x,y=y))
+  
+  fit <- NULL
+  fit <- lm(y ~ x)
+  
+  intercept <- round(fit$coefficients[[1]],2)
+  slope <- round(fit$coefficients[[2]],3)
+  r2 <- round(summary(fit)$r.squared * 100,2)
+  # summary(fit)$adj.r.squared
+  cv <- as.character(df_sub$Cultivar[1])
+  block <- as.character(df_sub$Block[1])
+  #sow <- as.character(df_sub$SowTreat[1])
+  #sd <- dmy(df_sub$SowingD[1])
+  
+  
+  buf <- data.frame(cv=cv, block=block, plot=plots[p], int=intercept, slope=slope, r2=r2, n=nrow(df_sub))
+  
+  all.data <- rbind(buf, all.data)
+  
+ # print(buf)
+  
+  #print(nrow(df_sub))
+    
+  #subset(dfSubSet, (dfSubSet$Plot==plots[p] & Depth == depth[d]))
+    
+  }
+  
+
+
+summary(all.data)
+
+```
+
+rename dataframe 
+```{r}
+  dfTTSlope1 <- all.data
+
+
+```
+
+Now run ANOVA to compare the rate (%hard/DAB) for each cultivar
+
+
+```{r}
+
+
+df_s<- dfTTSlope1
+
+#-------------------------------------------------
+# anova 
+file <- df_s
+
+file.subset <- file 
+
+head(file.subset)
+summary(file.subset)
+
+```
+
+```{r}
+
+#ANOVA
+my.anova <- aov(slope~ cv + block, data = file.subset)
+#my.anova <- aov(TSW ~ Cultivar*Depth + Block, data = file.subset)
+summary(my.anova)
+```
+
+```{r}
+
+#(LSD.test(my.anova, c( "Cultivar"), alpha= 0.05, p.adj="none"))
+
+(LSD.test(my.anova, c("cv"), alpha= 0.05, p.adj="none"))
+#Note LSD interaction from Genstat was calculated as 0.7029 
+
+
+
+#(LSD.test(my.anova, c( "Temp"), alpha= 0.05, p.adj="none"))
+
+```
+
+get the R2 
+
+
+```{r}
+
+my.anova <- aov(r2~ cv + block, data = file.subset)
+(LSD.test(my.anova, c("cv"), alpha= 0.05, p.adj="none"))
+
+```
+
+Now for th winter period - 145-380
+
+Just change name of dataframe
+```{r}
+#Select depth of interest start with above seeds 
+
+dfSubSet2<- df_seed%>%
+  subset (DAB>140 & DAB<400) %>%
+ dplyr::select(Plot, Cultivar, Block, DAB, hardSeed, TTSoilSum)
+  
+```
+
+This loop finds the overall slope for TTSoilSum  
+
+```{r}
+all.data<-data.frame()
+counter<-0
+plots<-unique(dfSubSet2$Plot)
+#depth<-unique(dfSubSet$Depth)
+
+length(plots)#*length(depth)
+#p=d=1
+for(p in 1:length(plots)) {
+  #for(d in 1:length(depth)) {
+  df_sub <- data.frame()  
+   # print(paste0(plots[p],"_",depth[d]))
+  #  counter<-counter+1
+    
+  df_sub <- dfSubSet2 %>% filter(Plot==plots[p]) # & Depth == depth[d])
+  
+  
+  # Linear fit
+  x <- df_sub$DAB
+  y <- df_sub$hardSeed
+  
+  #print(data.frame(x=x,y=y))
+  
+  fit <- NULL
+  fit <- lm(y ~ x)
+  
+  intercept <- round(fit$coefficients[[1]],2)
+  slope <- round(fit$coefficients[[2]],3)
+  r2 <- round(summary(fit)$r.squared * 100,2)
+  # summary(fit)$adj.r.squared
+  cv <- as.character(df_sub$Cultivar[1])
+  block <- as.character(df_sub$Block[1])
+  #sow <- as.character(df_sub$SowTreat[1])
+  #sd <- dmy(df_sub$SowingD[1])
+  
+  
+  buf <- data.frame(cv=cv, block=block, plot=plots[p], int=intercept, slope=slope, r2=r2, n=nrow(df_sub))
+  
+  all.data <- rbind(buf, all.data)
+  
+ # print(buf)
+  
+  #print(nrow(df_sub))
+    
+  #subset(dfSubSet, (dfSubSet$Plot==plots[p] & Depth == depth[d]))
+    
+  }
+  
+
+
+summary(all.data)
+
+```
+
+
+rename dataframe 
+```{r}
+  dfDABSlope2 <- all.data
+
+
+```
+
+Now run ANOVA to compare the rate (%hard/DAB) for each cultivar
+
+
+```{r}
+
+
+df_s<- dfDABSlope2
+
+#-------------------------------------------------
+# anova 
+file <- df_s
+
+file.subset <- file 
+
+head(file.subset)
+summary(file.subset)
+
+```
+
+```{r}
+
+#ANOVA
+my.anova <- aov(slope~ cv + block, data = file.subset)
+#my.anova <- aov(TSW ~ Cultivar*Depth + Block, data = file.subset)
+summary(my.anova)
+```
+
+```{r}
+
+#(LSD.test(my.anova, c( "Cultivar"), alpha= 0.05, p.adj="none"))
+
+(LSD.test(my.anova, c("cv"), alpha= 0.05, p.adj="none"))
+#Note LSD interaction from Genstat was calculated as 0.7029 
+
+
+
+#(LSD.test(my.anova, c( "Temp"), alpha= 0.05, p.adj="none"))
+
+```
+
+get the R2 
+
+
+```{r}
+
+my.anova <- aov(r2~ cv + block, data = file.subset)
+(LSD.test(my.anova, c("cv"), alpha= 0.05, p.adj="none"))
+
+```
+
+And do the same for the period 380 - 540 (third part )
+
+Just change name of dataframe
+```{r}
+#Select depth of interest start with above seeds 
+
+dfSubSet3<- df_seed%>%
+  subset (DAB>371 ) %>%
+ dplyr::select(Plot, Cultivar, Block, DAB, hardSeed, TTSoilSum)
+  
+```
+
+This loop finds the overall slope for TTSoilSum  
+
+```{r}
+all.data<-data.frame()
+counter<-0
+plots<-unique(dfSubSet3$Plot)
+#depth<-unique(dfSubSet$Depth)
+
+length(plots)#*length(depth)
+#p=d=1
+for(p in 1:length(plots)) {
+  #for(d in 1:length(depth)) {
+  df_sub <- data.frame()  
+   # print(paste0(plots[p],"_",depth[d]))
+  #  counter<-counter+1
+    
+  df_sub <- dfSubSet3 %>% filter(Plot==plots[p]) # & Depth == depth[d])
+  
+  
+  # Linear fit
+  x <- df_sub$DAB
+  y <- df_sub$hardSeed
+  
+  #print(data.frame(x=x,y=y))
+  
+  fit <- NULL
+  fit <- lm(y ~ x)
+  
+  intercept <- round(fit$coefficients[[1]],2)
+  slope <- round(fit$coefficients[[2]],3)
+  r2 <- round(summary(fit)$r.squared * 100,2)
+  # summary(fit)$adj.r.squared
+  cv <- as.character(df_sub$Cultivar[1])
+  block <- as.character(df_sub$Block[1])
+  #sow <- as.character(df_sub$SowTreat[1])
+  #sd <- dmy(df_sub$SowingD[1])
+  
+  
+  buf <- data.frame(cv=cv, block=block, plot=plots[p], int=intercept, slope=slope, r2=r2, n=nrow(df_sub))
+  
+  all.data <- rbind(buf, all.data)
+  
+ # print(buf)
+  
+  #print(nrow(df_sub))
+    
+  #subset(dfSubSet, (dfSubSet$Plot==plots[p] & Depth == depth[d]))
+    
+  }
+  
+
+
+summary(all.data)
+
+```
+
+
+rename dataframe 
+```{r}
+  dfDABSlope3 <- all.data
+
+
+```
+
+Now run ANOVA to compare the rate (%hard/DAB) for each cultivar
+
+
+```{r}
+
+
+df_s<- dfDABSlope3
+
+#-------------------------------------------------
+# anova 
+file <- df_s
+
+file.subset <- file 
+
+head(file.subset)
+summary(file.subset)
+
+```
+
+```{r}
+
+#ANOVA
+my.anova <- aov(slope~ cv + block, data = file.subset)
+#my.anova <- aov(TSW ~ Cultivar*Depth + Block, data = file.subset)
+summary(my.anova)
+```
+
+```{r}
+
+#(LSD.test(my.anova, c( "Cultivar"), alpha= 0.05, p.adj="none"))
+
+(LSD.test(my.anova, c("cv"), alpha= 0.05, p.adj="none"))
+#Note LSD interaction from Genstat was calculated as 0.7029 
+
+
+
+#(LSD.test(my.anova, c( "Temp"), alpha= 0.05, p.adj="none"))
+
+```
+
+get the R2 
+
+
+```{r}
+
+my.anova <- aov(r2~ cv + block, data = file.subset)
+(LSD.test(my.anova, c("cv"), alpha= 0.05, p.adj="none"))
+
+```
+
+

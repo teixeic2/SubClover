@@ -8,6 +8,15 @@ html_document: default
 note: Re analysis data and weatherfiles to merge
 ---
 
+Aim:
+
+-
+
+-
+-
+-
+
+
 ```{r loadLibraries}
 library(tidyr)
 library (dplyr)
@@ -26,7 +35,7 @@ getwd()
 
 
 #get dataframe created in ReAnalysis1
-df_Data <- read.table("df_Data.txt",header=TRUE)
+df_Data <- read.table("df_DaysToFlower.txt",header=TRUE)
 
 
 #head(df_Data)
@@ -111,18 +120,18 @@ df_Rea3 %>%
 
 
 
-```{r fig.height=5 , fig.width= 10}
+```{r fig.height=15 , fig.width= 15}
 
 df_Rea3 %>%
   mutate(Month=format(as.Date(ymd(SowingDate)),"%b")) %>%
   ggplot(aes(x=reorder(Month,month(SowingDate)), y=DaysToFlower)) +
-  geom_point(alpha=0.2)+
-  geom_jitter(alpha=0.2,width = 0.3, aes(colour=Location))+
+ # geom_point(alpha=0.2)+
+  geom_jitter(alpha=0.7,width = 0.3, aes(colour=Treatcultivar))+
   geom_boxplot(alpha=0.2)+
+  geom_violin(alpha=0.2)+
   labs(x=" Sowing Month", y="Days to flower")+
-  facet_wrap(~Country)
+  facet_wrap(Country~Location) + theme(legend.position="bottom")
 ```
-
 
 
 ```{r , fig.height=5 , fig.width= 10}
@@ -147,24 +156,35 @@ df_Rea3 %>%
 #create slopes for each cv 
 
 df_ReaSlop <- df_Rea3 %>%
-  filter(LocationYear=="Waggawagga1985"&  AuthorYear=="DearEtal1993") %>%
+  filter(LocationYear=="Waggawagga1985" &  AuthorYear=="DearEtal1993") %>%
   group_by(SowingDate,Treatcultivar)%>%
 do(mod = lm(PercentFlower ~ TTtoFlower, data = .)) %>%
   mutate(Slope = summary(mod)$coeff[2]) %>%
   dplyr::select(-mod)
 
-#note: slope is PercentFlower/TToCd!!
+#note: slope is %/oCd!!
+
+summary(df_ReaSlop)
 ```
 
 
-```{r}
+```{r, fig.height=20}
 #graph the slopes 
 df_ReaSlop %>%
-  ggplot(aes(x=SowingDate, y=95/Slope,colour=Treatcultivar)) +
-  geom_point()
+  group_by(SowingDate) %>%
+  ggplot(aes(x=reorder(Treatcultivar,Slope), y=95/Slope,fill=Treatcultivar)) +
+  geom_bar(size=10, stat='identity') +
+  facet_wrap(~SowingDate)+
+    theme(text = element_text(size=40),
+        axis.text.x = element_text(angle=90, hjust=1)) +
+  ylab("Thermal-time from 5% to 100% flowering")
   
 #95 used because readings were 5 , 50 and 100 % flowering 
 ```
+
+
+# use cluster anslysis to define groups of cultivars
+
 
 ```{r}
 
@@ -176,7 +196,7 @@ df_ReaSlop %>%
   summarise(mean=mean(Slope), sd=sd(Slope),meanTT=mean(TT), sdTT=sd(TT))
   
 # calculate Standard error as  <- function(x) sd(x)/sqrt(smaple size(n)) for dear et al n=4
-
+summary(df_ReaSlop)
 ```
 
 

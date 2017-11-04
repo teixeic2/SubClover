@@ -7,6 +7,15 @@ output:
   html_document: default
 ---
 
+Aim:
+
+- Reads raw data weather all trials
+- Check the data
+- Graph temperature and Pp
+- Calculates TT accumulation
+- Saves technically consistent data
+
+
 ```{r setup, warning=FALSE}
 
 library (dplyr)
@@ -150,30 +159,34 @@ TTfunc <- function(Tmin ,Tmax){
     
     TT_tn <- 0
     
-    tn <- ((0.931 +  0.114*n - 0.0703 * n^2
-            + 0.0053 * n^3) * (Tmax-Tmin)) + 
-      Tmin # 8-h temperature
+    tn <- ((0.931 +  0.114*n - 0.0703 * n^2 + 0.0053 * n^3) * (Tmax-Tmin)) + Tmin # 8-h temperature
     
     TT_tn <- int_func(tt_card$temp, tt_card$T,tn) 
     
     TTsum <- TT_tn + TTsum
     
-    print(TT_tn)
+   # print(TT_tn)
     
     }
-  TTav <- TTsum/8
+ 
+   TTav <- TTsum/8
   
   return(TTav)
   }
 
-TTfunc(10,30)
+TTfunc(10,24)
 
 ```
+Calculate TT 
 
-```{r ReadCalcTt}
+- Compares with simple method to calculate Tt with base temperature of 0oC
+```{r}
 
 df_We_tt <- df_We %>%
-  mutate(TTday=TTfunc(Tm,Tx), TTday_s=(Tm+Tx)/2, diff=(TTday_s/TTday)*100)
+  mutate(Date=dmy(Date)) %>%
+  mutate(TTday=TTfunc(Tm,Tx), TTday_s=(Tm+Tx)/2, diff=(TTday_s-TTday))
+
+summary(df_We_tt)
 
 ```
 
@@ -182,7 +195,7 @@ df_We_tt <- df_We %>%
 #Check TT  two methods : TTday_s = simple method (Tmean - Tbzero)
 df_We_tt  %>% 
 ggplot(aes(x=TTday_s, y= TTday)) +
-    geom_point(shape=21,alpha=0.2)+
+  geom_point(shape=21,alpha=0.2,colour='red')+
   geom_abline(intercept = 0, slope = 1)
 
 ```
@@ -192,37 +205,62 @@ ggplot(aes(x=TTday_s, y= TTday)) +
 
 
 ```{r}
-
-#change formats 
-
-df_We_tt$Date <-dmy(df_We_tt$Date)
-
-
 str(df_We_tt)
-
-#Calculate accumulated Themal time 
-
-df_CumTT <- df_We_tt %>%
-group_by(LocationYear) %>%
-arrange(Date) %>%
-mutate(SumTTday = cumsum(TTday)) %>%
-mutate(DayCount=Date-min(Date))
-
-head(df_CumTT)
-str(df_CumTT)
 
 ```
 
-```{r, fig.height=10, fig.width=10}
+
+```{r}
+ly<-unique(df_We_tt$LocationYear)
+df_CumTT<-data.frame()
+for(i in 1:length(ly)) {
+  
+  dfsub<-df_We_tt%>%filter(LocationYear==ly[i])%>%
+    arrange(Date)%>%
+    mutate(SumTTday = cumsum(TTday)) %>%  
+    mutate(MinDate=min(Date))%>%mutate(DayCount=as.numeric(Date-MinDate))
+
+  df_CumTT<-rbind(df_CumTT,dfsub)
+  dfsub<-NULL
+}
+
+summary( df_CumTT)
+
+```
+
+
+```{r}
+# #Calculate accumulated Themal time 
+# 
+# group_by(df_We_tt, LocationYear) %>% summarise(min = min(Date), TTday = Date[which.min(Date)])
+# ##FIXME: cannot get min date
+# 
+# df_CumTT <- df_We_tt %>%
+# group_by(LocationYear) %>%
+# arrange(Date) %>%
+# mutate(DateMin=min(as.numeric(Date)))  
+# mutate(DayCount=Date-min(Date)) %>%
+# slice(which.min(Date))
+# mutate(SumTTday = cumsum(TTday)) %>%  
+# ungroup()
+
+head(df_CumTT)
+```
+
+```{r}
+str(df_CumTT)
+```
+
+```{r, fig.height=5, fig.width=10}
 #Graph Accumulated TT 
 
 df_CumTT %>%
   ggplot(aes(x=DayCount,y=SumTTday))+
   geom_line(aes(colour=LocationYear, linetype=Country)) +
   #facet_wrap(~LocationYear,scale="free") +
-  theme(axis.text.x = element_text(angle = 90, hjust = 1)) +
-  xlim(0,300)+
-  ylim(0,5000)
+  xlim(0,max(df_CumTT$DayCount))+
+  ylim(0,max(df_CumTT$SumTTday))+
+  facet_grid(.~Country)
 
 ```
 
