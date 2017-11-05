@@ -9,6 +9,12 @@ note: Re analysis after  merged weather, calculated Tt, re calculate the TT for 
   flowering .
 ---
 
+AIM:
+
+_375737357327
+358328328328
+35828328325
+
 ```{r loadLibraries}
 library(tidyr)
 library (dplyr)
@@ -211,20 +217,20 @@ summary (df_Rea4)
 
 
 ```{r, fig.height=5, fig.width=10}
-df_Rea4  %>% 
-  tidyr::gather("Variable", "Value",DaysToFlower,TTFloAdj) %>%
-  filter(Treatcultivar=="MtBarker")%>%
-  mutate(Month=format(as.Date(ymd(SowingDate)),"%b")) %>%
-  ggplot(aes(x=reorder(Month,month(SowingDate)), y= Value, colour=Location)) +
-  labs(x=" Sowing Month", y="   oCd      Days  ")+
-  geom_boxplot(alpha=0.2)+
-  geom_jitter(alpha=0.2,width = 0.3, aes(colour=Location))+
-  labs(x=" Sowing Month", y="Days to flower")+
-  
-  #facet_wrap(~Country)
-  #geom_point(shape=21) +
-# theme(legend.position="none")+
-  facet_grid(Variable~Country, scales = "free")
+# df_Rea4  %>% 
+#   tidyr::gather("Variable", "Value",DaysToFlower,TTFloAdj) %>%
+#   filter(Treatcultivar=="MtBarker")%>%
+#   mutate(Month=format(as.Date(ymd(SowingDate)),"%b")) %>%
+#   ggplot(aes(x=reorder(Month,month(SowingDate)), y= Value, colour=Location)) +
+#   labs(x=" Sowing Month", y="   oCd      Days  ")+
+#   geom_boxplot(alpha=0.2)+
+#   geom_jitter(alpha=0.2,width = 0.3, aes(colour=Location))+
+#   labs(x=" Sowing Month", y="Days to flower")+
+#   
+#   #facet_wrap(~Country)
+#   #geom_point(shape=21) +
+# # theme(legend.position="none")+
+#   facet_grid(Variable~Country, scales = "free")
 
 ```
 

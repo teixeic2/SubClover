@@ -183,7 +183,19 @@ df_ReaSlop %>%
 ```
 
 
-# use cluster anslysis to define groups of cultivars
+# use cluster anslysis to define groups of cultivars. Here created the dataframe to do that 
+
+```{r}
+
+df_tempTTflo <- df_ReaSlop %>%
+  mutate(TTflower= 95/Slope)
+
+write.table(df_tempTTflo, "dfTempTTFLOR.txt")
+
+
+```
+
+
 
 
 ```{r}
