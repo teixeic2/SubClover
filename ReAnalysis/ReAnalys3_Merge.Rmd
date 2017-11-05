@@ -102,18 +102,24 @@ write.table(df_Rea3, "df_Rea3.txt")
 
 ```
 
-```{r, fig.height=5 , fig.width= 10}
+```{r, fig.height=8 , fig.width= 15}
 #Graph it to  check 
 
 df_Rea3 %>%
+  dplyr::select(LocationYear:Treatcultivar,DaysToFlower,TTtoFlower) %>%
+  gather("VarName","VarValue",DaysToFlower:TTtoFlower)  %>%
+  mutate(VarName=factor(VarName, level=c("DaysToFlower","TTtoFlower"),labels=c("Days to flower","Thermal-time to flowering"))) %>%
+    mutate(Month=format(as.Date(ymd(SowingDate)),"%b")) %>%
+#  ggplot(aes(x=reorder(Month,month(SowingDate)), y=DaysToFlower)) +
   #filter(Treatcultivar=="MtBarker") %>%
-  ggplot(aes(x=Location, y=DaysToFlower))+
+  ggplot(aes(x= reorder(Location,VarValue), y=VarValue))+
   geom_boxplot(alpha=0.2)+
-  geom_jitter(width = 0.1, aes(colour=Location))+
-  theme(axis.text.x = element_text(angle = 90, hjust = 1))+
+  geom_jitter(size=3,alpha=0.7,width = 0.1, aes(colour=reorder(Month,month(SowingDate))))+
   #theme(legend.position="none")+
-  labs(x=" Month", y="Days to flower")+
-  facet_wrap(~Country)
+  labs(x="Trial location", y="Time to flower")+
+  theme_bw()+
+  facet_grid(.~VarName, scales="free") +
+  coord_flip() + theme(legend.position="top") + guides(colour=guide_legend(title="Sowing month"))
   
 
 ```
