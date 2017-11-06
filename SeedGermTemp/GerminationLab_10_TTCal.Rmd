@@ -142,5 +142,11 @@ summary(my.anova)
 (LSD.test(my.anova, c( "Temp"), alpha= 0.05, p.adj="none"))
 ```
 
+
+
+
+
+
+
  
 

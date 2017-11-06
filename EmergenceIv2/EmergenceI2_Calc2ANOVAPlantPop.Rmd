@@ -401,7 +401,8 @@ summary(my.anova)
 #TukeyHSD(my.anova)
 
 #Means separation 
-(LSD.test(my.anova, c("Cultivar"), alpha= 0.05, p.adj="none") )
+(LSD.test(my.anova, c("Cultivar"), alpha= 0.05, p.adj="none")) 
+  
 #(LSD.test(my.anova, "Cultivar"))
 ```
 

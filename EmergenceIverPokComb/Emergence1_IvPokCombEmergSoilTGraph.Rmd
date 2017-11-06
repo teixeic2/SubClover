@@ -7,7 +7,7 @@ output: html_document
 
 This script does this:
 - This was Derrick;s idea of extending the soil Temp range (16.08.2017)
--get dataframe combined with Iversen and Pok DASto50% Emergence and mean soil Temp (this is produced in individual location folders!!)  
+- get dataframe combined with Iversen and Pok DASto50% Emergence and mean soil Temp (this is produced in individual location folders!!)  
 - Calculate the rate for this new dataframe 
 -graph y=Days to 50% emergence ; x= mean soil Temp
 -graph y= 1/days to 50% emergence ; x= mean soil Temp
@@ -36,7 +36,7 @@ getwd()
 #create file
 df_G <- read.table("EmergIvPokComb.txt",header=TRUE)
 
-
+str(df_G)
 
 
 ```
@@ -283,7 +283,7 @@ fontSize <- 12.0
   #group_by(day) %>%
  # summarise_each(funs(mean)) %>%
   g10 <- df_H %>%
-    filter(Cultivar=="Woogenellup")%>%
+    #filter(Cultivar=="Woogenellup")%>%
     ggplot(aes(x=meanTemp_Em, y=DAS50E, colour=SowTreat))  +
   geom_point(alpha=0.8) +
   geom_point(aes(shape=Location, size=4))+
@@ -300,7 +300,7 @@ fontSize <- 12.0
 
 # 1/DAS50E
   g20 <- df_H %>%
-  filter(Cultivar=="Woogenellup")%>%
+  #filter(Cultivar=="Woogenellup")%>%
   ggplot(aes(x=meanTemp_Em, y=InvDAS50E, colour=SowTreat))  +
   geom_point(alpha=0.8) +
   geom_point(aes(shape=Location, size=4))+

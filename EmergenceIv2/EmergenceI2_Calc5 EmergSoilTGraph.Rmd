@@ -65,14 +65,10 @@ Graph DAS50 Emergence and rate against meanTemp at emergence
 
 fontSize <- 12.0
 
-#DAS50E
-#g1 <- df_H %>%
-  #filter(year %in% 1960:2000) %>%
-  #group_by(day) %>%
  
 
   g1 <- df_H %>%
-    filter(Cultivar=="Antas"|Cultivar=="Monti") %>%
+  filter(Cultivar=="Antas"|Cultivar=="Monti") %>%
   ggplot(aes(x=meanTemp_Em, y=DAS50E, colour=SowTreat))  +
   geom_point(alpha=0.8, size=3) +
   #geom_smooth()+
@@ -107,24 +103,32 @@ fontSize <- 12.0
 ```
 
 
-Do a graph for woogenellup only and for S2, S3, S4 and S6.
+calculate mean values for each cultivar and sow Treat
 
 ```{r}
+df_mean<-df_H%>%
+  group_by(Cultivar,SowTreat)%>%
+   summarise_all(funs(mean))
+```
+
+
+```{r, fig.height=5, fig.width=10}
 
 fontSize <- 14.0
 
 
 
 #DAS50E
-#g1 <- df_H %>%
-  #filter(year %in% 1960:2000) %>%
-  #group_by(day) %>%
- # summarise_each(funs(mean)) %>%
-  g3 <- df_H %>%
-  filter(Cultivar=="Monti"| Cultivar=="Antas")%>%
-  filter (SowTreat== "S2"| SowTreat== "S3"|SowTreat== "S4"|SowTreat== "S6")%>%
+#
+  g3 <- df_mean %>%
+  #filter(Cultivar=="Monti"| Cultivar=="Antas")%>%
+  #filter (SowTreat== "S2"| SowTreat== "S3"|SowTreat== "S4"|SowTreat== "S6")%>%
+    #group_by(Cultivar,SowTreat)%>%
+    #summarise_all(funs(mean))
   ggplot(aes(x=meanTemp_Em, y=DAS50E, colour=SowTreat))  +
-  geom_point(alpha=0.8) +
+    geom_point(aes(shape= SowTreat), size=4)+
+  scale_shape_manual(values = c(0,1,2,3,4,5,6,7,8))+
+ # geom_point(alpha=0.8) +
   #geom_smooth()+
   #stat_smooth(level = 0.9, size = 1, colour="white") + 
   theme_bw() +
@@ -133,14 +137,16 @@ fontSize <- 14.0
     facet_grid(.~Cultivar, scales="free")+
   theme(text = element_text(size=11))+
   scale_x_continuous(limits = c(0,25))+
-  scale_y_continuous(limits = c(0,20))
+  scale_y_continuous(limits = c(0,60))
 
 # 1/DAS50E
   g4 <- df_H %>%
-   filter(Cultivar=="Monti"| Cultivar=="Antas")%>%
-  filter (SowTreat== "S2"| SowTreat== "S3"|SowTreat== "S4"|SowTreat== "S6")%>% 
+   #filter(Cultivar=="Monti"| Cultivar=="Antas")%>%
+  #filter (SowTreat== "S2"| SowTreat== "S3"|SowTreat== "S4"|SowTreat== "S6")%>% 
   ggplot(aes(x=meanTemp_Em, y=InvDAS50E, colour=SowTreat))  +
-  geom_point(alpha=0.8) +
+    geom_point(aes(shape= SowTreat), size=4)+
+  scale_shape_manual(values = c(0,1,2,3,4,5,6,7,8))+
+  #geom_point(alpha=0.8) +
   #geom_smooth(colour="red")+
   #stat_smooth(level = 0.9, size = 1, colour="white") + 
   theme_bw() +
@@ -149,7 +155,7 @@ fontSize <- 14.0
   facet_grid(.~Cultivar, scales="free")+
   theme(text = element_text(size=11))+
  scale_x_continuous(limits = c(0,25))+
-  scale_y_continuous(limits = c(0,0.20))
+  scale_y_continuous(limits = c(0,0.50))
   grid.arrange(g3, g4)
 
 ```

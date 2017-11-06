@@ -217,13 +217,17 @@ write.table(df_merge, "df_MeanSoilTemp50Emerg.txt")
 Graph results 
 ```{r}
 
-df_merge %>%
+df_2 <-df_merge %>%
   filter(SowTreat!= "S1")%>% 
   group_by(Cultivar,SowTreat) %>%
-  summarise(meanTemp_Em=mean(meanTemp_Em),DAS50E = mean(DAS50E))%>%
-  ggplot(aes(x=meanTemp_Em,y=DAS50E,colour=Cultivar)) +
-  theme_bw()+
-  geom_point()
+    summarise_all(funs(mean))%>%
+  dplyr::select(Cultivar,SowTreat,meanTemp_Em,DAS50E)
+
+  str(df_2)
+
+
+
+ 
 
 ```
 

@@ -26,7 +26,8 @@ getwd()
 
 
 
-This script reads the HardseedsLiveData (from raw data excel) with all catergories of seeds (germ, abnormal, dead)
+This script reads the HardseedsLiveData (from raw data excel) with all catergories of seeds (germ, abnormal, dead).calculation of max hardseeds and cumulative hardseeds.
+
 ```{r loadFile}
 #create file
 df_seed_raw <- read.table("HardseedsLiveData.txt",header=TRUE)
@@ -39,7 +40,7 @@ df_seed <- df_seed_raw %>%
   mutate(Plot = as.factor(Plot), 
          Block = as.factor(Block),
          Date = dmy(Date),
-         Depth = factor(Depth,levels=c( "Above","Below")),
+         Depth = factor(Depth,levels=c("Above","Below")),
          Soft = as.numeric(Soft),
          SoftDead = as.numeric(SoftDead),
          SoftGerm = as.numeric (SoftGerm),
@@ -102,9 +103,10 @@ summary(df_final)
 
 ```{r CreatePercentSoft}
 
-#Change name of dataframes
+#Change name of dataframes - u should not do that, makes things confuse
 
-df_hard_live_max <- df_final 
+df_hard_live_max <- df_final %>% mutate(Round=factor(Round))
+
 summary (df_hard_live_max)
 
 ```
