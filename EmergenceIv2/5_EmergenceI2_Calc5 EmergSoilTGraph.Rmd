@@ -112,7 +112,7 @@ df_mean<-df_H%>%
 ```
 
 
-```{r, fig.height=6, fig.width=10}
+```{r, fig.height=5, fig.width=10}
 
 fontSize <- 14.0
 
@@ -120,7 +120,6 @@ fontSize <- 14.0
 
 #DAS50E
 #
-theme_set(theme_bw(base_size = 14))
   g3 <- df_mean %>%
   #filter(Cultivar=="Monti"| Cultivar=="Antas")%>%
   #filter (SowTreat== "S2"| SowTreat== "S3"|SowTreat== "S4"|SowTreat== "S6")%>%
@@ -132,16 +131,15 @@ theme_set(theme_bw(base_size = 14))
  # geom_point(alpha=0.8) +
   #geom_smooth()+
   #stat_smooth(level = 0.9, size = 1, colour="white") + 
-  #theme_bw() +
+  theme_bw() +
   xlab(expression(Soil~temperature~~"("^"o"*"C)")) +  
-  ylab("Time 50% emergence (days)") +
+  ylab("Days to 50% emergence  (days)") +
     facet_grid(.~Cultivar, scales="free")+
-  #theme(text = element_text(size=11))+
+  theme(text = element_text(size=11))+
   scale_x_continuous(limits = c(0,25))+
   scale_y_continuous(limits = c(0,60))
 
 # 1/DAS50E
-  
   g4 <- df_mean %>%
    #filter(Cultivar=="Monti"| Cultivar=="Antas")%>%
   #filter (SowTreat== "S2"| SowTreat== "S3"|SowTreat== "S4"|SowTreat== "S6")%>% 
@@ -151,13 +149,13 @@ theme_set(theme_bw(base_size = 14))
   #geom_point(alpha=0.8) +
   #geom_smooth(colour="red")+
   #stat_smooth(level = 0.9, size = 1, colour="white") + 
-  #theme_bw() +
+  theme_bw() +
   xlab(expression(Soil~temperature~~"("^"o"*"C)")) + 
-  ylab(" Rate (1/ Days) ") +
+  ylab(" Rate (1/ Days) to 50% emergence") +
   facet_grid(.~Cultivar, scales="free")+
-  #theme(text = element_text(size=11))+
+  theme(text = element_text(size=11))+
  scale_x_continuous(limits = c(0,25))+
-  scale_y_continuous(limits = c(0,0.30))
+  scale_y_continuous(limits = c(0,0.50))
   grid.arrange(g3, g4)
 
 ```

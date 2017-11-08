@@ -1,0 +1,180 @@
+---
+title: "Emergence seedlings I2 and Pok graphs with Mean Soil Temp extended range "
+author: "CT"
+date: "17.08.2017"
+output: html_document
+---
+
+This script does this:
+
+-get dataframe from Iversen Emergence and mean soil Temp for Antas only between 5 and 16.38 degrees 
+- optimum mean Temp for Antas is 15.51  
+
+
+
+```{r loadLibraries, warning=FALSE}
+library(tidyr)
+library(dplyr)
+library(ggplot2)
+library(agricolae)
+library(knitr)
+library(lubridate)
+library(mosaic)
+library(lattice)
+library (gridExtra)
+```
+
+get file 
+
+```{r loadFile}
+# Get dataframe from previous script (written table )
+setwd("C:\\GitHubRepos\\SubCloverPhD\\SubClover\\EmergenceIv2")
+getwd()
+
+#create file
+df_G <- read.table("df_MeanSoilTemp50Emerg.txt",header=TRUE)
+
+
+
+
+
+
+```
+
+select columns of interest and Adjust formats 
+```{r}
+
+#df_G$Date50E <- ymd(df_G$Date50E)
+df_G$SowingDate <- ymd(df_G$SowingDate )
+df_G$Cultivar <- as.factor(df_G$Cultivar)
+df_G$Plot <- as.factor(df_G$Plot)
+
+#check data 
+summary(df_G)
+
+
+
+#select columns 
+df_G <-df_G %>%
+mutate(InvDAS50E= 1/ DAS50E)%>%
+dplyr:: select(Plot,Cultivar,SowTreat,meanTemp_Em, InvDAS50E)
+
+
+str(df_G)
+
+# this is to "clean previous dfs : df_emerg4 <- NULL
+```
+
+Subset cultivars Antas between temperature 5 to max 16.4 
+
+```{r}
+
+#subset Cultivar
+
+df_A <-df_G %>%
+subset(Cultivar=="Antas")
+
+#subset Temperature range 
+df_A1 <-df_A %>%
+  subset (meanTemp_Em>5 & meanTemp_Em<15.2)
+
+
+#remove SowingDate 1and 8  from both locations 
+df_A2 <- df_A1 %>%
+   subset (SowTreat=="S2"| SowTreat=="S3"|SowTreat=="S3"|SowTreat=="S4"|  SowTreat=="S5"|
+             SowTreat=="S6"|SowTreat=="S7")
+
+```
+
+
+
+```{r}
+
+
+df_A3 <-df_A2 %>%
+  dplyr::select(SowTreat,Cultivar, Plot, meanTemp_Em, InvDAS50E) %>%
+  group_by(SowTreat,Cultivar) %>%
+  summarise_all(funs(mean)) %>%
+  mutate(y=InvDAS50E,x=meanTemp_Em) %>%
+  dplyr::select(-meanTemp_Em, -InvDAS50E, -Plot)
+
+str(df_A2)
+
+```
+
+got the means here ... and graph it
+
+```{r, fig.height=5, fig.width=10, echo = FALSE}
+df_A3%>%
+ggplot(aes(x=x, y=y, colour=SowTreat, shape=Cultivar))  +
+  geom_point(alpha=0.8, size= 3) +
+  #geom_smooth(colour="red")+
+  #stat_smooth(level = 0.9, size = 1, colour="white") + 
+  theme_bw() +
+  xlab(expression(Soil~temperature~~"("^"o"*"C)")) + 
+  ylab(" Mean Rate (1/ Days) to 50% emergence") +
+  facet_grid(.~Cultivar, scales="free")+
+  theme(text = element_text(size=12))+
+ scale_x_continuous(limits = c(0,25))+
+  scale_y_continuous(limits = c(0,0.25))
+
+
+# 
+
+```
+
+
+
+here get the equations for the Antas subset (min to optimum)  
+
+```{r, fig.height=5,fig.width=10}
+require(ggplot2)
+require(plyr)
+require(dplyr)
+
+lm_eqn = function(df){
+  m = lm(y ~ x, df);
+  eq <- substitute(italic(y) == a + b %.% italic(x)*","~~italic(r)^2~"="~r2, 
+                   list(a = format(coef(m)[1], digits = 2), 
+                        b = format(coef(m)[2], digits = 2), 
+                        r2 = format(summary(m)$r.squared, digits = 3)))
+  as.character(as.expression(eq));                 
+}
+
+#use all datapoints 
+df <- df_A2 %>%
+  dplyr::select(SowTreat,Cultivar, Plot, meanTemp_Em, InvDAS50E) %>%
+  group_by(SowTreat,Cultivar) %>%
+  summarise_each(funs(mean)) %>%
+  mutate(y=InvDAS50E,x=meanTemp_Em) %>%
+  dplyr::select(-meanTemp_Em, -InvDAS50E)
+
+eq <- ddply(df,.(Cultivar),lm_eqn)
+
+yx<-quantile(df$y,0.75)
+xn<- quantile(df$x,0.25)
+
+p <- ggplot(data = df, aes(x = x, y = y)) +
+  geom_smooth(method = "lm", se=FALSE, color="black", formula = y ~ x) +
+  geom_point(aes(colour = factor(Cultivar)), size=5) + scale_shape(solid = FALSE)+ 
+  
+  theme_bw()+
+  scale_x_continuous(limits = c(0,25))+
+  scale_y_continuous(limits = c(0,0.25))
+
+p1 <- p + geom_text(data=eq,aes(x = xn, y = yx,label=V1), parse = TRUE, inherit.aes=FALSE) + 
+  facet_grid(Cultivar~.,scales="free")
+  
+p1
+```
+
+
+```{r}
+#get statistical summary here 
+summary(lm(y ~ x, df))
+```
+
+
+
+End of this script
+next script generate equations for each cultivar separately from 5 to 15.4-5 degrees. 

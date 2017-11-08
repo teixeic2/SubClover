@@ -1,0 +1,63 @@
+---
+title: "Hardseeds Slopes 6CV"
+author: "CT"
+date: "Tuesday, July 19, 2016"
+output:
+  word_document: default
+  pdf_document: default
+---
+
+```{r loadLibraries}
+library(tidyr)
+library (dplyr)
+library (ggplot2)
+library(agricolae)
+library(knitr)
+library (lubridate)
+library(markdown)
+
+```
+this script combines the maximum hardseeds (14 days test) and the slopes of breakdown (% per day) and graph the two variables  
+
+```{r loadFile}
+setwd("C:\\GitHubRepos\\SubCloverPhD\\SubClover\\Hardseeds")
+getwd()
+
+#create file
+df_maxhard <- read.table("Maxhardness.txt",header=TRUE)
+dftemp <-  read.table ("df_slopesBreak.txt",header = TRUE)
+df_slopesbreak<-dftemp %>% dplyr::rename(Plot=plot, Depth=depth)
+```
+
+merge the two dataframes
+```{r}
+#Select depth of interest start with above seeds 
+df_merged <- merge(df_maxhard,df_slopesbreak, by=c("Plot", "Depth")) %>% dplyr::select(Plot:SowTreat, Hard_perc,slope)
+
+summary(df_merged)
+  
+```
+
+```{r}
+df_merged_av <- df_merged %>%
+  group_by(Cultivar,SowTreat) %>%
+  dplyr::select(Cultivar,SowTreat,slope,Hard_perc) %>%
+  summarise_all(funs(mean,sd)) 
+
+summary(df_merged_av)
+```
+
+```{r, fig.height=5,fig.width=10}
+df_merged_av %>%
+  ggplot(aes(x=slope_mean,y=Hard_perc_mean))+
+  geom_point(aes(colour=Cultivar),size=4) +
+  geom_smooth(fill="blue",alpha=0.1,method='lm') +
+  theme_bw()+
+  xlab("Hard seedness decay (%/day)")+ylab("Hard seed maximum (%)") +
+   geom_errorbar(aes(ymin=Hard_perc_mean-Hard_perc_sd/2.45,
+                    ymax=Hard_perc_mean+Hard_perc_sd/2.45),colour="grey")+
+
+geom_errorbarh(aes(xmin=slope_mean-slope_sd/2.45,
+                    xmax=slope_mean+slope_sd/2.45),colour="grey") + coord_flip()
+```
+

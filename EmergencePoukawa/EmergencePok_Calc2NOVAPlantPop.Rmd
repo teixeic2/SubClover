@@ -59,13 +59,16 @@ Calculates the Plant Population
 #compare max plant population among Sowing dates and cultivars
 
 df_emerg_perc3 <- df_emerg %>%
-group_by(Plot) %>%
-mutate(FinalPop= round(max(PlantPop)*1,digits=2))
+group_by(SowTreat,Cultivar,Block,Plot) %>%
+  filter(DAS==max(DAS))%>%
+  dplyr::select(PlantPop)%>%
+  summarise_all(funs(max))%>%
+  mutate(FinalPop=round((PlantPop)*1,digits=2))
 
 head(df_emerg_perc3)
 summary (df_emerg_perc3)
 
-write.table(df_emerg_perc3, "df_emerg_perc3.txt")
+write.table(df_emerg_perc3, "df_emerg_perc3Pok.txt")
 ```
 
 Run anova general (get means to write about it in chapters )
@@ -89,19 +92,25 @@ file.subset <- file
 head(file.subset, 50)
 summary(file.subset)
 #To get means select the factor : SowTreat or Cultivar
-my.anova <- aov(transf_no ~ SowTreat + Block, 
+my.anova <- aov(transf_no ~ SowTreat*Cultivar + Block, 
                 data = file.subset)
 
-summary(my.anova)
 
-#Means separation 
-(LSD.test(my.anova, c("SowTreat"), alpha= 0.05, p.adj="none") )
 
 
 ```
 
 
 
+```{r}
+
+summary(my.anova)
+
+#Means separation 
+#(LSD.test(my.anova, c("SowTreat","Cultivar"), alpha= 0.05, p.adj="none") )
+#(LSD.test(my.anova, c("SowTreat"), alpha= 0.05, p.adj="none") )
+(LSD.test(my.anova, c("Cultivar"), alpha= 0.05, p.adj="none") )
+```
 
 
 
@@ -137,10 +146,14 @@ my.anova <- aov(transf_no ~ Cultivar + Block,
 
 summary(my.anova)
 
+
+
+
+```
+
+```{r}
 #Means separation 
 (LSD.test(my.anova, c("Cultivar"), alpha= 0.05, p.adj="none") )
-
-
 ```
 
 ANOVA for S2
@@ -165,15 +178,23 @@ summary(file.subset)
 my.anova <- aov(transf_no ~ Cultivar + Block, 
                 data = file.subset)
 
-summary(my.anova)
 
-#Means separation 
-(LSD.test(my.anova, c("Cultivar"), alpha= 0.05, p.adj="none") )
+
+
 
 ```
 
+```{r}
+summary(my.anova)
+```
 
-separate Antas and Monti only here 
+
+```{r}
+#Means separation 
+(LSD.test(my.anova, c("Cultivar"), alpha= 0.05, p.adj="none") )
+```
+
+spwcial analysis ;separate Antas and Monti only here 
 ```{r}
 
 df_emerg_S2AM <-df_emerg_perc3 %>%
@@ -226,12 +247,16 @@ summary(file.subset)
 my.anova <- aov(transf_no ~ Cultivar + Block, 
                 data = file.subset)
 
+
+
+
+```
+
+```{r}
 summary(my.anova)
 
 #Means separation 
 (LSD.test(my.anova, c("Cultivar"), alpha= 0.05, p.adj="none") )
-
-
 ```
 
 ANOVA for S4
@@ -255,13 +280,17 @@ summary(file.subset)
 my.anova <- aov(transf_no ~ Cultivar + Block, 
                 data = file.subset)
 
+
+
+
+
+```
+
+```{r}
 summary(my.anova)
 
 #Means separation 
 (LSD.test(my.anova, c("Cultivar"), alpha= 0.05, p.adj="none") )
-
-
-
 ```
 
 ANOVA for S5
@@ -287,13 +316,21 @@ summary(file.subset)
 my.anova <- aov(transf_no ~ Cultivar + Block, 
                 data = file.subset)
 
+
+
+
+```
+
+
+```{r}
 summary(my.anova)
 
 #Means separation 
 (LSD.test(my.anova, c("Cultivar"), alpha= 0.05, p.adj="none") )
-
-
 ```
+
+
+
 
 ANOVA for S6
 
@@ -316,12 +353,18 @@ summary(file.subset)
 my.anova <- aov(transf_no ~ Cultivar + Block, 
                 data = file.subset)
 
+
+
+
+```
+
+
+
+```{r}
 summary(my.anova)
 
 #Means separation 
 (LSD.test(my.anova, c("Cultivar"), alpha= 0.05, p.adj="none") )
-
-
 ```
 
 
@@ -347,12 +390,19 @@ summary(file.subset)
 my.anova <- aov(transf_no ~ Cultivar + Block, 
                 data = file.subset)
 
+
+
+```
+
+
+```{r}
 summary(my.anova)
 
 #Means separation 
 (LSD.test(my.anova, c("Cultivar"), alpha= 0.05, p.adj="none") )
-
 ```
+
+
 ANOVA for S8
 
 ```{r}
@@ -374,12 +424,18 @@ summary(file.subset)
 my.anova <- aov(transf_no ~ Cultivar + Block, 
                 data = file.subset)
 
+
+
+```
+
+```{r}
 summary(my.anova)
 
 #Means separation 
 (LSD.test(my.anova, c("Cultivar"), alpha= 0.05, p.adj="none") )
-
 ```
+
+
 
 End of this script. 
 More analysis in script Calc3. 

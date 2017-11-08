@@ -1,0 +1,188 @@
+---
+title: "Germination Seeds different Temperatures  4Cultivar"
+author: "CT"
+date: " September  2017"
+output: html_document
+---
+# this script calculates the TT based on Tb and T suboptimal for each cultivar 
+
+```{r loadLibraries}
+library(tidyr)
+library (dplyr)
+library (ggplot2)  
+library(agricolae)
+library(knitr)
+library (lubridate)
+
+```
+
+
+```{r loadFile}
+setwd("C:\\GitHubRepos\\SubCloverPhD\\SubClover\\SeedGermTemp")
+getwd()
+
+#create file Use here df_RAteGErm2 as it has the zeros to include in graphics 
+df_seed <- read.table("df_RateGerm2.txt",header=TRUE)
+str(df_seed)
+# change format with  base R)
+#df_seed$Date <- dmy(df_seed$Date)
+
+# jeito 2 de trocar formato (usando dplyr)
+df_seed <- df_seed %>%
+  mutate(Temp = as.numeric(Temp), 
+         Block = as.factor(Block),
+         Rate= as.numeric(Rate))
+
+
+summary(df_seed) # explore values
+str(df_seed) # check formats
+```
+
+ Ttsub= from Tb to Topt; Ttsup= from Topt to Tmax.
+ Here select first cultivar Antas range of suboptimal is Tb= 0.05 and Topt = 19.7
+
+```{r}
+dfTT <-df_seed %>%
+  dplyr:: select(-Rate,-PercEmerg)%>%
+  filter(Cultivar=="Antas")%>%
+  subset(DAS50E>0.7 )%>%
+  subset(Temp>0.05 & Temp<19.7)%>%
+  mutate(TT=(Temp*DAS50E))
+  
+dfTTAntasTTsub <- dfTT %>%
+  group_by( Cultivar) %>%
+  dplyr::select(TT) %>%
+  summarise_all(funs(mean,sd))%>%
+  mutate(SE=sd/2)
+
+
+```
+
+
+
+summary of linear regressions :
+
+
+Appendix ZZ. Table XX. Segmented linear regressions and coefficients applied to estimate cardinal temperatures for germination of sub clover cultivars 'Antas', 'Denmark', 'Monti' and 'Narrikup' under constant temperatures. 
+Cultivar	Regression 	intercept	SE (intercept)	slope	SE(slope)	R2	P value
+Antas'	ascending	0.05	0.0095	0.029	0.0007	0.98	<0.001
+Antas'	descending	1.81	0.34	-0.052	0.011	0.83	0.263
+Denmark'	ascending	-0.11	0.02	0.042	0.0017	0.97	<0.01
+Denmark'	descending	1.55	0.23	-0.046	0.0085	0.79	0.11
+Monti'	ascending	-0.02	0.00	0.03	0.00	0.93	<0.001
+Monti'	descending	0.68	0.12	-0.02	0.00	0.86	0.24
+Narrikup'	ascending	-0.07	0.03	0.04	0.00	0.88	0.00
+Narrikup'	descending	1.11	0.19	-0.04	0.01	0.85	0.25
+
+
+Calculations Ttsub and Ttsup
+
+1/t75=bo+b1T (for the positive linear portion) (1)
+1 /t75 = b2+b3T (for the negative linear portion) (2) 
+The regression coefficient can then be related to Tb, Tmax and Tt as:
+and
+(3) (4)
+Ttsub=1/b1 (5) 
+Ttsub = -1/b3
+
+
+
+```{r}
+
+
+
+
+
+```
+
+
+Graph DAS 50 vs temperature 
+
+
+```{r, fig.height=5, fig.width=10}
+#check format
+#str(dMax)
+
+# #graph it here error bars already represent the SE (std/sqrtn = 4)
+a <- dfTT %>%
+#   #ungroup()%>%
+#   #mutate(Temp=as.numeric(Temp))%>%
+group_by( Cultivar) %>%
+  dplyr::select(TT)%>%
+  summarise_all(funs(mean,sd)) 
+  
+# define position of bar and errorbar
+dodge_x <- position_dodge(width = 0.9)
+  # here sd/4 correspond to standard error 
+  a %>%
+  ggplot(aes(x=Cultivar, y=(mean), fill=Cultivar)) +
+  geom_bar(stat="identity",position = dodge_x) +
+  geom_errorbar(aes(ymin=mean-sd/4,
+                    ymax=mean+sd/4),
+                width=0.25, size=0.3,position=dodge_x)   +
+  theme_grey(base_size = 16) +
+    theme_bw()+
+   theme(text = element_text(size=16))+
+  ylab(expression(Thermal~time ~"("^"o"*"Cd)"))+
+  theme(axis.text.x=element_text(angle = +0, hjust = 0, size= 16))+
+  theme(axis.text.y=element_text(angle = +0, hjust = 0, size= 16))
+  
+   
+  
+
+```
+
+Get the means/stats  for  cultivar 
+Vaariable : TT
+
+```{r}
+  #Prepare data frame for ANOVA
+df_s<- dfTT
+  
+  
+
+
+#-------------------------------------------------
+# anova 
+file <- df_s
+
+file.subset <- file 
+
+head(file.subset)
+summary(file.subset)
+
+```
+
+```{r}
+
+#ANOVA
+my.anova <- aov(TT~ Cultivar + Block, data = file.subset)
+#my.anova <- aov(TSW ~ Cultivar*Depth + Block, data = file.subset)
+summary(my.anova)
+```
+
+```{r}
+
+#(LSD.test(my.anova, c( "Cultivar"), alpha= 0.05, p.adj="none"))
+
+(LSD.test(my.anova, c("Cultivar"), alpha= 0.05, p.adj="none"))
+#Note LSD interaction from Genstat was calculated as 0.7029 
+
+
+
+#(LSD.test(my.anova, c( "Temp"), alpha= 0.05, p.adj="none"))
+
+```
+
+
+
+```{r}
+
+(LSD.test(my.anova, c( "Temp"), alpha= 0.05, p.adj="none"))
+```
+
+
+
+
+ 
+

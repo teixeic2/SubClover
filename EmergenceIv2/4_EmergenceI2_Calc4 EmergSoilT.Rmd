@@ -214,6 +214,27 @@ summary(df_merge)
 write.table(df_merge, "df_MeanSoilTemp50Emerg.txt") 
 ```
 
+get the TT and SE for all cultivars. exclude S1 . Consider Tb=0 for all cultivars. 
+
+```{r}
+df_TT <- df_merge%>%
+  mutate(TTtoEmerge=soilTempAcc_em -soilTempAcc_sow)
+
+#then select sow treat and means and se
+
+df_TTAllcv <-df_TT %>%
+  filter(SowTreat!= "S1")%>% 
+  group_by(Cultivar) %>%
+  dplyr::select(TTtoEmerge)%>%
+  summarise_all(funs(mean,sd))%>%
+    mutate(SE=sd/1.73)
+  
+```
+
+
+
+
+
 Graph results 
 ```{r}
 

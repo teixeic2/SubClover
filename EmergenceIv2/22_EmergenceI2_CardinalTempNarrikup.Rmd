@@ -1,0 +1,388 @@
+---
+title: "Emergence seedlings I2"
+author: "CT"
+date: "08.11.2017"
+output: html_document
+---
+
+This script does this:
+
+- get the dataframe with sowing dates and date to 50% Emergence  
+- get the dataframe with max and min soil  temperature 
+- merge the two dataframes to calculate the thermal time for Narrikup using the emergence Tb and cardinal temps. 
+
+
+
+```{r loadLibraries, warning=FALSE}
+library(tidyr)
+library(dplyr)
+library(ggplot2)
+library(agricolae)
+library(knitr)
+library(lubridate)
+library(mosaic)
+library(lattice)
+```
+
+
+```{r loadFile}
+# Get dataframe 1 with the soil Temp 
+setwd("C:\\GitHubRepos\\SubCloverPhD\\SubClover\\EmergenceIv2")
+getwd()
+
+#create file
+df_emerg4 <- read.table("df_emerg_perc_soilTT.txt",header=TRUE)
+#head(df_emerg4)
+
+df_emerg4$ReadingDate <- ymd(df_emerg4$ReadingDate )
+df_emerg4$SowingDate <- ymd(df_emerg4$SowingDate )
+df_emerg4$Block <- as.factor(df_emerg4$Block)
+df_emerg4$Plot <- as.factor(df_emerg4$Plot)
+# str(df_emerg4)
+# head(df_emerg4)
+
+D <- df_emerg4 %>%
+dplyr::select(Cultivar,SowTreat, Plot, SowingDate)
+
+summary(D)
+
+df_emerg4 <- NULL
+
+```
+
+
+```{r}
+
+# Get dataframe 2 with the date to 50 % Emerg
+setwd("C:\\GitHubRepos\\SubCloverPhD\\SubClover\\EmergenceIv2")
+getwd()
+
+#create file
+df_emerg5 <- read.table("df_tt_50p_emerg.txt",header=TRUE)
+head(df_emerg5)
+
+#df_emerg5$ReadingDate <- ymd(df_emerg5$ReadingDate )
+#df_emerg5$SowingDate <- ymd(df_emerg5$SowingDate )
+df_emerg5$Block <- as.factor(df_emerg5$Block)
+df_emerg5$Plot <- as.factor(df_emerg5$Plot)
+str(df_emerg5)
+head(df_emerg5)
+
+
+```
+Days to reach 50% from sowing date
+
+```{r}
+
+E <-df_emerg5 %>%
+dplyr::select(Plot,DAS50E)
+
+summary(E)
+
+df_emerg5 <- NULL
+
+```
+
+Merge dataframes 
+
+```{r}
+
+#Merge the two dataframes by plot
+
+
+df_M <- merge(D,E,by ="Plot")
+str(df_M)
+head(df_M)
+
+#Then calculate the date to 50% Emergence sum the date or sowing + DAS50E
+#Note df_Md has duplicated rows - fix it!! 
+
+df_MD <- df_M %>%
+  mutate(Date50E=SowingDate+DAS50E) %>%
+  group_by(Plot, DAS50E) %>% 
+  dplyr::filter(row_number() == 1)
+
+str(df_MD)
+#Here DAte50E is included no nee to change format 
+
+# mutate(Date50E = dmy(Date50E)
+
+E <- D <- df_M <- NULL
+         
+```
+
+
+```{r}
+summary(df_MD)
+```
+
+
+
+Read the soil data (and adjust formats
+
+```{r}
+
+# Get dataframe 1 with the soil Temp 
+setwd("C:\\GitHubRepos\\SubCloverPhD\\SubClover\\EmergenceIv2")
+getwd()
+
+#create file
+df_emerg6 <- read.table("SoilTempTXTM.txt",header=TRUE)
+head(df_emerg6)
+
+df_emerg6$Date <- dmy(df_emerg6$Date )
+# df_emerg4$SowingDate <- ymd(df_emerg4$SowingDate )
+# df_emerg4$Block <- as.factor(df_emerg4$Block)
+# df_emerg4$Plot <- as.factor(df_emerg4$Plot)
+str(df_emerg6)
+head(df_emerg6)
+
+
+
+```
+
+Add the accumulation of of thermal time use reference as  
+
+use the TB for emergence 
+
+
+'Antas'	-1.85 (±0.02)
+'Denmark'	 +1.0 (±0.03)
+'Leura'	-1.29 (±0.04)
+'Monti'	-1.73 (±0.05)
+'Narrikup'	+1.02 (±0.05) 
+'Woogenellup'	 +2.2 (±0.01)
+
+#---------------------------------------------------------------------------------------------------------------
+and Topt , tmax as per germination data
+
+Table XX Mean base (Tb), optimum (Topt) and maximum (Tmax) temperatures (oC) and sub (Ttsub) and supra (Ttsup ) optimal thermal time requirements for 50 % germination of sub clover seeds 'Antas' , 'Denmark', 'Monti' 'Narrikup'.
+Cultivar	Tb 	Topt 	Tmax	Ttsub	Ttsup	Excluded temperature
+		(oC)		     (oCd)		                    (oC)
+'Antas'	 0.05	21.7	34.6	34.48	19.23	-
+'Denmark'	-0.10	19.5	34.4	23.81	21.74	-
+'Monti'	-0.02	13.5	28.3	34.03	42.58	35
+'Narrikup'	-0.07	16.7	31.1	28.48	28.10	35
+Max. SE 	 0.03	2.4	6.2		
+
+For Leura use data from Monks 2009 who found Tb=0.1, Topt=20, Tmax=31.For Woogenellup use Tb=1.3; Topt 26 and Tmax 35 (Monks et al 2009; Moot et al 200 Tb= 0 for Woog. )
+# -----------------------------------------------------------------------------------------------------------
+
+For Narrikup  : 
+```{r}
+#Create Thermal time cardinal temperatures see data above- TT = Topt - Tb ... 16.7 - (1.0)= 15.7 ! 
+
+#For cardinal temperatures  
+#tt_card <- data.frame(temp=c(1,16.7,16.7,31.1),TT=c(0,15.7,15.7,0))
+
+#for TT at Tb=0 
+tt_card <- data.frame(temp=c(0,16.7,16.7,31.1),TT=c(0,16.7,16.7,0))
+tt_card %>%
+  ggplot(aes(x=temp, y=TT))+
+  #labs(x="Temperature (degree Celsius)")+
+  #labs(y="Thermal Time (oCd)") +
+  geom_line()+
+  theme_bw()+
+  ylim(0,25)+
+xlab(expression(Temperature~"("^"o"*"C)"))+
+  ylab(expression(Thermal~Time~Narrikup~"("^"o"*"Cd)"))+
+  theme(axis.text.x=element_text(angle = 0, hjust = 0, size= 14))+
+  theme(axis.title.x=element_text(angle = 0, hjust = 0.5, size= 14))+
+  theme(axis.text.y=element_text(angle = 0, hjust = 0, size= 14))+
+  theme(axis.title.y=element_text(size= 14))
+
+```
+
+ then make the loop 
+ 
+ 
+```{r}
+
+#Create and test interpolation function - Test if works 
+
+temp_ref  <- 25 # x-axes reference
+temp <- tt_card$temp # x-axes
+TT <- tt_card$TT # y-axes
+
+
+int_func <- function(temp,TT,temp_ref){
+
+  # if temp is too low or too high give extreme TT values
+ if(temp_ref>temp[length(temp)]) {
+   
+   out <- TT[length(TT)] 
+   # FIXME: approx functions seems to do that - need param
+   
+ } else if (temp_ref<temp[1]) {
+   
+   out <- TT[1]
+   
+ } else {
+   
+   # else interpolate
+   
+   tryCatch(  
+   
+  out <- approx(temp, TT, xout = temp_ref, 
+         method="linear", 
+         rule = 2)$y,
+  error = function(e) 
+  {
+  out <- NA
+  }
+) 
+  
+} # end if check
+
+  return(out)  
+  
+ }
+  
+int_func(temp,TT,temp_ref)
+
+```
+ 
+ use the 3x8 hours formula to calculate daily TT 
+```{r}
+
+#create REF Jones CA, Ritchie JT, Kiniry JR, Godwin DC (1986) Subroutine structure.In 'CERES-Maize: A simulation model of maize growth anddevelopment'. (Eds CA Jones, JR Kiniry) pp. 49-194. (Texas A&M University Press: Texas, USA
+
+TTfunc <- function(Tmin ,Tmax){         
+ 
+  if (Tmin>Tmax){
+   print("Tmin>Tmax")
+   break
+ } 
+  
+  TTav  <- 0
+  TTsum <- 0
+  
+  for(n in 1:8){ 
+    
+    tn <- 0
+    
+    TT_tn <- 0
+    
+    tn <- ((0.931 +  0.114*n - 0.0703 * n^2 + 0.0053 * n^3) * (Tmax-Tmin)) + Tmin # 8-h temperature
+    
+    TT_tn <- int_func(tt_card$temp, tt_card$T,tn) 
+    
+    TTsum <- TT_tn + TTsum
+    
+   # print(TT_tn)
+    
+    }
+ 
+   TTav <- TTsum/8
+  
+  return(TTav)
+  }
+
+TTfunc(10,24)
+
+```
+ 
+ 
+ 
+- Compares with simple method to calculate Tt with base temperature of 0oC 
+```{r, warning=FALSE}
+
+df_We_tt <- df_emerg6 %>%
+  #mutate(Date=dmy(Date)) %>%
+  rowwise() %>%
+  mutate(TTday=TTfunc(Tm,Tx), TTday_s=(Tm+Tx)/2, diff=(TTday_s-TTday))
+
+summary(df_We_tt)
+
+```
+ 
+ 
+ 
+```{r}
+#Check TT  two methods : TTday_s = simple method (Tmean - Tbzero)
+df_We_tt  %>% 
+ggplot(aes(x=TTday_s, y= TTday)) +
+  geom_point(shape=21,alpha=0.2,colour='red')+
+  geom_abline(intercept = 0, slope = 1)
+
+```
+ 
+ 
+ Then accumulate the TT 
+ 
+ 
+```{r}
+
+ df_NarrikupTT <-df_We_tt%>%
+    arrange(Date)%>%
+    mutate(SumTTday = cumsum(TTday))%>%
+  mutate(SUMTTday_s = cumsum(TTday_s)) %>%
+  dplyr::select(-TempSoil10mm)
+
+#head(df_soilTemp)
+
+summary(df_NarrikupTT)
+
+#df_emerg6 <- NULL
+
+```
+
+
+figure out how to calculate tt at sow then tt ate date of 50 emergence make one minus another to find TT emerg 
+
+```{r}
+df1 <- merge(df_MD,df_NarrikupTT, by.x="SowingDate",by.y="Date") %>%
+  mutate(soilTempAcc_sow = SumTTday) %>%
+  dplyr::select(-SumTTday)%>%
+  filter(Cultivar=="Narrikup")
+
+str(df1)
+```
+
+
+Need to force a date for 50 % emergence (round) to calculate the average temperature during emergence
+Save dataframe as txt file 
+
+```{r}
+
+# force formats of dates
+df1$Date <- round(df1$Date50E,0)
+df_NarrikupTT$Date <- round(df_NarrikupTT$Date,0)
+
+
+  df_merge <- merge(df1, df_NarrikupTT, by="Date") %>%
+    mutate(soilTempAcc_em = SumTTday) %>%
+  dplyr::select(-SumTTday) %>%
+  mutate(SummTTEmerg = (soilTempAcc_em-soilTempAcc_sow))  
+
+summary(df_merge)
+
+ 
+```
+
+get the TT and SE for the cultivar. exclude S1 .
+
+```{r}
+df_TT <- df_merge%>%
+   filter(SowTreat!= "S1")
+
+#then select sow treat and means and se
+
+df_TTN <-df_TT %>%
+  #group_by(Cultivar) %>%
+  dplyr::select(SummTTEmerg)%>%
+  summarise_all(funs(mean,sd))%>%
+    mutate(SE=sd/1.73)
+  
+```
+
+
+
+
+
+
+
+
+END ....graphs with DAS50E with mean soil Temp continue in Script EmergenceI2_Calc5EmergSoilGraph
+
+

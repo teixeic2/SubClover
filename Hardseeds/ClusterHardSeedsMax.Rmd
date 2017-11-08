@@ -1,0 +1,65 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+
+```{r loadLibraries}
+library(tidyr)
+library (dplyr)
+library (ggplot2)
+library(agricolae)
+library(knitr)
+library (lubridate)
+
+```
+
+
+```{r}
+setwd("C:\\GitHubRepos\\SubCloverPhD\\SubClover\\Hardseeds")
+getwd()
+```
+
+
+
+This script reads the HardseedsLiveData (from raw data excel) with all catergories of seeds (germ, abnormal, dead).calculation of max hardseeds and cumulative hardseeds.
+
+```{r loadFile}
+#create file
+df_raw <- read.table("MaxHardness.txt",header=TRUE)
+head(df_raw)
+```
+```{r}
+df_work<-df_raw %>% dplyr::select(Cultivar,SowTreat,SowingD, Hard_perc) %>% group_by(Cultivar,SowTreat,SowingD) %>%
+  summarise_all(funs(mean,sd))
+
+summary(df_work)
+```
+
+```{r}
+clusNo <- 3 # selected from sensitivity cluster analysis below
+
+myClus <- kmeans(df_work[,c("mean")], centers = clusNo)
+
+myClus_res.within.ss <- sum(myClus$withinss)
+
+clusterClass <- myClus$cluster
+
+dftemp1 <- cbind(df_work, clusterNo = factor(clusterClass))
+
+summary(dftemp1)
+
+```
+
+```{r, fig.width=12}
+theme_set(theme_gray(base_size = 20))
+dftemp1 %>%
+  mutate(Cluster = factor(clusterNo,levels=c(2,3,1),labels=c("Hard","Medium", "Soft")))  %>%
+  ggplot(aes(x=dmy(SowingD),y=mean)) +
+  geom_errorbar(aes(ymin=mean-sd/2.45,ymax=mean+sd/2.45,colour=Cluster),alpha=0.8, width=0.5, linetype=2)+
+  geom_point(aes(shape=Cultivar, colour=Cluster), size =5) +
+  ylab("Maximum seed hardness (%)") +
+  xlab("Sowing date")
+  
+```
+

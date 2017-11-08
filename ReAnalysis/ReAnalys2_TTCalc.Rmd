@@ -7,25 +7,13 @@ output:
   html_document: default
 ---
 
-Aim:
+##Aim:
 
 - Reads raw data weather all trials
 - Check the data
 - Graph temperature and Pp
 - Calculates TT accumulation
 - Saves technically consistent data
-
-
-```{r setup, warning=FALSE}
-
-library (dplyr)
-library (ggplot2)
-library(agricolae)
-library(knitr)
-library (lubridate)
-library(scales)
-
-```
 
 
 
@@ -93,6 +81,7 @@ xlab(expression(Temperature~"("^"o"*"C)"))+
 #
 ```
 
+
 ```{r}
 
 #Create and test interpolation function - Test if works 
@@ -139,6 +128,7 @@ int_func(temp,TT,temp_ref)
 
 ```
 
+use the 3x8 hours formula to calculate daily TT 
 ```{r}
 
 #create REF Jones CA, Ritchie JT, Kiniry JR, Godwin DC (1986) Subroutine structure.In 'CERES-Maize: A simulation model of maize growth anddevelopment'. (Eds CA Jones, JR Kiniry) pp. 49-194. (Texas A&M University Press: Texas, USA
@@ -180,10 +170,11 @@ TTfunc(10,24)
 Calculate TT 
 
 - Compares with simple method to calculate Tt with base temperature of 0oC
-```{r}
+```{r, warning=FALSE}
 
 df_We_tt <- df_We %>%
   mutate(Date=dmy(Date)) %>%
+  rowwise() %>%
   mutate(TTday=TTfunc(Tm,Tx), TTday_s=(Tm+Tx)/2, diff=(TTday_s-TTday))
 
 summary(df_We_tt)

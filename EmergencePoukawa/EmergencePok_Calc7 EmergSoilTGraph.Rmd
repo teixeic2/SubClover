@@ -100,6 +100,79 @@ fontSize <- 12.0
 
 ```
 
+use the means for each sowtreat 
+
+
+
+calculate mean values for each cultivar and sow Treat
+
+```{r}
+df_mean<-df_H%>%
+  group_by(Cultivar,SowTreat)%>%
+   summarise_all(funs(mean))
+```
+
+
+```{r, fig.height=5, fig.width=10}
+
+fontSize <- 14.0
+
+
+
+#DAS50E
+#
+  g3 <- df_mean %>%
+  #filter(Cultivar=="Monti"| Cultivar=="Antas")%>%
+ # filter (SowTreat== "S3"| SowTreat== "S4"|SowTreat== "S5"|SowTreat== "S6")%>%
+    #group_by(Cultivar,SowTreat)%>%
+    #summarise_all(funs(mean))
+  ggplot(aes(x=meanTemp_Em, y=DAS50E, colour=SowTreat))  +
+    geom_point(aes(shape= SowTreat), size=4)+
+  scale_shape_manual(values = c(0,1,2,3,4,5,6,7,8))+
+ # geom_point(alpha=0.8) +
+  #geom_smooth()+
+  #stat_smooth(level = 0.9, size = 1, colour="white") + 
+  theme_bw() +
+  xlab(expression(Estimated~Soil~temperature~~"("^"o"*"C)")) +  
+  ylab("Days to 50% emergence  (days)") +
+    facet_grid(.~Cultivar, scales="free")+
+  theme(text = element_text(size=11))+
+  scale_x_continuous(limits = c(0,25))+
+  scale_y_continuous(limits = c(0,40))
+
+# 1/DAS50E
+  g4 <- df_mean %>%
+   #filter(Cultivar=="Monti"| Cultivar=="Antas")%>%
+  #filter (SowTreat== "S3"| SowTreat== "S4"|SowTreat== "S5"|SowTreat== "S6")%>%
+  ggplot(aes(x=meanTemp_Em, y=InvDAS50E, colour=SowTreat))  +
+    geom_point(aes(shape= SowTreat), size=4)+
+  scale_shape_manual(values = c(0,1,2,3,4,5,6,7,8))+
+  #geom_point(alpha=0.8) +
+  #geom_smooth(colour="red")+
+  #stat_smooth(level = 0.9, size = 1, colour="white") + 
+  theme_bw() +
+  xlab(expression(Estimated~Soil~temperature~~"("^"o"*"C)")) + 
+  ylab(" Rate (1/ Days) to 50% emergence") +
+  facet_grid(.~Cultivar, scales="free")+
+  theme(text = element_text(size=11))+
+ scale_x_continuous(limits = c(0,25))+
+  scale_y_continuous(limits = c(0,0.25))
+  grid.arrange(g3, g4)
+
+```
+
+
+
+```{r}
+
+```
+
+
+
+
+
+
+
 
 
 
@@ -134,7 +207,7 @@ yx<-quantile(df$y,0.75)
 xn<- quantile(df$x,0.25)
 
 p <- ggplot(data = df, aes(x = x, y = y)) +
-  geom_smooth(method = "lm", se=FALSE, color="black", formula = y ~ x) +
+  geom_smooth(method = "lm", se=FALSE, color="grey", linetype= 2,formula = y ~ x) +
   geom_point()+
   theme_bw()+
   scale_x_continuous(limits = c(0,25))
@@ -146,9 +219,19 @@ p1
 ```
 
 
-Try to leave S1 out of that 
+Linear equations are :
+Antas : y = 0.13 - 0.0029x (R2= 0.197)
+Denmark : y = 0.097 - 0.0013x (R2= 0.0429)
+Leura: y = 0.14 - 0.0042x (R2=0.298)
+Monti: y= 0.12 - 0.0029 x (R2=0.174)
+Narrikup : y = 0.11 -0.0023x (R2=0.095)
+Woogenellup: y = 0.12-0.0024x (R2=0.131)
 
-```{r fig.height=6, fig.width=12, echo = FALSE, warning=FALSE}
+Graph with geom smooth to demonstrate relationship emergence rate and estimated soil temperature (better aestethics)
+
+
+
+```{r fig.height=5, fig.width=10, echo = FALSE, warning=FALSE}
 
 #graph S2-S8 
 
@@ -161,14 +244,15 @@ fontSize <- 12.0
   #filter(year %in% 1960:2000) %>%
   #group_by(day) %>%
  # summarise_each(funs(mean)) %>%
-  g1 <- df_H %>%
-    filter(SowTreat!="S1")%>%
+  g1 <- df_mean %>%
+    #filter(SowTreat!="S1")%>%
   ggplot(aes(x=meanTemp_Em, y=DAS50E,shape=Cultivar))  +
   geom_point(colour= "darkblue", alpha=0.2) +
+  scale_shape_manual(values = c(0,1,2,3,4,5,6,7,8))+
   #geom_smooth()+
   #stat_smooth(level = 0.9, size = 1, colour="white") + 
   theme_bw() +
- xlab("Mean Soil Temp (oC)") + 
+  xlab(expression(Estimated~Soil~temperature~~"("^"o"*"C)")) + 
   ylab("Days to 50% emergence  (days)") +
     facet_grid(.~Cultivar, scales="free")+
   theme(text = element_text(size=10))+
@@ -177,25 +261,30 @@ fontSize <- 12.0
   # scale_y_continuous(limits = c(0,40))
 
 # 1/DAS50E
-  g2 <- df_H %>%
-    filter(SowTreat!="S1")%>%
-  ggplot(aes(x=meanTemp_Em, y=InvDAS50E, shape=Cultivar))  +
-  geom_point(colour= "red", alpha=0.2) +
+  g2 <- df_mean %>%
+    #filter(SowTreat!="S1")%>%
+  ggplot(aes(x=meanTemp_Em, y=InvDAS50E )) +
+  #geom_point(alpha=0.2,size=3, shape=) +
+  geom_point(aes(shape=SowTreat, colour=SowTreat), size =5)+
+    scale_shape_manual(values = c(0,1,2,3,4,5,6,7,8))+
   #geom_smooth(colour="red")+
   #stat_smooth(level = 0.9, size = 1, colour="white") + 
   geom_smooth(method = "lm")+
   theme_bw() +
-  xlab("Mean Soil Temp (oC)") + 
+  xlab(expression(Estimated~Soil~temperature~"("^"o"*"C)")) + 
   ylab(" Rate (1/ Days) to 50% emergence") +
-  facet_grid(.~Cultivar, scales="free")+
- theme(text = element_text(size=10)) #+
- # scale_x_continuous(limits = c(0,17))+
- #  scale_y_continuous(limits = c(0,0.25))
+  #facet_grid(.~Cultivar, scales="free")+
+  facet_grid(.~Cultivar)+
+ theme(text = element_text(size=10)) +
+  scale_x_continuous(limits = c(5,25))
+ #scale_y_continuous(limits = c(0,0.25))+
   grid.arrange(g1, g2)
 # 
 
+  #grid.arrange(g1, g2)
   
-  grid.arrange(g1, g2)
+  #show only emergence rate 
+  grid.arrange( g2)
 
 ```
 
