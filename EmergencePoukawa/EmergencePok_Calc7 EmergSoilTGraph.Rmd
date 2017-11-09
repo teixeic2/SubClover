@@ -180,6 +180,7 @@ fontSize <- 14.0
 here get the equations from all temperatures BUT FOR POUKAWA this is not a good idea! Estimated soil temps!
 
 ```{r, fig.height=7,fig.width=12}
+
 require(ggplot2)
 require(plyr)
 require(dplyr)
@@ -219,13 +220,127 @@ p1
 ```
 
 
-Linear equations are :
+Overall Linear equations are :
+-------------------------------------------------------------------------------------
 Antas : y = 0.13 - 0.0029x (R2= 0.197)
 Denmark : y = 0.097 - 0.0013x (R2= 0.0429)
 Leura: y = 0.14 - 0.0042x (R2=0.298)
 Monti: y= 0.12 - 0.0029 x (R2=0.174)
 Narrikup : y = 0.11 -0.0023x (R2=0.095)
 Woogenellup: y = 0.12-0.0024x (R2=0.131)
+----------------------------------------------------------------------------------------
+
+Try to subset the temperatures and see a segmented relationship 
+
+```{r}
+require(ggplot2)
+require(plyr)
+require(dplyr)
+
+lm_eqn = function(df){
+  m = lm(y ~ x, df);
+  eq <- substitute(italic(y) == a + b %.% italic(x)*","~~italic(r)^2~"="~r2, 
+                   list(a = format(coef(m)[1], digits = 2), 
+                        b = format(coef(m)[2], digits = 2), 
+                        r2 = format(summary(m)$r.squared, digits = 3)))
+  as.character(as.expression(eq));                 
+}
+
+
+df <- df_H %>%
+  subset(meanTemp_Em>5 & meanTemp_Em<10)%>%
+  dplyr::select(SowTreat,Cultivar, Plot, meanTemp_Em, InvDAS50E) %>%
+  group_by(SowTreat,Cultivar) %>%
+  summarise_all(funs(mean)) %>%
+  mutate(y=InvDAS50E,x=meanTemp_Em) %>%
+  dplyr::select(-meanTemp_Em, -InvDAS50E)
+
+eq <- ddply(df,.(Cultivar),lm_eqn)
+
+yx<-quantile(df$y,0.75)
+xn<- quantile(df$x,0.25)
+
+p <- ggplot(data = df, aes(x = x, y = y)) +
+  geom_smooth(method = "lm", se=FALSE, color="grey", linetype= 2,formula = y ~ x) +
+  geom_point()+
+  theme_bw()+
+  scale_x_continuous(limits = c(0,15))
+
+p1 <- p + geom_text(data=eq,aes(x = xn, y = yx,label=V1), parse = TRUE, inherit.aes=FALSE) + 
+  facet_grid(Cultivar~.,scales="free")
+  
+p1
+
+
+#get statistical summary here 
+summary(lm(y ~ x, df))
+
+```
+
+Equations for ascending segment (temperature range = 7 - 10)
+-------------------------------------------------------------
+A: y=  -0.47 + 0.067x ,  r2 0.98
+D: y = -0.4 + 0.056x , r2 0.97
+L: y = -0.37 + 0.054 , r2 0.97
+M: y = -0.37 + 0.055 ,r2 0.94
+N: y = -0.37 + 0.053 , r2 0.84
+W: y = -0.27 + 0.042, r2 0.89
+
+Mean : y = - 0.036 (0.02) + 0.05 (0.002)x, r2 0.87
+-----------------------------------------------------------------
+
+Now see the descending segment 
+
+```{r}
+require(ggplot2)
+require(plyr)
+require(dplyr)
+
+lm_eqn = function(df){
+  m = lm(y ~ x, df);
+  eq <- substitute(italic(y) == a + b %.% italic(x)*","~~italic(r)^2~"="~r2, 
+                   list(a = format(coef(m)[1], digits = 2), 
+                        b = format(coef(m)[2], digits = 2), 
+                        r2 = format(summary(m)$r.squared, digits = 3)))
+  as.character(as.expression(eq));                 
+}
+
+
+df <- df_H %>%
+  subset(meanTemp_Em>11 & meanTemp_Em<25)%>%
+  dplyr::select(SowTreat,Cultivar, Plot, meanTemp_Em, InvDAS50E) %>%
+  group_by(SowTreat,Cultivar) %>%
+  summarise_all(funs(mean)) %>%
+  mutate(y=InvDAS50E,x=meanTemp_Em) %>%
+  dplyr::select(-meanTemp_Em, -InvDAS50E)
+
+eq <- ddply(df,.(Cultivar),lm_eqn)
+
+yx<-quantile(df$y,0.75)
+xn<- quantile(df$x,0.25)
+
+p <- ggplot(data = df, aes(x = x, y = y)) +
+  geom_smooth(method = "lm", se=FALSE, color="grey", linetype= 2,formula = y ~ x) +
+  geom_point()+
+  theme_bw()+
+  scale_x_continuous(limits = c(10,25))
+
+p1 <- p + geom_text(data=eq,aes(x = xn, y = yx,label=V1), parse = TRUE, inherit.aes=FALSE) + 
+  facet_grid(Cultivar~.,scales="free")
+  
+p1
+
+
+#get statistical summary here 
+summary(lm(y ~ x, df))
+
+
+
+```
+
+
+
+-----------------------------------------------------------------
 
 Graph with geom smooth to demonstrate relationship emergence rate and estimated soil temperature (better aestethics)
 

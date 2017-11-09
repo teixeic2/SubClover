@@ -154,16 +154,7 @@ use the TB for emergence
 'Woogenellup'	 +2.2 (±0.01)
 
 #---------------------------------------------------------------------------------------------------------------
-and Topt , tmax as per germination data
-
-Table XX Mean base (Tb), optimum (Topt) and maximum (Tmax) temperatures (oC) and sub (Ttsub) and supra (Ttsup ) optimal thermal time requirements for 50 % germination of sub clover seeds 'Antas' , 'Denmark', 'Monti' 'Narrikup'.
-Cultivar	Tb 	Topt 	Tmax	Ttsub	Ttsup	Excluded temperature
-		(oC)		     (oCd)		                    (oC)
-'Antas'	 0.05	21.7	34.6	34.48	19.23	-
-'Denmark'	-0.10	19.5	34.4	23.81	21.74	-
-'Monti'	-0.02	13.5	28.3	34.03	42.58	35
-'Narrikup'	-0.07	16.7	31.1	28.48	28.10	35
-Max. SE 	 0.03	2.4	6.2			
+use consistent method as per re analysis tb=0, t opt range =15, 22, t max = 35 oC.	
 # -----------------------------------------------------------------------------------------------------------
 
 For Denmark  : 
@@ -171,9 +162,10 @@ For Denmark  :
 #Create Thermal time cardinal temperatures see data above- TT = Topt - Tb ... 19.5 - (1)= 18.5 ! 
 
 #For cardinal temperatures 
-tt_card <- data.frame(temp=c(1,19.5,19.5,34.4),TT=c(0,18.5,18.5,0))
+
+#tt_card <- data.frame(temp=c(1,15,22,35),TT=c(0,15,15,0))
 #for Tb=0
-#tt_card <- data.frame(temp=c(0,19.5,19.5,34.4),TT=c(0,19.5,19.5,0))
+tt_card <- data.frame(temp=c(0,15,22,35),TT=c(0,15,15,0))
 tt_card %>%
   ggplot(aes(x=temp, y=TT))+
   #labs(x="Temperature (degree Celsius)")+

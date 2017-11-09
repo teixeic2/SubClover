@@ -1,19 +1,18 @@
+
 ---
-title: "Emergence seedlings I2"
+title: "ThermalTime calculation for Narrikup with base temperature zero and TB emergence"
 author: "CT"
-date: "08.11.2017"
+date: "Friday, January 01, 2016"
 output: html_document
 ---
 
 This script does this:
 
 - get the dataframe with sowing dates and date to 50% Emergence  
-- get the dataframe with max and min soil  temperature 
-- merge the two dataframes to calculate the thermal time for Monti using the emergence Tb and cardinal temps. 
+- get the dataframe with mean soil  temperature estimated for Poukawa
+- merge the two dataframes to calculate the thermal time for Narrikup using the emergence Tb and assumed cardinal temps. 
 
-
-
-```{r loadLibraries, warning=FALSE}
+```{r}
 library(tidyr)
 library(dplyr)
 library(ggplot2)
@@ -25,24 +24,25 @@ library(lattice)
 ```
 
 
-```{r loadFile}
-# Get dataframe 1 with the soil Temp 
-setwd("C:\\GitHubRepos\\SubCloverPhD\\SubClover\\EmergenceIv2")
+
+```{r, load file}
+
+setwd("C:\\GitHubRepos\\SubCloverPhD\\SubClover\\EmergencePoukawa")
 getwd()
 
 #create file
-df_emerg4 <- read.table("df_emerg_perc_soilTT.txt",header=TRUE)
+df_emerg4 <- read.table("df_MeanSoilTemp50EmergPo.txt",header=TRUE)
 #head(df_emerg4)
 
-df_emerg4$ReadingDate <- ymd(df_emerg4$ReadingDate )
+
 df_emerg4$SowingDate <- ymd(df_emerg4$SowingDate )
-df_emerg4$Block <- as.factor(df_emerg4$Block)
+df_emerg4$Date50E <- as.Date(df_emerg4$Date50E)
 df_emerg4$Plot <- as.factor(df_emerg4$Plot)
-# str(df_emerg4)
+ str(df_emerg4)
 # head(df_emerg4)
 
 D <- df_emerg4 %>%
-dplyr::select(Cultivar,SowTreat, Plot, SowingDate)
+dplyr::select(Cultivar,SowTreat, Plot, SowingDate, DAS50E, Date50E)
 
 summary(D)
 
@@ -50,95 +50,27 @@ df_emerg4 <- NULL
 
 ```
 
+now you can jump direct to the soil TT Accum.chunk. For Pokawa need to use Min and Max as mean because it is estimated soil temperature. 
 
-```{r}
 
-# Get dataframe 2 with the date to 50 % Emerg
-setwd("C:\\GitHubRepos\\SubCloverPhD\\SubClover\\EmergenceIv2")
+
+
+```{r, fig.height=5, fig.width=8}
+
+setwd("C:\\GitHubRepos\\SubCloverPhD\\SubClover\\EmergencePoukawa")
 getwd()
 
 #create file
-df_emerg5 <- read.table("df_tt_50p_emerg.txt",header=TRUE)
-head(df_emerg5)
+df_emerg6 <- read.table("SoilTempPo.txt",header=TRUE)
 
-#df_emerg5$ReadingDate <- ymd(df_emerg5$ReadingDate )
-#df_emerg5$SowingDate <- ymd(df_emerg5$SowingDate )
-df_emerg5$Block <- as.factor(df_emerg5$Block)
-df_emerg5$Plot <- as.factor(df_emerg5$Plot)
-str(df_emerg5)
-head(df_emerg5)
+#Then add columns for Tmax and Tmin repeat values for T mean as do not know actual values for Tmax Tmin 
+df_emerg6 <-df_emerg6 %>%
+  mutate(Tx=1*(TempSoil10mm), Tm=(1*(TempSoil10mm)))
 
-
-```
-Days to reach 50% from sowing date
-
-```{r}
-
-E <-df_emerg5 %>%
-dplyr::select(Plot,DAS50E)
-
-summary(E)
-
-df_emerg5 <- NULL
-
-```
-
-Merge dataframes 
-
-```{r}
-
-#Merge the two dataframes by plot
-
-
-df_M <- merge(D,E,by ="Plot")
-str(df_M)
-head(df_M)
-
-#Then calculate the date to 50% Emergence sum the date or sowing + DAS50E
-#Note df_Md has duplicated rows - fix it!! 
-
-df_MD <- df_M %>%
-  mutate(Date50E=SowingDate+DAS50E) %>%
-  group_by(Plot, DAS50E) %>% 
-  dplyr::filter(row_number() == 1)
-
-str(df_MD)
-#Here DAte50E is included no nee to change format 
-
-# mutate(Date50E = dmy(Date50E)
-
-E <- D <- df_M <- NULL
-         
-```
-
-
-```{r}
-summary(df_MD)
-```
-
-
-
-Read the soil data (and adjust formats
-
-```{r}
-
-# Get dataframe 1 with the soil Temp 
-setwd("C:\\GitHubRepos\\SubCloverPhD\\SubClover\\EmergenceIv2")
-getwd()
-
-#create file
-df_emerg6 <- read.table("SoilTempTXTM.txt",header=TRUE)
-head(df_emerg6)
-
+  # adjust format date 
 df_emerg6$Date <- dmy(df_emerg6$Date )
-# df_emerg4$SowingDate <- ymd(df_emerg4$SowingDate )
-# df_emerg4$Block <- as.factor(df_emerg4$Block)
-# df_emerg4$Plot <- as.factor(df_emerg4$Plot)
+
 str(df_emerg6)
-head(df_emerg6)
-
-
-
 ```
 
 Add the accumulation of of thermal time use reference as  
@@ -153,19 +85,19 @@ use the TB for emergence
 'Narrikup'	+1.02 (±0.05) 
 'Woogenellup'	 +2.2 (±0.01)
 
-#---------------------------------------------------------------------------------------------------------------
+-----------------------------------------------------------------------------------
 use consistent method as per re analysis tb=0, t opt range =15, 22, t max = 35 oC.
-# -----------------------------------------------------------------------------------------------------------
 
-For Monti  : 
+
+For Narrikup : 
 ```{r}
-#Create Thermal time cardinal temperatures see data above- TT = Topt - Tb ... 13.5 - (-1.7)= 15.2 ! 
+#Create  ! 
 
 #For cardinal temperatures 
-#tt_card <- data.frame(temp=c(-1.73,15,22,35),TT=c(0,15,15,0))
+#tt_card <- data.frame(temp=c(1,15,22,35),TT=c(0,15,15,0))
+
 #for Tb=0
 tt_card <- data.frame(temp=c(0,15,22,35),TT=c(0,15,15,0))
-
 tt_card %>%
   ggplot(aes(x=temp, y=TT))+
   #labs(x="Temperature (degree Celsius)")+
@@ -174,7 +106,7 @@ tt_card %>%
   theme_bw()+
   ylim(0,25)+
 xlab(expression(Temperature~"("^"o"*"C)"))+
-  ylab(expression(Thermal~Time~Monti~"("^"o"*"Cd)"))+
+  ylab(expression(Thermal~Time~Narrikup~"("^"o"*"Cd)"))+
   theme(axis.text.x=element_text(angle = 0, hjust = 0, size= 14))+
   theme(axis.title.x=element_text(angle = 0, hjust = 0.5, size= 14))+
   theme(axis.text.y=element_text(angle = 0, hjust = 0, size= 14))+
@@ -182,12 +114,10 @@ xlab(expression(Temperature~"("^"o"*"C)"))+
 
 ```
 
- then make the loop 
- 
- 
-```{r}
 
 #Create and test interpolation function - Test if works 
+
+```{r}
 
 temp_ref  <- 25 # x-axes reference
 temp <- tt_card$temp # x-axes
@@ -229,7 +159,9 @@ int_func <- function(temp,TT,temp_ref){
   
 int_func(temp,TT,temp_ref)
 
+
 ```
+
  
  use the 3x8 hours formula to calculate daily TT 
 ```{r}
@@ -272,7 +204,7 @@ TTfunc(10,24)
 ```
  
  
- 
+
 - Compares with simple method to calculate Tt with base temperature of 0oC 
 ```{r, warning=FALSE}
 
@@ -302,54 +234,49 @@ ggplot(aes(x=TTday_s, y= TTday)) +
  
 ```{r}
 
- df_MontiTT <-df_We_tt%>%
+ df_NarrikupTT <-df_We_tt%>%
     arrange(Date)%>%
     mutate(SumTTday = cumsum(TTday))%>%
   mutate(SUMTTday_s = cumsum(TTday_s)) %>%
-  dplyr::select(-TempSoil10mm)
+  dplyr::select(-TempSoil10mm) 
 
-#head(df_soilTemp)
 
-summary(df_MontiTT)
 
-#df_emerg6 <- NULL
+summary(df_NarrikupTT)
+
 
 ```
 
 
-figure out how to calculate tt at sow then tt ate date of 50 emergence make one minus another to find TT emerg 
+Calculate tt at sow then tt ate date of 50 emergence make one minus another to find TT emerg 
 
 ```{r}
-df1 <- merge(df_MD,df_MontiTT, by.x="SowingDate",by.y="Date") %>%
+df1 <- merge(D,df_NarrikupTT, by.x="SowingDate",by.y="Date") %>%
   mutate(soilTempAcc_sow = SumTTday) %>%
   dplyr::select(-SumTTday)%>%
-  filter(Cultivar=="Monti")
+  filter(Cultivar=="Narrikup")
 
 str(df1)
 ```
 
 
-Need to force a date for 50 % emergence (round) to calculate the average temperature during emergence
-Save dataframe as txt file 
+Need to force a date for 50 % emergence (round) 
 
 ```{r}
 
 # force formats of dates
 df1$Date <- round(df1$Date50E,0)
-df_MontiTT$Date <- round(df_MontiTT$Date,0)
+df_NarrikupTT$Date <- round(df_NarrikupTT$Date,0)
 
-
-  df_merge <- merge(df1, df_MontiTT, by="Date") %>%
+  df_merge <- merge(df1, df_NarrikupTT, by="Date") %>%
     mutate(soilTempAcc_em = SumTTday) %>%
   dplyr::select(-SumTTday) %>%
-  mutate(SummTTEmerg = (soilTempAcc_em-soilTempAcc_sow))  
+  mutate(SummTTEmerg = (soilTempAcc_em-soilTempAcc_sow))
 
-summary(df_merge)
-
- 
+ summary(df_merge)
 ```
 
-get the TT and SE for the cultivar. exclude S1 .
+get the TT and SE for all cultivars. exclude S1 . Consider Tb=0 for all cultivars. 
 
 ```{r}
 df_TT <- df_merge%>%
@@ -357,7 +284,7 @@ df_TT <- df_merge%>%
 
 #then select sow treat and means and se
 
-df_TTM <-df_TT %>%
+df_TTN <-df_TT %>%
   #group_by(Cultivar) %>%
   dplyr::select(SummTTEmerg)%>%
   summarise_all(funs(mean,sd))%>%
@@ -372,6 +299,6 @@ df_TTM <-df_TT %>%
 
 
 
-END ....graphs with DAS50E with mean soil Temp continue in Script EmergenceI2_Calc5EmergSoilGraph
+END ....
 
 
