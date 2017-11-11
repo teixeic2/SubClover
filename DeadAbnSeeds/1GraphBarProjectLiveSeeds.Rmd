@@ -164,8 +164,7 @@ mutate(status = factor(status, levels = c("HardUngermFinal_perc",
 
 ```
 
-
-
+graph only for 2015 Sowing dates 
 
 
 ```{r,fig.height=6, fig.width=12}
@@ -173,17 +172,24 @@ mutate(status = factor(status, levels = c("HardUngermFinal_perc",
 
 
 df_Percentages_gather%>%
-mutate (status = factor(status, levels = c("Abn_perc",
-                                 "Dead_perc",
-                                 "Normal_perc",
-                                 "SoftUngerm_perc"),
-                          labels = c("Abnormal",
+mutate(status = factor(status, levels = c("HardUngermFinal_perc",
+                                          "Dead_perc",
+                                  "SoftUngerm_perc",
+                                 "Abn_perc",
+                                 "Normal_perc"),
+                                 
+                                 
+                          labels = c("Hard Ungerminated",
                                  "Dead",
-                                 "Normal",
-                                 "Soft Ungerminated"))) %>%
+                                 "Soft Ungerminated",
+                                 "Abnormal",
+                                 "Normal")
+                          )) %>%
+   mutate (SowTreat= factor(SowTreat, levels=c("S1", "S2", "S3", "S4", "S6","S7"),labels=c("June", "July", "September", "November", "February","March")))%>%
+  filter(SowTreat!="February",SowTreat!="March")%>%
   ggplot(aes(x=Cultivar, y=percentage, fill=factor(status))) +
   geom_bar(stat="identity") +
-  facet_grid(Depth~SowTreat) +
+  facet_grid(.~SowTreat) +
   ylab("Percentage (%)") +
   xlab("Cultivar") +
   theme(axis.text.x = element_text(angle = 45, hjust=1)) + theme(legend.title=element_blank()) +

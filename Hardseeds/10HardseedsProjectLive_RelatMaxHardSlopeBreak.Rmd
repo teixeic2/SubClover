@@ -15,6 +15,7 @@ library(agricolae)
 library(knitr)
 library (lubridate)
 library(markdown)
+library (gridExtra)
 
 ```
 this script combines the maximum hardseeds (14 days test) and the slopes of breakdown (% per day) and graph the two variables  
@@ -37,7 +38,7 @@ df_merged <- merge(df_maxhard,df_slopesbreak, by=c("Plot", "Depth")) %>% dplyr::
 summary(df_merged)
   
 ```
-
+now get the mean values 
 ```{r}
 df_merged_av <- df_merged %>%
   group_by(Cultivar,SowTreat) %>%
@@ -49,6 +50,7 @@ summary(df_merged_av)
 
 ```{r, fig.height=5,fig.width=10}
 df_merged_av %>%
+  mutate(slope_mean=(slope_mean*-1))%>%
   ggplot(aes(x=slope_mean,y=Hard_perc_mean))+
   geom_point(aes(colour=Cultivar),size=4) +
   geom_smooth(fill="blue",alpha=0.1,method='lm') +
@@ -60,4 +62,121 @@ df_merged_av %>%
 geom_errorbarh(aes(xmin=slope_mean-slope_sd/2.45,
                     xmax=slope_mean+slope_sd/2.45),colour="grey") + coord_flip()
 ```
+
+now get the slopes and modify for TT based on each day represent a 17.1 oCd (1680/98days)
+FIX ME : re calculate slope TT per day and adjust Sd. 
+
+```{r}
+
+df_merged_av_Modified <- df_merged %>%
+mutate(slope=((slope/17.1)*-1))%>%
+group_by(Cultivar,SowTreat) %>%
+  dplyr::select(Cultivar,SowTreat,slope,Hard_perc) %>%
+  summarise_all(funs(mean,sd)) 
+
+df_merged_av_Modified %>%
+  ggplot(aes(x=slope_mean,y=Hard_perc_mean))+
+  geom_point(aes(colour=Cultivar),size=4) +
+  geom_smooth(fill="blue",alpha=0.1,method='lm') +
+  theme_bw()+
+  xlab("Hard seedness decay (%/oCd)")+ylab("Hard seed maximum (%)") +
+   geom_errorbar(aes(ymin=Hard_perc_mean-Hard_perc_sd/2.45,
+                    ymax=Hard_perc_mean+Hard_perc_sd/2.45),colour="grey")+
+
+geom_errorbarh(aes(xmin=slope_mean-slope_sd/2.45,
+                    xmax=slope_mean+slope_sd/2.45),colour="grey") + coord_flip()
+
+```
+
+
+now analyse with slopes of thermal time
+
+```{r}
+
+dfTTbreak <-  read.table ("df_slopesBreakTT.txt",header = TRUE)
+
+df_slopesbreak<-dfTTbreak %>% dplyr::rename(Plot=plot, Depth=depth)
+
+```
+
+
+merge the two dataframes
+```{r}
+#Select depth of interest start with above seeds 
+df_mergedTT <- merge(df_maxhard,df_slopesbreak, by=c("Plot", "Depth")) %>% dplyr::select(Plot:SowTreat, Hard_perc,slope)
+
+summary(df_mergedTT)
+  
+```
+
+now get the mean values 
+```{r}
+df_merged_avTT <- df_mergedTT %>%
+  group_by(Cultivar,SowTreat) %>%
+  dplyr::select(Cultivar,SowTreat,slope,Hard_perc) %>%
+  summarise_all(funs(mean,sd)) 
+
+summary(df_merged_avTT)
+```
+
+now graph 
+```{r, fig.height=5,fig.width=10}
+df_merged_avTT %>%
+  mutate(slope_mean=(slope_mean*-1))%>%
+  ggplot(aes(x=slope_mean,y=Hard_perc_mean))+
+  geom_point(aes(colour=Cultivar),size=4) +
+  geom_smooth(fill="blue",alpha=0.1,method='lm') +
+  theme_bw()+
+  xlab("Hard seedness decay (%/TT)")+ylab("Hard seed maximum (%)") +
+   geom_errorbar(aes(ymin=Hard_perc_mean-Hard_perc_sd/2.45,
+                    ymax=Hard_perc_mean+Hard_perc_sd/2.45),colour="grey")+
+
+geom_errorbarh(aes(xmin=slope_mean-slope_sd/2.45,
+                    xmax=slope_mean+slope_sd/2.45),colour="grey") + coord_flip()
+```
+join the two graphs in one panel 
+
+```{r, fig.height=5, fig.width=10}
+
+fontSize <- 12.0
+
+#g1 is for the slopes per day 
+  g1 <- df_merged_av %>%
+  mutate(slope_mean=(slope_mean*-1))%>%
+  ggplot(aes(x=slope_mean,y=Hard_perc_mean))+
+  geom_point(aes(colour=Cultivar),size=4) +
+  geom_smooth(fill="blue",alpha=0.1,method='lm') +
+  theme_bw()+
+  xlab("Hard seedness decay (%/day)")+ylab("Hard seed maximum (%)") +
+   geom_errorbar(aes(ymin=Hard_perc_mean-Hard_perc_sd/2.45,
+                    ymax=Hard_perc_mean+Hard_perc_sd/2.45),colour="grey")+
+
+geom_errorbarh(aes(xmin=slope_mean-slope_sd/2.45,
+                    xmax=slope_mean+slope_sd/2.45),colour="grey") + coord_flip()
+
+# g2 is for slopes per TT 
+  g2 <- df_merged_avTT %>%
+  mutate(slope_mean=(slope_mean*-1))%>%
+  ggplot(aes(x=slope_mean,y=Hard_perc_mean))+
+  geom_point(aes(colour=Cultivar),size=4) +
+  geom_smooth(fill="blue",alpha=0.1,method='lm') +
+  theme_bw()+
+  xlab("Hard seedness decay (%/TT)")+ylab("Hard seed maximum (%)") +
+   geom_errorbar(aes(ymin=Hard_perc_mean-Hard_perc_sd/2.45,
+                    ymax=Hard_perc_mean+Hard_perc_sd/2.45),colour="grey")+
+
+geom_errorbarh(aes(xmin=slope_mean-slope_sd/2.45,
+                    xmax=slope_mean+slope_sd/2.45),colour="grey") + coord_flip()
+    
+    
+    
+  grid.arrange(g1, g2)
+# 
+
+# 
+
+
+```
+
+
 

@@ -28,16 +28,20 @@ getwd()
 ```{r}
 df_seed_raw <- read.table("HardTtSum.txt", header=TRUE)%>%
 dplyr::select(Block:TtSum, HardAccum)
-
+  
 ```
 
-then replaced values of round per TT sum : 14 = 0, 35 = 420; 56 = 840; 77 = 1260; 98 = 1680.
+REF: replaced values of round per TT sum : 14 = 0, 35 = 420; 56 = 840; 77 = 1260; 98 = 1680.This is calculated as per temperatures used in incubators:
+at 14 days : constant 15 oC = so zero TT accum. 
+then every 21 days cycle is constant 40 during 14 days (25oCd/day or 350total) and 7 days at 15/35 (10 / day or 70 total).
 
 
 ```{r loadFile}
 #create file
  
 head(df_seed_raw)
+
+
 ```
 
 ```{r}
@@ -46,6 +50,7 @@ df_seed <- df_seed_raw %>%
   mutate(Plot = as.factor(Plot), 
          Block = as.factor(Block),
          Date = dmy(Date),
+         Days=as.numeric(Days),
          HardAccum = as.numeric(HardAccum))
          
   
@@ -56,6 +61,18 @@ summary(df_seed) # explore values
 
 ```{r}
 str(df_seed) # check formats
+
+
+```
+
+Plot days against TT
+
+```{r}
+df_seed%>%
+  ggplot(aes(x=TtSum, y=Days, colour=Cultivar, shape=Cultivar)) +
+  geom_point(size=3) +
+  geom_line()
+  
 ```
 
 

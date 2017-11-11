@@ -2,7 +2,9 @@
 title: "Emergence seedlings I2"
 author: "CT"
 date: "08.11.2017"
-output: html_document
+output:
+  word_document: default
+  html_document: default
 ---
 
 This script does this:
@@ -184,7 +186,7 @@ tt_card %>%
   #labs(y="Thermal Time (oCd)") +
   geom_line()+
   theme_bw()+
-  ylim(0,25)+
+  ylim(0,20)+
 xlab(expression(Temperature~"("^"o"*"C)"))+
   ylab(expression(Thermal~Time~Antas~"("^"o"*"Cd)"))+
   theme(axis.text.x=element_text(angle = 0, hjust = 0, size= 14))+

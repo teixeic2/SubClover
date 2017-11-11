@@ -269,7 +269,7 @@ fontSize <- 12.0
 
 
 
-Here get the graph for Woogenellup only 
+Here get the graph for all cultivars or filter to look at specific cultivar  
 
 
 
@@ -329,15 +329,15 @@ get mean and Sd for Woogenelup DAS50E
 
 
 
-dfWoog <- df_H %>%
-    filter(Cultivar=="Woogenellup")%>%
+df_mean <- df_H %>%
+    #filter(Cultivar=="Woogenellup")%>%
     group_by(Cultivar,Location, SowTreat,SowingDate) %>%
   dplyr::select(DAS50E,meanTemp_Em) %>%
   summarise_all(funs(mean,sd)) 
 
-str(dfWoog)
+str(df_mean)
 
- dfWoog %>%
+ df_mean %>%
   ggplot(aes(x=meanTemp_Em_mean, y=DAS50E_mean, colour=SowTreat, shape=Location)) +
   geom_point(size=4.5) +
   #geom_line() +
@@ -356,22 +356,23 @@ str(dfWoog)
 
 ```
 
-Woogenellup InvDAS50E
-```{r}
-dfWoog2 <- df_H %>%
-    filter(Cultivar=="Woogenellup")%>%
-    group_by(Cultivar,Location, SowTreat,SowingDate) %>%
+analyse  InvDAS50E
+```{r, fig.height=5, fig.width=10}
+df_mean2 <- df_H %>%
+    #filter(Cultivar=="Woogenellup")%>%
+    #group_by(Cultivar,Location, SowTreat,SowingDate) %>%
+  group_by(Location, SowTreat,SowingDate) %>%
   dplyr::select(InvDAS50E,meanTemp_Em) %>%
   summarise_all(funs(mean,sd)) 
 
-str(dfWoog)
+str(df_mean2)
 
- dfWoog2 %>%
+ df_mean2 %>%
   ggplot(aes(x=meanTemp_Em_mean, y=InvDAS50E_mean, colour=SowTreat, shape=Location)) +
   geom_point(size=4.5) +
   #geom_line() +
  #facet_grid(Depth~Cultivar) +
-  labs(x="Soil Temperature",y="Rate (1/days) 50% Emergence for Woogenellup") +
+  labs(x="Soil Temperature",y="Rate (1/days) 50% Emergence") +
   theme(axis.text.x = element_text(angle = 90, hjust = 1))+
                   geom_errorbar(aes(ymin=InvDAS50E_mean-InvDAS50E_sd/1.73,
                     ymax=InvDAS50E_mean+InvDAS50E_sd/1.73))+
@@ -381,4 +382,62 @@ str(dfWoog)
   theme(axis.text.y=element_text(angle = 0, hjust = 0, size= 12))
 ```
 
+then find linear equations for the segment 1 ascending ()
 
+
+```{r fig.height=5, fig.width=10}
+
+require(ggplot2)
+require(plyr)
+require(dplyr)
+
+lm_eqn = function(df){
+  m = lm(y ~ x, df);
+  eq <- substitute(italic(y) == a + b %.% italic(x)*","~~italic(r)^2~"="~r2, 
+                   list(a = format(coef(m)[1], digits = 2), 
+                        b = format(coef(m)[2], digits = 2), 
+                        r2 = format(summary(m)$r.squared, digits = 3)))
+  as.character(as.expression(eq));                 
+}
+
+#use mean values for all cultivars 
+df <- df_mean2 %>%
+  
+  #use this or segment 1 : ascend temp 0-15.7
+  subset(meanTemp_Em_mean>0 & meanTemp_Em_mean<15.7) %>%
+  
+   #use this for segment 2 : descend temp >15.7
+  #subset(meanTemp_Em_mean>15.7 & meanTemp_Em_mean<30) %>%
+  
+  mutate(y=InvDAS50E_mean,x=meanTemp_Em_mean) %>%
+  dplyr::select(-meanTemp_Em_mean, -InvDAS50E_mean)
+
+#eq <- ddply(df,.(Location),lm_eqn)
+eq <- ddply(df,.(),lm_eqn)
+
+yx<-quantile(df$y,0.75)
+xn<- quantile(df$x,0.20)
+
+p <- ggplot(data = df, aes(x = x, y = y)) +
+  geom_smooth(method = "lm", se=FALSE, color="grey", linetype= 2, formula = y ~ x) +
+  geom_point(aes(shape=Location, colour=Location), size=4)+
+  theme_bw()+
+  scale_x_continuous(limits = c(0,35))
+
+p1 <- p + geom_text(data=eq,aes(x = xn, y = yx,label=V1), parse = TRUE, inherit.aes=FALSE)  
+  #facet_grid(Location~.,scales="free")
+  
+p1
+
+```
+
+```{r}
+#get statistical summary here 
+summary(lm(y ~ x, df))
+```
+
+
+Output:both locations 
+
+Segment 1 (ascending): y=-0.026+0.013x (R2=0.457)
+Segment 2 (descending): y=0.023-0.007 x (R2=0.052)

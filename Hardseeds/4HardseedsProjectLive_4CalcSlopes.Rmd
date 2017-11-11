@@ -6,6 +6,7 @@ output:
   word_document: default
   pdf_document: default
 ---
+Purpose: this script calculates the slopes of hardseed breakdown based on days of test (days = Round )
 
 ```{r loadLibraries}
 library(tidyr)
@@ -18,33 +19,48 @@ library(markdown)
 
 ```
 
+Get the dataframe 
 
 ```{r loadFile}
 setwd("C:\\GitHubRepos\\SubCloverPhD\\SubClover\\Hardseeds")
-getwd()
 
 #create file
 df_seed <- read.table("dfHard_break.txt",header=TRUE)
-
 head(df_seed)
 
 
 
+```
+
+```{r}
+# get TT at each  day
+#create file
+df_Tt <- read.table("dfHard_breakTT.txt",header=TRUE) %>% dplyr::select(Days,TtSum) %>% unique()
+head(df_Tt)
+
 
 ```
 
-Just change name of dataframe
+```{r}
+plot(df_Tt)
+```
+
+Just change name of dataframe and select columns to work 
 ```{r}
 #Select depth of interest start with above seeds 
 
-dfSubSet<- df_seed%>%
-  #filter (Depth== "Above")
- dplyr::select(Plot, Cultivar, Block, SowingD, SowTreat, Depth, Round, HardAccum)
+df_temp <- df_seed %>%
+ mutate(Days=Round) %>%
+ dplyr::select(Plot, Cultivar, Block, SowingD, SowTreat, Days, Depth, HardAccum, Round) 
+
+dfSubSet <- merge(df_temp, df_Tt, by="Days")
+
+summary(dfSubSet)
   
 ```
 
 
-
+then loop every plot and depth to find the linear equation and print a list of the coefficients and R2. 
 ```{r}
 all.data<-data.frame()
 counter<-0
@@ -63,7 +79,9 @@ for(p in 1:length(plots)) {
   
   
   # Linear fit
-  x <- df_sub$Round
+ # x <- df_sub$Round
+  #x <- df_sub$Days
+  x <- df_sub$TtSum
   y <- df_sub$HardAccum
   
   #print(data.frame(x=x,y=y))
@@ -98,7 +116,7 @@ for(p in 1:length(plots)) {
 summary(all.data)
 
 ```
-write
+write the datafram as txt to use in the next script (STats on slopes )
 ```{r}
 write.table(all.data, "df_slopesBreak.txt")
 ```

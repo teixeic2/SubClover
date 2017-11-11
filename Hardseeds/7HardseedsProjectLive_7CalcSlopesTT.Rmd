@@ -6,6 +6,10 @@ output:
   word_document: default
   pdf_document: default
 ---
+This script calculates the slopes for TT for hardseed breakdown:
+
+
+reference : 7 days x 15/35 and 14 days at 40 
 
 ```{r loadLibraries}
 library(tidyr)
@@ -27,11 +31,16 @@ getwd()
 df_seed <- read.table("dfHard_breakTT.txt",header=TRUE)
 
 head(df_seed)
-
-
-
-
+str(df_seed)
 ```
+
+
+```{r}
+df_seed%>%
+  ggplot(aes(x=Days,y=TtSum)) +
+  geom_point()
+```
+
 
 Just change name of dataframe
 ```{r}
@@ -47,11 +56,11 @@ subset data here to find means of Hardseeds at the end of the experiment
 ```{r}
 
 
-dfEnd<- dfSubSet %>%
-  filter (TtSum == "1680")%>%
-  group_by( Cultivar, SowingD, SowTreat)%>%
-  dplyr::select(HardAccum)%>%
-  summarise_all(funs(mean, sd))
+# dfEnd<- dfSubSet %>%
+#   filter (TtSum == "1680")%>%
+#   group_by( Cultivar, SowingD, SowTreat)%>%
+#   dplyr::select(HardAccum)%>%
+#   summarise_all(funs(mean, sd))
 
 
 ```
@@ -95,7 +104,7 @@ for(p in 1:length(plots)) {
   sd <- dmy(df_sub$SowingD[1])
   
   
-  buf <- data.frame(sow=sow,cv=cv, block=block, plot=plots[p],depth=depth[d], int=intercept, slope=slope, r2=r2, n=nrow(df_sub))
+  buf <- data.frame(SowTreat=sow,Cultivar=cv, Block=block, plot=plots[p],depth=depth[d], int=intercept, slope=slope, r2=r2, n=nrow(df_sub))
   
   all.data <- rbind(buf, all.data)
   
@@ -113,6 +122,28 @@ summary(all.data)
 
 ```
 write
+```{r}
+summary(dfSubSet)
+summary(all.data)
+
+df_av<-dfSubSet %>%
+  filter(TtSum==0)%>%
+  dplyr::select(Cultivar,SowTreat, Block, HardAccum) %>%
+  group_by(Cultivar,SowTreat, Block) %>%
+  summarise_all(funs(mean))
+
+df_merged<-merge(all.data,df_av, by=c("Cultivar","SowTreat", "Block"))
+
+
+df_merged%>%
+  ggplot(aes(x=slope,y=as.numeric(HardAccum))) +
+  geom_point()
+
+```
+
+
+
+
 ```{r}
 write.table(all.data, "df_slopesBreakTT.txt")
 ```
