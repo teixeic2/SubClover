@@ -1,11 +1,11 @@
 ---
 title: "Total Number of Burrs per m2 "
 author: "CT"
-date: "25.07.2017"
+date: "Friday, March 18, 2016"
 output: html_document
 ---
 
-This script calculates the number of burrs per area (1m2) and run ANOVA for Poukawa 
+This script calculates the number of burrs per each plant (Burrs or inflorescence per plant ) and run ANOVA 
 
 ```{r, warning=FALSE}
 #Load libraries 
@@ -19,10 +19,9 @@ library(lubridate)
 Read File 
 
 ```{r, echo=FALSE}
-#setwd("C:\\GitHubRepos\\SubCloverPhD\\SubClover\\BurrYieldBurPok")
-setwd("C:\\GitHubRepos\\SubcloverPhD\\Subclover\\BurrYieldBurPok")
+setwd("C:\\GitHubRepos\\SubCloverPhD\\SubClover\\BurrYieldBurIv2")
 getwd()
-file <- read.table("SeedBurrYieldPok.txt",header=TRUE)
+file <- read.table("SeedBurrYield.txt",header=TRUE)
 head(file)
 summary(file)
 ```
@@ -34,7 +33,7 @@ Define formats
 # define factors and formats
 file <- file %>%
   mutate(
-    Plot = as.factor(Plot),
+    Plot = as.numeric(Plot),
     Block = as.factor(Block),
     Cultivar = as.factor(Cultivar),
     Date = dmy(Date),
@@ -51,43 +50,94 @@ Calculate the individual burr weight and burr number
 ```{r}
 
 df <- file %>%
-  dplyr::select(Cultivar,SowTreat,sample_area_m2,Block,
+  dplyr::select(Cultivar,SowTreat,sample_area_m2,Block,Plot,
                 Depth,bur_total_weight_g,
                 bur_no_subSample,
                 bur_weight_subSample_g) %>%
   mutate(IndBurrW = bur_weight_subSample_g/
            bur_no_subSample,
          BurrNumber = bur_total_weight_g/IndBurrW) %>%  
-  group_by(Cultivar, SowTreat,Depth,Block) %>%
+  group_by(Cultivar, SowTreat,Depth,Block,Plot) %>%
   summarise_each(funs(mean)) %>%
-  dplyr::select(Cultivar,SowTreat,
-                Depth,BurrNumber,sample_area_m2,Block)
-
+  dplyr::select(Cultivar,SowTreat,Plot, 
+                Depth,BurrNumber,Block)
   df <- as.data.frame(df)
 head(df)
 
 ```
 
-Calculate the total number of burs per 1 m2 . Graph it 
+Calculate the total burr number per plot (sum of above and below)
+
+
+```{r}
+dfBurrTotal <-df%>%
+  group_by(Cultivar,SowTreat,Plot)%>%
+  dplyr::select(BurrNumber)%>%
+  summarise_all(funs(sum))
+
+
+```
+
+Add the plant population data
+
+```{r}
+file1 <- read.table("df_emerg_perc3.txt",header=TRUE)
+head(file1)
+summary(file1)
+
+file2<-file1 %>%
+  dplyr::select(Plot, FinalPop)
+```
+
+
+```{r}
+dfmerged <- merge(dfBurrTotal,file2, by=c("Plot")) %>%
+  mutate(BurrsperPlant=BurrNumber/FinalPop)
+  #dplyr::select(Plot:SowTreat, Hard_perc,slope)
+
+
+str(dfmerged)
+```
+
+
+
+
+Calculate the total number of burs per 1 plant . Graph it 
 
 ```{r, fig.height= 5, fig.width=10 , warning=FALSE}
 
-#barplot 
-#The palette with grey:cbPalette <- c("999999"),"666666", "#56B4E9", "#009E73", "#D55E00", "#0072B2","#999999", "#E69F00", "#56B4E9", "#009E73", "#D55E00", "#0072B2","#56B4E9", "#009E73")
-
-#cbPalette <- c("#E69F00", "#56B4E9", "#009E73", "#D55E00", "#0072B2","#56B4E9")
+#
+#barplot for urrs per plant 
+#The palette with grey:
+cbPalette <- c("#999999", "#666666", "#56B4E9", "#009E73", "#D55E00", "#0072B2","#999999", "#E69F00", "#56B4E9", "#009E73", "#D55E00", "#0072B2","#56B4E9", "#009E73")
 
 
 # define position of bar and errorbar
 dodge_x <- position_dodge(width = 0.9)
 
 # splitting and df due bug in tidyr (https://github.com/hadley/tidyr/issues/32)
-
-  df_bura <- df %>%
-  tidyr::spread(Depth,BurrNumber) %>%
-  mutate(TotalBurr_m2= (Below+Above)/sample_area_m2)
-
-
+#use 3.46 as 2 x 1.73 to grph with SE instead of Sd
+  dfmerged %>%
+  #tidyr::spread(Depth,SeedsNo_m2) %>%
+  #mutate(SeedsNo_m2= Down/(Down+Up)*100) %>%
+  #mutate(Depth = factor(Depth,levels=c( "Above","Below"))) %>%
+group_by(Cultivar, SowTreat) %>%
+    filter(SowTreat!="S6", SowTreat!="S7")%>%
+    dplyr::select(BurrsperPlant)%>%
+    summarise_all(funs(mean,sd)) %>%
+    mutate(SE=sd/1.73)%>%
+  ggplot(aes(x=Cultivar, y=(mean), fill=Cultivar)) +
+  geom_bar(stat="identity",position = dodge_x) +
+  geom_errorbar(aes(ymin=mean-SE/2,     
+                    ymax=mean+SE/2),
+                width=0.25, size=0.3,position=dodge_x)   +
+  theme_grey(base_size = 16) +
+    theme_bw()+
+  facet_grid(.~SowTreat, scales="free") +
+    #labs(y= "Seed Number per m2")+
+    ylab(expression(Burrs~number~per~1~plant))+
+theme(axis.text.x=element_text(angle = +90, hjust = 0))+
+  theme(text = element_text(size = 14))
 
 
 ```
@@ -95,71 +145,13 @@ dodge_x <- position_dodge(width = 0.9)
 Graph all dataset ; panels are sowing treatments 
 
 ```{r, fig.height= 5, fig.width=10 , warning=FALSE}
-df_bura %>%
-  group_by(Cultivar, SowTreat) %>%
-  summarise_each(funs(mean,sd)) %>%
-  #mutate(colPal = ifelse(Cultivar=="Antas","Brachy",ifelse(Cultivar=="Monti","Brachy","Yanny"))) %>%
-  #ggplot(aes(x=Cultivar, y=(PropBurrBuried_mean),fill=colPal)) +
-  ggplot(aes(x=Cultivar, y=(TotalBurr_m2_mean),fill=Cultivar))+
-   geom_bar(stat="identity", position = dodge_x) +
-  geom_errorbar(aes(ymin=TotalBurr_m2_mean-TotalBurr_m2_sd/2, 
-                    ymax=TotalBurr_m2_mean+TotalBurr_m2_sd/2),
-                width=0.25, size=0.3,position=dodge_x)   +
-  theme_grey(base_size = 18) +
-    facet_grid(.~SowTreat) +
-    #labs(y="% Total number of  burrs per 1 m2") +
-   ylab(expression(Total~number~of~burrs~per~m^"2")) +
-  theme_bw()+
-theme(axis.text.y = element_text( size = 11))+
-  theme(axis.title.y = element_text(face="bold", size=14))+
-theme(axis.text.x=element_text(angle = 90, hjust=0.95,vjust=0.2,size = 12))
+
 
 ```
 
-
-then create a graph with the SE 
-
-```{r, fig.height=5, fig.width=10}
-
-dodge_x <- position_dodge(width = 0.9)
-
-# splitting and df due bug in tidyr (https://github.com/hadley/tidyr/issues/32)
-
-  df_buraSE <- df_bura %>%
-  group_by(Cultivar, SowTreat) %>%
-  summarise_all(funs(mean,sd)) %>%
-    mutate(SE=TotalBurr_m2_sd/1.73)
-
-#then graph it 
-  
- df_buraSE %>%
-   filter(SowTreat!="S1",SowTreat!="S5" )%>%
-    mutate (SowTreat= factor(SowTreat, levels=c("S1", "S2", "S3", "S4", "S5"),labels=c("February", "March", "May", "July", "August")))%>%
-  ggplot(aes(x=Cultivar, y=(TotalBurr_m2_mean),fill=Cultivar))+
-   geom_bar(stat="identity", position = dodge_x) +
-  geom_errorbar(aes(ymin=TotalBurr_m2_mean-SE/2, 
-                    ymax=TotalBurr_m2_mean+SE/2),
-                width=0.25, size=0.3,position=dodge_x)   +
-  theme_grey(base_size = 18) +
-    facet_grid(.~SowTreat) +
-   ylab(expression(Number~of~inflorescences~per~m^"2")) +
-  theme_bw()+
-theme(axis.text.y = element_text( size = 11))+
-  theme(axis.title.y = element_text(face="bold", size=14))+
-theme(axis.text.x=element_text(angle = 90, hjust=0.95,vjust=0.2,size = 12)) +
-  theme(text = element_text(size = 18))
-  
-  
-  
-```
+stopped here .... not ready yet 
 
 
-```{r}
-
-
-#empty
-
-```
 
 
 Mean overall values per sowing date 
@@ -198,7 +190,7 @@ Mean overall values per cultivar over all sowing dates  (used to write in chapte
 ```{r}
 
 df_bura %>%
-  group_by(Cultivar, SowTreat) %>%
+  group_by(Cultivar) %>%
   summarise_each(funs(mean,sd)) %>%
   #mutate(colPal = ifelse(Cultivar=="Antas","Brachy",ifelse(Cultivar=="Monti","Brachy","Yanny"))) %>%
   #ggplot(aes(x=Cultivar, y=(PropBurrBuried_mean),fill=colPal)) +
@@ -208,7 +200,7 @@ df_bura %>%
                     ymax=TotalBurr_m2_mean+TotalBurr_m2_sd/2),
                 width=0.25, size=0.3,position=dodge_x)   +
   theme_grey(base_size = 16) +
-    facet_grid(.~SowTreat) +
+    #facet_grid(.~SowTreat) +
     #labs(y="% Total number of  burrsper 1 m2", size=16) +
   ylab(expression(Total~number~of~burrs~per~1~m^"2")) +
   theme_bw()+
@@ -222,7 +214,7 @@ theme(axis.text.x=element_text(angle = 90, hjust=0.95,vjust=0.2,size = 12))
 
 Do ANOVA simple as per D. Saville 
 
-here analysis of overall experiment (sow Treat as a factor ) to get means and std 
+here analysis of overall experiment (sow Treat as a factor ) 
 ```{r}
 
 summary(df_bura)
@@ -272,11 +264,11 @@ summary(my.anova)
 ```
 
 
-Analyses of individual sowing dates here S1 
+Analyses of individual sowing dates -here S1
 
 ```{r}
 
-#Filter  S1, S2, S3, S4, S5  
+#Filter  S1, S2, S3, S4, S6 , S7 
 summary(df_bura)
 
 df_burANOVA <- df_bura%>% #use to filter
@@ -298,7 +290,7 @@ head(file.subset)
 summary(file.subset)
 
 ```
-S1
+
 
 ```{r}
 
@@ -307,24 +299,29 @@ my.anova <- aov(TotalBurr_m2 ~ Cultivar + Block, data = file.subset)
 
 summary(my.anova)
 ```
-S1
 
 ```{r}
 #Means separation after ANOVA
 (LSD.test(my.anova, c("Cultivar"), alpha= 0.05, p.adj="none")) 
 ```
 
-S2 select
+ANOVA S2 
+
 
 ```{r}
 
-#Filter  S1, S2, S3, S4, S5  
+#Filter  S1, S2, S3, S4, S6 , S7 
 summary(df_bura)
 
 df_burANOVA <- df_bura%>% #use to filter
+  #filter(SowTreat=="S1")
   filter(SowTreat=="S2")
-  #filter(SowTreat=="S2")
-  
+  #filter(SowTreat=="S3")
+  #filter(SowTreat=="S4")
+  #filter(SowTreat=="S6")
+  #filter(SowTreat=="S7")
+
+
 #-------------------------------------------------
 # anova 
 file <- df_burANOVA
@@ -336,33 +333,37 @@ summary(file.subset)
 
 ```
 
-S2 summary anova 
+
 ```{r}
+
 #ANOVA
 my.anova <- aov(TotalBurr_m2 ~ Cultivar + Block, data = file.subset)
 
 summary(my.anova)
 ```
 
-mean Separation
-
 ```{r}
 #Means separation after ANOVA
-(LSD.test(my.anova, c("Cultivar"), alpha= 0.05, p.adj="none"))
+(LSD.test(my.anova, c("Cultivar"), alpha= 0.05, p.adj="none")) 
 ```
 
+ANOVA S3 
 
-S3 
 
 ```{r}
 
-#Filter  S1, S2, S3, S4, S5  
+#Filter  S1, S2, S3, S4, S6 , S7 
 summary(df_bura)
 
 df_burANOVA <- df_bura%>% #use to filter
+  #filter(SowTreat=="S1")
+  #filter(SowTreat=="S2")
   filter(SowTreat=="S3")
   #filter(SowTreat=="S4")
-  
+  #filter(SowTreat=="S6")
+  #filter(SowTreat=="S7")
+
+
 #-------------------------------------------------
 # anova 
 file <- df_burANOVA
@@ -371,9 +372,9 @@ file.subset <- file
 
 head(file.subset)
 summary(file.subset)
+
 ```
 
-S3 ANOVA
 
 ```{r}
 
@@ -383,23 +384,28 @@ my.anova <- aov(TotalBurr_m2 ~ Cultivar + Block, data = file.subset)
 summary(my.anova)
 ```
 
-S3 mean separation 
-
 ```{r}
 #Means separation after ANOVA
-(LSD.test(my.anova, c("Cultivar"), alpha= 0.05, p.adj="none"))
+(LSD.test(my.anova, c("Cultivar"), alpha= 0.05, p.adj="none")) 
 ```
 
-S4 select 
+Anova S4 
+
 
 ```{r}
-#Filter  S1, S2, S3, S4, S5  
+
+#Filter  S1, S2, S3, S4, S6 , S7 
 summary(df_bura)
 
 df_burANOVA <- df_bura%>% #use to filter
+  #filter(SowTreat=="S1")
+  #filter(SowTreat=="S2")
+  #filter(SowTreat=="S3")
   filter(SowTreat=="S4")
-  #filter(SowTreat=="S5")
-  
+  #filter(SowTreat=="S6")
+  #filter(SowTreat=="S7")
+
+
 #-------------------------------------------------
 # anova 
 file <- df_burANOVA
@@ -408,9 +414,8 @@ file.subset <- file
 
 head(file.subset)
 summary(file.subset)
-```
 
-ANOVA summary S4 
+```
 
 
 ```{r}
@@ -421,25 +426,29 @@ my.anova <- aov(TotalBurr_m2 ~ Cultivar + Block, data = file.subset)
 summary(my.anova)
 ```
 
-
-means S4 
-
 ```{r}
 #Means separation after ANOVA
-(LSD.test(my.anova, c("Cultivar"), alpha= 0.05, p.adj="none"))
+(LSD.test(my.anova, c("Cultivar"), alpha= 0.05, p.adj="none")) 
 ```
 
-S5 select 
+
+ANOVA S6 
+
 
 ```{r}
 
-#Filter  S1, S2, S3, S4, S5  
+#Filter  S1, S2, S3, S4, S6 , S7 
 summary(df_bura)
 
 df_burANOVA <- df_bura%>% #use to filter
-  filter(SowTreat=="S5")
-  #filter(SowTreat=="S5")
-  
+  #filter(SowTreat=="S1")
+  #filter(SowTreat=="S2")
+  #filter(SowTreat=="S3")
+  #filter(SowTreat=="S4")
+  filter(SowTreat=="S6")
+  #filter(SowTreat=="S7")
+
+
 #-------------------------------------------------
 # anova 
 file <- df_burANOVA
@@ -448,29 +457,66 @@ file.subset <- file
 
 head(file.subset)
 summary(file.subset)
+
 ```
 
 
-S5 Anova
-
 ```{r}
 
+#ANOVA
 my.anova <- aov(TotalBurr_m2 ~ Cultivar + Block, data = file.subset)
 
 summary(my.anova)
 ```
 
-S5 means 
-
 ```{r}
 #Means separation after ANOVA
-(LSD.test(my.anova, c("Cultivar"), alpha= 0.05, p.adj="none"))
+(LSD.test(my.anova, c("Cultivar"), alpha= 0.05, p.adj="none")) 
+```
+
+Anova S7 
+
+
+```{r}
+
+#Filter  S1, S2, S3, S4, S6 , S7 
+summary(df_bura)
+
+df_burANOVA <- df_bura%>% #use to filter
+  #filter(SowTreat=="S1")
+  #filter(SowTreat=="S2")
+  #filter(SowTreat=="S3")
+  #filter(SowTreat=="S4")
+  #filter(SowTreat=="S6")
+  filter(SowTreat=="S7")
+
+
+#-------------------------------------------------
+# anova 
+file <- df_burANOVA
+
+file.subset <- file 
+
+head(file.subset)
+summary(file.subset)
+
 ```
 
 
+```{r}
 
+#ANOVA
+my.anova <- aov(TotalBurr_m2 ~ Cultivar + Block, data = file.subset)
 
+summary(my.anova)
+```
 
+```{r}
+#Means separation after ANOVA
+(LSD.test(my.anova, c("Cultivar"), alpha= 0.05, p.adj="none")) 
+```
+
+End of this script. Outputs summary also saved in Excel Analysis folder.
 
 
 

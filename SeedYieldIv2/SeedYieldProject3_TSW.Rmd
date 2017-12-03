@@ -172,8 +172,8 @@ dodge_x <- position_dodge(width = 0.9)
 
 dfSE2 <-  df %>%
   
-  mutate(SeedWeig= TSW/1000) %>%
-filter(SowTreat!="S6", SowTreat!="S7")%>%
+  mutate(SeedWeig= TSW/1) %>%
+filter(SowTreat!="S1" , SowTreat!="S6", SowTreat!="S7")%>%
   group_by(Cultivar, SowTreat) %>%
   summarise_each(funs(mean,sd)) %>%
   mutate(SE=SeedWeig_sd/1.73)  
@@ -187,11 +187,27 @@ filter(SowTreat!="S6", SowTreat!="S7")%>%
   theme_grey(base_size = 16) +
   theme_bw()+
   facet_grid(.~SowTreat, scales="free") +
-  labs(y= "One Seed weight (g) ")+
+  labs(y= " Seed weight (mg) ")+
   theme(axis.text.x=element_text(angle = +90, hjust = 0))+
   theme(text = element_text(size = 14))
 ```
 
+find only mean for one individual seed weight for SowTreat and cultivar to write only  
+
+```{r}
+MeanSeedWeig<-dfSE2 <-  df %>%
+  
+  mutate(SeedWeig= TSW/1000) %>%
+filter(SowTreat!="S6", SowTreat!="S7")%>%
+  group_by(SowTreat, Cultivar) %>%
+  #group_by(Cultivar) %>%
+  summarise_all(funs(mean,sd)) %>%
+  mutate(SE=SeedWeig_sd/1.73)
+  
+
+#write a table to gather all variables and find the best SowTime for each cultivar
+write.table (MeanSeedWeig, "IndividualSeedWeig.txt")
+```
 
 
 

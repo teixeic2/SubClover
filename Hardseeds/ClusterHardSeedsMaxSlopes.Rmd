@@ -22,15 +22,19 @@ getwd()
 
 
 
-This script reads the HardseedsLiveData (from raw data excel) with all catergories of seeds (germ, abnormal, dead).calculation of max hardseeds and cumulative hardseeds.
+This script reads the df_slopesBreak originated in previous script and attempt to cluster the cultivars in soft, medium and hard accroding to slope 
 
 ```{r loadFile}
 #create file
-df_raw <- read.table("RelationMaxHardSlopeBreaks.txt",header=TRUE)
+df_raw <- read.table("df_slopesBreak.txt",header=TRUE)
 head(df_raw)
 ```
 ```{r}
-df_work<-df_raw %>% dplyr::select(Cultivar,SowTreat,SowingD, Hard_perc) %>% group_by(Cultivar,SowTreat,SowingD) %>%
+df_work<-df_raw %>% 
+  filter(slopeType=="perTt")%>%
+  mutate(slope=slope*-1)%>%
+  dplyr::select(cv,sow,slope) %>%
+  group_by(cv,sow) %>%
   summarise_all(funs(mean,sd))
 
 summary(df_work)
@@ -38,7 +42,7 @@ summary(df_work)
 
 
 
-parei aqui 
+
 ```{r}
 clusNo <- 3 # selected from sensitivity cluster analysis below
 
@@ -54,15 +58,22 @@ summary(dftemp1)
 
 ```
 
+cluster considers the distance between points !
+
 ```{r, fig.width=12}
 theme_set(theme_gray(base_size = 20))
 dftemp1 %>%
-  mutate(Cluster = factor(clusterNo,levels=c(2,3,1),labels=c("Hard","Medium", "Soft")))  %>%
-  ggplot(aes(x=dmy(SowingD),y=mean)) +
+  mutate (sow= factor(sow, levels=c("S1", "S2", "S3", "S4", "S6","S7"),labels=c("June", "July", "September", "November", "February","March")))%>%
+  mutate(Cluster = factor(clusterNo,levels=c(3,2,1),labels=c("Hard","Medium", "Soft")))  %>%
+  ggplot(aes(x=sow,y=mean)) +
   geom_errorbar(aes(ymin=mean-sd/2.45,ymax=mean+sd/2.45,colour=Cluster),alpha=0.8, width=0.5, linetype=2)+
-  geom_point(aes(shape=Cultivar, colour=Cluster), size =5) +
-  ylab("Maximum seed hardness (%)") +
-  xlab("Sowing date")
-  
+  geom_point(aes(shape=cv, colour=Cluster), size =5) +
+  theme_bw()+
+  ylab("Hardseedbreakdown (%/Tt)") +
+  xlab("Sowing date")+
+  theme(axis.text.x=element_text(angle = 0, hjust = 0.5, size= 14))+
+  theme(axis.title.x=element_text(angle = 0, hjust = 0.5, size= 14))+
+  theme(axis.text.y=element_text(angle = 0, hjust = 0, size= 14))+
+  theme(axis.title.y=element_text(angle = 90, hjust = 0.5, size= 14))
 ```
 

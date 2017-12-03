@@ -54,8 +54,10 @@ summary(dftemp1)
 ```{r, fig.width=12}
 theme_set(theme_gray(base_size = 20))
 dftemp1 %>%
+  
   mutate(Cluster = factor(clusterNo,levels=c(2,3,1),labels=c("Hard","Medium", "Soft")))  %>%
   ggplot(aes(x=dmy(SowingD),y=mean)) +
+  theme_bw()+
   geom_errorbar(aes(ymin=mean-sd/2.45,ymax=mean+sd/2.45,colour=Cluster),alpha=0.8, width=0.5, linetype=2)+
   geom_point(aes(shape=Cultivar, colour=Cluster), size =5) +
   ylab("Maximum seed hardness (%)") +

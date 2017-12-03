@@ -1,0 +1,83 @@
+---
+title: "Flowering 6CV Pok "
+author: "CT"
+date: "06.07.2017"
+output: html_document
+---
+
+```{r loadLibraries}
+library(tidyr)
+library (dplyr)
+library (ggplot2)
+library(agricolae)
+library(knitr)
+library (lubridate)
+```
+This script reads the DAS and TTAS for Poukawa based on script FlowPok2. Then calculates the date of flowering and relates to weather conditions at flowering : temp and Pp 
+
+
+```{r loadFile}
+setwd("C:\\GitHubRepos\\SubCloverPhD\\SubClover\\FlowPok")
+getwd()
+
+#create file ; this file was generated in the previous script FlowerProject2
+
+df_P <- read.table("df_tt_50p_flow.txt",header=TRUE)
+
+str(df_P)
+
+
+```
+Calculate the date of 50% flowering 
+
+```{r}
+df_P2 <-df_P %>%
+  mutate(SowingD=as.Date(SowingD))%>%
+  mutate(Date=(SowingD+DAS50F))
+  
+  str(df_P2)
+```
+
+Then bring the weather data (temp and Pp) and merge 
+
+
+```{r}
+df_Weather <- read.table("Pok_Weat.txt",header=TRUE)
+str(df_Weather)
+
+d1<-df_Weather %>%
+  mutate(Tmean=Tx-Tm/2)%>%
+  mutate(Date=dmy(Date))
+
+
+
+```
+
+Now find the mean temp and PP for S2, S3 and S4
+
+
+Notes about weather Pok during 50% Flower :
+
+S2 27 August - 04 Oct mean Temp 12.4oC and 12.8Pp 
+
+S3 24 Sept -15 Oct 13.2 oC and 13.7Pp
+
+S4 27-09 - 31 Oct 15oC and 14.1 Pp
+
+```{r}
+
+df_S2 <-d1%>%
+  subset(Date>"2016-08-27" & Date<"2016-10-04")%>%
+  summarise_all(funs(mean))
+  
+
+df_S3 <-d1%>%
+  subset(Date>"2016-09-24" & Date<"2016-10-15")%>%
+  summarise_all(funs(mean))
+
+df_S4 <-d1%>%
+  subset(Date>"2016-09-27" & Date<"2016-10-31")%>%
+  summarise_all(funs(mean))
+  
+```
+

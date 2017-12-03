@@ -1,0 +1,59 @@
+---
+title: "Seed Breakdown  Test base line corrected"
+author: "CT"
+date: 16.11.2017 (ESA paper 2018)
+output: html_document
+---
+This script reads the txt file P_LSD_Break_0_84.txt generated in previous script 3 (loop) and create a grpah 
+
+```{r setup, include=FALSE, loadlibraires}
+#knitr::opts_chunk$set(echo = TRUE)
+library(tidyr)
+library (dplyr)
+library (ggplot2)
+library(agricolae)
+library(knitr)
+library (lubridate)
+library(scales)
+
+```
+
+
+graph 
+
+```{r, fig.width=15, fig.height=5}
+
+setwd("C:\\GitHubRepos\\SubCloverPhD\\SubClover\\Spectra")
+getwd()
+
+
+data.all <- read.table("P_LSD_Break_0_84.txt",header=TRUE)
+
+data.all %>%
+  mutate(FlagSig=ifelse(PV>0,0,NA)) %>%
+  filter(Cultivar!="N")%>%
+  ggplot(aes(x=WaveNumber,y=PV))+
+  geom_point(aes(colour="darkgrey"))+
+  geom_point(aes(x=WaveNumber,y=FlagSig, size=1/PV,colour=Cultivar), alpha=0.1 ) +
+  theme_bw()+
+  theme(axis.text.x = element_text(angle = 90, hjust = 1))+
+  facet_grid(Cultivar~.,scales="free") +
+ scale_x_reverse(breaks=round(seq(min(df_sp$WaveNumber),max(df_sp$WaveNumber),by =50)))+
+  geom_abline(intercept = 0.01, slope = 0, linetype=2) 
+    
+ # xlim(4000,650)
+```
+
+
+get overall view of ammmount of bands which were affected for each cultivar 
+```{r}
+infoMonti <- data.all%>%
+  filter(Cultivar=="M")
+ #filter(Cultivar=="A)
+  
+summary(infoMonti )
+
+
+
+```
+

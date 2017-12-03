@@ -123,7 +123,7 @@ dge_x <- position_dodge(width = 0.9)
 
   dfSE <- df %>%
     group_by(Cultivar, SowTreat,Depth) %>%
-  summarise_all(funs(mean,sd)) %>%
+      summarise_all(funs(mean,sd)) %>%
     mutate(SE=SeedsPerBur_sd/1.73)
   
    dfSE %>% 
@@ -137,10 +137,41 @@ dge_x <- position_dodge(width = 0.9)
   facet_grid(Depth~SowTreat, scales="free") +
     labs(y= "Number of seeds per burr ")+
 theme(axis.text.x=element_text(angle = +90, hjust = 0))+
-theme(text = element_text(size = 20))
+theme(text = element_text(size = 18))
 
 
 ```
+
+
+graph as per mean desconsider depth 
+
+```{r, fig.height=5, fig.width=10}
+
+dge_x <- position_dodge(width = 0.9)
+
+
+  dfSE2 <- df %>%
+    group_by(Cultivar, SowTreat) %>%
+      summarise_all(funs(mean,sd)) %>%
+    mutate(SE=SeedsPerBur_sd/1.73)
+  
+   dfSE2 %>%
+     filter(SowTreat!="S1",SowTreat!="S5")%>%
+    mutate (SowTreat= factor(SowTreat, levels=c("S1", "S2", "S3", "S4", "S5"),labels=c("February", "March", "May", "July", "August")))%>%
+  ggplot(aes(x= Cultivar, y=(SeedsPerBur_mean),fill= Cultivar)) +
+  geom_bar(stat="identity",position = dodge_x) +
+  geom_errorbar(aes(ymin=SeedsPerBur_mean-SE/2,
+                    ymax=SeedsPerBur_mean+SE/2),
+                width=0.25, size=0.3,position=dodge_x)   +
+  theme_grey(base_size = 16) +
+  theme_bw()+
+  facet_grid(.~SowTreat, scales="free") +
+    labs(y= "Number of seeds per inflorescence")+
+theme(axis.text.x=element_text(angle = 90, hjust=0.95,vjust=0.2,size = 12)) +
+theme(text = element_text(size = 18))
+```
+
+
 
 
 
@@ -172,7 +203,7 @@ Then anova all
 #ANOVA
 
 #my.anova <- aov(SeedsPerBur ~ Cultivar*Depth + Block, data = file.subset)
-my.anova <- aov(SeedsPerBur ~ SowTreat*Depth + Block, data = file.subset)
+my.anova <- aov(SeedsPerBur ~ SowTreat*Cultivar + Block, data = file.subset)
 #my.anova <- aov(SeedsPerBur ~ Cultivar + Block, data = file.subset)
 #my.anova <- aov(SeedsPerBur ~ Depth + Block, data = file.subset)
 summary(my.anova)
@@ -199,6 +230,7 @@ Start wit S1
 summary(df)
 
 df_seedYS6 <- df %>%
+ ## (Use this filter for ESA 2018) filter(SowTreat!="S1", SowTreat!="S5")
   filter(SowTreat=="S1")
   #filter(SowTreat=="S2")
   #filter(SowTreat=="S3")
@@ -227,7 +259,7 @@ S1
 #ANOVA
 
 #my.anova <- aov(SeedsPerBur ~ Cultivar*Depth + Block, data = file.subset)
-#my.anova <- aov(SeedsPerBur ~ SowTreat*Depth + Block, data = file.subset)
+#my.anova <- aov(SeedsPerBur ~ SowTreat*Cultivar + Block, data = file.subset)
 my.anova <- aov(SeedsPerBur ~ Cultivar + Block, data = file.subset)
 #my.anova <- aov(SeedsPerBur ~ Depth + Block, data = file.subset)
 summary(my.anova)

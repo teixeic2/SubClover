@@ -52,10 +52,10 @@ summary(df_merged_av)
 df_merged_av %>%
   mutate(slope_mean=(slope_mean*-1))%>%
   ggplot(aes(x=slope_mean,y=Hard_perc_mean))+
-  geom_point(aes(colour=Cultivar),size=4) +
+  geom_point(aes(colour=Cultivar,shape=SowTreat),size=4) +
   geom_smooth(fill="blue",alpha=0.1,method='lm') +
   theme_bw()+
-  xlab("Hard seedness decay (%/day)")+ylab("Hard seed maximum (%)") +
+  xlab("Hard seedness decay (%/Tt)")+ylab("Hard seed maximum (%)") +
    geom_errorbar(aes(ymin=Hard_perc_mean-Hard_perc_sd/2.45,
                     ymax=Hard_perc_mean+Hard_perc_sd/2.45),colour="grey")+
 

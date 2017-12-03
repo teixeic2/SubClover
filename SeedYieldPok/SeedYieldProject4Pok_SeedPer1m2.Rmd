@@ -85,6 +85,8 @@ head(df)
 
 
 
+
+
 Now go for Stats for variate SeedsNo per 1m2
 
 Here only need to change df name as selection of fields were previously done. 
@@ -110,8 +112,9 @@ Use filter to sub set data (sowing date)
 #Filter  S1, S2, S3, S6 , S7 
 summary(df)
 
-df_seedYS6 <- df 
-#%>%
+df_seedYS6 <- df %>%
+  ## (Use this filter for ESA 2018)
+  filter(SowTreat!="S1", SowTreat!="S5")
   #filter(SowTreat=="S1")
   #filter(SowTreat=="S2")
   #filter(SowTreat=="S3")
@@ -140,7 +143,7 @@ Select :SowTreat or Depth or Cultivar
 #ANOVA
 
 #my.anova <- aov(SeedsNo_m2 ~ Cultivar*SowTreat + Block, data = file.subset)
-my.anova <- aov(SeedsNo_m2 ~ SowTreat*Depth + Block, data = file.subset)
+my.anova <- aov(SeedsNo_m2 ~ SowTreat*Cultivar + Block, data = file.subset)
 #my.anova <- aov(SeedsNo_m2 ~ Cultivar + Block, data = file.subset)
 #my.anova <- aov(SeedsNo_m2 ~ Depth + Block, data = file.subset)
 summary(my.anova)
@@ -149,10 +152,10 @@ summary(my.anova)
 Then use multiple comparisons of means for desired variables. Remember to sum up the values of seed number (above + below) 
 ```{r}
 #Means separation after ANOVA
-(LSD.test(my.anova, c( "SowTreat", "Depth"), alpha= 0.05, p.adj="none"))
+#(LSD.test(my.anova, c( "SowTreat", "Depth"), alpha= 0.05, p.adj="none"))
 #(LSD.test(my.anova, c("Cultivar", "Depth"), alpha= 0.05, p.adj="none")) 
 #(LSD.test(my.anova, c( "Depth"), alpha= 0.05, p.adj="none"))
-#(LSD.test(my.anova, c( "SowTreat", "Cultivar"), alpha= 0.05, p.adj="none"))
+(LSD.test(my.anova, c( "SowTreat", "Cultivar"), alpha= 0.05, p.adj="none"))
 #(LSD.test(my.anova, c("Cultivar"), alpha= 0.05, p.adj="none")) 
 ```
 Considered the sum values for total number of seeds per 1 m2 

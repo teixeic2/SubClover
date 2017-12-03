@@ -1,9 +1,10 @@
 ---
 title: "Seed Breakdown  Test base line corrected"
 author: "CT"
-date: "21 March 2017"
+date: "21 March 2017" ## revised in 15.11.2017 (ESA papaer 2018)
 output: html_document
 ---
+This script reads the baselined corrected spectra for 3 cultivars (Antas, Monti and Narrikup) in 3 different incubation times (0, 42, 84)  
 
 ```{r setup, include=FALSE, loadlibraires}
 #knitr::opts_chunk$set(echo = TRUE)
@@ -31,24 +32,25 @@ df_sp <- read.table("BreakBaseLine.txt",header=TRUE)
 summary(df_sp)
 ```
 
-## Graph it 
+## Graph it  all 
 
 ```{r, fig.height=5, fig.width=10}
 
 df_sp %>%
-  ggplot(aes(x=Wavelength,y=Absorbance))+
-  geom_line(aes(colour=Cultivar))+
+  filter(IncubationDays!="42")%>%
+    filter(Cultivar!="Narrikup")%>%
+   ggplot(aes(x=Wavelength,y=Absorbance))+
+  geom_line(aes(colour=factor(IncubationDays)))+
   theme_bw()+
 scale_x_continuous(breaks=seq(min(df_sp$Wavelength),max(df_sp$Wavelength),100))+
   #labs(x=" Wavelength", y=" Absorbance")+
   #scale_color_manual(values=c("#333333", "#9999CC", "#CC3300"))+
   #facet_wrap(~IncubationDays,scale="free")+
   #facet_wrap(~Cultivar,scale="free")+
-  facet_grid(IncubationDays ~.) +
+  facet_grid(Cultivar ~.) +
   theme_bw()+
-scale_x_continuous(breaks=seq(min(df_sp$Wavelength),max(df_sp$Wavelength),400))+
-  scale_x_reverse()+
- # scale_x_reverse(lim=c(650,4000))+
+  scale_x_continuous(breaks=seq(min(df_sp$Wavelength),max(df_sp$Wavelength),400))+
+    scale_x_reverse()+
   theme(axis.text.x = element_text(angle = 90, hjust = 1)) +
   expand_limits(y=c(0,0.2)) +
   geom_abline(intercept = 0.1, slope = 0)
@@ -59,7 +61,7 @@ scale_x_continuous(breaks=seq(min(df_sp$Wavelength),max(df_sp$Wavelength),400))+
 ```
 
 
-Graph the effect of temperature 
+##Graph the effect of temperature 
 
 
 ```{r, fig.height=4, fig.width=8}
@@ -74,7 +76,7 @@ scale_x_continuous(breaks=seq(min(df_sp$Wavelength),max(df_sp$Wavelength),100))+
   #scale_color_manual(values=c("#333333", "#9999CC", "#CC3300"))+
   #facet_wrap(~IncubationDays,scale="free")+
   #facet_wrap(Cultivar~,scale="free")+
-  facet_grid(~Incubation) +
+  #facet_grid(.~Incubation) +
   theme_bw()+
 #scale_x_continuous(breaks=seq(min(df_sp$Wavelength),max(df_sp$Wavelength),400))+
   scale_x_reverse()+
@@ -108,6 +110,40 @@ df_sp %>%
 
 
 
+```
+
+MAke the difference between incubation days 0 and 84 ; find bands which change the most. filter out 42.Use difference absolute and %. 
+
+```{r}
+
+df1 <- df_sp  %>%         
+  mutate(IncubationDays=factor(paste0("A_",IncubationDays)))%>%
+  filter(IncubationDays!="A_42") %>%
+  tidyr::spread(IncubationDays,Absorbance)%>%
+  mutate(DiffAbsolute=A_0-A_84,DiffRelative=DiffAbsolute/A_0*100) #%>%
+#Now gather values 
+#tidyr::gather("Varname", "Varvalue",A_0:DiffRelative )
+summary(df1)
+```
+
+
+Now graph the differences 
+
+```{r}
+df2 <-df1 %>%
+  filter(Cultivar!="Narrikup")%>%
+  subset(DiffRelative>5 & DiffRelative<100)
+
+df2 %>%
+  ggplot(aes(x=Wavelength,y=DiffRelative))+
+  geom_line(aes(colour=Cultivar))+
+  theme_bw()+
+ # facet_grid(.~Cultivar,scales="free") +
+  scale_x_reverse()+
+  geom_abline(intercept = 0, slope = 0)
+ 
+   
+  
 ```
 
 

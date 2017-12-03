@@ -94,7 +94,7 @@ Analysis of sowing date and cultivars for Bud considering Date
   theme(axis.text.x = element_text(angle = 90, hjust = 1))
  
 
-write.table(df_flower,"df_PokPerc.txt")
+
 
 ```
 
@@ -204,7 +204,7 @@ theme(axis.text.x = element_text(angle = 60, hjust = 1))
 
 # #create file
 
-df_Photo <- read.table("PpPo.txt",header=TRUE)
+df_Photo <- read.table("Pok_Weat.txt",header=TRUE)
 
 # convert to date format
 df_Photo <- df_Photo %>%
@@ -217,15 +217,15 @@ rename(SowingD = Date)
 head(df_Photo)
 
 #Add Pp to df_flower (merge by SowinD)
-df_flowerPo5 <- merge(df_flowerPo4,df_Photo,by="SowingD")
-head(df_flowerPo5)
-summary(df_flowerPo5)
+df_flowerPo4 <- merge(df_flowerPo3,df_Photo,by="SowingD")
+head(df_flowerPo4)
+summary(df_flowerPo4)
 
 
 # # change name PP to PP at sowing date
-df_flowerPo6 <- df_flowerPo5 %>%
+df_flowerPo5 <- df_flowerPo4 %>%
 rename(Pp_sow = Pp)
-head(df_flowerPo6)
+head(df_flowerPo5)
 
 
 
@@ -235,17 +235,17 @@ head(df_flowerPo6)
 
 ```{r}
 
-df_flowerPo6$TTAS <- df_flowerPo6$TT_meas-df_flowerPo6$TT_sow
-head(df_flowerPo6)
-summary(df_flowerPo6)
+df_flowerPo5$TTAS <- df_flowerPo5$TT_meas-df_flowerPo5$TT_sow
+head(df_flowerPo5)
+str(df_flowerPo5)
 
 # graph
-df_flowerPo6 %>%
+df_flowerPo5 %>%
   group_by(TTAS,Cultivar,SowTreat,DAS) %>%
   summarise_each(funs(mean)) %>%
   #select(Variable,Percent, Cultivar,TTAS,SowTreat,SowingD,DAS) %>%
   #filter(Variable == "Bud") %>%
-  ggplot(aes(x=DAS, y=Percent_cum)) + 
+  ggplot(aes(x=DAS, y=Percent)) + 
   geom_line(aes(colour=Cultivar)) +
   facet_grid(SowTreat~Cultivar, scales = "free") +
   geom_abline(intercept = 50, slope = 0)+

@@ -1,0 +1,136 @@
+---
+title: "Linear Equations "
+author: "CT"
+date: "19.09.2017"
+output: html_document
+---
+
+
+```{r loadLibraries, warning=FALSE}
+library(tidyr)
+library(dplyr)
+library(ggplot2)
+library(agricolae)
+library(knitr)
+library(lubridate)
+library(mosaic)
+library(lattice)
+library (gridExtra)
+```
+
+get file 
+
+```{r loadFile}
+# Get dataframe from previous script (written table )
+setwd("C:\\Users\\EdCarmen\\Documents\\CarmenProjects2016\\GitSubclover\\.......")
+getwd()
+
+#create file
+df_G <- read.table(".......txt",header=TRUE)
+
+
+
+```
+
+select columns of interest and Adjust formats 
+```{r}
+
+#change formats
+df_G$Cultivar <- as.factor(df_G$Cultivar)
+df_G$Block <- as.factor(df_G$Block)
+df_G$Plot <- as.factor(df_G$Plot)
+df_G$Location <- as.factor(df_G$Location)
+
+#select columns 
+df_G <-df_G %>%
+dplyr:: select(Plot,Block,Cultivar....
+
+
+str(df_G)
+
+# this is to "clean previous dfs : df_emerg4 <- NULL
+```
+
+Subset 
+
+```{r}
+
+#subset Cultivar
+
+
+```
+
+
+
+```{r}
+
+
+
+
+```
+
+got the means here ... and graph it
+
+```{r, fig.height=5, fig.width=10, echo = FALSE}
+
+
+
+# 
+
+```
+
+
+
+here get the equations for the Antas subset (min to optimum)  
+
+```{r, fig.height=5,fig.width=10}
+require(ggplot2)
+require(plyr)
+require(dplyr)
+
+lm_eqn = function(df){
+  m = lm(y ~ x, df);
+  eq <- substitute(italic(y) == a + b %.% italic(x)*","~~italic(r)^2~"="~r2, 
+                   list(a = format(coef(m)[1], digits = 2), 
+                        b = format(coef(m)[2], digits = 2), 
+                        r2 = format(summary(m)$r.squared, digits = 3)))
+  as.character(as.expression(eq));                 
+}
+
+#use all datapoints 
+df <- df_A2 %>%
+  dplyr::select(SowTreat,Cultivar, Plot, meanTemp_Em, InvDAS50E, Location) %>%
+  group_by(SowTreat,Cultivar, Location) %>%
+  summarise_each(funs(mean)) %>%
+  mutate(y=InvDAS50E,x=meanTemp_Em) %>%
+  dplyr::select(-meanTemp_Em, -InvDAS50E)
+
+eq <- ddply(df,.(Cultivar),lm_eqn)
+
+yx<-quantile(df$y,0.75)
+xn<- quantile(df$x,0.25)
+
+p <- ggplot(data = df, aes(x = x, y = y)) +
+  geom_smooth(method = "lm", se=FALSE, color="black", formula = y ~ x) +
+  geom_point(aes(colour = factor(Location)), size=5) + scale_shape(solid = FALSE)+ 
+  
+  theme_bw()+
+  scale_x_continuous(limits = c(0,25))+
+  scale_y_continuous(limits = c(0,0.25))
+
+p1 <- p + geom_text(data=eq,aes(x = xn, y = yx,label=V1), parse = TRUE, inherit.aes=FALSE) + 
+  facet_grid(Cultivar~.,scales="free")
+  
+p1
+```
+
+
+```{r}
+#get statistical summary here 
+summary(lm(y ~ x, df))
+```
+
+
+
+End of this script
+next script generate equations for each cultivar separately from 5 to 15.4-5 degrees. 

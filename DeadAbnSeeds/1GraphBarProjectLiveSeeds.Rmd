@@ -138,6 +138,7 @@ graph as a stack bar
 
 
 df_Percentages_gather%>%
+  ungroup(status)%>%
 mutate(status = factor(status, levels = c("HardUngermFinal_perc",
                                           "Dead_perc",
                                   "SoftUngerm_perc",
@@ -169,9 +170,16 @@ graph only for 2015 Sowing dates
 
 ```{r,fig.height=6, fig.width=12}
 
+df_Percentages_gather2<-df_Percentages%>%
+  gather(key= "status" , value = "percentage" , Abn_perc:HardUngermFinal_perc)%>%
+  group_by(Cultivar, SowTreat,status)%>%
+  dplyr::select(percentage)%>%
+  summarise_all(mean)
+  
+str(df_Percentages_gather2)
 
-
-df_Percentages_gather%>%
+df_Percentages_gather2%>%
+  ungroup(status)%>%
 mutate(status = factor(status, levels = c("HardUngermFinal_perc",
                                           "Dead_perc",
                                   "SoftUngerm_perc",
@@ -186,13 +194,13 @@ mutate(status = factor(status, levels = c("HardUngermFinal_perc",
                                  "Normal")
                           )) %>%
    mutate (SowTreat= factor(SowTreat, levels=c("S1", "S2", "S3", "S4", "S6","S7"),labels=c("June", "July", "September", "November", "February","March")))%>%
-  filter(SowTreat!="February",SowTreat!="March")%>%
+  filter(SowTreat!="June", SowTreat!="February",SowTreat!="March")%>%
   ggplot(aes(x=Cultivar, y=percentage, fill=factor(status))) +
   geom_bar(stat="identity") +
   facet_grid(.~SowTreat) +
   ylab("Percentage (%)") +
   xlab("Cultivar") +
-  theme(axis.text.x = element_text(angle = 45, hjust=1)) + theme(legend.title=element_blank()) +
+  theme(axis.text.x = element_text(angle = 45, hjust=1, size = 16)) + theme(legend.title=element_blank()) +
   theme(text = element_text(size=16))
   
 

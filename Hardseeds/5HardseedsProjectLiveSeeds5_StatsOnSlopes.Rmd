@@ -31,6 +31,11 @@ df_seed <- read.table("df_slopesBreak.txt",header=TRUE)
 str(df_seed)
 ```
 
+
+
+
+
+
 ## Create index to filter for loop ANOVA
 
 ```{r}
@@ -43,7 +48,8 @@ sdIndex[order(match(sdIndex,y))]
 length(sdIndex)
 sdIndex
 ```
-
+Then make anova for slope type perTt (thermal time)
+get mean separation when P <0.05
 
 ```{r}
 for (i in 1:length(sdIndex)) {
@@ -52,6 +58,7 @@ for (i in 1:length(sdIndex)) {
  print(paste0(sdIndex[i],"--------------------------------"))
   
   file.subset <- df_seed %>%
+    filter(slopeType== "perTt")%>%
   filter(sow==sdIndex[i])
 
   head(file.subset, 50)
@@ -73,6 +80,44 @@ if ((summary(my.anova)[[1]][["Pr(>F)"]][4])<0.05) {print("***Sig CV:Depth Int***
   print((LSD.test(my.anova, c("cv:depth"), alpha= 0.05, p.adj="none")))
   } 
 
+# make mean separation if significant
+
+(LSD.test(my.anova, c("cv"), alpha= 0.05, p.adj="none"))
+  
+}
+```
+
+Then make anova for slope type perTt get values > 0.05 (need values to build appendix)
+
+```{r}
+for (i in 1:length(sdIndex)) {
+  
+ #print(i)
+ print(paste0(sdIndex[i],"--------------------------------"))
+  
+  file.subset <- df_seed %>%
+    filter(slopeType== "perTt")%>%
+  filter(sow==sdIndex[i])
+
+  head(file.subset, 50)
+   summary(file.subset)
+my.anova <- aov(slope~ cv*depth + block, data = file.subset)
+print(summary(my.anova))
+
+if ((summary(my.anova)[[1]][["Pr(>F)"]][1])>0.05) {
+  print("***Sig CV***") 
+  print((LSD.test(my.anova, c("cv"), alpha= 0.05, p.adj="none"))) } # do if
+
+if ((summary(my.anova)[[1]][["Pr(>F)"]][2])<0.05) {print("***Sig Depth***")
+  print((LSD.test(my.anova, c("depth"), alpha= 0.05, p.adj="none")))
+  } 
+if ((summary(my.anova)[[1]][["Pr(>F)"]][3])<0.05) {print("***Sig Block***")
+  print((LSD.test(my.anova, c("block"), alpha= 0.05, p.adj="none")))
+  } 
+if ((summary(my.anova)[[1]][["Pr(>F)"]][4])<0.05) {print("***Sig CV:Depth Int***")
+  print((LSD.test(my.anova, c("cv:depth"), alpha= 0.05, p.adj="none")))
+  } 
+
 # make mean separation if seignificant
 
 (LSD.test(my.anova, c("cv"), alpha= 0.05, p.adj="none"))
@@ -80,10 +125,18 @@ if ((summary(my.anova)[[1]][["Pr(>F)"]][4])<0.05) {print("***Sig CV:Depth Int***
 }
 ```
 
+get the mean values to build table in appendix for Breakdown perTt
 
 ```{r}
-
+dfseedr2<-df_seed %>%
+  group_by(sow,cv)%>%
+  dplyr::select(r2)%>%
+  summarise_all(funs(mean))
+print(dfseedr2)
 ```
+
+
+
 
 
 

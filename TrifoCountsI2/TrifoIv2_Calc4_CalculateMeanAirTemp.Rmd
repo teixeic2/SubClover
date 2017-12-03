@@ -149,21 +149,29 @@ str(dfok)
 
 Then graph results 
 
-```{r}
+```{r, fig.height=5, fig.width=8}
 dfok %>%
-  group_by(MeanAirTempTrifo, SowingDate, Cultivar) %>%
+  group_by(MeanAirTempTrifo, SowingDate, SowTreat, Cultivar) %>%
   dplyr::select(Rate) %>%
   summarise_each(funs(mean,sd)) %>%
   #Graph
-  ggplot(aes(x=MeanAirTempTrifo, y=mean, colour=factor(Cultivar), shape=factor(Cultivar))) +
-  geom_point() +
-  geom_line() +
-  labs(x="Mean Air temperature ",y="1/ Days to 5 trifoliates  ") +
+  #ggplot(aes(x=MeanAirTempTrifo, y=mean, colour=(Cultivar), shape=factor(Cultivar) )) +
+ ggplot(aes(x=MeanAirTempTrifo, y=mean,colour=SowTreat, shape=Cultivar)) +
+  geom_point(size=5) +
+  #geom_line() +
+  
+  labs(y="Rate to five trifoliate stage (1/days)") +
   theme(axis.text.x = element_text(angle = 90, hjust = 1))+
   geom_errorbar(aes(ymin=mean-sd/2,
   ymax=mean+sd/2))+
-  theme_bw()
-
+  theme_bw()+
+  #facet_wrap(~Cultivar,ncol=3, scales = "free")+
+  xlab(expression(Mean~Air~Temperature~"("^"o"*"C)"))+
+  theme(axis.text.x=element_text(angle = 0, hjust = 0, size= 12))+
+  theme(axis.text.y=element_text(angle = 90, hjust = 0, size= 12))+
+  theme(axis.title.y=element_text(angle = 0, hjust = 0, size= 12))+
+  theme(legend.text=element_text(size=12))
+  
 # then merge the dataframes to find out the mean temperature 
 
 
@@ -187,7 +195,7 @@ Graph rate and SowTreat
 ```{r}
 #Graph 
 
-  df_RateTrifo %>%
+  dfok %>%
   group_by(SowingDate, Cultivar) %>%
   dplyr::select(Rate) %>%
   summarise_each(funs(mean,sd)) %>%

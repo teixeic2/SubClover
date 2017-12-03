@@ -62,22 +62,32 @@ Graph the results : DAS and number of trifoliates
 
 ```{r, fig.height=5, fig.width=10}
 #Graph         
-  df_trifo %>%  group_by(Cultivar, SowTreat, DAS) %>%
+  df_trifo %>%
+  mutate (SowTreat= factor(SowTreat, levels=c("S1", "S2", "S3", "S4", "S5", "S6","S7", "S8"),labels=c("June", "July", "September", "November", "December", "February","March", "May")))%>%
+  group_by(Cultivar, SowTreat, DAS) %>%
   summarise_each(funs(mean)) %>%
   ggplot(aes(x=DAS, y=Trifo)) + 
-  geom_point(aes(colour=Cultivar, shape=Cultivar)) +
+  geom_point(aes(colour=Cultivar, shape=Cultivar), size=4) +
   geom_line(aes(colour=Cultivar)) +
-  facet_wrap(~SowTreat,ncol=4, scales = "free") +
+  #facet_wrap(~SowTreat,ncol=4, scales = "free") +
+  facet_wrap (~SowTreat,ncol=4)+
+  ylim(0,14)+
   labs(y="Number of trifoliates",x="Days after sowing")+
+  theme_grey(base_size = 16) +
   theme_bw()+
-    #geom_abline(intercept = 6, slope = 0)
-   geom_abline(intercept = 5, slope = 0)
+      #geom_abline(intercept = 6, slope = 0)
+   geom_abline(intercept = 5,  slope = 0, linetype=2)+
+   geom_abline(intercept = 10,  slope = 0, linetype=2)+
+theme(axis.text.x=element_text(angle = 0, hjust = 0))+
+theme(text = element_text(size = 20))
 ```
 
 Other graphics with same dat 
-```{r}
+```{r, fig.height=5, fig.width=8}
 #Graph         
-  df_trifo %>%  group_by(Cultivar, SowTreat, DAS) %>%
+  df_trifo %>%  
+  mutate (SowTreat= factor(SowTreat, levels=c("S1", "S2", "S3", "S4", "S5", "S6","S7", "S8"),labels=c("June", "July", "September", "November", "December", "February","March", "May")))%>%
+  group_by(Cultivar, SowTreat, DAS) %>%
   summarise_each(funs(mean)) %>%
   ggplot(aes(x=DAS, y=Trifo)) + 
   geom_point(aes(colour=Cultivar, shape=Cultivar)) +
@@ -88,19 +98,33 @@ Other graphics with same dat
    geom_abline(intercept = 4:6, slope = 0)
 
 
-#Graph2 (better?)         
-  df_trifo %>%  group_by(Cultivar, SowTreat, DAS) %>%
-  summarise_each(funs(mean)) %>%
-  ggplot(aes(x=DAS, y=Trifo)) + 
-  geom_point(aes(colour=Cultivar, shape=Cultivar)) +
-  geom_line(aes(colour=Cultivar)) +
-facet_wrap (~SowTreat,ncol=4, scales = "free")+
-  labs(y="Number of trifoliates",x="Days after sowing")+
-    theme_bw()+
-    #geom_abline(intercept = 6 slope = 0)
-  geom_abline(intercept = 4:6, slope = 0)
 
 ```
+
+
+get the standard  error values for the final trifoliate numbers 
+
+
+```{r}
+str(df_trifo)
+
+dfMaxTrifo <- df_trifo %>% 
+
+  group_by( Cultivar, SowTreat ) %>%
+  dplyr::select(Trifo)%>%
+  summarise_all(funs(max,sd))%>%
+  mutate(SE=sd/1.73)%>%
+ 
+
+  
+
+
+
+```
+
+
+
+
 
 compare sowing dates 
 

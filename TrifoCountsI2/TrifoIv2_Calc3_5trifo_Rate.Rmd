@@ -233,6 +233,7 @@ df_5T<-df_tt_50p_emerg%>%
 ```
 
 
+
 ```{r}
 
 write.table(df_5T,"df_DAS_5_Trifo.txt")

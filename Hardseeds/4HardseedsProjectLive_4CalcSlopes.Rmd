@@ -6,7 +6,7 @@ output:
   word_document: default
   pdf_document: default
 ---
-Purpose: this script calculates the slopes of hardseed breakdown based on days of test (days = Round )
+Purpose: this script calculates the slopes of hardseed breakdown based on days and thermal-time sum of test
 
 ```{r loadLibraries}
 library(tidyr)
@@ -45,6 +45,8 @@ head(df_Tt)
 plot(df_Tt)
 ```
 
+
+
 Just change name of dataframe and select columns to work 
 ```{r}
 #Select depth of interest start with above seeds 
@@ -55,33 +57,85 @@ df_temp <- df_seed %>%
 
 dfSubSet <- merge(df_temp, df_Tt, by="Days")
 
+dfSubSet$LoopIndex <- as.factor(paste0(dfSubSet$Plot,"_",dfSubSet$Depth)) # prepare for loop below
+
 summary(dfSubSet)
   
 ```
+
+
+graph hardseed decay with thermal time for ESA 2018 - data exploration
+
+```{r}
+ 
+df_graf <-dfSubSet %>%
+  group_by(Cultivar,SowingD, SowTreat, TtSum) %>%
+  dplyr::select(HardAccum) %>%
+  summarise_all(funs(mean,sd)) 
+
+
+df_graf %>%
+  filter(SowTreat=="S2")%>%
+  filter(Cultivar=="Antas"| Cultivar=="Monti" )%>%
+ggplot(aes(x=TtSum , y=mean, colour=Cultivar, shape=Cultivar)) +
+  geom_point(size=5) +
+  geom_line() +
+ #facet_grid(Depth~SowTreat) +
+  labs(x="TT",y=" Percentage of LiveHardseeds") +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1))+
+                  geom_errorbar(aes(ymin=mean-sd/3.46,
+                    ymax=mean+sd/3.46),width=1,
+                      size=0.4)+
+  theme_bw()+
+  ylim(0,100)+
+  xlim(0,1900)+
+  ylab(expression(Percentage~of~Hardseeds~"(%)"))+
+  #theme(text = element_text(size=12))+
+  xlab(expression(Thermal~time ~"("^"o"*"Cd)"))+
+  theme(axis.text.x=element_text(angle = 45, hjust = 0.5, size= 11))+
+  theme(axis.title.x=element_text(angle = 0, hjust = 0.5, size= 16))+
+  theme(axis.text.y=element_text(angle = 0, hjust = 0, size= 12))+
+  theme(axis.title.y=element_text(angle = 90, hjust = 0.5, size= 16))
+
+```
+
+
+
 
 
 then loop every plot and depth to find the linear equation and print a list of the coefficients and R2. 
 ```{r}
 all.data<-data.frame()
 counter<-0
-plots<-unique(dfSubSet$Plot)
-depth<-unique(dfSubSet$Depth)
+# plots<-unique(dfSubSet$Plot)
+# depth<-unique(dfSubSet$Depth)
 
-length(plots)*length(depth)
+li<- unique(dfSubSet$LoopIndex)
+slopeType <- c("perDay","perTt")
+
+#length(plots)*length(depth)
+
 #p=d=1
-for(p in 1:length(plots)) {
-  for(d in 1:length(depth)) {
+for(p in 1:length(slopeType)) {
+  for(d in 1:length(li)) {
   df_sub <- data.frame()  
    # print(paste0(plots[p],"_",depth[d]))
   #  counter<-counter+1
     
-  df_sub <- dfSubSet %>% filter(Plot==plots[p] & Depth == depth[d])
-  
+ # df_sub <- dfSubSet %>% filter(Plot==plots[p] & Depth == depth[d])
+  df_sub <- dfSubSet %>% filter(LoopIndex==li[d])
   
   # Linear fit
- # x <- df_sub$Round
-  #x <- df_sub$Days
-  x <- df_sub$TtSum
+  
+# select type of slope calculated  
+if(slopeType[p]=="Days") {
+  x <- df_sub$Days
+} else {
+    x <- df_sub$TtSum
+}
+  
+ # x <- df_sub$Days
+ # x <- df_sub$TtSum
   y <- df_sub$HardAccum
   
   #print(data.frame(x=x,y=y))
@@ -97,9 +151,12 @@ for(p in 1:length(plots)) {
   block <- as.character(df_sub$Block[1])
   sow <- as.character(df_sub$SowTreat[1])
   sd <- dmy(df_sub$SowingD[1])
+  slopeType <- factor(slopeType) 
+  plot<- as.character(df_sub$Plot[1])
+  depth<- as.character(df_sub$Depth[1])
   
   
-  buf <- data.frame(sow=sow,cv=cv, block=block, plot=plots[p],depth=depth[d], int=intercept, slope=slope, r2=r2, n=nrow(df_sub))
+  buf <- data.frame(slopeType=slopeType[p], sow=sow,cv=cv, block=block, plot=plot,depth=depth, int=intercept, slope=slope, r2=r2, n=nrow(df_sub))
   
   all.data <- rbind(buf, all.data)
   

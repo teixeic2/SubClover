@@ -58,6 +58,7 @@ str (df_G)
 
 
 
+
 Graph DAS5T  and rate against meanTemp at trifoliate appearance  
 
 ```{r, fig.height=5, fig.width=10, echo = FALSE}
