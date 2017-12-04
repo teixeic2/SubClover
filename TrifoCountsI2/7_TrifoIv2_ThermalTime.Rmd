@@ -1,0 +1,324 @@
+---
+title: "Thermal time to reach the 5 trifolite stage in I2"
+author: "CT"
+date: "28.11.2017"
+output: html_document
+---
+
+This script does this:
+
+- get the dataframe with sowing dates and DAS  to 50% of plants with 5 trifoliates  
+- get the dataframe with max and min air temperature in Iversen  
+- merge the two dataframes to calculate the thermal time from sowing to 5 trifo stage  using the  Tb= 0 and standard cardinal temps.
+
+
+#---------------------------------------------------------------------------------------------------------------
+use consistent method as per re analysis tb=0, t opt range =15, 22, t max = 35 oC.
+# -------------------------------------------------------------------------------------------------------------
+
+
+
+```{r loadLibraries, warning=FALSE}
+library(tidyr)
+library(dplyr)
+library(ggplot2)
+library(agricolae)
+library(knitr)
+library(lubridate)
+library(mosaic)
+library(lattice)
+```
+
+
+```{r loadFile}
+# Get dataframe 1 with the soil Temp 
+setwd("C:\\GitHubRepos\\SubCloverPhD\\SubClover\\TrifoCountsI2")
+getwd()
+
+#create file
+df_emerg4 <- read.table("df_DAS_5_Trifo.txt",header=TRUE)
+
+df_emerg4$SowingDate <- ymd(df_emerg4$SowingDate )
+df_emerg4$Block <- as.factor(df_emerg4$Block)
+df_emerg4$Plot <- as.factor(df_emerg4$Plot)
+# str(df_emerg4)
+# head(df_emerg4)
+
+D <- df_emerg4 %>%
+dplyr::select(Cultivar,SowTreat, Plot, SowingDate,DAS5T)
+
+str(D)
+
+df_emerg4 <- NULL
+
+```
+
+
+```{r}
+
+
+#Then calculate the date to 50% Eof plants to have 5 trifoliates  sum the date or sowing + DAS5T
+#Note df_Md has duplicated rows - fix it!! 
+
+df_MD <- D %>%
+  mutate(Date5T=SowingDate+DAS5T) 
+  # group_by(Plot, DAS5T) %>% 
+  # dplyr::filter(row_number() == 1)
+
+str(df_MD)
+#Here DAte5T is included no need to change format 
+
+         
+```
+
+
+
+Read the temperature  data and adjust formats
+
+```{r}
+
+# Get dataframe 1 with the soil Temp 
+setwd("C:\\GitHubRepos\\SubCloverPhD\\SubClover\\TrifoCountsI2")
+getwd()
+
+#create file
+df_emerg6 <- read.table("RawWeaIv2.txt",header=TRUE)
+head(df_emerg6)
+
+df_emerg6$Date <- dmy(df_emerg6$Date )
+# df_emerg4$SowingDate <- ymd(df_emerg4$SowingDate )
+# df_emerg4$Block <- as.factor(df_emerg4$Block)
+# df_emerg4$Plot <- as.factor(df_emerg4$Plot)
+str(df_emerg6)
+head(df_emerg6)
+
+
+
+```
+
+Add the accumulation of of thermal time use reference as  
+
+
+
+#---------------------------------------------------------------------------------------------------------------
+use consistent method as per re analysis tb=0, t opt range =15, 22, t max = 35 oC.
+# -----------------------------------------------------------------------------------------------------------
+
+ 
+```{r}
+#Create Thermal time cardinal temperatures see data above- TT = Topt - Tb ... 16.7 - (1.0)= 15.7 ! 
+
+#For cardinal temperatures  
+#tt_card <- data.frame(temp=c(1,15,22,35),TT=c(0,15,15,0))
+
+#for TT at Tb=0 
+tt_card <- data.frame(temp=c(0,15,22,35),TT=c(0,15,15,0))
+tt_card %>%
+  ggplot(aes(x=temp, y=TT))+
+  #labs(x="Temperature (degree Celsius)")+
+  #labs(y="Thermal Time (oCd)") +
+  geom_line()+
+  theme_bw()+
+  ylim(0,25)+
+xlab(expression(Temperature~"("^"o"*"C)"))+
+  ylab(expression(Thermal~Time~Trifoliate~"("^"o"*"Cd)"))+
+  theme(axis.text.x=element_text(angle = 0, hjust = 0, size= 14))+
+  theme(axis.title.x=element_text(angle = 0, hjust = 0.5, size= 14))+
+  theme(axis.text.y=element_text(angle = 0, hjust = 0, size= 14))+
+  theme(axis.title.y=element_text(size= 14))
+
+```
+
+ then make the loop 
+ 
+ 
+```{r}
+
+#Create and test interpolation function - Test if works 
+
+temp_ref  <- 25 # x-axes reference
+temp <- tt_card$temp # x-axes
+TT <- tt_card$TT # y-axes
+
+
+int_func <- function(temp,TT,temp_ref){
+
+  # if temp is too low or too high give extreme TT values
+ if(temp_ref>temp[length(temp)]) {
+   
+   out <- TT[length(TT)] 
+   # FIXME: approx functions seems to do that - need param
+   
+ } else if (temp_ref<temp[1]) {
+   
+   out <- TT[1]
+   
+ } else {
+   
+   # else interpolate
+   
+   tryCatch(  
+   
+  out <- approx(temp, TT, xout = temp_ref, 
+         method="linear", 
+         rule = 2)$y,
+  error = function(e) 
+  {
+  out <- NA
+  }
+) 
+  
+} # end if check
+
+  return(out)  
+  
+ }
+  
+int_func(temp,TT,temp_ref)
+
+```
+ 
+ use the 3x8 hours formula to calculate daily TT 
+```{r}
+
+#create REF Jones CA, Ritchie JT, Kiniry JR, Godwin DC (1986) Subroutine structure.In 'CERES-Maize: A simulation model of maize growth anddevelopment'. (Eds CA Jones, JR Kiniry) pp. 49-194. (Texas A&M University Press: Texas, USA
+
+TTfunc <- function(Tmin ,Tmax){         
+ 
+  if (Tmin>Tmax){
+   print("Tmin>Tmax")
+   break
+ } 
+  
+  TTav  <- 0
+  TTsum <- 0
+  
+  for(n in 1:8){ 
+    
+    tn <- 0
+    
+    TT_tn <- 0
+    
+    tn <- ((0.931 +  0.114*n - 0.0703 * n^2 + 0.0053 * n^3) * (Tmax-Tmin)) + Tmin # 8-h temperature
+    
+    TT_tn <- int_func(tt_card$temp, tt_card$T,tn) 
+    
+    TTsum <- TT_tn + TTsum
+    
+   # print(TT_tn)
+    
+    }
+ 
+   TTav <- TTsum/8
+  
+  return(TTav)
+  }
+
+TTfunc(10,24)
+
+```
+ 
+ 
+ 
+- Compares with simple method to calculate Tt with base temperature of 0oC 
+```{r, warning=FALSE}
+
+df_We_tt <- df_emerg6 %>%
+  #mutate(Date=dmy(Date)) %>%
+  rowwise() %>%
+  mutate(TTday=TTfunc(Tm,Tx), TTday_s=(Tm+Tx)/2, diff=(TTday_s-TTday))
+
+summary(df_We_tt)
+
+```
+ 
+ 
+ 
+```{r}
+#Check TT  two methods : TTday_s = simple method (Tmean - Tbzero)
+df_We_tt  %>% 
+ggplot(aes(x=TTday_s, y= TTday)) +
+  geom_point(shape=21,alpha=0.2,colour='red')+
+  geom_abline(intercept = 0, slope = 1)
+
+```
+ 
+ 
+ Then accumulate the TT 
+ 
+ 
+```{r}
+
+ df_TT <-df_We_tt%>%
+    arrange(Date)%>%
+    mutate(SumTTday = cumsum(TTday))%>%
+  mutate(SUMTTday_s = cumsum(TTday_s)) %>%
+  dplyr::select(-MeanTt)
+
+#head(df_soilTemp)
+
+summary(df_TT)
+
+#df_emerg6 <- NULL
+
+```
+
+
+figure out how to calculate tt at sow then tt ate date of 50 % plants with 5T  make one minus another to find TT emerg 
+
+```{r}
+df1 <- merge(df_MD,df_TT, by.x="SowingDate",by.y="Date") %>%
+  mutate(AirTempAcc_sow = SumTTday) %>%
+  dplyr::select(-SumTTday)
+  #filter(Cultivar=="Narrikup")
+
+str(df1)
+```
+
+
+Need to force a date for 50 % trifo (round) to calculate the average temperature during trifo
+Save dataframe as txt file 
+
+```{r}
+
+# force formats of dates
+df1$Date <- round(df1$Date5T,0)
+df_TT$Date <- round(df_TT$Date,0)
+
+
+  df_merge <- merge(df1, df_TT, by="Date") %>%
+    mutate(AirTempAcc_em = SumTTday) %>%
+  dplyr::select(-SumTTday) %>%
+  mutate(SummTT5Trifo = (AirTempAcc_em-AirTempAcc_sow))  
+
+summary(df_merge)
+
+ 
+```
+
+get the TT and SE for the cultivar. exclude S1 .
+
+```{r}
+df_TT <- df_merge%>%
+   filter(SowTreat!= "S1")
+
+#then select sow treat and means and se
+
+df_TTN <-df_TT %>%
+  group_by(Cultivar) %>%
+  dplyr::select(SummTT5Trifo)%>%
+  summarise_all(funs(mean,sd))%>%
+    mutate(SE=sd/1.73)
+  
+```
+
+
+
+
+
+
+
+
+END ....graphs with DAS50E with mean soil Temp continue in Script EmergenceI2_Calc5EmergSoilGraph
+
+

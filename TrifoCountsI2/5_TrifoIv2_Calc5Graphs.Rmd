@@ -106,6 +106,72 @@ fontSize <- 12.0
 
 Then get the equations from the whole temperature range  in all sowing dates  
 
+
+
+use the means for each sowtreat 
+
+
+
+calculate mean values for each cultivar and sow Treat
+
+```{r}
+df_mean<-df_G%>%
+  group_by(Cultivar,SowTreat)%>%
+   summarise_all(funs(mean,sd))
+```
+
+```{r, fig.height=5, fig.width=10, echo = FALSE}
+#DAS50E
+#
+  g3 <- df_mean %>%
+  #filter(Cultivar=="Monti"| Cultivar=="Antas")%>%
+ # filter (SowTreat== "S3"| SowTreat== "S4"|SowTreat== "S5"|SowTreat== "S6")%>%
+    #group_by(Cultivar,SowTreat)%>%
+    #summarise_all(funs(mean))
+  ggplot(aes(x=MeanAirTempTrifo_mean, y=DAS5T_mean, colour=SowTreat))  +
+    geom_point(aes(shape= SowTreat), size=4)+
+  scale_shape_manual(values = c(0,1,2,3,4,5,6,7,8))+
+  
+  #geom_errorbar(aes(ymin=DAS5T_mean-DAS5T_sd/2,
+  #ymax=DAS5T_mean+DAS5T_sd/2),width=3,colour="grey")+
+  #geom_errorbar(aes(ymin=2-DAS5T_sd/2,
+  #ymax=2+DAS5T_sd/2),width=2,colour="grey")+
+ # geom_point(alpha=0.8) +
+  #geom_smooth()+
+  #stat_smooth(level = 0.9, size = 1, colour="white") + 
+  theme_bw() +
+  xlab(expression(Mean~Air~temperaturee~~"("^"o"*"C)")) +  
+  ylab("Days to 5 trifoliates  (days)") +
+    facet_grid(.~Cultivar, scales="free")+
+  theme(text = element_text(size=11))+
+  scale_x_continuous(limits = c(0,20))+
+  scale_y_continuous(limits = c(0,90))
+
+# 1/DAS50E
+  g4 <- df_mean %>%
+   #filter(Cultivar=="Monti"| Cultivar=="Antas")%>%
+  #filter (SowTreat== "S3"| SowTreat== "S4"|SowTreat== "S5"|SowTreat== "S6")%>%
+  ggplot(aes(x=MeanAirTempTrifo_mean, y=Rate_mean, colour=SowTreat))  +
+    geom_point(aes(shape= SowTreat), size=4)+
+  scale_shape_manual(values = c(0,1,2,3,4,5,6,7,8))+
+  #geom_point(alpha=0.8) +
+  #geom_smooth(colour="red")+
+  #stat_smooth(level = 0.9, size = 1, colour="white") + 
+  theme_bw() +
+  xlab(expression(Mean~Air~temperature~~"("^"o"*"C)")) + 
+  ylab(" Rate (1/ Days) to 5 trifoliates") +
+  facet_grid(.~Cultivar, scales="free")+
+  theme(text = element_text(size=11))+
+ scale_x_continuous(limits = c(0,20))+
+  scale_y_continuous(limits = c(0,0.04))
+  grid.arrange(g3, g4)
+```
+
+
+
+
+
+
 ```{r, fig.height=7,fig.width=12}
 require(ggplot2)
 require(plyr)
@@ -201,6 +267,7 @@ p1
   
   
 This next script is not necessary yet. It was used to split the emergence data. 
+
 ```{r fig.height=6, fig.width=12, echo = FALSE, warning=FALSE}
 
 #graph S2-S8 

@@ -147,8 +147,8 @@ dfok <- merge(df_trif,df_MeanAir, by="Plot")
 str(dfok)
 ```
 
-Then graph results 
-
+Then graph results  (remember that here each replicate has a different temperature set... need to average to get a simpler graph 
+## complete graph 
 ```{r, fig.height=5, fig.width=8}
 dfok %>%
   group_by(MeanAirTempTrifo, SowingDate, SowTreat, Cultivar) %>%
@@ -165,18 +165,20 @@ dfok %>%
   geom_errorbar(aes(ymin=mean-sd/2,
   ymax=mean+sd/2))+
   theme_bw()+
+  xlim(0,20)+
+  ylim(0,0.04)+
   #facet_wrap(~Cultivar,ncol=3, scales = "free")+
   xlab(expression(Mean~Air~Temperature~"("^"o"*"C)"))+
   theme(axis.text.x=element_text(angle = 0, hjust = 0, size= 12))+
-  theme(axis.text.y=element_text(angle = 90, hjust = 0, size= 12))+
-  theme(axis.title.y=element_text(angle = 0, hjust = 0, size= 12))+
+  theme(axis.text.y=element_text(angle = 0, hjust = 0, size= 12))+
+  theme(axis.title.y=element_text(angle = 90, hjust = 0, size= 14))+
+  theme(axis.title.x=element_text(angle = 0, hjust = 0.5, size= 14))+
   theme(legend.text=element_text(size=12))
   
 # then merge the dataframes to find out the mean temperature 
 
 
 ```
-
 
 
 

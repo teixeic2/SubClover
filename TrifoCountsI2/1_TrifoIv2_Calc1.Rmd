@@ -71,7 +71,7 @@ Graph the results : DAS and number of trifoliates
   geom_line(aes(colour=Cultivar)) +
   #facet_wrap(~SowTreat,ncol=4, scales = "free") +
   facet_wrap (~SowTreat,ncol=4)+
-  ylim(0,14)+
+  ylim(0,16)+
   labs(y="Number of trifoliates",x="Days after sowing")+
   theme_grey(base_size = 16) +
   theme_bw()+
@@ -113,7 +113,7 @@ dfMaxTrifo <- df_trifo %>%
   group_by( Cultivar, SowTreat ) %>%
   dplyr::select(Trifo)%>%
   summarise_all(funs(max,sd))%>%
-  mutate(SE=sd/1.73)%>%
+  mutate(SE=sd/1.73)
  
 
   
@@ -133,7 +133,7 @@ compare sowing dates
 #Graph 
 
   df_trifo %>%  group_by(Cultivar, SowTreat, DAS) %>%
-  summarise_each(funs(mean)) %>%
+  summarise_each(funs(mean,sd)) %>%
   ggplot(aes(x=DAS, y=Trifo)) + 
   geom_point(aes(shape=SowTreat,colour=SowTreat)) +
   geom_line(aes(colour=SowTreat)) +

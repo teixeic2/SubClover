@@ -1,14 +1,14 @@
 ---
 title: "Trifoliates Iversen "
 author: "CT"
-date: "31.08.2016"
+date: "17.08.2017"
 output: html_document
 ---
 
 Purpose:
 
--Analysis of trifoliates expansion for Iversen from previous script (use file Perc_Trifo)
-- Calculate the 50% percent based on maximum number of leaves
+-Analysis of trifoliates expansion for Iversen from previous script (use number Trifo)
+- Calculate the ti,me to reach 5 number of leaves
 - Calculate rate of leaf appearance (1/Days) 
  
 ```{r loadLibraries}
@@ -27,20 +27,12 @@ library(lattice)
 setwd("C:\\GitHubRepos\\SubCloverPhD\\SubClover\\TrifoCountsI2")
 getwd()
 #create file
-df_trif <- read.table("Perc_Trifo.txt",header=TRUE)
+df_trif <- read.table("Number_Trifo.txt",header=TRUE)
 str(df_trif)
 
 
 ```
 
-Select only columns of interest 
-```{r}
-
-df_trif <-df_trif %>%
-dplyr::select (-s1:-s10)
-str(df_trif)
-
-```
 
 
 
@@ -50,15 +42,19 @@ Define formats
 
 
 # define factors for the ones that "look like" values
+
+df_trif <- df_trif %>%
+  mutate(SowingDate = ymd(SowingDate), 
+         ReadingDate = ymd(ReadingDate),
+         DAS = as.numeric(DAS))
+
+
 df_trif$Plot <- as.factor(df_trif$Plot)
 df_trif$Block <- as.factor(df_trif$Block)
 df_trif$Cultivar <- as.factor(df_trif$Cultivar)
 df_trif$SowTreat <- as.factor(df_trif$SowTreat)
 
- df_trif <- df_trif %>%
-  mutate(SowingDate = dmy(SowingDate), 
-         ReadingDate = dmy(ReadingDate),
-         DAS = as.numeric(DAS))
+ 
          
 
 str(df_trif)
@@ -67,21 +63,48 @@ str(df_trif)
 ```
 
 Calculate the 50 percent of leaves  based on maximum number of leaves attained 
+Change name of column TrifoNumber for PercentTrifo to keep stable code. Multiplication by 10 to equal to 50 value. 
+
+```{r}
+#change name of column TrifoNumber for PercentTrifo
+
+df_trif <-df_trif %>%
+  mutate(PercentTrifo= 10 *(TrifoNumber))
+
+str(df_trif)
+```
+
 
 ```{r, fig.height=5, fig.width=10}
 
 
+# df_50_Perc <- df_trif %>%
+#  group_by(Plot, Block,Cultivar,SowTreat, ReadingDate) %>%
+#   #group_by(Plot)%>%
+#   summarise(av_Perc = mean(PercentTrifo), 
+#             #av_TT = mean(TT_to_emerg),
+#             av_DAS = mean(DAS)
+#             )
+# 
+# str(df_50_Perc)
+# summary(df_50_Perc)
+# head(df_50_Perc)
+
+
 df_50_Perc <- df_trif %>%
+mutate(av_Perc=PercentTrifo)%>%
+mutate(av_DAS=DAS)
 
-  group_by(Plot, Block,Cultivar,SowTreat, PercentTrifo, ReadingDate) %>%
-  summarise(av_Perc = mean(PercentTrifo), 
-            #av_TT = mean(TT_to_emerg),
-            av_DAS = mean(DAS)
-            )
-
-str(df_50_Perc)
-summary(df_50_Perc)
-head(df_50_Perc)
+#group_by(Plot, Block,Cultivar,SowTreat, ReadingDate) %>%
+#   #group_by(Plot)%>%
+#   summarise(av_Perc = mean(PercentTrifo), 
+#             #av_TT = mean(TT_to_emerg),
+#             av_DAS = mean(DAS) 
+#             )
+# 
+# str(df_50_Perc)
+# summary(df_50_Perc)
+# head(df_50_Perc)
 
 
 ```
@@ -217,7 +240,23 @@ df_tt_50p_emerg <- merge(df_tt_50p_emerg, sdLookup, by="SowTreat")
 summary(df_tt_50p_emerg)
 
 
-write.table(df_tt_50p_emerg,"df_tt_50p_emergTrifo.txt")
+```
+Now correct column names after loop not to mix with other generated tables
+
+```{r}
+
+df_5T<-df_tt_50p_emerg%>%
+  mutate(DAS5T=as.numeric(DAS50E))%>%
+  dplyr::select(-PercEmerg)
+
+
+```
+
+
+
+```{r}
+
+write.table(df_5T,"df_DAS_5_Trifo.txt")
 ```
 
 
@@ -230,8 +269,8 @@ Calculate RAte (1/days to 50%)
 
 #try 1/DAS50% = Rate
 
-df_RateTrifo <- df_tt_50p_emerg %>%
-  mutate(Rate=1/DAS50E)
+df_RateTrifo <- df_5T %>%
+  mutate(Rate=1/DAS5T)
 
   summary(df_RateTrifo)
   
@@ -248,13 +287,27 @@ Graph rate and SowTreat
 
   df_RateTrifo %>%
   group_by(SowingDate, Cultivar) %>%
+  dplyr::select(DAS50E) %>%
+  summarise_each(funs(mean,sd)) %>%
+  #Graph
+  ggplot(aes(x=SowingDate, y=mean, colour=factor(Cultivar), shape=factor(Cultivar))) +
+  geom_point() +
+  geom_line() +
+  labs(x="Sowing Date",y="1/ Days to 5 trifoliates  ") +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1))+
+  geom_errorbar(aes(ymin=mean-sd/2,
+  ymax=mean+sd/2))+
+  theme_bw()
+
+df_RateTrifo %>%
+  group_by(SowingDate, Cultivar) %>%
   dplyr::select(Rate) %>%
   summarise_each(funs(mean,sd)) %>%
   #Graph
   ggplot(aes(x=SowingDate, y=mean, colour=factor(Cultivar), shape=factor(Cultivar))) +
   geom_point() +
   geom_line() +
-  labs(x="Sowing Date",y="1/ Days to 50% leaf emergence  ") +
+  labs(x="Sowing Date",y="1/ Days to 5 trifoliates  ") +
   theme(axis.text.x = element_text(angle = 90, hjust = 1))+
   geom_errorbar(aes(ymin=mean-sd/2,
   ymax=mean+sd/2))+
