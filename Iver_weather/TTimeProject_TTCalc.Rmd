@@ -19,11 +19,11 @@ library (lubridate)
 
 
 ```{r readData}
-setwd("C:\\GitHubRepos\\SubCloverPhD\\SubClover")
+setwd("C:\\GitHubRepos\\SubCloverPhD\\SubClover\\Iver_weather")
 getwd()
 
 #create file
-df_Weiv <- read.table("RawWeaIv2.txt",header=TRUE)
+df_Weiv <- read.table("RawWeaIv2.txt", header=TRUE)
 
 #head(df_We)
 

@@ -216,5 +216,5 @@ Graph rate and SowTreat
 
 
 
-End of this script Calc 3. 
-Move to script 4 to include temperatures  
+End of this script . 
+Move to script 5.  

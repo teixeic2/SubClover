@@ -65,12 +65,12 @@ dplyr::select(Temp,Cultivar,PercGerm_cum) %>%
 dMax %>%
   
   ggplot(aes(x=Temp, y=max, colour=Cultivar, shape=Cultivar  ))+  # do percentage here
-  geom_point(size =7)+
+  geom_point(size =4)+
   #geom_smooth()+
   geom_line()+
-  #geom_errorbar(aes(ymin=max-sd/4,
-  #ymax=max+sd/4))+
-     theme_bw()+
+  geom_errorbar(aes(ymin=max-sd/4,
+  ymax=max+sd/4))+
+     theme_bw(base_size=20)+
 #   #facet_wrap (~SowTreat,ncol=4, scales = "free")+
 #   ylim(0,100)+
 #   #labs(x="Hours",y="Cummulative Germination Percnet(%)")+
@@ -81,13 +81,15 @@ facet_wrap(~Cultivar,ncol=2, scales = "free")+
   #scale_x_continuous(breaks = c(5,10,15,20,25,30,35))+
   ylim(0, 120)+
   ylab(expression(Maximum~Germination~"(%)"))+
-  theme(text = element_text(size=12))+
+  theme(text = element_text(size=18))+
   xlab(expression(Temperature~"("^"o"*"C)"))+
   theme(axis.text.x=element_text(angle = +0, hjust = 0, size= 11))+
   theme(axis.text.y=element_text(angle = +0, hjust = 0, size= 12))+
   #xlim(0, 40)+
   #labs(y="Maximum germination Percent (%)",x="Temperature")+ 
-  geom_abline(intercept = 100, slope = 0)
+  geom_abline(intercept = 100, slope = 0, linetype=2)
+
+ggsave("plot_MaxGerm.png", width=12, height=6, dpi=400)
 
 ```
 
@@ -135,5 +137,4 @@ summary(my.anova)
 (LSD.test(my.anova, c( "Temp"), alpha= 0.05, p.adj="none"))
 ```
 
- 
 

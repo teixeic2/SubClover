@@ -25,7 +25,8 @@ setwd("C:\\GitHubRepos\\SubCloverPhD\\SubClover\\Spectra")
 getwd()
 
 #create file
-df_sp <- read.table("BreakBaseLine.txt",header=TRUE)
+#df_sp <- read.table("BreakBaseLined3cv.txt",header=TRUE)
+df_sp <- read.table("BreakBaseLined3cv.txt",header=TRUE)
 
 #head(df_sp)
 
@@ -39,17 +40,17 @@ summary(df_sp)
 df_sp %>%
   filter(IncubationDays!="42")%>%
     filter(Cultivar!="Narrikup")%>%
-   ggplot(aes(x=Wavelength,y=Absorbance))+
+   ggplot(aes(x=WaveNumber,y=AbsValue))+
   geom_line(aes(colour=factor(IncubationDays)))+
   theme_bw()+
-scale_x_continuous(breaks=seq(min(df_sp$Wavelength),max(df_sp$Wavelength),100))+
+scale_x_continuous(breaks=seq(min(df_sp$WaveNumber),max(df_sp$WaveNumber),100))+
   #labs(x=" Wavelength", y=" Absorbance")+
   #scale_color_manual(values=c("#333333", "#9999CC", "#CC3300"))+
   #facet_wrap(~IncubationDays,scale="free")+
   #facet_wrap(~Cultivar,scale="free")+
   facet_grid(Cultivar ~.) +
   theme_bw()+
-  scale_x_continuous(breaks=seq(min(df_sp$Wavelength),max(df_sp$Wavelength),400))+
+  scale_x_continuous(breaks=seq(min(df_sp$WaveNumber),max(df_sp$WaveNumber),400))+
     scale_x_reverse()+
   theme(axis.text.x = element_text(angle = 90, hjust = 1)) +
   expand_limits(y=c(0,0.2)) +

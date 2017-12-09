@@ -31,7 +31,7 @@ library(lattice)
 
 
 ```{r loadFile}
-# Get dataframe 1 with the soil Temp 
+# Get dataframe 1 with DAS5trifo info 
 setwd("C:\\GitHubRepos\\SubCloverPhD\\SubClover\\TrifoCountsI2")
 getwd()
 
@@ -45,7 +45,7 @@ df_emerg4$Plot <- as.factor(df_emerg4$Plot)
 # head(df_emerg4)
 
 D <- df_emerg4 %>%
-dplyr::select(Cultivar,SowTreat, Plot, SowingDate,DAS5T)
+dplyr::select(Cultivar,SowTreat, Plot, SowingDate,DAS5T,Block)
 
 str(D)
 
@@ -296,16 +296,23 @@ summary(df_merge)
  
 ```
 
-get the TT and SE for the cultivar. exclude S1 .
+get the TT and SE for the cultivar. exclude Sow treats if needed.
 
 ```{r}
-df_TT <- df_merge%>%
-   filter(SowTreat!= "S1")
+df_TT <- df_merge %>%
+  select(Date:Plot,Block, Pp.x,SummTT5Trifo)
+  
+   #filter(SowTreat!= "S1")
 
+
+
+```
+
+```{r}
 #then select sow treat and means and se
 
 df_TTN <-df_TT %>%
-  group_by(Cultivar) %>%
+  group_by(Cultivar,SowTreat,Pp.x) %>%
   dplyr::select(SummTT5Trifo)%>%
   summarise_all(funs(mean,sd))%>%
     mutate(SE=sd/1.73)
@@ -313,9 +320,89 @@ df_TTN <-df_TT %>%
 ```
 
 
+Calculate the phyllocron (oCd/leaf) consider 6 leaves (5 trifoliates + spade leaf)
+
+```{r}
+dfPhyllo <-df_TT %>%
+  mutate(PhylC=SummTT5Trifo/6)
+
+#then select sow treat and means and se
+
+df_Phyllo2 <-dfPhyllo %>%
+  group_by(Cultivar,SowTreat,Pp.x) %>%
+  dplyr::select(PhylC)%>%
+  summarise_all(funs(mean,sd))%>%
+    mutate(SE=sd/1.73)
+
+```
+
+
+graph both TT and phylloc - Pp.x isthe Photoperiod at sowing 
+
+```{r, fig.height=5, fig.width=10, echo = FALSE}
+
+#TT(oCd)
+#
+
+str(df_TT)
+
+  g3 <- df_TTN%>%
+  ggplot(aes(x=Pp.x, y=mean, colour=SowTreat))  +
+    geom_point(aes(shape= SowTreat), size=4)+
+  scale_shape_manual(values = c(0,1,2,3,4,5,6,7,8))+
+  
+  #geom_errorbar(aes(ymin=DAS5T_mean-DAS5T_sd/2,
+  #ymax=DAS5T_mean+DAS5T_sd/2),width=3,colour="grey")+
+    ##use another location for the error bar 
+  geom_errorbar(aes(ymin=100-SE/2,
+  ymax=100+SE/2),width=2,colour="dark grey")+
+ # geom_point(alpha=0.8) +
+  #geom_smooth()+
+  #stat_smooth(level = 0.9, size = 1, colour="white") + 
+  theme_bw() +
+    #xlab(expression(Mean~Air~temperature~~"("^"o"*"C)")) + 
+  xlab(expression(Photoperiod~at~sowing~~"(hours)")) +  
+  ylab(expression(Thermal~Time~~"("^"o"*"Cd)")) +
+    facet_grid(.~Cultivar, scales="free")+
+  theme(text = element_text(size=12))+
+  theme(legend.text=element_text(size=10))+
+  #scale_x_continuous(limits = c(10,20))+
+  scale_y_continuous(limits = c(0,600))
+
+# 1/DAS50E
+  g4 <- df_Phyllo2 %>%
+   #filter(Cultivar=="Monti"| Cultivar=="Antas")%>%
+  #filter (SowTreat== "S3"| SowTreat== "S4"|SowTreat== "S5"|SowTreat== "S6")%>%
+  ggplot(aes(x=Pp.x, y=mean, colour=SowTreat))  +
+    geom_point(aes(shape= SowTreat), size=4)+
+  scale_shape_manual(values = c(0,1,2,3,4,5,6,7,8))+
+     geom_errorbar(aes(ymin=10-SE/2,
+  ymax=10+SE/2),width=2,colour="dark grey")+
+  #geom_point(alpha=0.8) +
+  #geom_smooth(colour="red")+
+  #stat_smooth(level = 0.9, size = 1, colour="white") + 
+  theme_bw() +
+  #xlab(expression(Mean~Air~temperature~~"("^"o"*"C)")) + 
+    xlab(expression(Photoperiod~at~sowing~~"(hours)")) + 
+   ylab(expression(Phyllocron~~"("^"o"*"Cd/leaf)")) +
+  facet_grid(.~Cultivar, scales="free")+
+  theme(text = element_text(size=12))+
+    theme(legend.text=element_text(size=10))+
+   
+ #scale_x_continuous(limits = c(10,20))+
+  scale_y_continuous(limits = c(0,100))
+  
+  grid.arrange(g3, g4)
 
 
 
+```
+
+```{r}
+#save df_TT as table to do statistics in script 8 _ stats Thermal time 
+
+write.table(df_TT,"ThermalT_5_Trifo.txt")
+```
 
 
 

@@ -20,8 +20,8 @@ library (lubridate)
 setwd("C:\\GitHubRepos\\SubCloverPhD\\SubClover\\SeedGermTemp")
 getwd()
 
-#create file Use here df_RAteGErm2 as it has the zeros to include in graphics 
-df_seed <- read.table("df_RateGerm2.txt",header=TRUE)
+#create file Use here df_RAteGErm2 as it has the zeros to include in graphics. No need for that anymore FIXED! 
+df_seed <- read.table("df_RateGerm.txt",header=TRUE)
 str(df_seed)
 # change format with  base R)
 #df_seed$Date <- dmy(df_seed$Date)

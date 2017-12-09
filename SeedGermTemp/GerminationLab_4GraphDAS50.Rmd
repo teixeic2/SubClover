@@ -12,7 +12,7 @@ library (ggplot2)
 library(agricolae)
 library(knitr)
 library (lubridate)
-
+library (gridExtra)
 ```
 
 
@@ -21,7 +21,7 @@ setwd("C:\\GitHubRepos\\SubCloverPhD\\SubClover\\SeedGermTemp")
 getwd()
 
 #create file
-df_seed <- read.table("df_RateGerm2.txt",header=TRUE)
+df_seed <- read.table("df_RateGerm.txt",header=TRUE)
 str(df_seed)
 # change format with  base R)
 #df_seed$Date <- dmy(df_seed$Date)
@@ -66,7 +66,7 @@ dfDAS50 %>%
   geom_line()+
   geom_errorbar(aes(ymin=mean-sd/4,
   ymax=mean+sd/4))+
-     theme_bw()+
+     theme_bw(base_size = 16)+
 #   #facet_wrap (~SowTreat,ncol=4, scales = "free")+
 #   ylim(0,100)+
 #   #labs(x="Hours",y="Cummulative Germination Percnet(%)")+
@@ -85,7 +85,23 @@ facet_wrap(~Cultivar,ncol=2, scales = "free")+
   #labs(y="Maximum germination Percent (%)",x="Temperature") 
   #geom_abline(intercept = 100, slope = 0)
 
+  ggsave("plot_Days50Germ.png", width=12, height=6, dpi=400)
+
 ```
+
+```{r}
+dfRate <-df_seed %>%
+  mutate(Rate=1/DAS50E)%>%
+  group_by(Temp, Cultivar) %>%
+  dplyr::select(Rate) %>%
+  summarise_all(funs(mean,sd))
+
+str(dfRate)
+
+```
+
+
+
 
 Get the means/stats  for temperature and cultivar 
 Vaariable : DAS50E

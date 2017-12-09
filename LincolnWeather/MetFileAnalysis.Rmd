@@ -41,6 +41,7 @@ summary(metFile)
 
 ```{r GraphMet, echo = FALSE}
 
+
 metFile <- data.table(metFile)
 
 fontSize <- 9.0
@@ -49,7 +50,7 @@ fontSize <- 9.0
 g1 <- metFile %>%
   filter(year %in% 1960:2000) %>%
   group_by(day) %>%
- # summarise_each(funs(mean)) %>%
+ #summarise_each(funs(mean)) %>%
   ggplot(aes(x=day, y=mint))  +
   geom_point(colour= "darkblue", alpha=0.2) +
   stat_smooth(level = 0.9, size = 1, colour="white") + 
@@ -62,7 +63,7 @@ g1 <- metFile %>%
 g2 <- metFile %>%
   filter(year %in% 1960:2000) %>%
   group_by(day) %>%
- # summarise_each(funs(mean)) %>%
+ #summarise_each(funs(mean)) %>%
   ggplot(aes(x=day, y=maxt))  +
   geom_point(colour= "red", alpha=0.2) +
   stat_smooth(level = 0.9, size = 1, colour="white") + 
@@ -116,6 +117,125 @@ grid.arrange(g1, g2, g3, g4)
 
 
 ```
+
+make graph as means and exclude daily radiation 
+
+
+
+```{r GraphMet, echo = FALSE}
+
+metFile <- data.table(metFile)
+
+fontSize <- 9.0
+
+#mint
+g1 <- metFile %>%
+  filter(year %in% 1960:2000) %>%
+  group_by(day) %>%
+ summarise_all(funs(mean)) %>%
+  ggplot(aes(x=day, y=mint))  +
+  geom_point(colour= "darkblue", alpha=0.2) +
+  stat_smooth(level = 0.9, size = 1, colour="white") + 
+  theme_bw() +
+ xlab("Day of the year (1-365)") + 
+  ylab("Daily minimum temperature (oC)") +
+  theme(text = element_text(size=fontSize))
+ggsave("plot_MinHistoricWeather.png", width=10, height=5, dpi=400)
+# maxt
+g2 <- metFile %>%
+  filter(year %in% 1960:2000) %>%
+  group_by(day) %>%
+ summarise_all(funs(mean)) %>%
+  ggplot(aes(x=day, y=maxt))  +
+  geom_point(colour= "red", alpha=0.2) +
+  stat_smooth(level = 0.9, size = 1, colour="white") + 
+  theme_bw() +
+ xlab("Day of the year (1-365)") + 
+  ylab("Daily maximum temperature (oC)") +
+  theme(text = element_text(size=fontSize))
+
+ggsave("plot_mAXHistoricWeather.png", width=10, height=5, dpi=400)
+
+#radn
+g3 <- metFile %>%
+  filter(year %in% 1960:2000) %>%
+  group_by(day) %>%
+ # summarise_each(funs(mean)) %>%
+  ggplot(aes(x=day, y=radn))  +
+  geom_point(colour= "darkblue", alpha=0.2) +
+  stat_smooth(level = 0.9, size = 1, colour="white") +
+ theme_bw() +
+  xlab("Day of the year (1-365)") +
+ # ylab("Daily solar radiation (MJ/m2)" ) +
+   ylab(expression(Daily~solar~radiation~~"(MJ "*m^"-2"*")")) +
+  theme(text = element_text(size=fontSize))
+
+# rain
+#http://www.cookbook-r.com/Graphs/Colors_(ggplot2)/
+
+metFile$month <- with(metFile, strptime(paste(year, day), format="%Y %j")$mon+1)
+
+g4 <- metFile %>%
+  filter(year %in% 1960:2000) %>%
+  mutate (month= factor(month, levels=c("1", "2", "3", "4", "5","6","7","8","9","10","11","12"),labels=c("Jan","Feb", "Mar",  "Ap", "May","Jun", "Jul", "Aug", "Sept","Oct", "Nov", "Dec")))%>%
+  group_by(year, month) %>%
+  summarise_all(funs(sum)) %>%
+  group_by(month) %>%
+  select(month, rain) %>%
+  summarise(rainMean = mean(rain), rainSd = sd(rain)/2) %>%
+  ggplot(aes(x=month , y=rainMean)) + 
+  #geom_bar(stat ='identity') +
+  geom_bar(stat="identity", fill="#0072B2", colour="black")+
+  theme_bw() +
+  #scale_x_discrete(labels=month.abb) +
+ xlab("Month") + 
+  ylab("Monthly rainfall (mm)") +
+  #scale_x_continuous(breaks=1:12) +
+    geom_errorbar(aes(ymax = rainMean + rainSd, ymin=rainMean - rainSd), 
+                position=position_dodge(width=0.9), width=0.25)+
+  theme(text = element_text(size=14))+
+  theme(axis.text.x=element_text(angle = +0, hjust = 0, size= 12))+
+  theme(axis.text.y=element_text(angle = +0, hjust = 0, size= 12))
+
+
+grid.arrange(g1, g2, g3, g4)
+#grid.arrange(g1, g2, g4)
+# Save
+#ggsave(file="Fig_HistoricWeather.tiff", dpi = 400)
+ggsave("plot_RainHistoricWeather.png", width=10, height=5, dpi=400)
+
+```
+
+```{r, fig.height=5, fig.width=10}
+
+#combine Min and Max temps 
+
+metfilegather<-metFile%>%
+  group_by(day) %>%
+ summarise_all(funs(mean)) %>%
+ gather(key= "Temperature" , value = "Degrees", maxt,mint)
+
+metfilegather%>%
+  #filter(year %in% 1960:2000) %>%
+  #group_by(day) %>%
+ #summarise_all(funs(mean)) %>%
+  ggplot(aes(x=day, y=Degrees))  +
+  geom_point(aes(colour= Temperature), alpha=0.2) +
+  geom_smooth(aes(colour=Temperature))+ 
+  theme_bw() +
+ xlab("Day of the year (1-365)") + 
+    ylab(expression(Mean~Daily~Temperature~"("^"o"*"C)"))+
+  theme(text = element_text(size=14))+
+  theme(axis.text.x=element_text(angle = +0, hjust = 0, size= 12))+
+  theme(axis.text.y=element_text(angle = +0, hjust = 0, size= 12))
+ 
+ 
+
+ggsave("plot_MinMaxTemp_Historic.png", width=10, height=5, dpi=400)
+
+```
+
+
 
 ```{r PotEvap_graph}
 

@@ -64,7 +64,6 @@ df_sp3 <-df_sp2 %>%
     filter(Cultivar!="N")
     
 
-
 df_sp3%>%
    ggplot(aes(x=WaveNumber,y=Absorbance))+
   geom_line(aes(colour=factor(IncubationDays)))+
@@ -80,7 +79,7 @@ df_sp3%>%
   geom_abline(intercept = 0.1, slope = 0)
   
 
-
+write.table(df_sp3,"MeanSpectraESA2018.txt")
 ```
 
 

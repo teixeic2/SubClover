@@ -27,13 +27,49 @@ df_file <- read.table("SoilTemp.txt", header=TRUE)
 df_Air <- read.table("RawWeaIv2.txt", header=TRUE)
 
 head(df_file)
-head (df_Air)
+tail (df_Air)
 #keep this scirpt for the real weather data
 
 str(df_Air)
 
 
 ```
+
+
+graph air temperature (max, min mean and photoperiod)
+
+```{r,fig.height=5, fig.width=15}
+
+df_gather<-df_Air %>%
+  select(Date,Tx,Tm,MeanTt,Pp)%>%
+gather(key= "Variable" , value = "TempHour", Tx,Tm,MeanTt,Pp)%>%
+  mutate(Date=dmy(Date))
+  
+
+df_gather%>%
+  mutate(Variable=factor(Variable,levels=c("Tm","MeanTt","Tx","Pp"),labels = c("Tmin","Tmean","Tmax","Photoperiod")))%>%
+ ggplot(aes(x=Date, y= TempHour)) +
+  theme_bw()+
+  geom_point(aes(colour=Variable,shape=Variable), alpha=0.8, size=3)+
+  #geom_point()+
+  scale_color_manual(values = c("steelblue3","orange","red", "gray20" ))+
+  scale_shape_manual(values = c(15,16,17,18))+
+  #geom_line(aes(colour=Variable))+
+  #geom_smooth(aes(colour=Variable))+
+  xlab(expression(Date~"(Month/Year)"))+
+  
+  ylab(expression(Air~Temperature~Photoperiod~"("^"o"*"C/hours)"))+
+  scale_x_date(date_breaks = "3 month", 
+                 date_labels = "%B%Y",
+                 limits = as.Date(c('2015-06-01','2017-07-07')))+
+  ylim(0,35)
+    
+ ggsave("plot_TempPpIversen.png", width=12, height=6, dpi=400)
+
+```
+
+
+
 
 Then graph soil 
  
@@ -45,7 +81,7 @@ g1<- df_file %>%
   mutate(TempSoil10mm= as.numeric(TempSoil10mm))%>%
   #filter(year %in% 2015:2017) %>%
   group_by(Date) %>%
- summarise_each(funs(mean)) %>%
+ summarise_all(funs(mean)) %>%
   ggplot(aes(x=Date, y= TempSoil10mm))  +
   #geom_point(colour= "darkblue", alpha=0.2) +
   geom_line(colour= "brown")+

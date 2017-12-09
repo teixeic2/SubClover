@@ -50,50 +50,61 @@ str(df_emerg1)
 
 ```
 
-Calculate 50 PercentEmergence  
+Calculate the maximum germination percentage observed in each plot 
 
-```{r SummariseDf}
+```{r}
+
+df_emerg2 <-df_emerg1 %>%
+group_by(Plot)%>%
+  dplyr::select(PercGerm_cum)%>%
+  summarise_all(funs(max))%>%
+  mutate(MaxGermPerc=PercGerm_cum)%>%
+  select(-PercGerm_cum)
+  
+
+
+```
+
+now merge the two dataframes by plot calculate the Percentage in relation to the maximum germination observed (do as PercGerm_cum/*100)
+
+```{r}
+df_3<-merge(df_emerg1,df_emerg2, by="Plot")
+
+str (df_3)
+
+df_3 <-df_3%>%
+  mutate(PercentRelative=(PercGerm_cum/MaxGermPerc*100))
+
+```
+
+Now calculate the 50 percent emerge relative 
+
+```{r}
+
+str(df_3)
 
 # This step is now unnecessary as we want Plot values anyway (FIXME)
-df_50_Perc <- df_emerg1 %>%
-  mutate(PercEmerg = as.numeric(PercGerm_cum)) %>%
-  group_by(Plot, Block,Cultivar,Temp, PercEmerg) %>%
-  summarise(av_Perc = mean(PercEmerg), 
-            #av_TT = mean(TT_to_emerg),
-            av_DAS = mean(DAS)
-            )
+df_50_Perc <- df_3 %>%
+  #change name variable
+  mutate(av_Perc=PercentRelative)%>%
+mutate(av_DAS=DAS)%>%
+  select(-PercGerm_cum, -MaxGermPerc)
 
 str(df_50_Perc)
-summary(df_50_Perc)
-head(df_50_Perc)
 
-# try to subset abd see if loop works 
 
-#df15<- df_50_Perc %>%
-  #subset(Temp == 15)
 
-# write.table(df_50_Perc, "df_50_PercEmerg.txt") # FIXME: this file is not yet 50%
+```
 
-#  loop to calculate tt_50p_flow for each var x sd x cv
-#cv <- unique(df_50_Perc$Cultivar)
-#var <- unique(df_50_Perc$PercEmerg)
-#sow <- unique(df_50_Perc$SowTreat)
-#sowd <- unique(df_50_Perc$SowingDate)
+
+use PercRelative to calculate 50 Perc of germ.
+
+```{r}
 plots <- unique(df_50_Perc$Plot)
- 
-
- #create empty df
-# df_tt_50p_emerg <- data.frame(Plot = NULL,
-#                               Block = NULL,
-#                              SowingD = NULL,
-#                              Cultivar = NULL, 
-#                              SowTreat = NULL,
-#                              PercEmerg = NULL, 
-#                              TT50Em = NULL)
 
 #loop trough each combination of factor levels
 
-for(p in 1:length(plots)) {
+ for(p in 1:length(plots)) {
 #  for(j in 1:length(var)){
  #   for(k in 1:length(sow)){
       
@@ -109,10 +120,10 @@ for(p in 1:length(plots)) {
   df_sub <- df_50_Perc %>%
     # subset(Cultivar == as.character(cv[i]) &
     # Plot == as.character(var[j]) &
-    # Block == as.character(var[b]) &
+    #   Block == as.character(var[b]) &
     # SowTreat == as.character(sow[k])) %>%
     subset(Plot == plots[p]) %>%
-    arrange(PercEmerg)
+    arrange(PercentRelative)
   
   df_sub
   head(df_sub)
@@ -139,14 +150,14 @@ for(p in 1:length(plots)) {
   #find DAS at 50 Pecent Emergence 
 
   tryCatch(  
-  DAS_50p_emerg <- approx(df_sub$PercEmerg, 
+  DAS_50p_emerg <- approx(df_sub$PercentRelative, 
   df_sub$av_DAS , xout = y_ref, rule = 1)$y,
   error = function(e) 
   {
   DAS_50p_emerg <- NA
   }
 )
-#   #find TT at 50 Pecent Emergence
+  #find TT at 50 Pecent Emergence
 #   tryCatch(  
 #   tt_50p_emerg <- approx(df_sub$av_Perc, 
 #   df_sub$av_TT , xout = y_ref, rule = 1)$y,
@@ -156,15 +167,21 @@ for(p in 1:length(plots)) {
 #   }
 # )
 
-  df_temp <- NULL
-  df_temp <- data.frame(Cultivar = df_sub$Cultivar[1],
-                             PercEmerg = df_sub$PercEmerg[1], 
+  # #----------------------------
+df_temp <- NULL 
+   df_temp <- data.frame(Cultivar = df_sub$Cultivar[1],
                              Temp = df_sub$Temp[1],
-                             Plot = df_sub$Plot[1],
-                             Block = df_sub$Block[1],
-                             DAS50E = DAS_50p_emerg)
+                              PercentRelative = df_sub$PercentRelative[1],
+                              #SowTreat = df_sub$SowTreat[1],
+                              Plot = df_sub$Plot[1],
+                              Block = df_sub$Block[1],
+                              DAS50E = DAS_50p_emerg)
+                              #TT50E = tt_50p_emerg)
+
   
-                          print(p)
+  
+  
+  print(p)
   
   if(p == 1) {
     df_tt_50p_emerg <- df_temp
@@ -178,7 +195,11 @@ for(p in 1:length(plots)) {
 
 
 
+
 ```
+
+
+
 
 ```{r}
 summary(df_tt_50p_emerg)
@@ -215,17 +236,17 @@ df_tt_50p_emerg %>%
          
   
 ggplot(aes(x=Temp, y=mean, colour=factor(Cultivar), shape=factor(Cultivar))) +
-  geom_point() +
+  geom_point(size=3) +
   geom_line() +
   labs(x="Temperature",y="Days to 50% emergence ") +
-  theme(axis.text.x = element_text(angle = 90, hjust = 1, size = 12))+
-  theme(axis.text.y = element_text(angle = 0, hjust = 1, size = 12))+
+  theme(axis.text.x = element_text(angle = 90, hjust = 1, size = 14))+
+  theme(axis.text.y = element_text(angle = 0, hjust = 1, size = 14))+
   geom_errorbar(aes(ymin=mean-(sd/2)/2,
   ymax=mean+(sd/2)/2))+
   facet_wrap(~Cultivar,ncol=2, scales = "free")+
-  theme_bw()
+  theme_bw(base_size = 16)
  
-
+ggsave("plot_.png", width=10, height=6, dpi=400)
 
 ```
 
@@ -261,10 +282,26 @@ df_RateEmerg %>%
   theme(axis.text.y = element_text(angle = 0,  size =16 ))+
   geom_errorbar(aes(ymin=mean-(sd/2)/2,
   ymax=mean+(sd/2)/2))+
-  facet_wrap(~Cultivar,ncol=2, scales = "free")+
-  theme_bw()
+  #facet_wrap(~Cultivar,ncol=2, scales = "free")+
+  facet_wrap(~Cultivar,ncol=2)+
+  #theme_bw()+
+  theme_bw(base_size = 16) +
+  ylim(0,1.0)
   
   write.table(df_RateEmerg, "df_RateGerm.txt")
+```
+
+
+make a combo graph with days and rate (as per emergence) grid 
+
+
+```{r}
+
+
+
+
+
+
 ```
 
 

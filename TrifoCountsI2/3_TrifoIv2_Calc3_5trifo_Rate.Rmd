@@ -34,8 +34,6 @@ str(df_trif)
 ```
 
 
-
-
 Define formats 
 
 ```{r loadFile}
@@ -102,14 +100,14 @@ mutate(av_DAS=DAS)
 #             av_DAS = mean(DAS) 
 #             )
 # 
-# str(df_50_Perc)
+str(df_50_Perc)
 # summary(df_50_Perc)
 # head(df_50_Perc)
 
 
 ```
 
-Loop, apply funciton approx and try catch to get DAS to 50% 
+Loop, apply function approx and try catch to get DAS to 50% 
 ```{r}
 
 #sow <- unique(df_50_Perc$SowTreat)
@@ -248,6 +246,9 @@ Now correct column names after loop not to mix with other generated tables
 df_5T<-df_tt_50p_emerg%>%
   mutate(DAS5T=as.numeric(DAS50E))%>%
   dplyr::select(-PercEmerg)
+
+str(df_5T)
+ 
 
 
 ```
