@@ -1,0 +1,322 @@
+---
+title: "Trifoliates Poukawa "
+author: "CT"
+date: "17.08.2017"
+output: html_document
+---
+
+Purpose:
+
+-Analysis of trifoliates expansion for Poukawafrom previous script (use number TrifoPok)
+- Calculate the ti,me to reach 5 number of leaves
+- Calculate rate of leaf appearance (1/Days) 
+ 
+```{r loadLibraries}
+library(tidyr)
+library (dplyr)
+library (ggplot2)
+library(agricolae)
+library (lubridate)
+library(mosaic)
+library(lattice)
+```
+
+
+
+```{r}
+setwd("C:\\GitHubRepos\\SubCloverPhD\\SubClover\\TrifoPok")
+getwd()
+#create file
+df_trif <- read.table("Number_TrifoPok.txt",header=TRUE)
+str(df_trif)
+
+
+```
+
+
+
+
+Define formats 
+
+```{r loadFile}
+
+
+# define factors for the ones that "look like" values
+
+df_trif <- df_trif %>%
+  mutate(SowingDate = ymd(SowingDate), 
+         ReadingDate = ymd(ReadingDate),
+         DAS = as.numeric(DAS))
+
+
+df_trif$Plot <- as.factor(df_trif$Plot)
+df_trif$Block <- as.factor(df_trif$Block)
+df_trif$Cultivar <- as.factor(df_trif$Cultivar)
+df_trif$SowTreat <- as.factor(df_trif$SowTreat)
+
+ 
+         
+
+str(df_trif)
+
+
+```
+
+Calculate the 50 percent of leaves  based on maximum number of leaves attained 
+Change name of column TrifoNumber for PercentTrifo to keep stable code. Multiplication by 10 to equal to 50 value. 
+
+```{r}
+#change name of column TrifoNumber for PercentTrifo
+
+df_trif <-df_trif %>%
+  mutate(PercentTrifo= 10 *(TrifoNumber))
+
+str(df_trif)
+```
+
+
+```{r, fig.height=5, fig.width=10}
+
+
+# df_50_Perc <- df_trif %>%
+#  group_by(Plot, Block,Cultivar,SowTreat, ReadingDate) %>%
+#   #group_by(Plot)%>%
+#   summarise(av_Perc = mean(PercentTrifo), 
+#             #av_TT = mean(TT_to_emerg),
+#             av_DAS = mean(DAS)
+#             )
+# 
+# str(df_50_Perc)
+# summary(df_50_Perc)
+# head(df_50_Perc)
+
+
+df_50_Perc <- df_trif %>%
+mutate(av_Perc=PercentTrifo)%>%
+mutate(av_DAS=DAS)
+
+#group_by(Plot, Block,Cultivar,SowTreat, ReadingDate) %>%
+#   #group_by(Plot)%>%
+#   summarise(av_Perc = mean(PercentTrifo), 
+#             #av_TT = mean(TT_to_emerg),
+#             av_DAS = mean(DAS) 
+#             )
+# 
+# str(df_50_Perc)
+# summary(df_50_Perc)
+# head(df_50_Perc)
+
+
+```
+
+Loop, apply funciton approx and try catch to get DAS to 50% 
+```{r}
+
+#sow <- unique(df_50_Perc$SowTreat)
+#sowd <- unique(df_50_Perc$SowingDate)
+plots <- unique(df_50_Perc$Plot)
+ 
+
+# create empty df
+# df_tt_50p_emerg <- data.frame(Plot = NULL,
+#                               Block = NULL,
+#                              SowingD = NULL,
+#                              Cultivar = NULL, 
+#                              SowTreat = NULL,
+#                              PercEmerg = NULL, 
+#                              TT50Em = NULL)
+
+#loop trough each combination of factor levels
+
+for(p in 1:length(plots)) {
+#  for(j in 1:length(var)){
+ #   for(k in 1:length(sow)){
+      
+      # clean value holders
+      DAS_50p_emerg <- 0
+      #tt_50p_emerg <- 0
+      
+      #FIX ME Partially set 
+    
+     # print(paste0(cv[i]," ",var[j]," ", sow[k]))
+      # filter for each combination
+
+  df_sub <- df_50_Perc %>%
+    # subset(Cultivar == as.character(cv[i]) &
+    # Plot == as.character(var[j]) &
+    #   Block == as.character(var[b]) &
+    # SowTreat == as.character(sow[k])) %>%
+    subset(Plot == plots[p]) %>%
+    arrange(PercentTrifo)
+  
+  df_sub
+  head(df_sub)
+  # create percentage with maximum value recorded 
+  # to avoid crossing the 50% line twice
+  
+  df_sub$av_Perc_max <- 0 # create new col
+  
+  for(z in 1:nrow(df_sub)) {
+    
+    df_sub$av_Perc_max[z] <- max(df_sub$av_Perc[z],
+                                 df_sub$av_Perc_max[z-1])
+    
+  }
+  
+  df_sub
+  head(df_sub)
+  tail(df_sub)
+
+  # Interpolate 
+  y_ref <- 50 # y value where we want to find x by interpolation
+  
+  # interpolate
+  #find DAS at 50 Pecent Emergence 
+
+  tryCatch(  
+  DAS_50p_emerg <- approx(df_sub$PercentTrifo, 
+  df_sub$av_DAS , xout = y_ref, rule = 1)$y,
+  error = function(e) 
+  {
+  DAS_50p_emerg <- NA
+  }
+)
+  #find TT at 50 Pecent Emergence
+#   tryCatch(  
+#   tt_50p_emerg <- approx(df_sub$av_Perc, 
+#   df_sub$av_TT , xout = y_ref, rule = 1)$y,
+#   error = function(e) 
+#   {
+#   tt_50p_emerg <- NA
+#   }
+# )
+
+  df_temp <- NULL 
+  df_temp <- data.frame(Cultivar = df_sub$Cultivar[1],
+                             PercEmerg = df_sub$PercentTrifo[1], 
+                             SowTreat = df_sub$SowTreat[1],
+                             Plot = df_sub$Plot[1],
+                             Block = df_sub$Block[1],
+                             DAS50E = DAS_50p_emerg)
+                             #TT50E = tt_50p_emerg)
+  print(p)
+  
+  if(p == 1) {
+    df_tt_50p_emerg <- df_temp
+  } else {
+   df_tt_50p_emerg <- rbind(df_tt_50p_emerg,df_temp) 
+  }                     
+  
+#    } 
+  } # end plot loop
+
+
+head(df_tt_50p_emerg)
+
+
+
+summary(df_tt_50p_emerg)
+
+
+
+```
+
+Include dates of sowing again in dataframe 
+```{r}
+sdLookup <- data.frame (
+  SowTreat = c("S1","S2","S3","S4","S5","S6","S7","S8"),
+  SowingDate = c("19/02/2016", 
+                 "30/03/2016" ,
+                 "30/05/2016" ,
+                 "05/07/2016" ,
+                 "24/08/2016" ,
+                 "11/10/2016" ,
+                 "24/11/2016",
+                 "05/01/2017"))
+
+sdLookup$SowingDate <- dmy(sdLookup$SowingDate)
+
+df_tt_50p_emerg <- merge(df_tt_50p_emerg, sdLookup, by="SowTreat")
+summary(df_tt_50p_emerg)
+
+
+```
+Now correct column names after loop not to mix with other generated tables
+
+```{r}
+
+df_5T<-df_tt_50p_emerg%>%
+  mutate(DAS5T=as.numeric(DAS50E))%>%
+  dplyr::select(-PercEmerg)
+
+
+```
+
+
+
+```{r}
+
+write.table(df_5T,"df_DAS_5_TrifoPok.txt")
+```
+
+
+
+
+Calculate RAte (1/days to 50%) 
+
+
+```{r}
+
+#try 1/DAS50% = Rate
+
+df_RateTrifo <- df_5T %>%
+  mutate(Rate=1/DAS5T)
+
+  summary(df_RateTrifo)
+  
+  write.table(df_RateTrifo,"RateTrifoPok.txt")
+
+```
+
+
+
+Graph rate and SowTreat : note for Sowind dates August and October not all cultivars had the 5 trifoliates (maybe 4 trifoliates ) 
+
+```{r}
+#Graph 
+
+  df_RateTrifo %>%
+  group_by(SowingDate, Cultivar) %>%
+  dplyr::select(DAS50E) %>%
+  summarise_each(funs(mean,sd)) %>%
+  #Graph
+  ggplot(aes(x=SowingDate, y=mean, colour=factor(Cultivar), shape=factor(Cultivar))) +
+  geom_point() +
+  geom_line() +
+  labs(x="Sowing Date",y="1/ Days to 5 trifoliates  ") +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1))+
+  geom_errorbar(aes(ymin=mean-sd/2,
+  ymax=mean+sd/2))+
+  theme_bw()
+
+df_RateTrifo %>%
+  group_by(SowingDate, Cultivar) %>%
+  dplyr::select(Rate) %>%
+  summarise_each(funs(mean,sd)) %>%
+  #Graph
+  ggplot(aes(x=SowingDate, y=mean, colour=factor(Cultivar), shape=factor(Cultivar))) +
+  geom_point() +
+  geom_line() +
+  labs(x="Sowing Date",y="1/ Days to 5 trifoliates  ") +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1))+
+  geom_errorbar(aes(ymin=mean-sd/2,
+  ymax=mean+sd/2))+
+  theme_bw()
+
+```
+
+
+
+
+End of this script Calc 3. 
+Move to script 4 to include temperatures  

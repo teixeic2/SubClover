@@ -1,0 +1,188 @@
+---
+title: "Seed Breakdown  Test base line corrected"
+author: "CT"
+date: "21 March 2017" ## revised in 15.11.2017 (ESA paper 2018)
+output: html_document
+---
+This script reads the baselined corrected spectra for 3 cultivars (Antas, Monti and Narrikup) in 3 different incubation times (0, 42, 84) consider the data with reps generated in script 2 (Correct 2 Reps ) 
+
+```{r setup, include=FALSE, loadlibraires}
+#knitr::opts_chunk$set(echo = TRUE)
+library(tidyr)
+library (dplyr)
+library (ggplot2)
+library(agricolae)
+library(knitr)
+library (lubridate)
+library(scales)
+
+```
+
+
+
+```{r readData}
+setwd("C:\\GitHubRepos\\SubCloverPhD\\SubClover\\Spectra")
+getwd()
+
+#create file
+df_sp <- read.table("BreakBaselined3cv.txt",header=TRUE)
+
+#head(df_sp)
+
+summary(df_sp)
+```
+##select columns of interest Cultivar Incubation days rep AbsValue Wavenumber
+
+```{r}
+df_sp1<-df_sp%>%
+  dplyr::select(Cultivar:Rep, AbsValue,WaveNumber)
+  
+```
+
+## Get the mean value for Absorbance 
+
+```{r}
+df_sp2<-df_sp1%>%
+  group_by(Cultivar,IncubationDays,WaveNumber)%>%
+  dplyr::select(AbsValue)%>%
+  summarise_all(funs(mean))%>%
+  mutate(Absorbance=AbsValue)%>%
+  dplyr::select(-AbsValue)
+  
+  str(df_sp2)
+  
+```
+
+
+
+## Graph it all , 
+
+```{r, fig.height=5, fig.width=15}
+
+##select only Antas and Monti
+df_sp3 <-df_sp2 %>%
+    filter(Cultivar!="N")
+    
+
+
+df_sp3%>%
+   ggplot(aes(x=WaveNumber,y=Absorbance))+
+  geom_line(aes(colour=factor(IncubationDays)))+
+  theme_bw()+
+  #scale_x_continuous(breaks=seq(min(df_sp$WaveNumber),max(df_sp$WaveNumber),by =50))+
+  
+  scale_x_continuous(breaks=round(seq(min(df_sp$WaveNumber),max(df_sp$WaveNumber),by =50)))+
+    facet_grid(Cultivar ~.) +
+  scale_x_reverse()+
+  theme_bw()+
+  theme(axis.text.x = element_text(angle = 90, hjust = 1)) +
+  expand_limits(y=c(0,0.2)) +
+  geom_abline(intercept = 0.1, slope = 0)
+  
+
+
+```
+
+then get the single spectra before file was averaged (per seed)
+
+```{r,fig.height=5, fig.width=10}
+
+df_spSeed <- read.table("BreakBaseLineReps.txt",header=TRUE)
+
+str(df_spSeed)
+
+##select only Antas and Monti ESA 2018 subset 
+dfSpSeed1<-df_spSeed %>%
+  select(-RowNo,-Hardness)%>%
+  filter(Cultivar!="N")
+
+write.table(dfSpSeed1, "SeedSpectraESA2018.txt")
+```
+
+
+
+
+
+##Graph the subset wavenumbers 2900-2700 
+
+
+```{r, fig.height=4, fig.width=8}
+
+##select only Antas and Monti
+df_sp4 <-df_sp3 %>%
+    subset(WaveNumber>2800 & WaveNumber<3000 )
+    
+
+
+df_sp4%>%
+   ggplot(aes(x=WaveNumber,y=Absorbance))+
+  geom_line(aes(colour=factor(IncubationDays)))+
+  theme_bw()+
+scale_x_continuous(breaks=seq(min(df_sp$WaveNumber),max(df_sp$WaveNumber),400))+
+    facet_grid(Cultivar ~.) +
+  theme_bw()+
+      scale_x_reverse()+
+  theme(axis.text.x = element_text(angle = 90, hjust = 1)) +
+  expand_limits(y=c(0,0.2)) +
+  geom_abline(intercept = 0.1, slope = 0)
+```
+
+
+```{r, fig.height=5, fig.width=10}
+
+df_sp %>%
+  
+  ggplot(aes(x=Wavelength,y=Absorbance))+
+  geom_line(aes(colour=IncubationDays))+
+  #geom_line(aes(colour= factor(IncubationDays)))+
+  scale_colour_gradient(low="red")+
+    theme_bw()+
+   #scale_x_continuous(breaks=seq(min(df_sp$Wavelength),max(df_sp$Wavelength),400))+
+  scale_x_reverse()+
+ # scale_x_reverse(lim=c(650,4000))+
+  theme(axis.text.x = element_text(angle = 90, hjust = 1)) +
+  expand_limits(y=c(0,0.2)) +
+  geom_abline(intercept = 0.1, slope = 0)
+  #geom_vline(intercept = 1000, slope = 0)
+    #scale_x_date(labels = date_format("%b-%Y"))
+
+
+
+```
+
+MAke the difference between incubation days 0 and 84 ; find bands which change the most. filter out 42.Use difference absolute and %. 
+
+```{r}
+
+df1 <- df_sp  %>%         
+  mutate(IncubationDays=factor(paste0("A_",IncubationDays)))%>%
+  filter(IncubationDays!="A_42") %>%
+  tidyr::spread(IncubationDays,Absorbance)%>%
+  mutate(DiffAbsolute=A_0-A_84,DiffRelative=DiffAbsolute/A_0*100) #%>%
+#Now gather values 
+#tidyr::gather("Varname", "Varvalue",A_0:DiffRelative )
+summary(df1)
+```
+
+
+Now graph the differences 
+
+```{r}
+df2 <-df1 %>%
+  filter(Cultivar!="Narrikup")%>%
+  subset(DiffRelative>5 & DiffRelative<100)
+
+df2 %>%
+  ggplot(aes(x=Wavelength,y=DiffRelative))+
+  geom_line(aes(colour=Cultivar))+
+  theme_bw()+
+ # facet_grid(.~Cultivar,scales="free") +
+  scale_x_reverse()+
+  geom_abline(intercept = 0, slope = 0)
+ 
+   
+  
+```
+
+
+#

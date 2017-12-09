@@ -1,0 +1,231 @@
+---
+title: "Trifoliates Poukawa "
+author: "CT"
+date: "17.08.2017"
+output: html_document
+---
+
+Purpose:
+
+-Combine the rate of trifoliate appearance with Mean Air Temp during trifo appearance - Poukawa site   
+ 
+```{r loadLibraries}
+library(tidyr)
+library (dplyr)
+library (ggplot2)
+library(agricolae)
+library (lubridate)
+library(mosaic)
+library(lattice)
+```
+
+Get data from Emergence Folder, Daily Mean Air temperature and dates to combine in dataframe 
+
+
+```{r}
+
+setwd("C:\\GitHubRepos\\SubCloverPhD\\SubClover\\TrifoPok")
+getwd()
+#create file
+
+df_trif <- read.table("RateTrifoPok.txt",header=TRUE)
+#adjust formats 
+df_trif$SowingDate <- ymd(df_trif$SowingDate )
+df_trif$Block <- as.factor(df_trif$Block)
+df_trif$Plot <- as.factor(df_trif$Plot)
+df_trif$DAS5T <- as.numeric(df_trif$DAS5T)
+
+```
+
+Create df_MD to workout dates to % trifoliates 
+```{r}
+
+  df_MD <- df_trif %>%
+  mutate(Date5T=SowingDate+DAS5T) %>%
+  group_by(Plot, DAS5T) %>% 
+  dplyr::filter(row_number() == 1)
+
+str(df_MD)
+
+H <-df_MD %>%
+ dplyr:: select (Plot, Date5T)
+
+#save and store table 
+write.table(H, "DateTo5Trifos.txt")
+
+```
+
+Bring data from emergence folder - need to review emergence for S1 Pok (30 days)
+
+```{r}
+df_S <- read.table("DASSeedEmerg.txt",header=TRUE)
+
+#change formats 
+df_S <- df_S %>%
+  mutate(Plot=as.factor(Plot),
+         DAS50E= as.numeric(DAS50E),
+         DateTo50E= dmy(DateTo50E))
+
+         
+str(df_S)
+
+
+```
+
+
+
+```{r}
+
+
+ #create file here to calculate average air temperature from emergence to ~ 5 trifoliate stage
+df_A <- read.table("Pok_Weat.txt",header=TRUE)
+# 
+# #adjust formats
+ df_A<-df_A %>%
+  mutate(Date=dmy(Date),
+         AirTt=(Tx+Tm)/2)
+ 
+ str(df_A)
+ 
+df_B <- df_A %>%
+  mutate(SumAir = cumsum(AirTt)) %>%
+  mutate(Date=ymd(Date))%>%
+ dplyr::select(-AirTt)
+ 
+
+summary(df_B)
+summary (df_S)
+# 
+# 
+# #then save table df_B with the ACcumulated Air Temperature and merge 
+# 
+write.table(df_B, "AccumAirPok.txt")
+# 
+ df1 <- merge(df_S,df_B, by.x="DateTo50E",by.y="Date")%>%
+mutate(AirTempAcc_emerg = SumAir) %>%
+ dplyr::select(-SumAir)
+# 
+ str(df1)
+# 
+write.table(df1,"AccAirEmerg.txt")
+```
+
+
+then get the air temperatures from sowing to 50% of plants with 5 trifoliates and subtract from emergence to get the mean temperature during foliar expansion 
+
+```{r}
+
+##then join with data with the Accumulated air temperature till 5Trifoliates for available plots 
+
+df_C <- read.table("AccAir5Trifo.txt",header=TRUE)
+
+##then merge the dataframes with emergence and trifo dates and Acc Air by Plot
+
+str(df1)
+str(df_C)
+## now merge similar to emergence dataframe 
+
+df3 <- merge (df1,df_C, by="Plot")
+
+
+```
+
+
+
+
+Then subtract AccAir (trifo) from AirTempAcc_emerg and divide by the number of days from emergence to 5 trifoliates to get the temperature during the period 
+
+```{r}
+
+df4 <-df3%>%
+  mutate(diff=AccAir-AirTempAcc_emerg)%>%
+  mutate(MeanAirTempTrifo=(AccAir-AirTempAcc_emerg)/(DAS5T-DAS50E))
+
+
+str (df4)
+```
+
+just select columns of interest and change dataframe name 
+
+```{r}
+
+
+dfokPo <- df4%>%
+  select(Plot,Block,SowingDate,Cultivar,SowTreat,MeanAirTempTrifo,DAS5T)%>%
+  mutate(Rate=1/DAS5T)%>%
+  mutate(SowingDate=dmy(SowingDate))
+
+str(dfokPo)
+```
+
+Then graph results  (remember that here each replicate has a different temperature set... need to average to get a simpler graph 
+## complete graph 
+```{r, fig.height=5, fig.width=8}
+dfokPo %>%
+  group_by(MeanAirTempTrifo, SowingDate, SowTreat, Cultivar) %>%
+  dplyr::select(Rate) %>%
+  summarise_each(funs(mean,sd)) %>%
+  #Graph
+  #ggplot(aes(x=MeanAirTempTrifo, y=mean, colour=(Cultivar), shape=factor(Cultivar) )) +
+ ggplot(aes(x=MeanAirTempTrifo, y=mean,colour=SowTreat, shape=Cultivar)) +
+  geom_point(size=5) +
+  #geom_line() +
+  
+  labs(y="Rate to five trifoliate stage (1/days)") +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1))+
+  geom_errorbar(aes(ymin=mean-sd/2,
+  ymax=mean+sd/2))+
+  theme_bw()+
+  xlim(0,20)+
+  ylim(0,0.04)+
+  #facet_wrap(~Cultivar,ncol=3, scales = "free")+
+  xlab(expression(Mean~Air~Temperature~"("^"o"*"C)"))+
+  theme(axis.text.x=element_text(angle = 0, hjust = 0, size= 12))+
+  theme(axis.text.y=element_text(angle = 0, hjust = 0, size= 12))+
+  theme(axis.title.y=element_text(angle = 90, hjust = 0, size= 14))+
+  theme(axis.title.x=element_text(angle = 0, hjust = 0.5, size= 14))+
+  theme(legend.text=element_text(size=12))
+  
+# then merge the dataframes to find out the mean temperature 
+
+
+```
+
+
+
+```{r}
+
+
+  
+  write.table(dfokPo,"df_DAS5Trifo_MeanAirTPo.txt")
+
+```
+
+
+
+Graph rate and SowTreat
+
+```{r}
+#Graph 
+
+  dfokPo %>%
+  group_by(SowingDate, Cultivar) %>%
+  dplyr::select(Rate) %>%
+  summarise_each(funs(mean,sd)) %>%
+  #Graph
+  ggplot(aes(x=SowingDate, y=mean, colour=factor(Cultivar), shape=factor(Cultivar))) +
+  geom_point() +
+  geom_line() +
+  labs(x="Sowing Date",y="1/ Days to 50% leaf emergence  ") +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1))+
+  geom_errorbar(aes(ymin=mean-sd/2,
+  ymax=mean+sd/2))+
+  theme_bw()
+
+```
+
+
+
+
+End of this script Calc 3. 
+Move to script 4 to include temperatures  

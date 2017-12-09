@@ -1,0 +1,328 @@
+---
+title: "Thermal Time Calculation Iversen 2 Weather data using hourly data"
+author: "CT"
+date: "07.12.2017"
+output: html_document
+---
+
+```{r setup, include=FALSE, loadlibraires}
+#knitr::opts_chunk$set(echo = TRUE)
+library(tidyr)
+library (dplyr)
+library (ggplot2)
+library(agricolae)
+library(knitr)
+library (lubridate)
+
+```
+
+
+
+
+## Define Tt cardinal temperatures
+
+Considered an overall average the following references:
+Tb: 0.0
+Top range:18-25
+Tmax: 40
+REFS: MonksEtAl2009	,LonatiEtAl2009	,MootEtal2003, SilsburyetAl1984. 
+							
+```{r}
+
+#Create Thermal time cardinal temperatures need REF! 
+
+tt_card <- data.frame(temp=c(0,15,22,35),TT=c(0,15,15,0))
+
+tt_card %>%
+  ggplot(aes(x=temp, y=TT))+
+  labs(x="Temperature (degree Celsius)")+
+  labs(y="Thermal Time (degree days)") +
+  theme_bw()+
+  geom_line()
+  
+```
+
+```{r}
+
+#Create and test interpolation function - Test if works 
+
+temp_ref  <- 10 # x-axes reference
+x_temp <- tt_card$temp # x-axes
+y_TT <- tt_card$TT # y-axes
+
+
+int_func <- function(temp,TT,temp_ref){
+
+  # if temp is too low or too high give extreme TT values
+ if(temp_ref>temp[length(temp)]) {
+   
+   out <- TT[length(TT)] 
+   # FIXME: approx functions seems to do that - need param
+   
+ } else if (temp_ref<temp[1]) {
+   
+   out <- TT[1]
+   
+ } else {
+   
+   # else interpolate
+   
+   tryCatch(  
+   
+  out <- approx(temp, TT, xout = temp_ref, 
+         method="linear", 
+         rule = 2)$y,
+  error = function(e) 
+  {
+  out <- NA
+  }
+) 
+  
+} # end if check
+
+  return(out)  
+  
+ }
+  
+int_func(temp,TT,temp_ref)
+
+
+```
+
+```{r readData}
+setwd("C:\\GitHubRepos\\SubCloverPhD\\SubClover\\Iver_weather")
+getwd()
+
+#create file
+df_W_raw <- read.table("HourTemp_Iv2.txt",header=TRUE)
+
+#head(df_We)
+
+summary(df_W_raw)
+```
+
+Calculate the TThour, then transform to TT day and accumulate the Thermal time to make the TTSUM Air. 
+
+```{r changeformat, echo=FALSE, warning=FALSE}
+
+df_W <- df_W_raw %>%
+  dplyr::select(Date:TempAir) %>%
+  mutate(Date=dmy(Date)) %>%
+  rowwise() %>%
+  mutate(TThour=int_func(x_temp, y_TT,TempAir)) %>%
+  group_by(Date) %>%
+  summarise(TTday=mean(TThour)) %>%
+  mutate(SumTTday = cumsum(TTday))
+
+summary(df_W)
+
+```
+
+```{r}
+df_W %>%
+  ggplot(aes(x=TempAir,y=TT))+
+  geom_point() 
+```
+
+
+now calculate the TTSUm in each date to compare with the methods TT simple and TT 3x8 formula
+
+```{r}
+dfdailyTT <- df_W_raw %>%
+  dplyr::select(Date:TempAir) %>%
+  mutate(Date=dmy(Date)) %>%
+  mutate(HourTT=TempAir/24)%>%
+ rowwise() %>%
+  group_by( Date) %>%
+  mutate(TTdayH = as.numeric(sum(HourTT)))%>%
+  subset(Hour<1)%>%
+  select(-HourTT, -Hour)
+  
+
+```
+
+
+
+## Graph it 
+
+```{r, fig.height=6, fig.width=15}
+
+df_W %>%
+  #tidyr::gather("Variable", "Value",Tx:Pp) %>%
+  ggplot(aes(x=Date,y=TempAir))+
+  geom_line() +
+  #facet_wrap(~LocationYear,scale="free") +
+  #scale_color_manual(values=c("green","#333333", "#3355CC","#CC3300"))+
+  theme_bw()+
+  labs(x=" Date (Year/Month)")+
+  ylab(expression(Air~Temperature~time~~"("^"o"*"C)/hours"))+
+  theme(axis.text.y = element_text(size=18))+
+  theme(axis.title.y = element_text(size=22))+
+  theme(legend.text = element_text(size=22))+
+  theme(axis.title.x = element_text(size=22))+
+  theme(axis.text.x = element_text(angle = 0, hjust = 0.5, size=22)) 
+
+
+```
+
+
+find max and min temperature in each date 
+
+```{r}
+dfMax<-df_W %>%
+  group_by(Date)%>%
+  dplyr::select ( TempAir)%>%
+  summarise_all(funs(max))
+ 
+
+dfMin<-df_W %>%
+  group_by(Date)%>%
+  dplyr::select ( TempAir)%>%
+  summarise_all(funs(min))
+
+dfMax_MinAir <- merge(dfMax,dfMin, by="Date")%>%
+  mutate(Tx=TempAir.x, Tm=TempAir.y)%>%
+  select(-TempAir.x, -TempAir.y )
+write.table(dfMax_MinAir, "MinMaxAirIv.txt")
+
+```
+
+
+
+
+```{r}
+
+#create REF Jones CA, Ritchie JT, Kiniry JR, Godwin DC (1986) Subroutine structure.In 'CERES-Maize: A simulation model of maize growth anddevelopment'. (Eds CA Jones, JR Kiniry) pp. 49-194. (Texas A&M University Press: Texas, USA
+
+TTfunc <- function(Tmin ,Tmax){         
+ 
+  if (Tmin>Tmax){
+   print("Tmin>Tmax")
+   break
+ } 
+  
+  TTav  <- 0
+  TTsum <- 0
+  
+  for(n in 1:8){ 
+    
+    tn <- 0
+    
+    TT_tn <- 0
+    
+    tn <- ((0.931 +  0.114*n - 0.0703 * n^2
+            + 0.0053 * n^3) * (Tmax-Tmin)) + 
+      Tmin # 8-h temperature
+    
+    TT_tn <- int_func(tt_card$temp, tt_card$T,tn) 
+    
+    TTsum <- TT_tn + TTsum
+    
+    print(TT_tn)
+    
+    }
+  TTav <- TTsum/8
+  
+  return(TTav)
+  }
+
+TTfunc(10,30)
+
+```
+
+
+
+
+```{r ReadCalcTt}
+
+
+#create file
+df_Weiv <- read.table("MinMaxAirIv.txt", header=TRUE)
+
+#Here a comparison between the simple TT calculation (Tx-Tm/2) and Jones 8 hours calculation
+df_We_tt <- df_Weiv %>%
+  mutate(TTday=TTfunc(Tm,Tx), TTday_s=(Tm+Tx)/2, diff=(TTday_s/TTday)*100)
+
+```
+
+
+```{r}
+#Check TT : here plot TT day caluclated with 3x8 formula against the TT simple calculation (Tmean) 
+df_We_tt  %>% 
+ggplot(aes(x=TTday_s, y= TTday)) +
+    geom_point(shape=21,alpha=0.2)+
+  geom_abline(intercept = 0, slope = 1)
+
+```
+
+
+merge with dfdailyTT (which is originated from hourly calculations )
+
+```{r}
+
+#adjust date formats to match
+df_We_tt2 <- df_We_tt %>%
+mutate(Date=ymd(Date))
+ 
+str(df_We_tt2)
+str(df_W)
+
+df_AllTT <- merge(df_We_tt2, df_W ,by="Date")
+
+```
+
+check differences between calculated TT hourly or formula 
+
+```{r, fig.height=5, fig.width=10}
+#Graph Accumulated TT 
+#Check TT : here plot TT day caluclated with 3x8 formula against the TT based on hourly recorded data 
+df_AllTT %>% 
+ggplot(aes(x=TT, y= TTday.x)) +
+  theme_bw()+
+  geom_point()+
+  geom_smooth()+
+  xlab(expression(Thermal~time~Hourly~"(d"^"o"*"C)"))+
+  ylab(expression(Thermal~time~formula~"(d"^"o"*"C)"))+
+  geom_abline(intercept = 0, slope = 1)+
+  ylim(0,18)
+    
+
+
+```
+
+compare the methods (TT against date or Air temperature  )
+# TT  =calculated with hourly recorded data;
+# TTday.x is calculated using the 3x 8 formula (max and min )
+#and TTday_s is calculated with the simple Tx+Tm/2
+
+```{r, fig.height=5, fig.width=10}
+dfAlTT_1 <-df_AllTT %>%
+  select(Date,TempAir, TTday.x,TTday_s,TT)%>%
+ gather(key= "TTdailyMethod" , value = "DegreeDays", TTday.x,TTday_s,TT)
+
+dfAlTT_1%>%
+  filter(TTdailyMethod!="TTday_s")%>%
+ggplot(aes(x=TempAir, y= DegreeDays)) +
+  theme_bw()+
+  geom_point(aes(colour=TTdailyMethod), alpha=0.1)+
+  geom_smooth(aes(colour=TTdailyMethod))+
+  ylab(expression(Thermal~time~~"(d"^"o"*"C)"))+
+  xlab(expression(AirTemp~"("^"o"*"C)"))+
+  ylim(0,25)
+
+ 
+
+
+```
+
+
+
+the formula and the hourly records correlate well ~12.5.. 
+
+
+```{r}
+
+#write.table(df_CumTTiv, "df_CumTTiv.txt")
+
+```
+
