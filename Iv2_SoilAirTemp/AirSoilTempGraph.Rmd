@@ -62,9 +62,13 @@ df_gather%>%
   scale_x_date(date_breaks = "3 month", 
                  date_labels = "%B%Y",
                  limits = as.Date(c('2015-06-01','2017-07-07')))+
+  theme(axis.text.y = element_text(size=14))+
+  theme(axis.title.y = element_text(size=14))+
+  theme(legend.text = element_text(size=14))+
+  theme(axis.title.x = element_text(size=14))+
   ylim(0,35)
     
- ggsave("plot_TempPpIversen.png", width=12, height=6, dpi=400)
+ #ggsave("plot_TempPpIversen.png", width=12, height=6, dpi=400)
 
 ```
 

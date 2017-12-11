@@ -83,12 +83,13 @@ df_AS %>%
 
 ```
 
-then subset to fit woogenellup paper (subset 28 July 2015 - ealry march 2016)
+then subset to fit an equation to estimate soil temperature from air temperature  paper 
 
 ```{r}
 
-dfW <- df_AS %>%
-  subset(Date>"2015-07-27"  & Date<"2016-03-20")
+dfW <- df_AS%>%
+  mutate(Tair=MeanTt)
+  #subset(Date>"2015-07-27"  & Date<"2016-03-20")
 
 dfW%>%
  #  select(Date, TempSoil10mm, MeanTt)%>%
@@ -109,17 +110,20 @@ dfW%>%
   #                date_labels = "%B",
   #                limits = as.Date(c('2015-06-01','2017-07-07')))
 
+write.table(dfW, "IversenTAirSoil.txt")
 
 ```
 
 
 get a summary of the lm of the geom method
 
+equation is y = a(intercept) +b (slope) x
 ```{r}
 summary(lm(TempSoil10mm ~ MeanTt, dfW))
 ```
 
-
+Developed relationship between Air (x axis) and soil temperature (y axis) for Iversen: SoilT = 1.23 + 0.94AirTemp , R2=0.80.
+ 
 
 
 

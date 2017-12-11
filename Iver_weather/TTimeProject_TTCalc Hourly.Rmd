@@ -18,7 +18,6 @@ library (lubridate)
 
 
 
-
 ## Define Tt cardinal temperatures
 
 Considered an overall average the following references:
