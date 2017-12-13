@@ -94,22 +94,22 @@ Select two groups of cultivars : Late (high response) Pp sensitive response vari
 ```{r, fig.width= 12,fig.height=5, warning=FALSE}
 #Check data filtering indexLocCult. See r2 generated below. 
 df_Rea7 %>%
-  mutate(Month=format(as.Date(ymd(SowingDate)),"%b")) %>%
+  mutate(Variable=factor(Variable, level=c("DaysToFlower","TTFloAdj"),labels=c("Days to flower","Thermal-time (oCd)"))) %>%
+  mutate(Month=format(as.Date(ymd(SowingDate)),"%B")) %>%
   #ggplot(aes(x=reorder(Month,month(SowingDate)), y= Value, colour=Treatcultivar)) +
   ggplot(aes(x=ymd(SowingDate), y= Value,colour=Treatcultivar))+
-  geom_point(aes(shape = factor(SensGroup),colour=Treatcultivar),size=1.9)+
-  geom_line(aes(colour=Treatcultivar))+
+  geom_point(aes(shape = factor(SensGroup),colour=Treatcultivar),size=2.5)+
+  #geom_line(aes(colour=Treatcultivar))+
   labs(x=" Sowing Month", y=" oCd            Days  ")+
     theme_bw()+
  #geom_smooth(se=FALSE)+
   #theme(legend.position="none")+
   labs(shape="Maturity Group")+
   facet_grid(Variable~Location, scales = "free")+
-   theme(text = element_text(size = 12))
+   theme(text = element_text(size = 16))
 ```
 
 Try same graph but with x = date (continuous)
-
 
 ```{r, warning=FALSE}
 

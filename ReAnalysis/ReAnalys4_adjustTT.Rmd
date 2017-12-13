@@ -11,9 +11,9 @@ note: Re analysis after  merged weather, calculated Tt, re calculate the TT for 
 
 AIM:
 
-_375737357327
-358328328328
-35828328325
+_this script reads the file created in previous script (script 3 where the TT to flower was adjusted to 50% ). Normalisation of TT to flower.
+- graph the days and TTAdj50Flo(TT adjusted to 50% Flowering) by location and cultivar (explore location and cultivar effects )
+
 
 ```{r loadLibraries}
 library(tidyr)
@@ -65,6 +65,7 @@ summary(df_Rea4)
 df_Rea4  %>% 
 ggplot(aes(x=TTtoFlower, y= TTFloAdj)) +
     geom_point(shape=21)+
+  xlim(500,2800)+
   geom_abline(intercept = 0, slope = 1)
 
 ```
@@ -123,6 +124,36 @@ df_Rea4  %>%
 
 ```
 
+Explore the effect of sowing date 
+
+```{r, fig.height=8 , fig.width= 20}
+df_Rea4 %>%
+  dplyr::select(LocationYear:Treatcultivar,DaysToFlower,TTtoFlower,Country) %>%
+  gather("VarName","VarValue",DaysToFlower:TTtoFlower)  %>%
+  mutate(VarName=factor(VarName, level=c("DaysToFlower","TTtoFlower"),labels=c("Days to flower","Thermal-time to flowering (oCd)"))) %>%
+    mutate(Month=format(as.Date(ymd(SowingDate)),"%b")) %>%
+#  ggplot(aes(x=reorder(Month,month(SowingDate)), y=DaysToFlower)) +
+  #filter(Treatcultivar=="MtBarker") %>%
+  ggplot(aes(x= reorder(Location,VarValue), y=VarValue))+
+  geom_boxplot(alpha=0.2)+
+  #geom_jitter(size=3,alpha=0.7,width = 0.1, aes(colour=reorder(Month,month(SowingDate)),shape=reorder(Month,month(SowingDate))))+
+  #scale_shape_manual(values = c(0,1,2,3,4,5,6,7,8,9,10,11,12,13,14))+
+  geom_jitter(size=3,alpha=0.7,width = 0.1, aes(shape= Country, colour=reorder(Month,month(SowingDate))))+
+  #theme(legend.position="none")+
+  labs(x="Experiment location", y="Time to flower")+
+  theme(axis.text.x=element_text(angle = 0, hjust = 0, size= 9))+
+  theme(axis.text.y=element_text(size= 18))+
+  theme_bw(base_size=18)+
+    facet_grid(.~VarName, scales="free") +
+ # facet_wrap(~VarName, scales="free") +
+  coord_flip() + theme(legend.position="top") + guides(colour=guide_legend(title="Sowing month"))
+  
+ggsave("plot_DaysTTFlowerLocation.png", width=12, height=6, dpi=400)
+```
+
+
+
+
 Then select Contrasting cultivars to compare : eg: Trikkala, Tallarook, MtBarker
 
 ```{r,fig.height=5, fig.width=10}
@@ -148,6 +179,50 @@ df_Rea4  %>%
 summary (df_Rea4)
 
 ```
+
+##This graph displays the TTAdjo50Flo!! 
+
+```{r, fig.height=8 , fig.width= 20}
+
+str(df_Rea4)
+
+df_Rea4 %>%
+  dplyr::select(LocationYear:Treatcultivar,DaysToFlower,TTtoFlower,Country) %>%
+  filter(Treatcultivar=="Trikkala"| 
+           Treatcultivar=="Nungarin"|
+           Treatcultivar=="Denmark"|
+           Treatcultivar=="MtBarker"|
+           Treatcultivar=="Bena"|
+           Treatcultivar=="Tallarook"|
+           Treatcultivar=="Woogenellup"|
+           Treatcultivar=="Dalkeith")%>%
+
+
+  
+  gather("VarName","VarValue",DaysToFlower:TTtoFlower)  %>%
+  mutate(VarName=factor(VarName, level=c("DaysToFlower","TTtoFlower"),labels=c("Days to flower","Thermal-time to flowering (oCd)"))) %>%
+    mutate(Month=format(as.Date(ymd(SowingDate)),"%b")) %>%
+#  ggplot(aes(x=reorder(Month,month(SowingDate)), y=DaysToFlower)) +
+  #filter(Treatcultivar=="MtBarker") %>%
+  ggplot(aes(x= reorder(Location,VarValue), y=VarValue))+
+  geom_boxplot(alpha=0.2)+
+  #geom_jitter(size=3,alpha=0.7,width = 0.1, aes(colour=reorder(Month,month(SowingDate)),shape=reorder(Month,month(SowingDate))))+
+  #scale_shape_manual(values = c(0,1,2,3,4,5,6,7,8,9,10,11,12,13,14))+
+  geom_jitter(size=3,alpha=0.7,width = 0.1, aes(shape= Country, colour=Treatcultivar))+
+  #theme(legend.position="none")+
+  labs(x="Experiment location", y="Time to flower")+
+  theme(axis.text.x=element_text(angle = 0, hjust = 0, size= 9))+
+  theme(axis.text.y=element_text(size= 18))+
+  theme_bw(base_size=18)+
+    facet_grid(.~VarName, scales="free") +
+ # facet_wrap(~VarName, scales="free") +
+  coord_flip() + theme(legend.position="top") + guides(colour=guide_legend(title="Cultivar "))
+
+ggsave("plot_DaysTTFlowerCultivar.png", width=12, height=6, dpi=400)
+```
+
+
+
 
 
 Show genotype effect (need to fix it)

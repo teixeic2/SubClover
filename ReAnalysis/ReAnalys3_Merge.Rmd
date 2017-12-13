@@ -10,10 +10,10 @@ note: Re analysis data and weatherfiles to merge
 
 Aim:
 
--
+- This script merges the database with flowering time and the calculated thermal time (scripts 1 and 2) 
 
--
--
+- Then calculates the TTsum at sowing date and the TTSum at flowering at a certain percenatge . Calculates the TTSum to flowering. 
+- Evaluate the rate of flowering (%/day or TT) to adjust the TT to flowering to 50% (most common observation) 
 -
 
 
@@ -102,27 +102,35 @@ write.table(df_Rea3, "df_Rea3.txt")
 
 ```
 
-```{r, fig.height=8 , fig.width= 15}
+```{r, fig.height=8 , fig.width= 20}
 #Graph it to  check 
 
 df_Rea3 %>%
-  dplyr::select(LocationYear:Treatcultivar,DaysToFlower,TTtoFlower) %>%
+  dplyr::select(LocationYear:Treatcultivar,DaysToFlower,TTtoFlower,Country) %>%
   gather("VarName","VarValue",DaysToFlower:TTtoFlower)  %>%
-  mutate(VarName=factor(VarName, level=c("DaysToFlower","TTtoFlower"),labels=c("Days to flower","Thermal-time to flowering"))) %>%
+  mutate(VarName=factor(VarName, level=c("DaysToFlower","TTtoFlower"),labels=c("Days to flower","Thermal-time to flowering (oCd)"))) %>%
     mutate(Month=format(as.Date(ymd(SowingDate)),"%b")) %>%
 #  ggplot(aes(x=reorder(Month,month(SowingDate)), y=DaysToFlower)) +
   #filter(Treatcultivar=="MtBarker") %>%
   ggplot(aes(x= reorder(Location,VarValue), y=VarValue))+
   geom_boxplot(alpha=0.2)+
-  geom_jitter(size=3,alpha=0.7,width = 0.1, aes(colour=reorder(Month,month(SowingDate))))+
+  #geom_jitter(size=3,alpha=0.7,width = 0.1, aes(colour=reorder(Month,month(SowingDate)),shape=reorder(Month,month(SowingDate))))+
+  #scale_shape_manual(values = c(0,1,2,3,4,5,6,7,8,9,10,11,12,13,14))+
+  geom_jitter(size=3,alpha=0.7,width = 0.1, aes(shape= Country, colour=reorder(Month,month(SowingDate))))+
   #theme(legend.position="none")+
-  labs(x="Trial location", y="Time to flower")+
-  theme_bw()+
-  facet_grid(.~VarName, scales="free") +
+  labs(x="Experiment location", y="Time to flower")+
+  theme(axis.text.x=element_text(angle = 0, hjust = 0, size= 9))+
+  theme(axis.text.y=element_text(size= 18))+
+  theme_bw(base_size=18)+
+    facet_grid(.~VarName, scales="free") +
+ # facet_wrap(~VarName, scales="free") +
   coord_flip() + theme(legend.position="top") + guides(colour=guide_legend(title="Sowing month"))
   
-
+ggsave("plot_DaysTTFlowerLocation.png", width=12, height=6, dpi=400)
 ```
+
+then back to the original graph with sowing date in X and days and TT as panels 
+
 
 
 
