@@ -164,7 +164,7 @@ df_tt_50p_flow <- data.frame(Variable = NULL,
                              TT50F = tt_50p_flow)
 
 
-  df_tt_50p_flow<- rbind(df_tt_50p_flow,df_temp)
+  df_tt_50p_flowESA<- rbind(df_tt_50p_flow,df_temp)
 
       }
     }

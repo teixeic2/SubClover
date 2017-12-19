@@ -92,7 +92,7 @@ df_2<-df_flower %>%
   select(Variable,Percent,Cultivar,Date,SowTreat)%>%
   #filter(Variable == "Bur4" | SowTreat== "S1" )%>%
   filter(Variable == "Petal"| Variable =="Bur4"   )%>%
-summarise_each(funs(mean)) 
+summarise_all(funs(mean)) 
 
 summary (df_2)
 
@@ -205,7 +205,7 @@ Change column names and select only columns of interest (tidy up)
 ```{r}
 
 
-# change name SumTTday to TT at measurement used mutate 1 x cause rename was faulty 
+# change name SumTTday to TT at measurement used mutate 1 x cause rename did not work 
 df_flower <- df_flower %>%
 mutate(TT_meas = 1*(SumTTday))
 #check the data 
