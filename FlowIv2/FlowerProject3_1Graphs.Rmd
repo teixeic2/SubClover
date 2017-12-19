@@ -63,6 +63,22 @@ ylab(expression(Tt~"("^"o"*"Cd)"~~~~~~~~~~~~~~~~Days))
 ```
 
 
+```{r}
+
+dfN <-  df_tt_50p_flow %>%
+  filter(Cultivar=="Narrikup")%>%
+  filter(SowTreat=="S7")%>% 
+  group_by(Variable)%>%
+  summarise_all(funs(mean))
+
+
+
+
+```
+
+
+
+
 stopped here .. need to check why there are zeros !!! 
 
 

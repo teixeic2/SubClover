@@ -1,0 +1,266 @@
+---
+title: "Flowering 6CV"
+author: "CT"
+date: "31.12.2015"
+output:
+  word_document: default
+  pdf_document: default
+  html_document: default
+---
+Aim: to calculate the percent of plants in specific reproductive phases : Bud, Early, Open, Petal, Bur1 _Bur4.
+
+ATTENTION : this script has to run as continuous as the final dataframe generated (df_flower) is saved for further analysis and other scripts 
+
+```{r loadLibraries}
+library(tidyr)
+library (dplyr)
+library (ggplot2)
+library(agricolae)
+library(knitr)
+library (lubridate)
+
+```
+Read file and adjust formats 
+
+```{r loadFile}
+
+setwd("C:\\GitHubRepos\\SubCloverPhD\\SubClover\\FlowIv2")
+
+getwd()
+
+#create file
+df_flower <- read.table("df_flower.txt",header=TRUE)
+
+
+
+str(df_flower)
+
+```
+
+Check data 
+```{r}
+df_flower<-df_flower %>% 
+ 
+mutate(Date=ymd(Date),SowingD=ymd(SowingD)) %>%
+mutate(Percent=as.numeric(Percent))%>%
+mutate(SimpleCat_Perc=as.numeric(Percent))
+  
+  
+```
+
+Analysis of sowing date and cultivars for Bud considering Date 
+
+```{r }
+df_flower%>%
+dplyr::select(SowingD:Variable,TTAS:SimpleCat_Perc) %>%
+  group_by(SowingD, Date, Cultivar,SowTreat,Block, Plot,Variable) %>%
+  na.omit() %>%
+  summarise_all(funs(max)) %>% # avoids repeated records FIXME: how to better do it?
+  ungroup()
+  
+#functions use
+str(df_flower)
+
+ 
+```
+
+ - Here blocks and plots are kept and repeated rows will be removed (unique).
+
+- Find 50 Percent of each variable for cultivar and sowtreat.  
+      DAS_50p_flow 
+      tt_50p_flow 
+- Need to inform the loop to interpolate in the first 50% reached (curve ascend, before the max Percent) to avoid getting values in descend curve.  
+
+- Interpolate at 50% Flowering with function approx  REF: (Soetaert, Cash and Mazzia, 2012) 
+
+
+
+```{r}
+
+df_50_P <- df_flower
+
+
+#Loop each plot to make it simple
+var <- unique(df_50_P$Variable    )
+plots <- unique(df_50_P$Plot)
+
+
+# create empty df
+df_tt_50p_flow <- data.frame(Variable = NULL,
+                             Cultivar = NULL,
+                             SowTreat = NULL,
+                             SowingD = NULL,
+                             Block=NULL,
+                             Plot=NULL,
+                             DAS= NULL,
+                             TT50F = NULL)
+
+#i=p=1
+# 
+# #loop trough each combination of factor levels
+  for(j in 1:length(var)){
+      for(p in 1:length(plots)){
+
+      # clean value holders
+      DAS_50p_flow <- 0
+      tt_50p_flow <- 0
+      
+      #print(paste0(cv[i]," ",var[j]," ", sow[k], " B", block[b]))
+  
+  # filter for each combination
+  df_sub <- df_50_P %>%
+    filter(Plot == as.character(plots[p]) &
+    Variable == as.character(var[j]))
+
+  summary(df_sub)
+
+  # create percentage with maximum value recorded
+  # to avoid crossing the 50% line twice when flowering decreassed
+  df_sub$av_Perc_max <- 0 # create new col
+
+  for(z in 1:nrow(df_sub)) {
+
+    df_sub$av_Perc_max[z] <- max(df_sub$SimpleCat_Perc[z],
+                                 df_sub$av_Perc_max[z-1]) # keeps the highest value found
+
+  }
+
+ # df_sub
+ # head(df_sub)
+ # tail(df_sub)
+# 
+  # Interpolate
+  y_ref <- 50 # y value where we want to find x by interpolation
+
+  # interpolate
+  #find DAS at 50 Pecent Flower
+
+  tryCatch(
+  DAS_50p_flow <- approx(df_sub$SimpleCat_Perc,
+  df_sub$DAS , xout = y_ref, rule = 1)$y,
+  error = function(e)
+  {
+  DAS_50p_flow <- NA
+  }
+)
+  #find TT at 50 Pecent Flower
+  tryCatch(
+  tt_50p_flow <- approx(df_sub$SimpleCat_Perc,
+  df_sub$TTAS , xout = y_ref, rule = 1)$y,
+  error = function(e)
+  {
+  tt_50p_flow <- NA
+  }
+)
+
+  df_temp <- NULL
+  df_temp <- data.frame(Cultivar = df_sub$Cultivar[1],
+                             Variable = df_sub$Variable[1],
+                             SowTreat = df_sub$SowTreat[1],
+                             SowingD = df_sub$SowingD[1],
+                             Block = df_sub$Block[1],
+                             Plot = df_sub$Plot[1],
+                             DAS50F = DAS_50p_flow,
+                             TT50F = tt_50p_flow)
+
+
+  df_tt_50p_flow<- rbind(df_tt_50p_flow,df_temp)
+
+      }
+    }
+  
+summary(df_tt_50p_flow)
+
+```
+
+
+
+select only Denmark 
+
+```{r}
+
+# df_D <-df_tt_50p_flow %>%
+#   filter(Cultivar=="Denmark")%>%
+# filter(SowTreat=="S8") 
+#     
+#    ##get the mean and SE
+# #get the mean and SE
+# df_D1 <-df_D %>%
+#   group_by(Variable) %>%
+#   dplyr::select(DAS50F,TT50F)%>%
+# summarise_all(funs(mean, sd))
+  
+
+  
+
+```
+
+Now select Narrikup
+
+```{r}
+
+
+df_N <-df_tt_50p_flow %>%
+  filter(Cultivar=="Narrikup")%>%
+filter(SowTreat=="S6"|SowTreat=="S7"|SowTreat=="S8") 
+    
+   ##get the mean and SE
+#get the mean and SE
+df_N1 <-df_N %>%
+  group_by(Variable) %>%
+  dplyr::select(DAS50F,TT50F)%>%
+summarise_all(funs(mean, sd))%>%
+  mutate(DASSE= DAS50F_sd/1.73, TT50SE=TT50F_sd/1.73)%>%
+  select(-DAS50F_sd, -TT50F_sd)
+
+
+
+
+```
+
+then need to calculate the period Days and TT for each phase
+bud to open
+open to petal
+petal -bur3
+bur 3 - bur 4 
+Calculate first duration in days 
+```{r}
+
+df_N2<-df_N %>%
+  select(Cultivar:DAS50F)%>%
+  spread(Variable,DAS50F)%>%
+  mutate(BudOpen=Open-Bud, 
+         OpenPetal=Petal-Open,
+         PetalBur3=Bur3-Petal,
+         Bur3Bur4=Bur4-Bur3)%>%
+  select(-Bud,-Early, -Open, -Petal, -Bur1, -Bur2, -Bur3, -Bur4)%>%
+  group_by(SowTreat)%>%
+        summarise_all(funs(mean, sd))
+   
+
+write.table(df_N2, "Narrikup_DurationDays.txt")
+
+```
+
+Now calculate for duration in  TT 
+
+```{r}
+
+df_N3<-df_N %>%
+  select(Cultivar:Plot, TT50F)%>% 
+  spread(Variable,TT50F)%>%
+  mutate(BudOpen=Open-Bud, 
+         OpenPetal=Petal-Open,
+         PetalBur3=Bur3-Petal,
+         Bur3Bur4=Bur4-Bur3)%>%
+  select(-Bud,-Early, -Open, -Petal, -Bur1, -Bur2, -Bur3, -Bur4)%>%
+  group_by(SowTreat)%>%
+        summarise_all(funs(mean, sd))
+   
+write.table(df_N3, "Narrikup_DurationTT.txt")
+
+
+```
+
+
+

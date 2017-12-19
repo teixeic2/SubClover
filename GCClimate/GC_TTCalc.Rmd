@@ -1,0 +1,363 @@
+
+---
+title: 'Graph climate variables in growth chamber '
+author: "CT"
+date: "12.12.2017"
+output:
+  word_document: default
+  html_document: default
+  pdf_document: default
+---
+
+This script calculates the Thermal time using four methods : 
+1. hourly as average of the 18 seconds measurements 
+2. per Tmax tmin applying the 3x8 formula 
+3. simple method Tmean and  applying the segmented function 
+4. super simple calculation Tb = 0 and no treshold 
+
+```{r}
+library(tidyr)
+library (dplyr)
+library (ggplot2)
+library (lubridate)
+library (scales)
+library(gridExtra)
+library(knitr)
+```
+
+Equation  to calculate the TT 
+
+
+
+## Define Tt cardinal temperatures
+
+Considered an overall average the following references:
+Tb: 0.0
+Top range:18-25
+Tmax: 35
+REFS: MonksEtAl2009	,LonatiEtAl2009	,MootEtal2003, SilsburyetAl1984. 
+							
+```{r}
+
+tt_card <- data.frame(temp=c(0,15,22,35),TT=c(0,15,15,0))
+tt_card %>%
+  ggplot(aes(x=temp, y=TT))+
+  labs(x="Temperature (degree Celsius)")+
+  labs(y="Thermal Time (degree days)") +
+  theme_bw()+
+  geom_line()
+  
+```
+
+
+
+```{r}
+
+ 
+
+#Create and test interpolation function - Test if works 
+
+temp_ref  <- 20 # x-axes reference
+temp <- tt_card$temp # x-axes
+TT <- tt_card$TT # y-axes
+
+
+int_func <- function(temp,TT,temp_ref){
+
+  # if temp is too low or too high give extreme TT values
+ if(temp_ref>temp[length(temp)]) {
+   
+   out <- TT[length(TT)] 
+   # FIXME: approx functions seems to do that - need param
+   
+ } else if (temp_ref<temp[1]) {
+   
+   out <- TT[1]
+   
+ } else {
+   
+   # else interpolate
+   
+   tryCatch(  
+   
+  out <- approx(temp, TT, xout = temp_ref, 
+         method="linear", 
+         rule = 2)$y,
+  error = function(e) 
+  {
+  out <- NA
+  }
+) 
+  
+} # end if check
+
+  return(out)  
+  
+ }
+  
+int_func(temp,TT,temp_ref)
+
+
+```
+
+
+
+
+Note: this file produces the graphs for recorded variables in growht cabinet. measurements are done every 18 seconds. 
+
+```{r, load file}
+
+setwd("C:\\GitHubRepos\\SubCloverPhD\\SubClover\\GCClimate")
+getwd()
+#read data , use row.names=NULL to delete Error message 
+
+df_file <- read.table("AllData.txt",header =TRUE,row.names= NULL )
+
+```
+
+```{r}
+summary(df_file)
+```
+
+##Method 1. TT calculate hourly from measurements every 18 seconds!!!  
+
+```{r}
+
+df_file_Hourly<- df_file %>%
+  mutate(TimeStamp=dmy_hms(paste0(Date," ",Time))) %>%
+  mutate(TimeStamp=ymd_hms(TimeStamp)) %>%
+  mutate(Date=dmy(Date)) %>%
+  dplyr::select(Date,TimeStamp,AI_TEMP,Hour)
+
+summary(df_file_Hourly)
+```
+Average the Temp per Hour
+
+```{r}
+
+df_file_Hourly %>%
+  group_by(Date, Hour)%>%
+  dplyr::select(AI_TEMP )%>%
+  summarise_all(funs(mean))
+
+str(df_file_Hourly)
+
+
+```
+
+Connect function TT calculation 
+
+
+```{r}
+
+
+df_H <- df_file_Hourly %>%
+  dplyr::select(Date:AI_TEMP) %>%
+    rowwise() %>%
+  mutate(TThour=int_func(temp,TT,AI_TEMP)) %>%
+  group_by(Date) %>%
+  summarise(TTday=mean(TThour)) %>%
+  mutate(SumTTday = cumsum(TTday))
+
+summary(df_H)
+str(df_H)
+write.table(df_H, "SumTTHourGC.txt")
+
+```
+
+
+
+
+
+
+## Method 2 
+
+
+							
+```{r}
+
+#Calculate the Tmax and Tmin f each date and link to the 3x8 formula 
+
+df_file_TxTm<- df_file %>%
+  mutate(TimeStamp=dmy_hms(paste0(Date," ",Time))) %>%
+  mutate(TimeStamp=ymd_hms(TimeStamp)) %>%
+  mutate(Date=dmy(Date)) %>%
+  dplyr::select(Date,TimeStamp,AI_TEMP,Hour)
+
+```
+
+Calculate the maximum and minimum temp for each date 
+
+```{r}
+df_file_TxTm2 <-df_file_TxTm %>%
+group_by(Date)%>%
+summarise(Tmin=min(AI_TEMP),Tmax=max(AI_TEMP))
+  
+
+```
+
+Apply the 3x 8 formula 
+
+
+```{r}
+#create REF Jones CA, Ritchie JT, Kiniry JR, Godwin DC (1986) Subroutine structure.In 'CERES-Maize: A simulation model of maize growth anddevelopment'. (Eds CA Jones, JR Kiniry) pp. 49-194. (Texas A&M University Press: Texas, USA
+
+TTfunc <- function(Tmin ,Tmax){         
+ 
+  if (Tmin>Tmax){
+   print("Tmin>Tmax")
+   break
+ } 
+  
+  TTav  <- 0
+  TTsum <- 0
+  
+  for(n in 1:8){ 
+    
+    tn <- 0
+    
+    TT_tn <- 0
+    
+    tn <- ((0.931 +  0.114*n - 0.0703 * n^2 + 0.0053 * n^3) * (Tmax-Tmin)) + Tmin # 8-h temperature
+    #here already the segmented funciton is inserted
+    
+    TT_tn <- int_func(tt_card$temp, tt_card$T,tn) 
+    
+    TTsum <- TT_tn + TTsum
+    
+   # print(TT_tn)
+    
+    }
+ 
+   TTav <- TTsum/8
+  
+  return(TTav)
+  }
+
+TTfunc(10,24)
+
+
+
+```
+
+Link with the Tmax and Tmin table and calculate the Tmean of each date  
+
+
+```{r}
+
+
+df_TxTm3 <- df_file_TxTm2 
+  
+
+summary(df_TxTm3)
+```
+
+
+
+```{r}
+
+df_TxTm4 <- df_TxTm3 %>%
+  dplyr::select(Date,Tmin,Tmax) %>%
+    rowwise() %>%
+  mutate(TTDay=TTfunc(Tmin,Tmax)) %>%
+  group_by(Date) %>%
+  summarise(TTday=mean(TTDay)) %>%
+  mutate(SumTTday2 = cumsum(TTday))
+
+summary(df_TxTm4)
+str(df_TxTm4)
+#Compare with the summary calculated with the Hourly data 
+```
+
+## Method 3 simply Tmean - and apply to function 
+
+
+```{r}
+
+df_file_mean <-df_file_TxTm %>%
+group_by(Date)%>%
+summarise(Tmean=mean(AI_TEMP))%>%
+  dplyr::select(Date,Tmean) %>%
+    rowwise() %>%
+  mutate(TTDay=int_func(temp,TT,Tmean))%>%
+  group_by(Date) %>%
+  summarise(TTDay=1*TTDay) %>%
+  mutate(SumTTDay3 = cumsum(TTDay))
+
+
+
+summary(df_file_mean)
+str(df_file_mean)
+```
+
+## Method 4 simple TT (no function applied ) Tb = 0 only 
+
+```{r}
+
+df_Simple <-df_file_TxTm %>%
+group_by(Date)%>%
+summarise(Tmean=mean(AI_TEMP))%>%
+  dplyr::select(Date,Tmean)%>%
+  rowwise() %>%
+  mutate(TTDay=Tmean-0)%>%
+   group_by(Date) %>%
+  summarise(TTDay=1*Tmean) %>%
+  mutate(SumTTDay4 = cumsum(TTDay))
+
+
+summary(df_Simple)
+str(df_Simple)
+```
+
+
+##Now compare the methods 
+
+```{r}
+
+#merge the dataframes 
+
+## df_H,df_TxTm4,df_file_mean,df_Simple, by = "Date"
+
+total <- merge(df_H,df_TxTm4, by="Date")
+total1 <- merge(df_file_mean,df_Simple, by="Date")
+
+AllMethod <- merge(total,total1, by="Date")
+
+str(AllMethod)
+```
+
+
+now graph the methods 
+
+```{r fig.height=5, fig.width=15}
+
+##Create days of Test 
+
+stDate<-min(AllMethod$Date)
+
+AllMethod %>%
+  select(Date ,  SumTTday, SumTTday2, SumTTDay3,  SumTTDay4)%>%
+  gather("VarName","Value",SumTTday:SumTTDay4)%>%
+  ggplot(aes(x=Date-stDate,y=Value)) +
+  geom_line(aes(colour=VarName)) +
+ # ylim(0,mxT) +
+  theme_bw()+
+  ylab("SumTT (oCd)")+
+  xlab("Days") 
+  #facet_wrap(~VarName, scales='free')
+
+
+
+```
+
+
+
+
+
+
+
+
+
+
+
+

@@ -1,0 +1,201 @@
+
+---
+title: "Graph Air and Estimated Soil Temperature Poukawa "
+author: "CT"
+date: "03.08.2017"
+output: html_document
+---
+Aim: graph the estimated soil temperatures in both methods (Langholz and Iverse 2 equations)
+
+```{r}
+library(tidyr)
+library (dplyr)
+library (ggplot2)
+library (lubridate)
+library (scales)
+library(gridExtra)
+```
+
+SoilTempPo was created based on Mean Air Temperature (excel file; Zheng et al 1993 and Langholz 1989 equations for sand loam soil; 50 mm depth: Cfa climate)
+
+```{r, load file}
+
+setwd("C:\\GitHubRepos\\SubCloverPhD\\SubClover\\Pok_SoilAirTemp")
+getwd()
+#read soil and Air data 
+df_file <- read.table("CompareSoilTempsMethods.txt", header=TRUE)
+
+head(df_file)
+
+
+
+str(df_file)
+
+
+```
+
+Graph of the estimated  soil temperature 
+ 
+```{r Soiltemp_mean}
+
+df_file<-df_file %>% 
+  mutate(Equation1=SoilTIversen2, Equation2=SoilTLangholz) 
+
+
+df_gather<-df_file %>%
+  mutate(Date = dmy(Date))%>% #(need to reformat date here)
+  select(Date,Equation1, Equation2, TAirMean)%>%
+  gather(key= "Method" , value = "Degrees", Equation1, Equation2)
+  
+  
+
+
+
+```
+
+
+```{r, fig.height=5, fig.width=15}
+
+df_gather%>% 
+  #filter(year %in% 2015:2017) %>%
+  ggplot(aes(x=Date, y= Degrees)) +
+  theme_bw()+
+  #geom_point(aes(colour=Method), alpha=0.9, size=2)+
+  #geom_smooth(aes(colour=Method))+
+  geom_line(aes(linetype=Method))+
+  ylab(expression(Estimated~Soil~temperature~~"("^"o"*"C)"))+
+  xlab(expression(Date~"(Month"/"Year)"))+
+  theme(text = element_text(size=16))
+  ylim(0,35)
+  
+  ggsave("plot_EstimatedSoilTemp.png", width=12, height=6, dpi=400)
+ 
+
+```
+
+
+
+
+
+
+Graph of the daily mean  Air  temperature 
+
+```{r, fig.height=5, fig.width=8}
+
+
+ df_Air %>%
+  mutate(Date = dmy(Date))%>% #(need to reformat date here)
+  #filter(year %in% 2015:2017) %>%
+  group_by(Date) %>%
+  summarise_each(funs(mean))%>%
+  ggplot(aes(x=Date, y= MeanTt))  +
+  #geom_point(colour= "darkblue", alpha=0.2) +
+  geom_line(colour= "blue")+
+  #stat_smooth(level = 0.9, size = 1, colour="white") + 
+  theme_bw() +
+  xlab("Date") + 
+  theme(text = element_text(size=10))+
+  ylab(expression(Mean~air~temperature~~"("^"o"*"C)"))+
+  scale_x_date(date_breaks = "3 month", 
+                 date_labels = "%B",
+                 limits = as.Date(c('2016-06-01','2017-07-07')))
+
+
+
+
+```
+
+```{r,fig.height=5, fig.width=15}
+
+
+df_gather<-df_Air %>%
+  select(Date,Tx,Tm,MeanTt,Pp)%>%
+gather(key= "Variable" , value = "TempHour", Tx,Tm,MeanTt,Pp)%>%
+  mutate(Date=dmy(Date))
+  
+
+df_gather%>%
+  mutate(Variable=factor(Variable,levels=c("Tm","MeanTt","Tx","Pp"),labels = c("Tmin","Tmean","Tmax","Photoperiod")))%>%
+ ggplot(aes(x=Date, y= TempHour)) +
+  theme_bw()+
+  geom_point(aes(colour=Variable,shape=Variable), alpha=0.8, size=3)+
+  #geom_point()+
+  scale_color_manual(values = c("steelblue3","orange","red", "gray20" ))+
+  scale_shape_manual(values = c(15,16,17,18))+
+  #geom_line(aes(colour=Variable))+
+  #geom_smooth(aes(colour=Variable))+
+  xlab(expression(Date~"(Month/Year)"))+
+  
+  ylab(expression(Air~Temperature~Photoperiod~"("^"o"*"C/hours)"))+
+  scale_x_date(date_breaks = "3 month", 
+                 date_labels = "%B%Y",
+                 limits = as.Date(c('2016-02-01','2017-04-01')))+
+  theme(axis.text.y = element_text(size=14))+
+  theme(axis.title.y = element_text(size=14))+
+  theme(legend.text = element_text(size=14))+
+  theme(axis.title.x = element_text(size=14))+
+  ylim(0,40)
+    
+ #ggsave("plot_TempPpPok.png", width=12, height=6, dpi=400)
+
+
+```
+
+
+
+
+
+
+
+Create a grid with two graphs 
+
+```{r}
+
+
+
+g1 <-df_file %>%
+  mutate(Date = dmy(Date))%>% #(need to reformat date here)
+  group_by(Date) %>%
+ summarise_each(funs(mean)) %>%
+  ggplot(aes(x=Date, y= TempSoil10mm))  +
+  #geom_point(colour= "darkblue", alpha=0.2) +
+  geom_line(colour= "brown")+
+  #stat_smooth(level = 0.9, size = 1, colour="white") + 
+  theme_bw() +
+  xlab("Month") + 
+  ylab(expression(Mean~estimate~soil~temperature~~"("^"o"*"C)"))+
+  theme(text = element_text(size=10))+
+  scale_x_date(date_breaks = "3 month", 
+                 date_labels = "%B",
+                 limits = as.Date(c('2016-02-01','2017-05-07')))
+
+
+g2 <-df_Air %>%
+  mutate(Date = dmy(Date))%>% #(need to reformat date here)
+  #filter(year %in% 2015:2017) %>%
+  group_by(Date) %>%
+  summarise_each(funs(mean))%>%
+  ggplot(aes(x=Date, y= MeanTt))  +
+  #geom_point(colour= "darkblue", alpha=0.2) +
+  geom_line(colour= "blue")+
+  #stat_smooth(level = 0.9, size = 1, colour="white") + 
+  theme_bw() +
+  xlab("Month") + 
+  theme(text = element_text(size=10))+
+  ylab(expression(Mean~air~temperature~~"("^"o"*"C)"))+
+  scale_x_date(date_breaks = "3 month", 
+                 date_labels = "%B",
+                 limits = as.Date(c('2016-02-01','2017-05-07')))
+
+
+grid.arrange(g2, g1)
+
+
+
+```
+
+
+End of this script.
+The next script AirSoilTempCorrelate graphs the two temperatures.
+
+

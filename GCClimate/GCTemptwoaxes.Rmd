@@ -1,0 +1,301 @@
+
+---
+title: "Graph climate variables in growth chamber "
+author: "CT"
+date: "12.12.2017"
+output: html_document
+---
+
+This script graphs the Temp and Pp during growth chamber experiment
+
+```{r}
+library(tidyr)
+library (dplyr)
+library (ggplot2)
+library (lubridate)
+library (scales)
+library(gridExtra)
+```
+
+Note: this file produces the graphs for recorded variables in growht cabinet. measurements are done every 18 seconds. 
+
+```{r, load file}
+
+setwd("C:\\GitHubRepos\\SubCloverPhD\\SubClover\\GCClimate")
+getwd()
+#read data , use row.names=NULL to delete Error message 
+
+df_file <- read.table("AllData.txt",header =TRUE,row.names= NULL )
+
+```
+
+```{r}
+summary(df_file)
+```
+
+
+
+
+
+```{r}
+
+df_file_work <- df_file %>%
+  mutate(TimeStamp=dmy_hms(paste0(Date," ",Time))) %>%
+  mutate(TimeStamp=ymd_hms(TimeStamp)) %>%
+  mutate(Date=dmy(Date)) %>%
+  dplyr::select(Date,TimeStamp,AI_TEMP,AI_LIGHT)
+
+summary(df_file_work)
+```
+
+
+```{r}
+str(df_file_work)
+```
+
+```{r, fig.height=5, fig.width=10}
+
+stDate<-min(df_file_work$Date)
+mxT<-max(df_file_work$AI_TEMP)
+#stDate<-ymd("2016/1/1")
+
+df_file_work %>%
+  group_by(Date)  %>%
+  summarise(Tn=min(AI_TEMP),Tm=mean(AI_TEMP),Tx=max(AI_TEMP),Pp=sum(AI_LIGHT>800)/187) %>%
+  mutate(TTsum=cumsum(Tm)) %>%
+  gather("VarName","Value",Tn:TTsum)%>%
+    ggplot(aes(x=Date-stDate,y=Value)) +
+  geom_line(aes(colour=VarName)) +
+  #geom_smooth(aes(colour=VarName), alpha=0.03)+
+ # ylim(0,mxT) +
+  theme_bw()+
+  ylab("Value")+
+  xlab("Days of trial") +
+  facet_wrap(~VarName, scales='free')
+
+
+  #ggsave("plot_ClimateGC.png", width=12, height=6, dpi=400)
+
+```
+
+
+```{r, fig.height=5, fig.width=10}
+
+
+stDate<-min(df_file_work$Date)
+mxT<-max(df_file_work$AI_TEMP)
+#stDate<-ymd("2016/1/1")
+
+df_file_work %>%
+  group_by(Date)  %>%
+  summarise(Tn=min(AI_TEMP),Tm=mean(AI_TEMP),Tx=max(AI_TEMP),Pp=sum(AI_LIGHT>800)/187) %>%
+  mutate(TTsum=cumsum(Tm)) %>%
+  gather("VarName","Value",Tn:TTsum)%>%
+  filter(VarName!="TTsum")%>%
+  ggplot(aes(x=Date-stDate,y=Value)) +
+  #geom_line(aes(colour=VarName)) +
+  geom_smooth(aes(linetype=VarName),alpha=0.05, colour="grey")+
+   geom_point(alpha=0.2)+
+ # ylim(0,mxT) +
+  theme_bw()+
+  ylab("Value")+
+  xlab("Days of trial") +
+  facet_wrap(~VarName, scales='free')+
+  ylim(0,25)
+ggsave("plot_ClimateGC2.png", width=12, height=6, dpi=400)
+
+
+```
+
+
+##scripts below may not be needed now 
+
+
+graph variables 
+
+
+```{r}
+# df_gather <- df_file %>%
+# mutate(TimeStamp=dmy_hms(paste0(Date," ",Time))) %>%
+# tidyr::gather(key= "Variable" , value = "Value", AI_TEMP,SP_TEMP,AI_HUM,AI_LIGHT)  %>%
+#   mutate (Variable = factor(Variable, 
+#                               levels=c("AI_HUM", "AI_LIGHT", "AI_TEMP", "SP_TEMP"),
+#                               labels=c(" Humidity(%)", "Light(µ moles/m2/s)", "Actual Temperature (oC)", "Set Temperature (oC)"))) %>%
+#   mutate(TimeStamp=ymd_hms(TimeStamp))
+  
+
+```
+
+
+
+```{r}
+# str(df_gather)
+```
+
+
+Graph all data (keep this chunck commented out it is too heavy to run )
+
+
+
+
+```{r, fig.height=15; fig.widht=25}
+
+
+# df_gather %>%
+#    ggplot(aes(x=TimeStamp, y= Value))  +
+#    #geom_point(aes(colour=Variable, shape=Variable), alpha=0.8)+
+# #   #geom_point(colour= "darkblue", alpha=0.2) +
+#    geom_line(aes(colour=Variable)) +
+# #   #stat_smooth(level = 0.9, size = 1, colour="white") +
+#    theme_bw() +
+#    facet_wrap(~Variable,ncol=2, scales = "free")+
+#    xlab("Date") +
+#    #ylab(expression(Mean~soil~temperature~~"("^"o"*"C)"))+
+#    theme(text = element_text(size=10))
+
+                
+
+
+  #ggsave("plot_ClimateGC.png", width=12, height=6, dpi=400)
+```
+
+
+
+```{r}
+
+df_Day <- read.table("DailyTemp.txt",header =TRUE,row.names= NULL )
+
+str(df_Day)
+
+#adjust format 
+
+df_file2 <-df_file %>%
+  mutate(Date=as.Date(dmy(Date)))
+
+str(df_file2)
+
+df_Day2<-df_Day %>%
+  mutate(Date=as.Date(dmy(Date)))
+
+str(df_Day2)
+```
+
+merge by date 
+
+```{r}
+
+df_merged<-merge(df_file2, df_Day2, by="Date")
+
+```
+
+
+Now get values for temperatures set and recorded (select columns of interest)
+
+```{r, fig.height=5, fig.width=10}
+
+dfTemp <- df_merged %>%
+  select (Date,Time,AI_TEMP,DayTemperature,NightTemperature)%>%
+  tidyr::gather(key= "Variable" , value = "Value", AI_TEMP,DayTemperature,NightTemperature)  
+
+
+dfTemp %>%
+  mutate (Variable = factor(Variable, 
+                              levels=c("AI_TEMP","DayTemperature","NightTemperature"),
+                              labels=c(" Actual Temperature(oC)", " Day Temperature(oC)","Night Temperature (oC)" )))%>%
+ggplot(aes(x=Date, y= Value))  +
+geom_point(aes(colour=Variable, shape=Variable), alpha=0.8,size=3)+
+  # geom_point(aes(colour= Variable, alpha=0.2)) +
+   #geom_line(aes(colour=Variable)) + 
+  scale_color_manual(values=c("grey", "black", "blue"))+ 
+# #   #stat_smooth(level = 0.9, size = 1, colour="white") +
+   theme_bw() +
+#    facet_wrap(~Variable,ncol=2, scales = "free")+
+  xlab("Month") +
+  ylab(expression(Temperature~~"("^"o"*"C)"))+
+  theme(axis.text.x=element_text(angle = +0, hjust = 0, size= 14))+
+  theme(axis.text.y=element_text( size= 14))+
+  theme(axis.title.y=element_text( size= 14))+
+  ylim(0,25)
+
+
+
+
+```
+
+
+
+Now get values for Pp set and recorded (select columns of interest)
+
+```{r}
+#bring values of Photoperiod calculated in other script selecting > 800 flux 
+
+df_Pp <- read.table("PpGC.txt",header =TRUE)
+
+
+str(df_Pp)
+
+#adjust formats
+df_Pp2<-df_Pp %>%
+ mutate(Date=as.Date(ymd(Date)))
+
+
+
+str(df_Pp2)
+
+
+```
+
+
+```{r}
+
+# then merge
+
+df_mergePp<-merge(df_Pp2, df_Day2, by="Date")
+
+#select rows of interest 
+df_mergePp2 <- df_mergePp %>%
+select(Date,PpHours, sum.Value.195000.)%>%
+  mutate(A_Pp=sum.Value.195000.)%>%
+  select(Date,PpHours,A_Pp)
+
+
+```
+gather and graph Pp
+
+```{r, fig.height=5, fig.width=10}
+
+df_mergePp3 <- df_mergePp2 %>%
+  tidyr::gather(key= "Variable" , value = "Value", PpHours,A_Pp)  
+
+
+df_mergePp3 %>%
+  mutate (Variable = factor(Variable, 
+                              levels=c("A_Pp", "PpHours"),
+                              labels=c(" Actual Pp (hours)", " Set Pp (hours)")))%>%
+ggplot(aes(x=Date, y= Value))  +
+geom_point(aes(colour=Variable, shape=Variable), alpha=0.8, size=3)+
+# #   #geom_point(colour= "darkblue", alpha=0.2) +
+   #geom_line(aes(colour=Variable)) + 
+  scale_color_manual(values=c("grey", "black"))+
+# #   #stat_smooth(level = 0.9, size = 1, colour="white") +
+   theme_bw() +
+#    facet_wrap(~Variable,ncol=2, scales = "free")+
+  xlab("Month") +
+  ylab(expression(Daily~Photoperiod~"("*"hours"*")"))+
+  theme(axis.text.x=element_text(angle = +0, hjust = 0, size= 14))+
+  theme(axis.text.y=element_text( size= 14))+
+  theme(axis.title.y=element_text( size= 14))+
+  theme(axis.title.x=element_text( size= 14))+
+  ylim(0,16)
+
+```
+
+Humidity 
+
+
+
+
+
+
+
+

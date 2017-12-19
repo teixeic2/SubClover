@@ -45,7 +45,7 @@ tt_card %>%
 
 #Create and test interpolation function - Test if works 
 
-temp_ref  <- 10 # x-axes reference
+temp_ref  <- 25 # x-axes reference
 x_temp <- tt_card$temp # x-axes
 y_TT <- tt_card$TT # y-axes
 
@@ -83,7 +83,7 @@ int_func <- function(temp,TT,temp_ref){
   
  }
   
-int_func(temp,TT,temp_ref)
+int_func(x_temp,y_TT,temp_ref)
 
 
 ```
@@ -321,7 +321,7 @@ the formula and the hourly records correlate well ~12.5..
 
 ```{r}
 
-#write.table(df_CumTTiv, "df_CumTTiv.txt")
+write.table(df_W, "df_CumTTiv2.txt")
 
 ```
 

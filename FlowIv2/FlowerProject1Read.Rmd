@@ -170,9 +170,11 @@ NZ	Iversen2_2015	30/06/2015	181	18.50	1.30	9.90	10.05867507
 
 #Temperatures from 24 June to 29 June included from Broadfield Niwa in excel Datalogger folder  Thermal Sum is created  in the the Thermal time project_TTCalc (R script_file)
 
-#The df_CumTTiv.txt comes from the TTCalc script in the main Gitsubclover folder! Need to produce the file and add to the FlowIv2 folder for calculations 
+#The df_CumTTiv.txt comes from the TTCalc script in the main Gitsubclover folder! Need to produce the file and add to the FlowIv2 folder for calculations. 
+
+#the file df_CumTTiv2.txt contains the thermal sum hourly from Iversen. 
  
-df_TTSum <- read.table("df_CumTTiv.txt",header=TRUE)
+df_TTSum <- read.table("df_CumTTiv2.txt",header=TRUE)
 
 # remove extra columns
 df_TTSum <- df_TTSum %>%
@@ -253,7 +255,7 @@ df_flower %>%
   group_by(DAS,Cultivar,SowTreat,Variable) %>%
   summarise_each(funs(mean)) %>%
   #select(Variable,Percent, Cultivar,SowTreat) %>%
-  filter(Cultivar == "Monti" | Cultivar =="Woogenellup") %>%
+  filter(Cultivar == "Narrikup" | Cultivar =="Denmark") %>%
   ggplot(aes(x=DAS, y=Percent)) + 
   #geom_bar(shape=1, stat="identity")
   geom_line(aes(colour=Cultivar)) +
@@ -337,12 +339,13 @@ df_flower %>%
   mutate(Variable = 
   factor(Variable,levels = c("Bud","Early","Open",
           "Petal","Bur1","Bur2","Bur3","Bur4" ))) %>%
+  filter(Cultivar=="Narrikup")%>%
   group_by(TTAS,Cultivar,SowTreat,Variable,DAS) %>%
   summarise_each(funs(mean)) %>%
   #select(Variable,Percent, Cultivar,TTAS,SowTreat,SowingD,DAS) %>%
-  filter(Variable == "Bud") %>%
+  filter(Variable == "Bud"| Variable == "Open" ) %>%
   ggplot(aes(x=TTAS, y=Percent)) + 
-  geom_line(aes(colour=Cultivar)) +
+  geom_line(aes(colour=Variable)) +
   facet_grid(SowTreat~Cultivar, scales = "free") +
   geom_abline(intercept = 50, slope = 0)+
    theme_bw()+
@@ -352,15 +355,42 @@ xlab(expression(Thermal~time~~"("^"o"*"Cd)"))
  
 ```
 
+```{r}
+# graph
+df_flower %>%
+  mutate(Variable = 
+  factor(Variable,levels = c("Bud","Early","Open",
+          "Petal","Bur1","Bur2","Bur3","Bur4" ))) %>%
+  filter(Cultivar=="Narrikup")%>%
+  group_by(TTAS,Cultivar,SowTreat,Variable,DAS) %>%
+  summarise_all(funs(mean)) %>%
+  #select(Variable,Percent, Cultivar,TTAS,SowTreat,SowingD,DAS) %>%
+  filter(Variable == "Bud"| Variable == "Bur1" ) %>%
+  filter(SowTreat=="S7")%>%
+  ggplot(aes(x=TTAS, y=Percent)) + 
+  #geom_line(aes(colour=Variable)) +
+  geom_smooth()+
+  facet_grid(SowTreat~Cultivar, scales = "free") +
+  geom_abline(intercept = 50, slope = 0)+
+   theme_bw()+
+theme(axis.text.x = element_text(angle = 60, hjust = 1))+
+labs(y="Percent of Plants with Floral bud ")+
+xlab(expression(Thermal~time~~"("^"o"*"Cd)"))
+```
+
+
+
+
 Here analyse per stages means to write in chapter 4. 
 
 ```{r}
 
 df_3<-df_flower %>%
+  filter(Variable == "Bud"| Cultivar =="Narrikup")%>%
   group_by(TTAS,Date,Cultivar,SowTreat,Variable)%>%
   select(Variable,Percent,Cultivar,Date,SowTreat)%>%
-  filter(Variable == "Bud"| Cultivar =="Monti")%>%
-summarise_each(funs(mean)) 
+  
+summarise_all(funs(mean)) 
 
 summary (df_3)
 

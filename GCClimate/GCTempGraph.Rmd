@@ -1,0 +1,211 @@
+
+---
+title: "Graph climate variables in growth chamber "
+author: "CT"
+date: "12.12.2017"
+output: html_document
+---
+
+
+```{r}
+library(tidyr)
+library (dplyr)
+library (ggplot2)
+library (lubridate)
+library (scales)
+library(gridExtra)
+```
+
+Note: this file produces the graphs for recorded variables in growht cabinet. measurements are done every 18 seconds. 
+
+```{r, load file}
+
+setwd("C:\\GitHubRepos\\SubCloverPhD\\SubClover\\GCClimate")
+getwd()
+#read data , use row.names=NULL to delete Error message 
+
+df_file <- read.table("AllData.txt",header =TRUE,row.names= NULL )
+
+
+str(df_file)
+
+
+
+```
+
+
+graph variables 
+
+
+```{r}
+df_gather<-df_file %>%
+  #select(Date,Tx,Tm,MeanTt,Pp)%>%
+gather(key= "Variable" , value = "Value", AI_TEMP,SP_TEMP,AI_HUM,AI_LIGHT)%>%
+  mutate(Date=dmy(Date))
+
+
+```
+
+Graph all data (keep this chunck commented out it is too heavy to run )
+
+
+
+
+```{r, fig.height=5; fig.widht=10}
+
+
+# df_gather%>%
+#    mutate (Variable= factor(Variable, levels=c("AI_HUM", "AI_LIGHT", "AI_TEMP", "SP_TEMP"),labels=c(" Humidity(%)", "Light(µ moles/m2/s)", "Actual Temperature (oC)", "Set Temperature (oC)")))%>%
+#   ggplot(aes(x=Date, y= Value))  +
+#   #geom_point(aes(colour=Variable, shape=Variable), alpha=0.8)+
+#   #geom_point(colour= "darkblue", alpha=0.2) +
+#   geom_line(aes(colour=Variable)) +
+#   #stat_smooth(level = 0.9, size = 1, colour="white") + 
+#   theme_bw() +
+# facet_wrap(~Variable,ncol=2, scales = "free")+
+#   xlab("Date") + 
+#   #ylab(expression(Mean~soil~temperature~~"("^"o"*"C)"))+
+#   theme(text = element_text(size=10))
+  
+                
+
+
+  #ggsave("plot_ClimateGC.png", width=12, height=6, dpi=400)
+```
+
+
+calculate hours of light (and darkness)flux above 800; divide by o=constant 195000 to find values in hours! 
+
+
+```{r,fig.height=5, fig.width=15}
+
+#subset >800  because is the full light  
+g1<- df_gather %>%
+ filter(Variable== "AI_LIGHT")%>%
+  subset(Value>800)
+
+g2<-g1 %>% group_by(Date) %>%
+  dplyr::select(Value)%>%
+ summarise_(sum(Value/195000))
+  
+  
+
+ str(g2) 
+
+  #write.table(g2, "PpGC.txt")
+ 
+
+```
+
+then bring the Pp data and graph it 
+
+ 
+ 
+```{r Soiltemp_mean}
+
+df_Pp <- read.table("PpGC.txt",header =TRUE)
+
+
+str(df_Pp)
+
+
+df_Pp %>%
+
+  ggplot(aes(x=as.Date(Date), y= sum.Value.195000.))  +
+ #geom_point(aes(colour=Variable, shape=Variable), alpha=0.8)+
+ geom_point(colour= "grey", alpha=0.2, size=3) +
+ geom_line() +
+#   #stat_smooth(level = 0.9, size = 1, colour="white") + 
+ theme_bw() +
+# facet_wrap(~Variable,ncol=2, scales = "free")+
+ xlab("Month") +
+ylab("Photoperiod (hours)")+
+
+  scale_x_date(date_breaks = "1 month", 
+                 date_labels = "%B")+
+
+  theme(axis.text.y = element_text(size=16))+
+  #theme(axis.title.x = element_title(size=12))+
+  theme(axis.title.y = element_text(size=16))+
+  theme(legend.text = element_text(size=14))+
+  theme(axis.title.x = element_text(size=12))+
+  theme(axis.text.x = element_text(angle = 0, hjust = 0.5, size=12))
+                 
+
+
+
+```
+
+then graph Pp and the other variables 
+
+```{r, fig.height=5, fig.width=8}
+
+##make average per day
+str(df_gather)
+
+dfHourly <- df_file %>%
+  group_by(Date,)%>% summarise_all(funs(mean))
+
+ df_Air %>%
+  mutate(Date = dmy(Date))%>% #(need to reformat date here)
+  #filter(year %in% 2015:2017) %>%
+  group_by(Date) %>%
+  summarise_each(funs(mean))%>%
+  ggplot(aes(x=Date, y= MeanTt))  +
+  #geom_point(colour= "darkblue", alpha=0.2) +
+  geom_line(colour= "blue")+
+  #stat_smooth(level = 0.9, size = 1, colour="white") + 
+  theme_bw() +
+  xlab("Date") + 
+  theme(text = element_text(size=10))+
+  ylab(expression(Mean~air~temperature~~"("^"o"*"C)"))+
+  scale_x_date(date_breaks = "3 month", 
+                 date_labels = "%B",
+                 limits = as.Date(c('2015-06-01','2017-07-07')))
+
+
+
+
+```
+
+
+then create an object g2 for the grid 
+```{r}
+g2 <-df_Air %>%
+  mutate(Date = dmy(Date))%>% #(need to reformat date here)
+  #filter(year %in% 2015:2017) %>%
+  group_by(Date) %>%
+  summarise_each(funs(mean))%>%
+  ggplot(aes(x=Date, y= MeanTt))  +
+  #geom_point(colour= "darkblue", alpha=0.2) +
+  geom_line(colour= "blue")+
+  #stat_smooth(level = 0.9, size = 1, colour="white") + 
+  theme_bw() +
+ xlab("Date") + 
+  ylab(expression(Mean~air~temperature~~"("^"o"*"C)"))+
+  theme(text = element_text(size=10))+
+  scale_x_date(date_breaks = "3 month", 
+                 date_labels = "%B",
+                 limits = as.Date(c('2015-06-01','2017-07-07'))) 
+
+
+
+```
+
+
+Then create a grid with two graphs 
+
+```{r}
+
+
+grid.arrange(g2, g1)
+
+
+
+```
+
+
+
+then continue in next script AirSoilTempCorrelat....
+
+

@@ -126,7 +126,7 @@ df_Rea3 %>%
  # facet_wrap(~VarName, scales="free") +
   coord_flip() + theme(legend.position="top") + guides(colour=guide_legend(title="Sowing month"))
   
-ggsave("plot_DaysTTFlowerLocation.png", width=12, height=6, dpi=400)
+#ggsave("plot_DaysTTFlowerLocation.png", width=12, height=6, dpi=400)
 ```
 
 then back to the original graph with sowing date in X and days and TT as panels 

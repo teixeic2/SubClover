@@ -40,15 +40,15 @@ check structure
 ```{r}
 str(df_flower)
 ```
-Create a category that is flowering which contains early bud and petal. 
+Create a category that is flowering which contains only open flower. 
 
 ```{r}
 
 # create df with flowering stages only (merged)
 df_flower_simple <- df_flower %>%
-filter(Variable == "Early" | 
-         Variable == "Open" | 
-         Variable == "Petal") %>%
+filter( 
+         Variable == "Open"  
+         ) %>%
 group_by(Date, Plot) %>%
   mutate(Variable = "Flowering", 
          Percent=(Percent) )
@@ -56,32 +56,6 @@ group_by(Date, Plot) %>%
 ```
 
 
-
-#Merge phenological stages into "bud, flower and burr". No need to use these script here as the data is already calculated in script 1. 
-
-```{r joinEarlyOpenFlower, warning=FALSE}
-
-# create df with flowering stages only (merged)
-# df_flower_simple <- df_flower %>%
-# filter(Variable == "Early" | 
-#          Variable == "Open" | 
-#          Variable == "Petal") %>%
-# group_by(Date, Plot) %>%
-#   mutate(Variable = "Flowering", 
-#          S1=max(S1), 
-#          S2=max(S2),
-#          S3=max(S3), 
-#          S4=max(S4),
-#          S5=max(S5),
-#          Percent=((S1+S2+S3+S4+S5)/5)*100)
-
-# merge both dfs
-#df_flower_simple <- rbind(df_flower, df_flower_simple)
-
-
-
-
-```
 check data 
 
 ```{r}
@@ -186,9 +160,7 @@ theme(axis.text.x = element_text(angle = 60, hjust = 1))
 ```{r}
 # graph it
 df_bud_flow_bur_simple %>%
-  filter(Variable == "Bud" |
-           Variable =="Flowering"| 
-           Variable =="Bur")  %>%
+  
   mutate(Variable = 
   factor(Variable,levels = c("Bud","Flowering",
                              "Bur"))) %>%
