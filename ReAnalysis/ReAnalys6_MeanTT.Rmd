@@ -149,7 +149,7 @@ df_MeanTFlo2%>%
 #Create TTsum at flowering
 
 df_MeanTFlo2 %>%
-  #filter(Treatcultivar=="MtBarker") %>%
+  filter(Treatcultivar=="Nungarin") %>%
   ggplot(aes(x=(TmeanSowFlow), y=DaysToFlower))+
   geom_boxplot(alpha=0.2)+
   geom_jitter(width = 0.1, aes(colour=Location, shape=Country))+

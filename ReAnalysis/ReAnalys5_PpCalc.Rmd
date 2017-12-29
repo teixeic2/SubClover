@@ -103,22 +103,27 @@ df_Rea7 %>%
   labs(x=" Sowing Month", y=" oCd            Days  ")+
     theme_bw()+
  #geom_smooth(se=FALSE)+
-  #theme(legend.position="none")+
+#theme(legend.position="none")+
   labs(shape="Maturity Group")+
   facet_grid(Variable~Location, scales = "free")+
    theme(text = element_text(size = 16))
+
+ggsave("plot_DaysTTFlower_SowingMonth_subset.png", width=12, height=6, dpi=400)
+
 ```
 
-Try same graph but with x = date (continuous)
+Try same graph but with x = is Pp at sowing 
 
 ```{r, warning=FALSE}
+
+str(df_Rea7)
 
 #Check data filtering indexLocCult. See r2 generated below. 
 df_Rea7 %>%
   #mutate(Month=format(as.Date(ymd(SowingDate)),"%b")) %>%
-  ggplot(aes(x=month(SowingDate), y= Value, colour=Treatcultivar)) +
+  ggplot(aes(x=Pp, y= Value, colour=Treatcultivar)) +
   geom_point(aes(shape = factor(SensGroup)),size=1.9)+
-  labs(x=" Sowing Month", y=" oCd            Days  ")+
+  labs(x=" Pp", y=" oCd            Days  ")+
   theme_bw()+
  geom_line()+
   #theme(legend.position="none")+
@@ -215,7 +220,7 @@ Pp_finder_func <- function(idx_loc,tt_target){
 
 ```{r}
 #test
-tt_target <- 116.37330
+tt_target <- 117  
 #TTsum estimated to reach 1st trifoliate 
 
 #test if function is working : example : 
@@ -374,6 +379,7 @@ ggg <- c("Late","Early")
     #dplyr::filter(SensGroup == ggg[gg]) %>%
     filter(Variable == "TTFloAdj") %>%
      mutate(tt_extra_opt=as.numeric(ifelse(SensGroup=="Late",900,700)))%>%
+     #mutate(tt_extra_opt=as.numeric(ifelse(SensGroup=="Late",700,500)))%>%
      mutate(TT_target = TTSumSow + tt_extra_opt) %>% #define multiple thermal time after sowing for which photoperiod needs to be retrieved 
     
     mutate(Pp_target = Pp_finder_func(as.character(LocationYear),TT_target)) %>%
@@ -426,7 +432,7 @@ polFit_df <- dt1 %>%
 
 # get size of loop
 noFactors <- length(unique(dt1$SensGroup)) # how many factors?
-noCoeff <-   polyType + 1 # how many coeficients (plynomial no + 1 intercept)
+noCoeff <-   polyType + 1 # how many coeficients (polynomial no + 1 intercept)
 
 # loop and print each coeff
 for (f in 1:noFactors) {
