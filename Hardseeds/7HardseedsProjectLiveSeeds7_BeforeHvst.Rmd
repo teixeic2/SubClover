@@ -1,0 +1,295 @@
+---
+title: "Hardseeds Live Max 6CV"
+author: "CT"
+date: "11.01.2018"
+output: pdf_document
+---
+
+
+```{r loadLibraries}
+library(tidyr)
+library (dplyr)
+library (ggplot2)
+library(agricolae)
+library(knitr)
+library (lubridate)
+library(gridExtra)
+
+```
+
+-This script reads the weather conditions ten days before harvest (RH, TEMP, Rain) : EnviroBeforeHarvest.txt
+-Combines the info about the max hardness and slope hardseed breakdown 
+-Attempt to establish correlation between the different variates 
+
+```{r loadFile}
+setwd("C:\\GitHubRepos\\SubCloverPhD\\SubClover\\Hardseeds")
+getwd()
+
+#create file
+df_BefHvst <- read.table("EnviroBeforeHarvest.txt",header=TRUE)
+head(df_BefHvst)
+# change format 
+
+
+```
+
+now gather and create SowTreat column
+
+
+```{r}
+
+df_BefHvst <-df_BefHvst %>%
+  gather(key= "SowTreat" , value = "Value" , S1:S7)
+  
+
+```
+
+
+bring data frame with max hardseeds
+
+
+```{r}
+
+setwd("C:\\GitHubRepos\\SubCloverPhD\\SubClover\\Hardseeds")
+getwd()
+
+#create file
+df_Slope <- read.table("MeanSlope.txt",header=TRUE)
+head(df_Slope)
+
+
+df_Slope <- df_Slope %>%
+  mutate(SowTreat=sow, Cultivar=cv)%>%
+  select (-sow,-cv)
+
+str(df_Slope)
+
+```
+
+bring data with max hardseed
+
+```{r}
+
+df_seed <- read.table("dfHard_break.txt",header=TRUE)
+
+str(df_seed)
+
+df_seed <- df_seed %>%
+  
+select(Block:Round,HardAccum)  
+
+str(df_seed)
+
+```
+
+make the mean by cultivar and sowTreat
+
+```{r}
+df_seed <- df_seed %>%
+ filter(Round==14)%>% 
+  group_by(Cultivar,SowTreat)%>%
+  dplyr:: select(HardAccum)%>%
+  summarise_all(funs(mean))
+
+```
+
+merge first the dataframes with max and hardseed breakdown
+
+
+```{r}
+
+str(df_seed)
+str(df_Slope)
+df_MaxBreak <- merge(df_seed, df_Slope, by=c("Cultivar","SowTreat"))
+
+
+```
+
+then merge with the weather data ...need t spread variables RH, Temp and Rain first to create same number of rows  
+
+```{r}
+
+str(df_BefHvst)
+
+##first spread 
+df_BefHvst1 <-df_BefHvst %>%
+  spread(Variable, Value)
+
+# then merge 
+df_All <- merge(df_MaxBreak, df_BefHvst1, by=c("Cultivar","SowTreat"))
+
+# then make slopes without minus sign 
+df_All <-df_All %>%
+  mutate (slope=-1*(slope))
+
+
+```
+
+
+Now plot variates to find  ...any correlation? 
+
+
+
+
+```{r, fig.height=5, fig.width=10}
+
+str(df_All)
+
+pairs(~HardAccum+slope+Rain+RH+Temp,data=df_All, main="Simple Scatterplot Matrix")
+  
+# dfD <- df_All%>%
+#   filter(Cultivar=="Denmark")
+# pairs(~HardAccum+slope+Rain+RH+Temp,data=dfD, main="Simple Scatterplot Matrix Denmark")
+
+```
+
+then select columns of interest : here stats for overall means (SowTreat and Cultivar)
+
+```{r}
+
+#find coefficients 
+
+cor (df_All[,-c(1,2)])
+# cor (dfD[,-c(1,2)])
+```
+
+Plot Weather variables with Maximum Percentage of Hardseeds 
+
+
+```{r, fig.height=15, fig.width=15}
+#hardAccum vs Rain 
+
+g1 <-df_All %>%
+  ggplot(aes(x=Rain, y= HardAccum))  +
+  geom_point(colour= "black", alpha=0.2) +
+  geom_point(aes(shape=SowTreat),size=4)+
+   geom_smooth(method='lm',formula=y~x, colour="grey",alpha=0.1)+
+  theme_bw() +
+  xlab(expression(Rain~"("*"mm"*")"))+ 
+  ylab(expression(Maximum~Hardseeds~Percent~"("*"%"*")"))+
+  theme(text = element_text(size=20))+
+  facet_wrap(~Cultivar)
+  #theme(title =  element_text(size=14))
+  
+#hardAccum vs RH
+g2 <-df_All %>%
+  ggplot(aes(x=RH, y= HardAccum))  +
+  geom_point(colour= "black", alpha=0.2) +
+  geom_point(aes(shape=SowTreat),size=4)+
+   geom_smooth(method='lm',formula=y~x, colour="grey",alpha=0.1)+
+  theme_bw() +
+  xlab(expression(RH~"("*"%"*")"))+ 
+  ylab(expression(Maximum~Hardseeds~Percent~"(%)"))+
+  theme(text = element_text(size=20))+
+  facet_wrap(~Cultivar)
+  
+ g3 <-df_All %>%
+  ggplot(aes(x=Temp, y= HardAccum))  +
+  geom_point(colour= "black", alpha=0.2) +
+  geom_point(aes(shape=SowTreat),size=4)+
+   geom_smooth(method='lm',formula=y~x, colour="grey",alpha=0.1)+
+  theme_bw() +
+  xlab(expression(Air~temperature~"( "^"o"*"C)"))+ 
+  ylab(expression(Maximum~Hardseeds~Percent~"(%)"))+
+  theme(text = element_text(size=20))+
+  facet_wrap(~Cultivar) 
+  
+grid.arrange(g1, g2, g3)
+# Save
+#ggsave("plot_MaxHard_WeatherTendays.png", width=12, height=6, dpi=400)
+
+
+```
+This loop checks the lm 
+
+```{r}
+
+#create a vector that holds names of all possible cultivars
+cv.unique <- unique(df_All$Cultivar)
+
+summary(cv.unique )
+
+
+for (i in 1:length(cv.unique)) {
+  
+ #print(i)
+ print(paste0(cv.unique[i],"--------------------------------"))
+  
+  #then make it subset 
+  
+  df_subset <- df_All %>%
+    subset(Cultivar==cv.unique[i])
+  
+  #add the function or calculation required 
+  
+    summary(lm(HardAccum ~ Rain, df_subset))  
+    
+  #print
+    
+print(summary(lm(HardAccum ~ Rain, df_subset)))
+
+
+  } 
+
+
+```
+
+
+
+Plot Weather variables with RAte of Hardseed breakdown  
+
+
+```{r, fig.height=15, fig.width=15}
+#Hardbreak vs Rain 
+
+g4 <-df_All %>%
+  ggplot(aes(x=Rain, y= slope))  +
+  geom_point(colour= "black", alpha=0.2) +
+  geom_point(aes(shape=SowTreat),size=4)+
+   geom_smooth(method='lm',formula=y~x, colour="grey",alpha=0.1)+
+  theme_bw() +
+  xlab(expression(Rain~"("*"mm"*")"))+ 
+  ylab(expression(Hardseed~breakdown~"( % /"^"o"*"Cd)"))+
+  theme(text = element_text(size=20))+
+  facet_wrap(~Cultivar)
+  #theme(title =  element_text(size=14))
+  
+#hardAccum vs RH
+g5 <-df_All %>%
+  ggplot(aes(x=RH, y= slope))  +
+  geom_point(colour= "black", alpha=0.2) +
+  geom_point(aes(shape=SowTreat),size=4)+
+   geom_smooth(method='lm',formula=y~x, colour="grey",alpha=0.1)+
+  theme_bw() +
+  xlab(expression(RH~"("*"%"*")"))+ 
+  ylab(expression(Hardseed~breakdown~"( % /"^"o"*"Cd)"))+
+  theme(text = element_text(size=20))+
+  facet_wrap(~Cultivar)
+  
+ g6 <-df_All %>%
+  ggplot(aes(x=Temp, y= slope))  +
+  geom_point(colour= "black", alpha=0.2) +
+  geom_point(aes(shape=SowTreat),size=4)+
+   geom_smooth(method='lm',formula=y~x, colour="grey",alpha=0.1)+
+  theme_bw() +
+  xlab(expression(Air~temperature~"( "^"o"*"C)"))+ 
+  ylab(expression(Hardseed~breakdown~"( % /"^"o"*"Cd)"))+
+  theme(text = element_text(size=20))+
+  facet_wrap(~Cultivar) 
+  
+grid.arrange(g4, g5, g6)
+# Save
+# ggsave(file="Fig_weather.tiff", dpi = 300)
+
+#ggsave("plot_CumulativeGerm.png", width=12, height=6, dpi=400)
+
+
+```
+
+
+```{r}
+
+#markdown::render("<C:\\GitHubRepos\\SubCloverPhD\\SubClover\\HardseedsProject1Read.Rmd>") 
+```
+
+

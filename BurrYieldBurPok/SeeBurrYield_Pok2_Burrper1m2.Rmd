@@ -144,12 +144,15 @@ dodge_x <- position_dodge(width = 0.9)
     facet_grid(.~SowTreat) +
    ylab(expression(Number~of~inflorescences~per~m^"2")) +
   theme_bw()+
-theme(axis.text.y = element_text( size = 11))+
-  theme(axis.title.y = element_text(face="bold", size=14))+
+theme(axis.text.y = element_text( size = 12))+
+   scale_fill_brewer(palette="Blues")+
+  #theme(axis.title.y = element_text(face="bold", size=16))+
 theme(axis.text.x=element_text(angle = 90, hjust=0.95,vjust=0.2,size = 12)) +
   theme(text = element_text(size = 18))
   
-  
+ #Save graph 
+ 
+ ggsave("plot_NumberBursPerm2Pok.png", width=12, height=6, dpi=400)
   
 ```
 

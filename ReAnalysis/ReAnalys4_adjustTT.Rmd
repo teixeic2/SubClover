@@ -73,6 +73,7 @@ ggplot(aes(x=TTtoFlower, y= TTFloAdj)) +
 Analysis of TTFlowerAdj vs T5-100. Is there any relationship between Time to flower and period (short orlong) for flower duration (5 to 100 %)? use DearEtAl1993 dataset to check.
 
 
+
 ```{r}
 df_Rea4  %>% 
   filter(LocationYear=="Waggawagga1985"& AuthorYear=="DearEtal1993") %>%

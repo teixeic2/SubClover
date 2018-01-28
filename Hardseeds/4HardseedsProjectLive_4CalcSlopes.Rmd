@@ -78,7 +78,7 @@ df_graf %>%
   filter(SowTreat=="S2")%>%
   filter(Cultivar=="Antas"| Cultivar=="Monti" )%>%
 ggplot(aes(x=TtSum , y=mean, colour=Cultivar, shape=Cultivar)) +
-  geom_point(size=5) +
+  geom_point(size=3) +
   geom_line() +
  #facet_grid(Depth~SowTreat) +
   labs(x="TT",y=" Percentage of LiveHardseeds") +
@@ -92,12 +92,94 @@ ggplot(aes(x=TtSum , y=mean, colour=Cultivar, shape=Cultivar)) +
   ylab(expression(Percentage~of~Hardseeds~"(%)"))+
   #theme(text = element_text(size=12))+
   xlab(expression(Thermal~time ~"("^"o"*"Cd)"))+
-  theme(axis.text.x=element_text(angle = 45, hjust = 0.5, size= 11))+
+  theme(axis.text.x=element_text(angle = 0, hjust = 0.5, size= 11))+
   theme(axis.title.x=element_text(angle = 0, hjust = 0.5, size= 16))+
   theme(axis.text.y=element_text(angle = 0, hjust = 0, size= 12))+
   theme(axis.title.y=element_text(angle = 90, hjust = 0.5, size= 16))
 
+#ggsave("plot_Antas_Narrikup.png", width=12, height=6, dpi=400)
 ```
+
+build a bar graph for the ESA paper 
+
+```{r, fig.height=5, fig.width=15}
+
+
+
+df_graf2 <-dfSubSet %>%
+  group_by(Cultivar,SowingD, SowTreat, TtSum) %>%
+  dplyr::select(HardAccum) %>%
+  summarise_all(funs(mean,sd)) 
+
+# define position of bar and errorbar
+dodge_x <- position_dodge(width = 0.9)
+
+df_graf2%>%
+  filter(SowTreat=="S2")%>%
+  filter(Cultivar=="Antas"| Cultivar=="Monti" )%>%
+  filter(TtSum=="0"| TtSum=="1680" )%>%
+mutate (TtSum= factor(TtSum, levels=c("0", "1680"),labels=c("DAY 0 ", "DAY 84")))%>%
+ ggplot(aes(x=Cultivar, y=mean, fill=Cultivar)) +
+  geom_bar(stat="identity",position = dodge_x) +
+  geom_errorbar(aes(ymin=mean-sd/2,
+                    ymax=mean+sd/2),
+                width=0.25, size=0.3,position=dodge_x)   +
+  theme_grey(base_size = 16) +
+    theme_bw()+
+  facet_grid(.~TtSum, scales="free") +
+    scale_fill_brewer(palette="Blues")+
+    labs(y= "Percentage of Hardseeds (%) ")+
+theme(axis.text.y = element_text( size = 11))+
+  #theme(axis.title.y = element_text(face="bold", size=14))+
+theme(axis.text.x=element_text(angle = 0, hjust=0.95,vjust=0.2,size = 12)) +
+  theme(text = element_text(size = 20))
+
+```
+
+
+
+
+Now try to normalise the data bsed on max values see what happens 
+
+```{r}
+str(df_graf)
+
+Norm <-df_graf %>%
+  mutate(Norm=mean/max(mean))
+
+
+
+
+
+
+```
+
+```{r}
+
+Norm %>%
+  filter(SowTreat=="S2")%>%
+  filter(Cultivar=="Antas"| Cultivar=="Monti" )%>%
+ggplot(aes(x=TtSum , y=Norm, colour=Cultivar, shape=Cultivar)) +
+  geom_point(size=3) +
+  geom_line() +
+ #facet_grid(Depth~SowTreat) +
+  labs(x="TT",y=" Percentage of LiveHardseeds") +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1))+
+               
+  theme_bw()+
+  ylim(0,1)+
+  xlim(0,1900)+
+  ylab(expression(Relative~Proportion~of~Hardseeds~"(u.)"))+
+  #theme(text = element_text(size=12))+
+  xlab(expression(Thermal~time ~"("^"o"*"Cd)"))+
+  theme(axis.text.x=element_text(angle = 0, hjust = 0.5, size= 11))+
+  theme(axis.title.x=element_text(angle = 0, hjust = 0.5, size= 16))+
+  theme(axis.text.y=element_text(angle = 0, hjust = 0, size= 12))+
+  theme(axis.title.y=element_text(angle = 90, hjust = 0.5, size= 16))
+
+
+```
+
 
 
 

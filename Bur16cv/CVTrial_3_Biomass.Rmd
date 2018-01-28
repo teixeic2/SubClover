@@ -1,0 +1,282 @@
+ ---
+title: "Biomass Yield_Analysis_16 cv_trial"
+author: "CT"
+date: "Friday, March 18, 2016"
+output: html_document
+---
+Purpose : 
+se
+Calculation for the clover and weed  yield and estimated regeneration for the 16 cv trial in september 2016 
+ANOVA for the variates : weed (dmWeed is kg/ha)
+
+```{r, warning=FALSE}
+#Load libraries 
+library(tidyr)
+library (dplyr)
+library (ggplot2)
+library(agricolae)
+library(lubridate)
+```
+
+Read File 
+
+```{r, echo=FALSE}
+setwd("C:\\GitHubRepos\\SubCloverPhD\\SubClover\\Bur16cv")
+getwd()
+file <- read.table("CVTrial2017_Biomass.txt",header=TRUE)
+head(file)
+summary(file)
+```
+
+Define the formats  
+
+```{r}
+
+# define factors and formats
+file <- file %>%
+  filter(Cultivar!= "Nomad_Wc")%>%
+  mutate(
+    Plot = as.factor(Plot),
+    Block = as.factor(Block),
+    Cultivar = as.factor(Cultivar),
+    Treat=as.factor(Treat)
+   
+  )
+
+str(file)
+summary(file)
+
+```
+
+select sampling date!! September and October 
+
+Graph the dmweed 
+
+```{r, fig.height= 5, fig.width=10 , warning=FALSE}
+
+# define position of bar and errorbar
+dodge_x <- position_dodge(width = 0.9)
+
+file %>%
+  group_by(Cultivar, Treat,Month,Date) %>%
+  summarise_each(funs(mean,sd)) %>%
+   #mutate(colPal = ifelse(Cultivar=="Antas","Brachy",ifelse(Cultivar=="Monti","Brachy","Yanny"))) %>%
+  #ggplot(aes(x=Cultivar, y=(PropBurrBuried_mean),fill=colPal)) +
+  ggplot(aes(x=Cultivar, y=(Dmweed_mean),fill=Cultivar))+
+   geom_bar(stat="identity", position = dodge_x) +
+  geom_errorbar(aes(ymin=Dmweed_mean-Dmweed_sd/2, ymax=Dmweed_mean+Dmweed_sd/2),
+                width=0.25, size=0.3,position=dodge_x)   +
+  theme_grey(base_size = 16) +
+    facet_grid(Treat~Date) +
+    labs(y="Weed kg/ha") +
+  theme_bw()+
+theme(axis.text.y = element_text( size = 10))+
+theme(axis.title.y = element_text(face="bold", size=12))+
+theme(axis.text.x=element_text(angle = 90, hjust=0.95,vjust=0.2,size = 12))
+
+
+```
+
+Here graph with the SE (SE = std/ sqrt n ; n=4)
+
+```{r,fig.height= 5, fig.width=10 , warning=FALSE}
+
+#calculate the SE in this case for 4 reps ! sqrt of 4 = 2 
+df_burSE<-file %>%
+  gather(key= "Variable" , value = "KgHa" , Dmclover:Dmweed)%>%
+  group_by(Cultivar, Treat,Variable, Month) %>%
+  dplyr::select(KgHa) %>%
+  summarise_all(funs(mean,sd))
+  
+#colours
+cols <- c(Weed="darkgrey", Clover="black")
+  
+##graph as a stack bar
+df_burSE%>%
+  ungroup(Variable)%>%
+mutate(Variable = factor(Variable, levels = c("Dmweed",
+                                 "Dmclover"),
+                          labels = c("Weed",
+                                 "Clover")
+                          )) %>%
+   mutate (Month= factor(Month, levels=c("September", "October" ),labels=c("September", "October")))%>%
+  
+  
+  ggplot(aes(x=Cultivar, y=mean, fill=factor(Variable))) +
+  
+  geom_bar(stat="identity") +
+  theme_bw()+
+  facet_grid(Treat~Month) +
+  scale_fill_manual(values = cols)+
+  ylab("DM yield (Kg per ha)") +
+  xlab("Cultivar") +
+  theme(axis.text.x = element_text( angle=90,hjust=0.95,vjust=0.2)) + 
+  theme(legend.title=element_blank()) +
+  theme(text = element_text(size=16))
+
+
+
+
+
+
+
+```
+
+Make the sum of September and October
+
+```{r}
+
+dfSum<-df_burSE%>%
+  group_by(Cultivar, Treat,Variable) %>%
+  dplyr::select(mean) %>%
+  summarise_all(funs(sum))
+
+```
+
+
+
+
+
+Statistical Analisis 
+Do ANOVA simple as per D. Saville :each seson and variate separately
+Select year and variable to analyse
+
+```{r}
+df_bioANOVA <- file %>%
+filter(Month=="September")%>%
+   select(Cultivar:Dmweed,Month)
+```
+
+subset for anova
+```{r}
+
+ 
+summary(df_bioANOVA)
+
+#-------------------------------------------------
+# anova 
+
+file.subset <- df_bioANOVA
+
+head(file.subset)
+summary(file.subset)
+
+```
+
+
+Here Analyse the Dmclover:
+
+
+```{r}
+
+#ANOVA
+
+#my.anova <- aov(PropBurrBuried ~ Cultivar + Block, data = file.subset)
+my.anova <- aov(Dmclover ~ Cultivar*Treat + Block, data = file.subset)
+summary(my.anova)
+```
+
+```{r}
+#Means separation after ANOVA
+(LSD.test(my.anova, c("Treat"), alpha= 0.05, p.adj="none")) 
+#(LSD.test(my.anova, c("Treat", "Cultivar"), alpha= 0.05, p.adj="none")) 
+```
+
+Perform anova in cultivars 
+
+
+
+```{r}
+
+
+#Means separation after ANOVA
+#(LSD.test(my.anova, c("Cultivar"), alpha= 0.05, p.adj="none")) 
+(LSD.test(my.anova, c("Treat", "Cultivar"), alpha= 0.05, p.adj="none")) 
+```
+
+
+Here Analyse the DmWeed:
+
+
+```{r}
+
+#ANOVA
+
+#my.anova <- aov(PropBurrBuried ~ Cultivar + Block, data = file.subset)
+my.anova <- aov(Dmweed ~ Cultivar*Treat + Block, data = file.subset)
+summary(my.anova)
+```
+
+```{r}
+#Means separation after ANOVA
+#(LSD.test(my.anova, c("Treat"), alpha= 0.05, p.adj="none"))
+#(LSD.test(my.anova, c("Cultivar"), alpha= 0.05, p.adj="none"))
+(LSD.test(my.anova, c("Treat", "Cultivar"), alpha= 0.05, p.adj="none")) 
+```
+
+
+```{r}
+df_bioANOVAOct <- file %>%
+filter(Month=="October")%>%
+   select(Cultivar:Dmweed,Month)
+```
+
+subset for anova
+```{r}
+
+ 
+summary(df_bioANOVAOct)
+
+#-------------------------------------------------
+# anova 
+
+file.subset2 <- df_bioANOVAOct
+
+head(file.subset2)
+summary(file.subset2)
+
+```
+
+
+
+Here Analyse the Dmclover:
+
+
+```{r}
+
+#ANOVA
+
+#my.anova <- aov(PropBurrBuried ~ Cultivar + Block, data = file.subset)
+my.anova <- aov(Dmclover ~ Cultivar*Treat + Block, data = file.subset2)
+summary(my.anova)
+```
+
+```{r}
+#Means separation after ANOVA
+#(LSD.test(my.anova, c("Treat"), alpha= 0.05, p.adj="none")) 
+(LSD.test(my.anova, c("Cultivar"), alpha= 0.05, p.adj="none"))
+#(LSD.test(my.anova, c("Treat", "Cultivar"), alpha= 0.05, p.adj="none")) 
+```
+
+
+
+Here Analyse the Dmweed October :
+
+
+```{r}
+
+#ANOVA
+
+#my.anova <- aov(PropBurrBuried ~ Cultivar + Block, data = file.subset)
+my.anova <- aov(Dmweed ~ Cultivar*Treat + Block, data = file.subset2)
+summary(my.anova)
+```
+
+weed kg /ha October 
+
+```{r}
+#Means separation after ANOVA
+#(LSD.test(my.anova, c("Treat"), alpha= 0.05, p.adj="none")) 
+(LSD.test(my.anova, c("Cultivar"), alpha= 0.05, p.adj="none"))
+#(LSD.test(my.anova, c("Treat", "Cultivar"), alpha= 0.05, p.adj="none")) 
+```

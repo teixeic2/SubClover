@@ -270,5 +270,5 @@ write.table(df_N3, "Narrikup_DurationTT.txt")
 
 ```
 
-
+Run with soil TT because flowers 
 

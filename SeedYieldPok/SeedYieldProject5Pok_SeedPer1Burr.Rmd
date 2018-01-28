@@ -165,10 +165,15 @@ dge_x <- position_dodge(width = 0.9)
                 width=0.25, size=0.3,position=dodge_x)   +
   theme_grey(base_size = 16) +
   theme_bw()+
+      scale_fill_brewer(palette="Blues")+
   facet_grid(.~SowTreat, scales="free") +
     labs(y= "Number of seeds per inflorescence")+
 theme(axis.text.x=element_text(angle = 90, hjust=0.95,vjust=0.2,size = 12)) +
 theme(text = element_text(size = 18))
+   
+   #save
+   
+   ggsave("plot_SeedPerBurr.png", width=12, height=6, dpi=400)
 ```
 
 

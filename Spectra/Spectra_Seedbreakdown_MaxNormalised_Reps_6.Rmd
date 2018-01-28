@@ -1,0 +1,213 @@
+---
+title: "Seed Breakdown  Test base line corrected and normalised"
+author: "CT"
+date: 16.11.2017 (ESA paper 2018)
+output: html_document
+---
+This script reads the baselined corrected spectra for the 3 replicates 3 cultivars (Antas, Monti and Narrikup) in 3 different incubation times (0, 42, 84)  
+And normalise the data using the min max method 
+
+```{r setup, include=FALSE, loadlibraires}
+#knitr::opts_chunk$set(echo = TRUE)
+library(tidyr)
+library (dplyr)
+library (ggplot2)
+library(agricolae)
+library(knitr)
+library (lubridate)
+library(scales)
+
+```
+
+
+
+```{r readData}
+setwd("C:\\GitHubRepos\\SubCloverPhD\\SubClover\\Spectra")
+getwd()
+
+#create file
+df_sp <- read.table("BreakBaseLineReps.txt",header=TRUE)
+
+#head(df_sp)
+
+head(df_sp)
+```
+
+##select columns of interest 
+
+- make wavelength a factor 
+
+```{r}
+df_sp2 <-df_sp %>%
+mutate(IncubationDays=factor(IncubationDays), Rep=factor(Rep)) %>%
+filter(IncubationDays!="42")%>%  
+#Now gather values 
+tidyr::gather("AbsFactor", "AbsValue",starts_with("X")) %>%
+mutate(WaveNumber=as.numeric(gsub("X","",AbsFactor)), AbsFactor=factor(AbsFactor)) %>%
+mutate(id=factor(paste0(Cultivar,"_",AbsFactor))) %>%
+group_by(id, AbsFactor, Cultivar, IncubationDays, Rep) %>%
+summarise_all(funs(mean)) %>%
+dplyr::select(-Seed, -RowNo)
+
+summary(df_sp2)
+```
+
+normalise the AbsValue using Max method
+
+```{r}
+
+df_sp2 <- df_sp2%>%
+  group_by(Cultivar, IncubationDays, Rep)%>%
+  mutate(Absorbance=AbsValue/max(AbsValue))
+
+summary(df_sp2)
+```
+
+
+graph the max normalised average spectra 
+
+```{r, fig.height=5, fig.width=15}
+
+df_sp3 <-df_sp2 %>%
+    filter(Cultivar!="N")%>%
+
+  group_by(Cultivar,IncubationDays,WaveNumber)%>%
+  dplyr::select(Absorbance)%>%
+  summarise_all(funs(mean))
+  
+    
+
+df_sp3%>%
+   ggplot(aes(x=WaveNumber,y=Absorbance))+
+  geom_line(aes(colour=factor(Cultivar)))+
+  theme_bw()+
+  #scale_x_continuous(breaks=seq(min(df_sp$WaveNumber),max(df_sp$WaveNumber),by =50))+
+  
+  #scale_x_continuous(breaks=round(seq(min(df_sp$WaveNumber),max(df_sp$WaveNumber),by =50)))+
+  
+    facet_grid(IncubationDays~.) +
+  scale_x_reverse()+
+  theme_bw()+
+  theme(axis.text.x = element_text(angle = 0, hjust = 1)) +
+  expand_limits(y=c(0,0.2)) +
+  geom_abline(intercept = 0.1, slope = 0)
+  
+
+```
+
+zoom
+
+```{r}
+
+a<-df_sp3  %>%
+    subset (WaveNumber>1500 & WaveNumber<1850) %>%
+
+  group_by(Cultivar,IncubationDays,WaveNumber)%>%
+  dplyr::select(Absorbance)%>%
+  summarise_all(funs(mean))
+  
+    
+
+a%>%
+   ggplot(aes(x=WaveNumber,y=Absorbance))+
+  geom_line(aes(colour=factor(Cultivar)))+
+  theme_bw()+
+  #scale_x_continuous(breaks=seq(min(df_sp$WaveNumber),max(df_sp$WaveNumber),by =50))+
+  
+  #scale_x_continuous(breaks=round(seq(min(df_sp$WaveNumber),max(df_sp$WaveNumber),by =50)))+
+  
+    facet_grid(IncubationDays~.) +
+  scale_x_reverse()+
+  theme_bw()+
+  theme(axis.text.x = element_text(angle = 90, hjust = 1)) +
+  expand_limits(y=c(0,0.2)) +
+  geom_abline(intercept = 0.1, slope = 0)
+
+
+```
+
+
+
+Now graph comparing time 
+
+```{r, fig.height=5, fig.width=15}
+
+df_sp3%>%
+   ggplot(aes(x=WaveNumber,y=Absorbance))+
+  geom_line(aes(colour=factor(IncubationDays)))+
+  theme_bw()+
+  #scale_x_continuous(breaks=seq(min(df_sp$WaveNumber),max(df_sp$WaveNumber),by =50))+
+  
+  #scale_x_continuous(breaks=round(seq(min(df_sp$WaveNumber),max(df_sp$WaveNumber),by =50)))+
+    facet_grid(Cultivar~.) +
+  scale_x_reverse()+
+  theme_bw()+
+  theme(axis.text.x = element_text(angle = 90, hjust = 1)) +
+  expand_limits(y=c(0,0.2)) +
+  geom_abline(intercept = 0.1, slope = 0)
+
+
+
+```
+
+
+
+
+
+
+
+Loop unique wavenumber 
+
+```{r}
+
+idList <-unique(df_sp2$id) 
+
+print(paste0("Found ",length(idList)," wavelength by cultivar combinations to loop"))
+
+data.all <- data.frame()
+
+x <- 0 # for t test
+
+for (i in 1:length(idList)) {
+  
+    df <- df_sp2 %>%
+    ungroup() %>%
+    mutate(IncubationDays=factor(IncubationDays), Rep=factor(Rep)) %>%
+    subset(id == idList[i])
+  
+  my.anova <- aov(AbsValue ~ IncubationDays + Rep, data = df)
+   
+  pVals <- summary(my.anova)[[1]][["Pr(>F)"]]
+ 
+    # T test when P<0.05
+  if(!is.nan(pVals[1]) & pVals[1] < 0.05) {
+  
+  x <- x + 1
+  t_test <-  LSD.test(my.anova, c("IncubationDays"), alpha= 0.05, p.adj="none")
+  lsd <- t_test$statistics[6] # getting  lsd
+  
+  this.data <- data.frame(Cultivar=df$Cultivar[1], WaveNumber = df$WaveNumber[1], PV = pVals[1], LSD = lsd, Count=x)
+  
+  data.all <- rbind(data.all, this.data)
+  
+  this.data <- NULL
+  
+  } else {
+    
+# do nothing
+   
+  }
+  
+}
+```
+
+write a table with values by cultivar 
+
+```{r}
+write.table(data.all, "MaxNormalised_P_LSD_Break_0_84.txt")
+```
+
+
+graph follows in next script (Normalised) . 
+
+

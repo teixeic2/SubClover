@@ -1,0 +1,147 @@
+---
+title: "Thermal Time Calculation Iversen 2 Weather data using hourly data from Novemer and December 2017"
+author: "CT"
+date: "07.01.2018"
+output: html_document
+---
+##Thrs script calculates the TT for seed development experiment druing November and December 2017 in Iversen 2 . It uses air and soil tempertaure (Lumet data)
+
+```{r setup, include=FALSE, loadlibraires}
+#knitr::opts_chunk$set(echo = TRUE)
+library(tidyr)
+library (dplyr)
+library (ggplot2)
+library(agricolae)
+library(knitr)
+library (lubridate)
+
+```
+
+
+
+## Define Tt cardinal temperatures
+
+Considered an overall average the following references:
+Tb: 0.0
+Top range:18-25
+Tmax: 40
+REFS: MonksEtAl2009	,LonatiEtAl2009	,MootEtal2003, SilsburyetAl1984. 
+							
+```{r}
+
+#Create Thermal time cardinal temperatures need REF! 
+
+tt_card <- data.frame(temp=c(0,15,22,35),TT=c(0,15,15,0))
+
+tt_card %>%
+  ggplot(aes(x=temp, y=TT))+
+  labs(x="Temperature (degree Celsius)")+
+  labs(y="Thermal Time (degree days)") +
+  theme_bw()+
+  geom_line()
+  
+```
+
+```{r}
+
+#Create and test interpolation function - Test if works 
+
+temp_ref  <- 25 # x-axes reference
+x_temp <- tt_card$temp # x-axes
+y_TT <- tt_card$TT # y-axes
+
+
+int_func <- function(temp,TT,temp_ref){
+
+  # if temp is too low or too high give extreme TT values
+ if(temp_ref>temp[length(temp)]) {
+   
+   out <- TT[length(TT)] 
+   # FIXME: approx functions seems to do that - need param
+   
+ } else if (temp_ref<temp[1]) {
+   
+   out <- TT[1]
+   
+ } else {
+   
+   # else interpolate
+   
+   tryCatch(  
+   
+  out <- approx(temp, TT, xout = temp_ref, 
+         method="linear", 
+         rule = 2)$y,
+  error = function(e) 
+  {
+  out <- NA
+  }
+) 
+  
+} # end if check
+
+  return(out)  
+  
+ }
+  
+int_func(x_temp,y_TT,temp_ref)
+
+
+```
+
+```{r readData}
+setwd("C:\\GitHubRepos\\SubCloverPhD\\SubClover\\SeedDevelopIv2")
+getwd()
+
+#create file
+df_W_raw <- read.table("IvTempHour.txt",header=TRUE)
+
+#head(df_We)
+
+summary(df_W_raw)
+```
+
+Calculate the TThour, then transform to TT day and accumulate the Thermal time to make the TTSUM Air. 
+
+```{r changeformat, echo=FALSE, warning=FALSE}
+
+df_W <- df_W_raw %>%
+  dplyr::select(Date:AirTemp) %>%
+  mutate(Date=dmy(Date)) %>%
+  rowwise() %>%
+  mutate(TThour=int_func(x_temp, y_TT,AirTemp)) %>%
+  group_by(Date) %>%
+  summarise(TTday=mean(TThour)) %>%
+  mutate(SumTTday = cumsum(TTday))
+
+summary(df_W)
+
+```
+
+Now calculate the SumTT with the soil temperature 
+
+
+```{r}
+df_S <- df_W_raw %>%
+  dplyr::select(-AirTemp) %>%
+  mutate(Date=dmy(Date)) %>%
+  rowwise() %>%
+  mutate(TThour=int_func(x_temp, y_TT,SoilTemp10mm)) %>%
+  group_by(Date) %>%
+  summarise(TTdaysoil=mean(TThour)) %>%
+  mutate(SumTTdaysoil = cumsum(TTdaysoil))
+
+summary(df_S)
+```
+
+
+
+the formula and the hourly records correlate well ~12.5.. 
+
+
+```{r}
+
+write.table(df_W, "df_CumTTiv_air.txt")
+write.table(df_S, "df_CumTTiv_soil.txt")
+```
+

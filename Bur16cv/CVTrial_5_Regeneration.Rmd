@@ -1,0 +1,386 @@
+ ---
+title: "SeedlingRegeneration_Analysis_16 cv_trial"
+author: "CT"
+date: "28.12. 2017"
+output: html_document
+---
+Purpose : 
+se
+Calculation for the seed number per burr for measurements in  2016 
+ANOVA for the variates : SeedPerBur
+
+```{r, warning=FALSE}
+#Load libraries 
+library(tidyr)
+library (dplyr)
+library (ggplot2)
+library(agricolae)
+library(lubridate)
+```
+
+Read File 
+
+```{r, echo=FALSE}
+setwd("C:\\GitHubRepos\\SubCloverPhD\\SubClover\\Bur16cv")
+getwd()
+file <- read.table("CVTrial2017_Regeneration.txt",header=TRUE)
+head(file)
+summary(file)
+```
+
+Define the formats  
+
+```{r}
+
+# define factors and formats
+file <- file %>%
+  #select(-PlotSide)%>%
+  mutate(
+    Plot = as.factor(Plot),
+    Block = as.factor(Block),
+    Cultivar = as.factor(Cultivar),
+    Treat=as.factor(Treat)
+   
+  )
+
+str(file)
+summary(file)
+
+```
+
+
+
+Graph the seedperburr
+```{r, fig.height= 5, fig.width=15 , warning=FALSE}
+
+# define position of bar and errorbar
+dodge_x <- position_dodge(width = 0.9)
+
+file %>%
+  #filter(Month=="January")%>%
+  group_by(Cultivar, Treat,Month) %>%
+  summarise_each(funs(mean,sd)) %>%
+  #mutate(colPal = ifelse(Cultivar=="Antas","Brachy",ifelse(Cultivar=="Monti","Brachy","Yanny"))) %>%
+  #ggplot(aes(x=Cultivar, y=(PropBurrBuried_mean),fill=colPal)) +
+  ggplot(aes(x=Cultivar, y=(SeedlingPerm2_mean),fill=Cultivar))+
+   geom_bar(stat="identity", position = dodge_x) +
+  #geom_bar(aes(fill=Cultivar))+ 
+  #scale_fill_brewer(palette="OrRd")+
+  
+  geom_errorbar(aes(ymin=SeedlingPerm2_mean-SeedlingPerm2_sd/2, ymax=SeedlingPerm2_mean+SeedlingPerm2_sd/2),
+                width=0.25, size=0.3,position=dodge_x)   +
+  theme_grey(base_size = 18) +
+    facet_grid(Treat~Month) +
+    labs(y="Seedling per m2") +
+  theme_bw()+
+theme(axis.text.y = element_text( size = 14))+
+theme(axis.title.y = element_text(face="bold", size=14))+
+theme(axis.text.x=element_text(angle = 90, hjust=0.95,vjust=0.2,size = 14))
+
+
+```
+
+Here graph with the SE (SE = std/ sqrt n ; n=4)
+
+```{r,fig.height= 5, fig.width=15 , warning=FALSE}
+
+#calculate the SE in this case for 4 reps ! sqrt of 4 = 2 
+df_burSE<-file %>%
+  #filter(Month =="January")%>%
+  group_by(Cultivar, Treat,Month) %>%
+  summarise_each(funs(mean,sd)) %>%
+  mutate(SE=SeedlingPerm2_sd/2)
+  
+  
+  df_burSE %>%
+  #mutate(colPal = ifelse(Cultivar=="Antas","Brachy",ifelse(Cultivar=="Monti","Brachy","Yanny"))) %>%
+  #ggplot(aes(x=Cultivar, y=(SeedlingPerm2_mean),fill=colPal)) +
+  ggplot(aes(x=Cultivar, y=(SeedlingPerm2_mean),fill=Cultivar))+
+  geom_bar(stat="identity", position = dodge_x) +
+  geom_errorbar(aes(ymin=SeedlingPerm2_mean-SE/2, ymax=SeedlingPerm2_mean+SE/2),
+                width=0.25, size=0.3,position=dodge_x)   +
+  theme_grey(base_size = 16) +
+    facet_grid(Treat~Month) +
+    labs(y="Seedlings per m2") +
+    ylim(0,1500)+
+  theme_bw()+
+theme(axis.text.y = element_text( size = 14))+
+theme(axis.title.y = element_text(face="bold", size=14))+
+theme(axis.text.x=element_text(angle = 90, hjust=0.95,vjust=0.2,size = 14))
+
+
+
+#ggsave("plot_Regeneration.png", width=12, height=6, dpi=400)
+
+
+```
+
+
+
+
+```{r, fig.height= 5, fig.width=15 , warning=FALSE}
+
+#calculate the SE in this case for 4 reps ! sqrt of 4 = 2 
+df_burSE<-file %>%
+  filter(Month !="June")%>%
+  group_by(Cultivar, Treat,Month) %>%
+  summarise_all(funs(mean,sd)) %>%
+  mutate(SE=SeedlingPerm2_sd/2)
+  
+df_burSE$Month_f=factor(df_burSE$Month, levels=c("January", "March", "May", "June"))
+  
+ df_burSE %>%
+    
+  #mutate(colPal = ifelse(Cultivar=="Antas","Brachy",ifelse(Cultivar=="Monti","Brachy","Yanny"))) %>%
+  #ggplot(aes(x=Cultivar, y=(SeedlingPerm2_mean),fill=colPal)) +
+  ggplot(aes(x=Cultivar, y=(SeedlingPerm2_mean),fill=Cultivar, label=Cultivar))+
+  geom_bar(stat="identity", position = dodge_x) +
+   #geom_text(position="stack",angle = 90)+
+  geom_errorbar(aes(ymin=SeedlingPerm2_mean-SE/2, ymax=SeedlingPerm2_mean+SE/2),
+                width=0.25, size=0.3,position=dodge_x)   +
+  theme_grey(base_size = 16) +
+    facet_grid(Treat~Month_f) +
+    labs(y="Seedlings per m2") +
+    ylim(0,2000)+
+  theme_bw()+
+theme(axis.text.y = element_text( size = 14))+
+theme(axis.title.y = element_text(face="bold", size=14))+
+theme(axis.text.x=element_text(angle = 90, hjust=0.95,vjust=0.2,size = 14))
+
+
+
+ggsave("plot_Regeneration.png", width=12, height=6, dpi=400)
+
+```
+
+
+
+Statistical Analisis 
+Do ANOVA simple as per D. Saville :each seson and variate separately
+Select year and variable to analyse
+
+```{r}
+df_seedANOVA <- file %>%
+filter(Month=="January")%>%
+dplyr:: select(Cultivar:SeedlingPerm2)
+```
+
+subset for anova
+```{r}
+
+ 
+summary(df_seedANOVA)
+
+#-------------------------------------------------
+# anova 
+
+file.subset <- df_seedANOVA 
+
+head(file.subset)
+summary(file.subset)
+
+```
+
+
+Here Analyse the percentage ofseeds overall :
+consider sow Treat as a factor  (overview)
+and then consider cultivar within each sowing date 
+
+```{r}
+
+#ANOVA
+
+#my.anova <- aov(PropBurrBuried ~ Cultivar + Block, data = file.subset)
+my.anova <- aov(SeedlingPerm2 ~ Cultivar*Treat + Block, data = file.subset)
+summary(my.anova)
+```
+
+```{r}
+#Means separation after ANOVA
+(LSD.test(my.anova, c("Treat"), alpha= 0.05, p.adj="none")) 
+#(LSD.test(my.anova, c("Cultivar"), alpha= 0.05, p.adj="none")) 
+```
+
+Perform anova in cultivars 
+
+
+
+```{r}
+
+
+#Means separation after ANOVA
+#(LSD.test(my.anova, c("Cultivar"), alpha= 0.05, p.adj="none")) 
+(LSD.test(my.anova, c("Treat", "Cultivar"), alpha= 0.05, p.adj="none")) 
+```
+
+now do the mean table to write
+
+```{r}
+
+
+means<-file.subset%>%
+  group_by(Treat,Cultivar)%>%
+  dplyr::select( SeedlingPerm2)%>%
+  summarise_all(funs(mean))
+
+```
+
+now analyse for regeneration in March
+
+Statistical Analisis 
+Do ANOVA simple as per D. Saville :each season and variate separately
+Select month and variable to analyse
+
+```{r}
+
+str(file)
+df_seedANOVA2 <- file %>%
+filter(Month=="March")%>%
+   select(Cultivar,Plot,Block,Treat, SeedlingPerm2)
+```
+
+
+subset for anova
+```{r}
+
+ 
+summary(df_seedANOVA2)
+
+#-------------------------------------------------
+# anova 
+
+file.subset2 <- df_seedANOVA2 
+
+head(file.subset2)
+summary(file.subset2)
+
+```
+
+
+Here Analyse 
+
+
+```{r}
+
+#ANOVA
+
+#my.anova <- aov(PropBurrBuried ~ Cultivar + Block, data = file.subset)
+my.anova <- aov(SeedlingPerm2 ~ Cultivar*Treat + Block, data = file.subset2)
+summary(my.anova)
+```
+
+```{r}
+#Means separation after ANOVA
+#(LSD.test(my.anova, c("Treat"), alpha= 0.05, p.adj="none")) 
+(LSD.test(my.anova, c("Cultivar"), alpha= 0.05, p.adj="none")) 
+```
+
+
+Perform anova in cultivars 
+
+
+```{r}
+
+
+#Means separation after ANOVA
+#(LSD.test(my.anova, c("Cultivar"), alpha= 0.05, p.adj="none")) 
+(LSD.test(my.anova, c("Treat", "Cultivar"), alpha= 0.05, p.adj="none")) 
+```
+
+
+tistics
+   MSerror Df     Mean       CV  t.value      LSD
+  57883.99 87 600.0483 40.09526 1.987608 239.1003
+
+$parameters
+        test p.ajusted   name.t ntr alpha
+  Fisher-LSD      none Cultivar  15  0.05
+
+$means
+            SeedlingPerm2      std r         LCL       UCL Min  Max    Q25    Q50    Q75
+Antas             982.750 337.1578 8  813.680589 1151.8194 252 1358  884.0 1042.0 1200.0
+Campeda           370.600 234.3231 8  201.530589  539.6694   0  726  252.0  299.4  568.0
+Coolamon          429.750 151.0179 8  260.680589  598.8194 252  568  299.4  457.4  568.0
+Denmark           449.500 163.5455 8  280.430589  618.5694 252  726  370.5  410.0  568.0
+Karridale         528.500 219.4194 8  359.430589  697.5694 252  884  370.5  568.0  607.5
+Leura             177.250 156.1938 8    8.180589  346.3194   0  410    0.0  252.0  252.0
+Monti             187.125 219.6851 8   18.055589  356.1944   0  568    0.0  133.5  291.5
+MountBarker      1219.750 259.4487 8 1050.680589 1388.8194 726 1516 1160.5 1200.0 1397.5
+Napier            686.500 184.0644 8  517.430589  855.5694 410  884  568.0  647.0  884.0
+Narrikup          923.500 163.5455 8  754.430589 1092.5694 726 1200  844.5  884.0 1042.0
+Rosabrook         350.750 187.6621 8  181.680589  519.8194 252  726  252.0  252.0  331.0
+SeatonPark        587.750 320.8995 8  418.680589  756.8194 252 1042  252.0  568.0  884.0
+Trikkala          370.500 163.5455 8  201.430589  539.5694 252  568  252.0  252.0  568.0
+Whatawhata        516.750 332.9366 8  347.680589  685.8194   0 1042  252.0  568.0  726.0
+Woogenellup      1219.750 259.4487 8 1050.680589 1388.8194 884 1516 1002.5 1279.0 1397.5
+
+$comparison
+NULL
+
+$groups
+            SeedlingPerm2 groups
+MountBarker      1219.750      a
+Woogenellup      1219.750      a
+Antas             982.750     ab
+Narrikup          923.500     bc
+Napier            686.500     cd
+SeatonPark        587.750     de
+Karridale         528.500     de
+Whatawhata        516.750     de
+Denmark           449.500     de
+Coolamon          429.750      e
+Campeda           370.600     ef
+Trikkala          370.500     ef
+Rosabrook         350.750     ef
+Monti             187.125      f
+Leura             177.250      f
+
+attr(,"class")
+[1] "group"
+Show in New WindowClear OutputExpand/Collapse Output
+$statistics
+
+Now perform for June 
+
+
+```{r}
+str(file)
+df_seedANOVA3 <- file %>%
+filter(Month=="May")
+  #dplyr:: select_(Cultivar,Plot,Block,Treat, SeedlingPerm2)
+
+
+summary(df_seedANOVA3)
+
+#-------------------------------------------------
+# anova 
+
+file.subset3 <- df_seedANOVA3 
+
+head(file.subset3)
+summary(file.subset3)
+
+```
+
+Run ANova
+
+```{r}
+#ANOVA
+
+#my.anova <- aov(PropBurrBuried ~ Cultivar + Block, data = file.subset)
+my.anova <- aov(SeedlingPerm2 ~ Cultivar*Treat , data = file.subset3)
+summary(my.anova)
+```
+
+
+
+```{r}
+#Means separation after ANOVA
+#(LSD.test(my.anova, c("Treat"), alpha= 0.05, p.adj="none")) 
+(LSD.test(my.anova, c("Cultivar"), alpha= 0.05, p.adj="none")) 
+#(LSD.test(my.anova, c("Cultivar", "Treat"), alpha= 0.05, p.adj="none")) 
+```
+
+
+
+end of this script 

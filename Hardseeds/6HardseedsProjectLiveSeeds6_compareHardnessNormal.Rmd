@@ -1,0 +1,149 @@
+---
+title: "Hardseeds Live_compare hardseed and normal germ"
+author: "CT"
+date: "09.01.2018"
+output:
+  word_document: default
+  pdf_document: default
+---
+##this script reads
+
+```{r loadLibraries}
+library(tidyr)
+library (dplyr)
+library (ggplot2)
+library(agricolae)
+library(knitr)
+library (lubridate)
+
+
+```
+
+This script reads the 'MeanSlope.txt " and the normal germ txt 
+Combine the two dataframes with the objective to compare hardseedbreakdown rate and normal germination (is there a relationship?)
+
+
+```{r loadFile}
+setwd("C:\\GitHubRepos\\SubCloverPhD\\SubClover\\Hardseeds")
+getwd()
+
+#create file
+df_seed <- read.table("MeanSlope.txt",header=TRUE) 
+
+str(df_seed)
+```
+
+
+then enter in the other folder 
+
+C:\GitHubRepos\SubCloverPhD\SubClover\DeadAbnSeeds
+```{r}
+setwd("C:\\GitHubRepos\\SubCloverPhD\\SubClover\\DeadAbnSeeds")
+getwd()
+
+#create file
+df_norm<- read.table("MeanGermination.txt",header=TRUE) 
+
+str(df_norm)
+
+
+```
+
+
+adjust data frames 
+
+combine the two dataframes 
+
+
+```{r}
+str(df_seed)
+
+df_seed <- df_seed%>%
+  mutate(Cultivar=cv, SowTreat=sow, slope= -1*slope) %>%
+  select(-cv,-sow)
+
+
+
+```
+
+
+```{r}
+
+
+
+dfMerge <-merge(df_seed, df_norm, by=c("Cultivar","SowTreat"))
+
+#then rename column mean and slope
+
+dfMerge<-dfMerge %>%
+  mutate(Germination=mean)
+
+
+```
+
+then plot one against the other (x= slope, y = germination)
+
+
+```{r, fig.height=7, fig.width=15}
+str(dfMerge)
+
+dfMerge %>%
+  ggplot(aes(x=slope, y= Germination))  +
+  geom_point(colour= "black", alpha=0.2) +
+  geom_point(aes(shape=SowTreat),size=4)+
+   geom_smooth(method='lm',formula=y~x, colour="grey",alpha=0.2)+
+  theme_bw() +
+  xlab(expression(Mean~hardseed~breakdown~"( % /"^"o"*"Cd)"))+ 
+  ylab(expression(Mean~Germination~"( %)"))+
+  theme(text = element_text(size=20))+
+  facet_wrap(~Cultivar)
+  #theme(title =  element_text(size=14))
+  
+  #ggsave("plot_CumulativeGerm.png", width=12, height=6, dpi=400)
+```
+
+
+
+
+get a summary of the lm of the geom method (general)
+
+equation is y = a(intercept) +b (slope) x
+```{r}
+summary(lm(Germination ~ slope, dfMerge))
+```
+
+Plug a loop to generate summary by cultivar 
+
+```{r}
+
+#create a vector that holds names of all possible cultivars
+cv.unique <- unique(dfMerge$Cultivar)
+
+summary(cv.unique )
+
+
+for (i in 1:length(cv.unique)) {
+  
+ #print(i)
+ print(paste0(cv.unique[i],"--------------------------------"))
+  
+  #then make it subset 
+  
+  df_subset <- dfMerge %>%
+    subset(Cultivar==cv.unique[i])
+  
+  #add the function or calculation required 
+  
+    summary(lm(Germination ~ slope, df_subset))  
+    
+  #print
+    
+print(summary(lm(Germination ~ slope, df_subset)))
+
+
+  } 
+
+
+
+```
+

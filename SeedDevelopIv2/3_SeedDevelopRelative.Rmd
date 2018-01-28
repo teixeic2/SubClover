@@ -1,0 +1,193 @@
+---
+title: "Seed Development  6CV"
+author: "CT"
+date: "05.01.2015"
+output:
+  word_document: default
+  pdf_document: default
+  html_document: default
+---
+Aim: to calculate the relative weight of burrs in relation to the final burr weigh (burr 4) in order to estimate the maximum inflorescence weigth for all sowing dates . 
+How to do that ? script under construction 
+
+
+```{r loadLibraries}
+library(tidyr)
+library (dplyr)
+library (ggplot2)
+library(agricolae)
+library(knitr)
+library (lubridate)
+
+```
+Read file and adjust formats 
+
+```{r loadFile}
+
+setwd("C:\\GitHubRepos\\SubCloverPhD\\SubClover\\SeedDevelopIv2")
+
+getwd()
+
+#create file
+df_develop <- read.table("SeedDevelop.txt",header=TRUE)
+
+
+```
+
+
+Check data 
+```{r}
+summary(df_develop)
+```
+
+
+```{r}
+
+
+#select columns of interest 
+df_develop2 <-df_develop %>%
+  select(Date:Cultivar,DOT,Variable,BurrDryWg,MoistureContentPerc,IndividualDrySeedWeig)%>%
+  mutate(Date=as.Date(Date))
+  
+  
+str(df_develop2)
+  
+```
+
+
+#data visualisation moisture content
+
+```{r GraphBoxPlotBud, fig.height= 5, fig.width= 8}
+
+ df_develop2 %>%
+  filter(Variable != "B1") %>%
+  group_by(DOT,Date,Cultivar,Variable)%>%
+  dplyr::select(MoistureContentPerc)%>%
+  summarise_each(funs(mean)) %>%
+  #select(Variable,Percent,Cultivar,Date,SowTreat)%>%
+  
+  ggplot(aes(x=DOT, y=MoistureContentPerc)) + 
+  geom_point(aes(colour=Cultivar, shape=Cultivar)) +
+  #facet_grid(SowTreat~Cultivar, scales = "free")+
+  #facet_grid(Cultivar~., scales = "free")+
+  geom_abline(intercept = 0.5, slope = 0) +
+  theme_bw()+
+  theme(axis.text.x = element_text(angle = 0, hjust = 1))
+
+
+```
+
+
+
+
+```{r}
+
+df_develop2 %>%
+  filter(Variable != "B1") %>%
+  group_by(DOT,Date,Cultivar,Variable)%>%
+  dplyr::select(BurrDryWg)%>%
+  summarise_each(funs(mean)) %>%
+  #select(Variable,Percent,Cultivar,Date,SowTreat)%>%
+  
+  ggplot(aes(x=DOT, y=BurrDryWg)) + 
+  geom_point(aes(colour=Cultivar, shape=Cultivar)) +
+  #facet_grid(SowTreat~Cultivar, scales = "free")+
+  #facet_grid(Cultivar~., scales = "free")+
+  #geom_abline(intercept = 0.5, slope = 0) +
+  theme_bw()+
+  theme(axis.text.x = element_text(angle = 0, hjust = 1))
+
+```
+
+
+Then include the TT calculated !!! TT cum 
+
+
+```{r ReadThermalSumData}
+# read raw data
+
+#The df_CumTTiv_air.txt  is created in script 1. 
+
+#the file df_CumTTiv_air .txt contains the thermal sum hourly from Iversen.  
+ 
+df_TTSum <- read.table("df_CumTTiv_air.txt",header=TRUE)
+
+# remove extra columns
+df_TTSum <- df_TTSum %>%
+dplyr::select(Date,SumTTday) %>%
+  mutate(Date = ymd(Date))%>%
+  mutate(SumTTday=round(SumTTday, digits=2))
+  
+ 
+#check
+head(df_TTSum)
+
+```
+Check data 
+```{r}
+summary(df_TTSum)
+```
+
+Merge dfs TTSum at Measurement and Sowing Date into Flowering df
+```{r}
+
+# Add Tt at measurement date
+df_seed <- merge(df_develop2,df_TTSum, by="Date")
+  
+
+summary(df_seed)
+
+```
+
+Now calculate the TT starting from 2017-11-24 (DOT=0 or SumTTday=125.7).
+Creted a column with the value 125.7 and subtract from SumTTday colum to get the value of TT.
+
+```{r}
+
+
+# change name SumTTday to TT at measurement used mutate 1 x cause rename did not work 
+df_seed2 <- df_seed %>%
+mutate(AccumTT = SumTTday-125.75)
+#check the data 
+str(df_seed2)
+
+
+```
+Need to modify the column name to be able to merge 
+```{r}
+
+ df_seed2 %>%
+  filter(Variable != "B1") %>%
+  group_by(Cultivar,Variable,Date, AccumTT)%>%
+  dplyr::select(BurrDryWg)%>%
+  summarise_all(funs(mean,sd)) %>%
+  #select(Variable,Percent,Cultivar,Date,SowTreat)%>%
+  
+  ggplot(aes(x=Date, y=mean)) + 
+  geom_point(aes(colour=Cultivar, shape=Cultivar),size=3) +
+  #facet_grid(SowTreat~Cultivar, scales = "free")+
+  #facet_grid(Cultivar~., scales = "free")+
+  #geom_abline(intercept = 0.5, slope = 0) +
+  theme_bw()+
+  theme(axis.text.x = element_text(angle = 0, hjust = 1))
+
+```
+
+Explore values for Narrikup  
+```{r}
+df_seed3<-df_seed2 %>%
+  filter(Variable != "B1") %>%
+  filter(Cultivar=="Narrikup")%>%
+  group_by(Cultivar,Variable,Date, AccumTT)%>%
+  dplyr::select(BurrDryWg)%>%
+  summarise_all(funs(mean,sd))%>%
+  mutate(SE=sd/1.73)
+
+
+
+
+
+```
+
+
+end of this script.

@@ -39,12 +39,13 @@ Graph of the estimated  soil temperature
 ```{r Soiltemp_mean}
 
 df_file<-df_file %>% 
-  mutate(Equation1=SoilTIv2, Equation2=SoilTLangholz) 
+  mutate(Equation1=SoilTIversen2, Equation2=SoilTLangholz) 
+ 
 
 
 df_gather<-df_file %>%
   mutate(Date = dmy(Date))%>% #(need to reformat date here)
-  select(Date,Month, Equation1, Equation2, TAirMean)%>%
+  select(Date, Month, Equation1, Equation2, TAirMean)%>%
   gather(key= "Method" , value = "Degrees", Equation1, Equation2)
   
   
@@ -74,6 +75,8 @@ df_gather%>%
  
 
 ```
+
+Test data fitness for Equation 1 
 
 
 ```{r}
@@ -125,10 +128,95 @@ p1
 
 ```{r}
 
+#get statistical summary here for equation 1  
+summary(lm(y ~ x, df))
+
+
+```
+
+
+Now  test for Equation 2 
+
+```{r}
+
+#got the means here ... and graph it
+
+
+require(ggplot2)
+require(plyr)
+require(dplyr)
+
+lm_eqn = function(df){
+  m = lm(y ~ x, df);
+  eq <- substitute(italic(y) == a + b %.% italic(x)*","~~italic(r)^2~"="~r2, 
+                   list(a = format(coef(m)[1], digits = 2), 
+                        b = format(coef(m)[2], digits = 2), 
+                        r2 = format(summary(m)$r.squared, digits = 3)))
+  as.character(as.expression(eq));                 
+}
+
+#use all datapoints 
+
+  df <- df_gather %>%
+  filter(Method=="Equation2")%>%
+  mutate( x= TAirMean, y= Degrees)
+
+eq <- ddply(df,.(Month),lm_eqn)
+
+yx<-quantile(df$y,0.75)
+xn<- quantile(df$x,0.25)
+
+p <- ggplot(data = df, aes(x = x, y = y)) +
+  geom_smooth(method = "lm", se=FALSE, color="black", formula = y ~ x) +
+  geom_point(aes(colour = factor(Month)), size=5) + scale_shape(solid = FALSE)+ 
+  
+  theme_bw()+
+  scale_x_continuous(limits = c(0,25))+
+  scale_y_continuous(limits = c(0,35))
+
+p1 <- p + geom_text(data=eq,aes(x = xn, y = yx,label=V1), parse = TRUE, inherit.aes=FALSE) + 
+  facet_grid(Month~., scales="free")
+  
+p1
+
+# 
+
+```
+
+
+
+```{r}
+
 #get statistical summary here 
 summary(lm(y ~ x, df))
 
 
 ```
+
+graph 
+
+```{r, fig.height=5, fig.width=15}
+
+str(df_gather)
+
+
+df_gather %>%
+  ggplot(aes(x=TAirMean, y= Degrees))  +
+  geom_point(colour= "black", alpha=0.2) +
+  geom_point(aes(shape=Method),size=4)+
+   geom_smooth(method='lm',formula=y~x, colour="grey",alpha=0.5)+
+  theme_bw() +
+  xlab(expression(Mean~Air~Temperature~"( "^"o"*"C)"))+ 
+  ylab(expression(Estimated~Soil~Temperature~"( "^"o"*"C)"))+
+  theme(text = element_text(size=20))+
+  facet_wrap(~Method)
+  #theme(title =  element_text(size=14))
+  
+
+ggsave("plot_EquationComparison.png", width=12, height=6, dpi=400)
+```
+
+
+
 
 

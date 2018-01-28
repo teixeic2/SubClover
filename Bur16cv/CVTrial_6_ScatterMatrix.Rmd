@@ -1,0 +1,115 @@
+---
+title: "Scatter Matrice Multiple variate analysis "
+author: "CT"
+date: "07.01.2018"
+output: html_document
+---
+Purpose : 
+
+analysis of multiple variates and correlation (multiple scatter matrice ). 
+Quick way to find relationships
+
+```{r, warning=FALSE}
+#Load libraries 
+library(tidyr)
+library (dplyr)
+library (ggplot2)
+library(agricolae)
+library(lubridate)
+```
+
+Read File 
+
+```{r, echo=FALSE}
+setwd("C:\\GitHubRepos\\SubCloverPhD\\SubClover\\Bur16cv")
+getwd()
+file <- read.table("CVTrial2017_MultipleMean.txt",header=TRUE)
+head(file)
+str (file)
+```
+
+Define the formats  
+
+```{r}
+
+
+# define factors and formats
+file <- file %>%
+  mutate(
+    Treat = as.factor(Treat),
+    Cultivar = as.factor(Cultivar),
+    SeedNumber=as.numeric(SeedNumber),
+   FloweringTime=as.numeric(FloweringTime),
+   ScoreBurial=as.numeric(ScoreBurial),
+   HardseedScore=as.numeric(HardseedScore)
+  )
+
+str(file)
+
+
+```
+
+
+
+Graph the variates in matrice 
+
+```{r, fig.height= 5, fig.width=10 , warning=FALSE}
+
+#select only control 
+
+file %>%
+filter(Treat=="Control")
+
+pairs(~BurialPercent+SeedPerBur+SeedWeig+SeedNumber+SeedYield+CumBurialPerc,data=file, 
+   main="Simple Scatterplot Matrix")
+
+```
+
+
+
+then find correlations 
+
+```{r}
+#find coefficients 
+
+cor (file[,-c(1,2)])
+    
+     
+  
+
+```
+remove Whata from analysis (NA) 
+
+```{r, fig.height=5, fig.width=12}
+
+df1 <-file %>%
+  filter(Cultivar!="Whatawhata")
+
+pairs(~BurialPercent+SeedPerBur+SeedWeig+SeedNumber+SeedYield+CumBurialPerc+FloweringTime+ScoreBurial+HardseedScore,data=df1, 
+   main="Simple Scatterplot Matrix")
+```
+
+```{r}
+#find coefficients 
+
+cor (df1[,-c(1,2)])
+    
+```
+
+```{r}
+df1 <-file %>%
+  filter(Cultivar!="Whatawhata")
+
+pairs(~SeedWeig+FloweringTime,data=df1, 
+   main="Simple Scatterplot Matrix")
+```
+
+#Then filter Treatment = Cut ()
+
+
+```{r}
+
+
+
+```
+

@@ -1,0 +1,259 @@
+---
+title: "Framework for PCA analysis "
+author: "CT"
+date: "15.01.2017
+output: html_document
+---
+- This script is an attempt for the PCA analysis with a example dataset
+-Used guidelines from : http://www.sthda.com/english/articles/31-principal-component-methods-in-r-practical-guide/118-principal-component-analysis-in-r-prcomp-vs-princomp/
+
+
+```{r setup, include=FALSE, loadlibraires}
+#knitr::opts_chunk$set(echo = TRUE)
+library(tidyr)
+library (dplyr)
+library (ggplot2)
+library(agricolae)
+library(knitr)
+library (lubridate)
+library(scales)
+library(calibrate)
+
+```
+
+
+```{r}
+
+
+library("factoextra")
+data(decathlon2)
+
+decathlon2.active <- decathlon2[1:23, 1:10]
+
+head(decathlon2.active[, 1:6])
+```
+
+
+
+
+
+```{r readData}
+#compute PCA
+res.pca <- prcomp(decathlon2.active, scale = TRUE)
+```
+
+## Visualize eigenvalues (scree plot). Show the percentage of variances explained by each principal component. 
+
+```{r, fig.height=5, fig.width=10}
+
+ 
+
+fviz_eig(res.pca)
+
+
+```
+
+
+##Graph of individuals. Individuals with a similar profile are grouped together.  
+
+
+```{r, fig.height=5, fig.width=10}
+
+fviz_pca_ind(res.pca,
+             col.ind = "cos2", # Color by the quality of representation
+             gradient.cols = c("#00AFBB", "#E7B800", "#FC4E07"),
+             repel = TRUE     # Avoid text overlapping
+             )
+```
+
+## Graph of variables. Positive correlated variables point to the same side of the plot. Negative correlated variables point to opposite sides of the graph.
+
+```{r, fig.height=5, fig.width=10}
+
+fviz_pca_var(res.pca,
+             col.var = "contrib", # Color by contributions to the PC
+             gradient.cols = c("#00AFBB", "#E7B800", "#FC4E07"),
+             repel = TRUE     # Avoid text overlapping
+             )
+
+
+
+```
+
+Biplot of individuals and variables 
+
+```{r}
+
+fviz_pca_biplot(res.pca, repel = TRUE,
+                col.var = "#2E9FDF", # Variables color
+                col.ind = "#696969"  # Individuals color
+                )
+```
+
+Access to PCA results 
+
+```{r}
+library(factoextra)
+# Eigenvalues
+eig.val <- get_eigenvalue(res.pca)
+eig.val
+  
+# Results for Variables
+res.var <- get_pca_var(res.pca)
+res.var$coord          # Coordinates
+res.var$contrib        # Contributions to the PCs
+res.var$cos2           # Quality of representation 
+# Results for individuals
+res.ind <- get_pca_ind(res.pca)
+res.ind$coord          # Coordinates
+res.ind$contrib        # Contributions to the PCs
+res.ind$cos2           # Quality of representation 
+   
+  
+```
+
+
+Predict using PCA
+In this section, we'll show how to predict the coordinates of supplementary individuals and variables using only the information provided by the previously performed PCA.
+
+Supplementary individuals
+Data: rows 24 to 27 and columns 1 to to 10 [in decathlon2 data sets]. The new data must contain columns (variables) with the same names and in the same order as the active data used to compute PCA.
+
+```{r}
+
+
+# Data for the supplementary individuals
+ind.sup <- decathlon2[24:27, 1:10]
+ind.sup[, 1:6]
+```
+
+Predict the coordinates of new individuals data. Use the R base function predict():
+
+
+```{r}
+
+ind.sup.coord <- predict(res.pca, newdata = ind.sup)
+ind.sup.coord[, 1:4]
+```
+
+
+```{r, fig.height=5, fig.width=10}
+# Plot of active individuals
+p <- fviz_pca_ind(res.pca, repel = TRUE)
+# Add supplementary individuals
+fviz_add(p, ind.sup.coord, color ="blue")
+```
+
+
+
+
+Supplementary variables
+Qualitative / categorical variables
+The data sets decathlon2 contain a supplementary qualitative variable at columns 13 corresponding to the type of competitions.
+
+Qualitative / categorical variables can be used to color individuals by groups. The grouping variable should be of same length as the number of active individuals (here 23).
+
+```{r}
+
+groups <- as.factor(decathlon2$Competition[1:23])
+fviz_pca_ind(res.pca,
+             col.ind = groups, # color by groups
+             palette = c("#00AFBB",  "#FC4E07"),
+             addEllipses = TRUE, # Concentration ellipses
+             ellipse.type = "confidence",
+             legend.title = "Groups",
+             repel = TRUE
+             )
+
+
+```
+
+
+Theory behind PCA results
+PCA results for variables
+Here we'll show how to calculate the PCA results for variables: coordinates, cos2 and contributions:
+
+var.coord = loadings * the component standard deviations
+var.cos2 = var.coord^2
+var.contrib. The contribution of a variable to a given principal component is (in percentage) : (var.cos2 * 100) / (total cos2 of the component)
+
+
+```{r}
+# Helper function 
+#::::::::::::::::::::::::::::::::::::::::
+var_coord_func <- function(loadings, comp.sdev){
+  loadings*comp.sdev
+}
+# Compute Coordinates
+#::::::::::::::::::::::::::::::::::::::::
+loadings <- res.pca$rotation
+sdev <- res.pca$sdev
+var.coord <- t(apply(loadings, 1, var_coord_func, sdev)) 
+head(var.coord[, 1:4])
+```
+
+
+```{r}
+# Compute Cos2
+#::::::::::::::::::::::::::::::::::::::::
+var.cos2 <- var.coord^2
+head(var.cos2[, 1:4])
+```
+
+
+```{r}
+# Compute contributions
+#::::::::::::::::::::::::::::::::::::::::
+comp.cos2 <- apply(var.cos2, 2, sum)
+contrib <- function(var.cos2, comp.cos2){var.cos2*100/comp.cos2}
+var.contrib <- t(apply(var.cos2,1, contrib, comp.cos2))
+head(var.contrib[, 1:4])
+```
+
+
+PCA results for individuals
+ind.coord = res.pca$x
+Cos2 of individuals. Two steps:
+Calculate the square distance between each individual and the PCA center of gravity: d2 = [(var1_ind_i - mean_var1)/sd_var1]^2 + .+ [(var10_ind_i - mean_var10)/sd_var10]^2 + .+..
+Calculate the cos2 as ind.coord^2/d2
+Contributions of individuals to the principal components: 100 * (1 / number_of_individuals)*(ind.coord^2 / comp_sdev^2). Note that the sum of all the contributions per column is 100
+
+
+```{r}
+# Coordinates of individuals
+#::::::::::::::::::::::::::::::::::
+ind.coord <- res.pca$x
+head(ind.coord[, 1:4])
+```
+
+
+```{r}
+# Cos2 of individuals
+#:::::::::::::::::::::::::::::::::
+# 1. square of the distance between an individual and the
+# PCA center of gravity
+center <- res.pca$center
+scale<- res.pca$scale
+getdistance <- function(ind_row, center, scale){
+  return(sum(((ind_row-center)/scale)^2))
+  }
+d2 <- apply(decathlon2.active,1,getdistance, center, scale)
+# 2. Compute the cos2. The sum of each row is 1
+cos2 <- function(ind.coord, d2){return(ind.coord^2/d2)}
+ind.cos2 <- apply(ind.coord, 2, cos2, d2)
+head(ind.cos2[, 1:4])
+```
+
+
+```{r}
+# Contributions of individuals
+#:::::::::::::::::::::::::::::::
+contrib <- function(ind.coord, comp.sdev, n.ind){
+  100*(1/n.ind)*ind.coord^2/comp.sdev^2
+}
+ind.contrib <- t(apply(ind.coord, 1, contrib, 
+                       res.pca$sdev, nrow(ind.coord)))
+head(ind.contrib[, 1:4])
+```
+
+

@@ -71,7 +71,8 @@ df_sp3%>%
   #scale_x_continuous(breaks=seq(min(df_sp$WaveNumber),max(df_sp$WaveNumber),by =50))+
   
   scale_x_continuous(breaks=round(seq(min(df_sp$WaveNumber),max(df_sp$WaveNumber),by =50)))+
-    facet_grid(Cultivar ~.) +
+  facet_grid(Cultivar ~.) +
+  #facet_grid(IncubationDays ~.) +
   scale_x_reverse()+
   theme_bw()+
   theme(axis.text.x = element_text(angle = 90, hjust = 1)) +
@@ -81,6 +82,31 @@ df_sp3%>%
 
 write.table(df_sp3,"MeanSpectraESA2018.txt")
 ```
+
+Create a graph with baselined corrected spectra with time as panels 
+
+```{r, fig.width=15, fig.height=5}
+
+df_sp3%>%
+   ggplot(aes(x=WaveNumber,y=Absorbance))+
+  geom_line(aes(colour=factor(Cultivar)))+
+  theme_bw()+
+  #scale_x_continuous(breaks=seq(min(df_sp$WaveNumber),max(df_sp$WaveNumber),by =50))+
+  
+  scale_x_continuous(breaks=round(seq(min(df_sp$WaveNumber),max(df_sp$WaveNumber),by =50)))+
+  #facet_grid(Cultivar ~.) +
+  facet_grid(IncubationDays ~.) +
+  scale_x_reverse()+
+  theme_bw()+
+  theme(axis.text.x = element_text(angle = 90, hjust = 1)) +
+  expand_limits(y=c(0,0.2)) +
+  geom_abline(intercept = 0.1, slope = 0)
+
+
+```
+
+
+
 
 
 ```{r,fig.height=5, fig.width=10}

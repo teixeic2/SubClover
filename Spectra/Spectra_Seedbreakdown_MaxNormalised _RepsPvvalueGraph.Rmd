@@ -26,19 +26,16 @@ graph
 setwd("C:\\GitHubRepos\\SubCloverPhD\\SubClover\\Spectra")
 getwd()
 
-
-data.all <- read.table("P_LSD_Break_0_84.txt",header=TRUE)
-
-str(data.all)
-
+#Normalised_P_LSD_Break_0_84.txt
+#data.all <- read.table("P_LSD_Break_0_84.txt",header=TRUE)
+data.all <- read.table("MaxNormalised_P_LSD_Break_0_84.txt",header=TRUE)
 data.all %>%
   mutate(FlagSig=ifelse(PV>0,0,NA)) %>%
   filter(Cultivar!="N")%>%
   ggplot(aes(x=WaveNumber,y=PV))+
-  geom_point()+
-  geom_point(aes(x=WaveNumber,y=FlagSig, size=1/PV,colour=Cultivar), alpha=0.1 ) +
+  geom_point(aes(colour="darkgrey"))+
+    geom_point(aes(x=WaveNumber,y=FlagSig, size=1/PV,colour=Cultivar), alpha=0.1 ) +
   theme_bw()+
-  ylab("Degree of significance (p value)")+
   theme(axis.text.x = element_text(angle = 90, hjust = 1))+
   facet_grid(Cultivar~.,scales="free") +
  scale_x_reverse(breaks=round(seq(min(data.all$WaveNumber),max(data.all$WaveNumber),by =50)))+
@@ -50,13 +47,16 @@ data.all %>%
 
 get overall view of ammmount of bands which were affected for each cultivar 
 ```{r}
-info <- data.all%>%
+infoMonti <- data.all%>%
+  filter(Cultivar=="M")
+ #filter(Cultivar=="A)
+  
+summary(infoMonti )
+
+infoAntas <- data.all%>%
   #filter(Cultivar=="M")
  filter(Cultivar=="A")
-  
-summary(info )
 
-
-
+summary(infoAntas )
 ```
 

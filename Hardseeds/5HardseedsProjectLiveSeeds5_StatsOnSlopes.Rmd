@@ -33,9 +33,6 @@ str(df_seed)
 
 
 
-
-
-
 ## Create index to filter for loop ANOVA
 
 ```{r}
@@ -135,6 +132,20 @@ dfseedr2<-df_seed %>%
 print(dfseedr2)
 ```
 
+get the mean slope value pr cultivar and sowtreat and plot against Hardbreakdownn rate. The hypothesis : lots with higher hardseeds would produce more normal seedlings or vice versa? 
+
+```{r}
+str(df_seed)
+
+df_Meanslope <-df_seed %>%
+  filter(slopeType=="perTt")%>%
+  group_by(cv,sow) %>%
+  dplyr::select(slope)%>%
+  summarise_all(mean)
+  
+write.table(df_Meanslope, "MeanSlope.txt")
+
+```
 
 
 

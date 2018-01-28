@@ -35,6 +35,30 @@ check formats
 str(df_f)
 
 ```
+
+Get mean values to write chapter 
+
+```{r}
+
+dfMean<-df_f%>%
+  #use filter to check single variables -Bud, Flowering and Bur
+  #filter(Cultivar == "Narrikup") %>%
+  filter(Variable=="Bud")%>%
+  #filter (SowTreat=="S8"|SowTreat=="S7")%>%
+  filter (SowTreat=="S7")%>%
+  group_by(Cultivar)%>%
+  dplyr::select(TT50F)%>%
+  summarise_all(funs(mean,sd))%>%
+  mutate(SE=sd/1.73)
+
+
+
+
+```
+
+
+
+
 Here only graph by month of sowing for report 
 
 ```{r}

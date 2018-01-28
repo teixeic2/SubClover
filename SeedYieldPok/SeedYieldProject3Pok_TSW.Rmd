@@ -181,13 +181,18 @@ se2 <-df %>%
   theme_grey(base_size = 16) +
     theme_bw()+
   facet_grid(.~SowTreat, scales="free") +
+    scale_fill_brewer(palette="Blues")+
     labs(y= "Seed weight (mg) ")+
 theme(axis.text.y = element_text( size = 11))+
-  theme(axis.title.y = element_text(face="bold", size=14))+
+  #theme(axis.title.y = element_text(face="bold", size=14))+
 theme(axis.text.x=element_text(angle = 90, hjust=0.95,vjust=0.2,size = 12)) +
-  theme(text = element_text(size = 18))+
-    theme(legend.position="bottom")
+  theme(text = element_text(size = 18))
+  
+    #theme(legend.position="bottom")
 
+  #save
+   
+   ggsave("plot_SeedWeight.png", width=12, height=6, dpi=400)
 
 ```
 

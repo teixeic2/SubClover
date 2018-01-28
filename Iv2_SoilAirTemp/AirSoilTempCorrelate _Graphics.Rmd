@@ -1,0 +1,376 @@
+
+---
+title: "Graph Air and Soil Temperature"
+author: "CT"
+date: "21.12.2017"
+output: html_document
+---
+Purpose: Correlate method to calculate soil temperature based on methdos by Langholz and Iversen2 measured data 
+
+```{r}
+library(tidyr)
+library (dplyr)
+library (ggplot2)
+library (lubridate)
+library (scales)
+```
+
+Note: this file produces the graphs for estimated soil and Air temperatures using the Poukawa dataset 
+
+```{r, load file}
+
+setwd("C:\\GitHubRepos\\SubCloverPhD\\SubClover\\Iv2_SoilAirTemp")
+getwd()
+#read soil and Air data 
+df_file <- read.table("CompareSoilTempsMethods.txt", header=TRUE)
+
+
+head(df_file)
+
+
+str(df_file)
+
+
+```
+
+
+
+Then change date format and combine the two dataframes 
+
+```{r}
+
+df_S <- df_file %>%
+  mutate(Date = dmy(Date)) %>%
+  select(Date,Month,TAirMean,SoilTLangholz,SoilTIv2)%>%
+  gather("VarName","Value",SoilTLangholz:SoilTIv2)
+
+
+
+
+```
+
+parei aqui 
+
+Then graph methods by month  
+ 
+```{r ,}
+
+df_AS %>%
+ #  select(Date, TempSoil10mm, MeanTt)%>%
+ # summarise_each(funs(mean)) %>%
+  ggplot(aes(x=MeanTt, y= TempSoil10mm))  +
+  geom_point(colour= "darkblue", alpha=0.2) +
+  #geom_line(colour= "brown")+
+  stat_smooth(level = 0.9, size = 1, colour="white") + 
+  theme_bw() +
+  xlab(expression(Mean~air~temperature~~"( "^"o"*"C)"))+ 
+  ylab(expression(Mean~soil~temperature~~"( "^"o"*"C)"))+
+  theme(text = element_text(size=10))
+
+  # #scale_x_date(date_breaks = "3 month", 
+  #                date_labels = "%B",
+  #                limits = as.Date(c('2015-06-01','2017-07-07')))
+
+
+
+```
+
+then subset to fit an equation to estimate soil temperature from air temperature  paper 
+
+```{r}
+
+dfW <- df_AS%>%
+  mutate(Tair=MeanTt)
+  #subset(Date>"2015-07-27"  & Date<"2016-03-20")
+
+dfW%>%
+ #  select(Date, TempSoil10mm, MeanTt)%>%
+ # summarise_each(funs(mean)) %>%
+  ggplot(aes(x=MeanTt, y= TempSoil10mm))  +
+  geom_point(colour= "black", alpha=0.2) +
+  #geom_line(colour= "bl")+
+  #stat_smooth(level = 0.9, size = 1, colour="white") + 
+   geom_smooth(method='lm',formula=y~x)+
+  theme_bw() +
+  xlab(expression(Mean~air~temperature~~"( "^"o"*"C)"))+ 
+  ylab(expression(Mean~soil~temperature~~"( "^"o"*"C)"))+
+  theme(text = element_text(size=20))
+  #theme(title =  element_text(size=14))
+  
+
+  # #scale_x_date(date_breaks = "3 month", 
+  #                date_labels = "%B",
+  #                limits = as.Date(c('2015-06-01','2017-07-07')))
+
+
+
+```
+
+
+get a summary of the lm of the geom method
+
+equation is y = a(intercept) +b (slope) x
+```{r}
+summary(lm(TempSoil10mm ~ MeanTt, dfW))
+```
+
+Overall Developed relationship between Air (x axis) and soil temperature (y axis) for Iversen: SoilT = 1.23 + 0.94AirTemp , R2=0.80.
+ 
+Now do it every month (subset monthly) 
+
+
+
+```{r}
+
+#January 
+
+dfJanuary<-dfW%>%
+ subset(Date>"2015-12-31" & Date<"2016-01-31" )
+  str(dfJanuary)
+
+  ##apply the equation:  SoilT = 1.23 + 0.94AirTemp
+ dfJanuary<-dfJanuary %>%
+  select(Date,TempSoil10mm, Tair)%>%
+   mutate(CoeffJan=(TempSoil10mm-1.23)/Tair)
+ 
+ dfJanuary2<-dfJanuary %>%
+ dplyr::select(CoeffJan)%>%
+   summarise_all(funs(mean,sd))
+
+
+```
+
+## February
+
+```{r}
+
+dfFebruary<-dfW%>%
+ subset(Date>"2016-01-31" & Date<"2016-03-01" )
+  str(dfFebruary)
+
+  ##apply the equation:  SoilT = 1.23 + 0.94AirTemp
+ dfFebruary<-dfFebruary %>%
+  select(Date,TempSoil10mm, Tair)%>%
+   mutate(CoeffFeb=(TempSoil10mm-1.23)/Tair)
+ 
+ dfFebruary2<-dfFebruary %>%
+ dplyr::select(CoeffFeb)%>%
+   summarise_all(funs(mean,sd))
+
+
+```
+
+##March 
+
+```{r}
+
+dfMarch<-dfW%>%
+ subset(Date>"2016-02-29" & Date<"2016-04-01" )
+  str(dfMarch)
+
+  ##apply the equation:  SoilT = 1.23 + 0.94AirTemp
+dfMarch<-dfMarch %>%
+  select(Date,TempSoil10mm, Tair)%>%
+   mutate(CoeffMar=(TempSoil10mm-1.23)/Tair)
+ 
+ dfMarch2<-dfMarch %>%
+ dplyr::select(CoeffMar)%>%
+   summarise_all(funs(mean,sd))
+  
+
+
+
+
+```
+
+##April 
+
+```{r}
+
+dfApril<-dfW%>%
+ subset(Date>"2016-03-31" & Date<"2016-05-01" )
+  str(dfApril)
+
+  ##apply the equation:  SoilT = 1.23 + 0.94AirTemp
+dfApril<-dfApril %>%
+  select(Date,TempSoil10mm, Tair)%>%
+   mutate(CoeffApr=(TempSoil10mm-1.23)/Tair)
+ 
+ dfApril2<-dfApril %>%
+ dplyr::select(CoeffApr)%>%
+   summarise_all(funs(mean,sd))
+
+```
+
+##May
+
+```{r}
+
+
+dfMay <-dfW%>%
+ subset(Date>"2016-04-30" & Date<"2016-06-01" )
+  str(dfMay)
+
+  ##apply the equation:  SoilT = 1.23 + 0.94AirTemp
+dfMay<-dfMay %>%
+  select(Date,TempSoil10mm, Tair)%>%
+   mutate(CoeffMay=(TempSoil10mm-1.23)/Tair)
+ 
+ dfMay2<-dfMay %>%
+ dplyr::select(CoeffMay)%>%
+   summarise_all(funs(mean,sd))
+
+```
+
+
+##June
+
+```{r}
+
+dfJune <-dfW%>%
+ subset(Date>"2016-05-31" & Date<"2016-07-01" )
+  str(dfJune)
+
+  ##apply the equation:  SoilT = 1.23 + 0.94AirTemp
+dfJune<-dfJune%>%
+  select(Date,TempSoil10mm, Tair)%>%
+   mutate(CoeffJune=(TempSoil10mm-1.23)/Tair)
+ 
+ dfJune2<-dfJune %>%
+ dplyr::select(CoeffJune)%>%
+   summarise_all(funs(mean,sd))
+
+
+
+```
+
+
+
+##July
+
+```{r}
+
+dfJuly <-dfW%>%
+ subset(Date>"2016-06-30" & Date<"2016-08-01" )
+  str(dfJuly)
+
+  ##apply the equation:  SoilT = 1.23 + 0.94AirTemp
+dfJuly<-dfJuly%>%
+  select(Date,TempSoil10mm, Tair)%>%
+   mutate(CoeffJuly=(TempSoil10mm-1.23)/Tair)
+ 
+ dfJuly2<-dfJuly %>%
+ dplyr::select(CoeffJuly)%>%
+   summarise_all(funs(mean,sd))
+
+
+
+```
+
+##August
+
+```{r}
+dfAugust <-dfW%>%
+ subset(Date>"2016-07-30" & Date<"2016-09-01" )
+  str(dfAugust)
+
+  ##apply the equation:  SoilT = 1.23 + 0.94AirTemp
+dfAugust<-dfAugust%>%
+  select(Date,TempSoil10mm, Tair)%>%
+   mutate(CoeffAug=(TempSoil10mm-1.23)/Tair)
+ 
+ dfAugust2<-dfAugust %>%
+ dplyr::select(CoeffAug)%>%
+   summarise_all(funs(mean,sd))
+```
+
+##September 
+
+```{r}
+
+dfSeptember <-dfW%>%
+ subset(Date>"2016-08-31" & Date<"2016-10-01" )
+  str(dfSeptember)
+
+  ##apply the equation:  SoilT = 1.23 + 0.94AirTemp
+dfSeptember<-dfSeptember%>%
+  select(Date,TempSoil10mm, Tair)%>%
+   mutate(CoeffSept=(TempSoil10mm-1.23)/Tair)
+ 
+ dfSeptember2<-dfSeptember %>%
+ dplyr::select(CoeffSept)%>%
+   summarise_all(funs(mean,sd))
+
+```
+
+##October 
+
+```{r}
+
+dfOctober <-dfW%>%
+ subset(Date>"2016-09-30" & Date<"2016-11-01" )
+  str(dfOctober)
+
+  ##apply the equation:  SoilT = 1.23 + 0.94AirTemp
+dfOctober<-dfOctober%>%
+  select(Date,TempSoil10mm, Tair)%>%
+   mutate(CoeffOct=(TempSoil10mm-1.23)/Tair)
+ 
+ dfOctober2<-dfOctober %>%
+ dplyr::select(CoeffOct)%>%
+   summarise_all(funs(mean,sd))
+
+
+```
+
+##November 
+
+```{r}
+
+dfNovember <-dfW%>%
+ subset(Date>"2016-10-31" & Date<"2016-12-01" )
+  str(dfNovember)
+
+  ##apply the equation:  SoilT = 1.23 + 0.94AirTemp
+dfNovember<-dfNovember%>%
+  select(Date,TempSoil10mm, Tair)%>%
+   mutate(CoeffNov=(TempSoil10mm-1.23)/Tair)
+ 
+ dfNovember2<-dfNovember %>%
+ dplyr::select(CoeffNov)%>%
+   summarise_all(funs(mean,sd))
+
+
+```
+
+
+##December 
+
+```{r}
+dfDecember <-dfW%>%
+ subset(Date>"2016-10-31" & Date<"2016-12-01" )
+  str(dfDecember)
+
+  ##apply the equation:  SoilT = 1.23 + 0.94AirTemp
+dfDecember<-dfDecember%>%
+  select(Date,TempSoil10mm, Tair)%>%
+   mutate(CoeffDec=(TempSoil10mm-1.23)/Tair)
+ 
+ dfDecember2<-dfDecember %>%
+ dplyr::select(CoeffDec)%>%
+   summarise_all(funs(mean,sd))
+
+
+```
+
+
+End of this script _ Graphs in AirSoilTempCorrelate_Gaphs
+
+
+get a summary of the lm of the geom method
+
+equation is y = a(intercept) +b (slope) x
+```{r}
+# summary(lm(TempSoil10mm ~ MeanTt, dfJanuary))
+```
+

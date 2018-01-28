@@ -1,0 +1,164 @@
+---
+title: "Framework for PCA analysis "
+author: "CT"
+date: "15.01.2017
+output: html_document
+---
+- This script is an attempt normalisation using the hyperspec package by the minimum absorbance method. 
+- Take the baseline corrected values and normalise by the minimum absvalue
+
+
+```{r setup, include=FALSE, loadlibraires}
+#knitr::opts_chunk$set(echo = TRUE)
+library(tidyr)
+library (dplyr)
+library (ggplot2)
+library(agricolae)
+library(knitr)
+library (lubridate)
+library(scales)
+library(calibrate)
+library (hyperSpec)
+```
+
+
+```{r}
+
+
+setwd("C:\\GitHubRepos\\SubCloverPhD\\SubClover\\Spectra")
+getwd()
+
+#create file
+df_sp <- read.table("BreakBaseLined3cv.txt",header=TRUE)
+#df_sp <- read.table("BreakBaseLineReps.txt",header=TRUE)
+
+str(df_sp)
+```
+
+
+Perform normalisation per minimum absorbance value 
+
+
+```{r}
+
+#here normalise by the minimum absvalue
+
+df_spNorm<- df_sp%>%
+  group_by(Cultivar, IncubationDays, Rep) %>%
+   mutate(AbsValue=AbsValue-min(AbsValue))%>%
+  mutate(Absorbance=AbsValue)%>%
+  dplyr::select(-AbsValue)
+         
+
+```
+
+
+
+```{r}
+
+##select only Antas and Monti
+df_spNorm <-df_spNorm %>%
+    filter(Cultivar!="N")
+    
+
+df_spNorm%>%
+   ggplot(aes(x=WaveNumber,y=Absorbance))+
+  geom_line(aes(colour=factor(IncubationDays)))+
+  theme_bw()+
+  #scale_x_continuous(breaks=seq(min(df_sp$WaveNumber),max(df_sp$WaveNumber),by =50))+
+  
+  scale_x_continuous(breaks=round(seq(min(df_sp$WaveNumber),max(df_sp$WaveNumber),by =50)))+
+    facet_grid(Cultivar ~.) +
+  scale_x_reverse()+
+  theme_bw()+
+  theme(axis.text.x = element_text(angle = 90, hjust = 1)) +
+  expand_limits(y=c(0,0.2)) +
+  geom_abline(intercept = 0.1, slope = 0)
+```
+
+Perform normalisation using min and max method 
+AbsValue=AbsValue-min(AbsValue)/max(AbsValue)-min(AbsValue))
+
+
+
+```{r}
+
+#here normalise by the max and minimum absvalue
+
+df_spNorm2<- df_sp %>%
+  group_by(Cultivar, IncubationDays, Rep) %>%
+   mutate(AbsValue=AbsValue-min(AbsValue)/max(AbsValue)-min(AbsValue))%>%
+  mutate(Absorbance=AbsValue)%>%
+  dplyr::select(-AbsValue)
+  
+   df_spNorm2 %>%
+     ##select only Antas and Monti
+    filter(Cultivar!="N")%>%
+   ggplot(aes(x=WaveNumber,y=Absorbance))+
+  geom_line(aes(colour=factor(IncubationDays)))+
+  theme_bw()+
+  #scale_x_continuous(breaks=seq(min(df_sp$WaveNumber),max(df_sp$WaveNumber),by =50))+
+  scale_x_continuous(breaks=round(seq(min(df_sp$WaveNumber),max(df_sp$WaveNumber),by =50)))+
+    facet_grid(Cultivar ~.) +
+  scale_x_reverse()+
+  theme_bw()+
+  theme(axis.text.x = element_text(angle = 90, hjust = 1)) +
+  expand_limits(y=c(0,0.2)) +
+  geom_abline(intercept = 0.1, slope = 0)      
+
+   
+  
+```
+
+
+Use mean of Absorbance Norm2 
+
+```{r}
+
+#Get mean values for cultivar and incub days 
+df_spNorm3 <-df_spNorm2 %>%
+     ##select only Antas and Monti
+  filter(Cultivar!="N")%>%
+  group_by(WaveNumber, Cultivar,IncubationDays)%>%
+  dplyr::select(Absorbance)%>%
+  summarise_all(funs(mean))
+   
+  
+       
+
+str(df_spNorm3)
+
+
+```
+
+```{r fig.height=5, fig.width=15}
+
+
+    
+
+df_spNorm3%>%
+  ggplot(aes(x=WaveNumber,y=Absorbance))+
+  geom_line(aes(colour=factor(IncubationDays)))+
+  theme_bw()+
+  #scale_x_continuous(breaks=seq(min(df_sp$WaveNumber),max(df_sp$WaveNumber),by =50))+
+   scale_x_continuous(breaks=round(seq(min(df_sp$WaveNumber),max(df_sp$WaveNumber),by =50)))+
+    facet_grid(Cultivar ~.) +
+  scale_x_reverse()+
+  theme_bw()+
+  theme(axis.text.x = element_text(angle = 90, hjust = 1)) +
+  expand_limits(y=c(0,0.2)) +
+  geom_abline(intercept = 0.1, slope = 0)
+
+
+```
+
+
+
+
+```{r}
+
+
+ summary (df_spNorm2)
+```
+
+

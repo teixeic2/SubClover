@@ -1,0 +1,308 @@
+---
+title: "Relative Humidity  Calculation Iversen 2 - Broadfields Weather data"
+author: "CT"
+date: "01 Jan 2018"
+output: html_document
+---
+
+```{r setup, include=FALSE, loadlibraires}
+#knitr::opts_chunk$set(echo = TRUE)
+library(tidyr)
+library (dplyr)
+library (ggplot2)
+library(agricolae)
+library(knitr)
+library (lubridate)
+
+```
+
+- Aim : calculate the mean RH during the growth period for each cultivar x sowing time period .
+
+
+```{r readData}
+setwd("C:\\GitHubRepos\\SubCloverPhD\\SubClover\\Iver_weather")
+getwd()
+
+#create file
+df_RH <- read.table("RelativeHumidity.txt", header=TRUE)
+
+head(df_RH)
+
+#summary(df_RH)
+```
+
+
+
+```{r changeformat, echo=FALSE}
+str(df_RH)
+
+#adjust format 
+
+df_RH<-df_RH%>%
+  subset (date=)
+   mutate(date=as.Date(date))%>%
+   mutate(RHmean=as.numeric(RHmean))
+# 
+# 
+# 
+head(df_RH)
+
+```
+
+## Calculation 
+
+```{r, fig.height=6, fig.width=15}
+
+#Calculate the mean per date   
+df_RH1<-df_RH%>%
+  group_by(date)%>%
+  summarise_all(funs(mean))
+
+
+
+```
+
+## Subset for each cultivar vs. sowing date 1 combination 
+
+Considered Antas S1 period : 2015-06-24 till 2016-01-15
+          Denmark S1 period : till 2016-01-25
+          Leura S1 : till 2016-01-26
+          MontiS1: till 2016-01-05
+          Narrikup S1 : till  2016-01-12
+          woogenellup til; 2016-01-17
+          
+for S2 ; 2015-07-28 
+          Antas till 2016-02-09
+          Denmark : 2016-02-18
+          Leura; 2016-02-18
+          Monti: 2016-02-05
+          Narrikup:2016-02-05
+          Woogenellup : 2016-02-11
+          
+for  S3 : 2015-09-15 
+          Antas till 2016-03-15
+          Denmark : 2016-03-21
+          Leura; 2016-03-23
+          Monti: 2016-02-29
+          Narrikup:2016-02-29
+          Woogenellup : 2016-03-10
+
+for S4 : 
+subset(date>"2015-07-28" & date<"2016-02-09")%>%
+
+							
+```{r}
+A <- df_RH1 %>%
+  subset(date>"2015-06-24" & date<"2016-01-15")%>%
+   #subset(date>"2015-07-28" & date<"2016-02-09")%>%
+  #subset(date>"2015-09-15" & date<"2016-03-15")%>%
+  dplyr::select(RHmean)%>%
+  summarise_all(funs(mean))
+
+
+```
+
+
+```{r}
+D <- df_RH1 %>%
+  #subset(date>"2015-06-24" & date<"2016-01-25")%>%
+  #subset(date>"2015-07-28" & date<"2016-02-18")%>%
+  subset(date>"2015-09-15" & date<"2016-03-21")%>%
+  dplyr::select(RHmean)%>%
+  summarise_all(funs(mean))
+```
+
+
+```{r}
+L <- df_RH1 %>%
+  #subset(date>"2015-06-24" & date<"2016-01-26")%>%
+  #subset(date>"2015-07-28" & date<"2016-02-18")%>%
+  subset(date>"2015-09-15" & date<"2016-03-23")%>%
+  dplyr::select(RHmean)%>%
+  summarise_all(funs(mean))
+```
+
+
+```{r}
+M <- df_RH1 %>%
+  #subset(date>"2015-06-24" & date<"2016-01-05")%>%
+  #subset(date>"2015-07-28" & date<"2016-02-05")%>%
+  subset(date>"2015-09-15" & date<"2016-02-29")%>%
+  dplyr::select(RHmean)%>%
+  summarise_all(funs(mean))
+
+```
+
+
+```{r}
+
+N <- df_RH1 %>%
+  #subset(date>"2015-06-24" & date<"2016-01-12")%>%
+  #subset(date>"2015-07-28" & date<"2016-02-05")%>%
+  subset(date>"2015-09-15" & date<"2016-02-29")%>%
+  dplyr::select(RHmean)%>%
+  summarise_all(funs(mean))
+
+```
+
+
+```{r}
+W <- df_RH1 %>%
+  subset(date>"2015-06-24" & date<"2016-01-17")%>%
+  subset(date>"2015-07-28" & date<"2016-02-11")%>%
+  
+  dplyr::select(RHmean)%>%
+  summarise_all(funs(mean)) 
+
+```
+
+
+
+
+
+```{r}
+
+#Create and test interpolation function - Test if works 
+
+temp_ref  <- 25 # x-axes reference
+temp <- tt_card$temp # x-axes
+TT <- tt_card$TT # y-axes
+
+
+int_func <- function(temp,TT,temp_ref){
+
+  # if temp is too low or too high give extreme TT values
+ if(temp_ref>temp[length(temp)]) {
+   
+   
+   
+   out <- TT[length(TT)] 
+   # FIXME: approx functions seems to do that - need param
+   
+ } else if (temp_ref<temp[1]) {
+   
+   out <- TT[1]
+   
+ } else {
+   
+   # else interpolate
+   
+   tryCatch(  
+   
+  out <- approx(temp, TT, xout = temp_ref, 
+         method="linear", 
+         rule = 2)$y,
+  error = function(e) 
+  {
+  out <- NA
+  }
+) 
+  
+} # end if check
+
+  return(out)  
+  
+ }
+  
+int_func(temp,TT,temp_ref)
+
+
+```
+
+```{r}
+
+#create REF Jones CA, Ritchie JT, Kiniry JR, Godwin DC (1986) Subroutine structure.In 'CERES-Maize: A simulation model of maize growth anddevelopment'. (Eds CA Jones, JR Kiniry) pp. 49-194. (Texas A&M University Press: Texas, USA
+
+TTfunc <- function(Tmin ,Tmax){         
+ 
+  if (Tmin>Tmax){
+   print("Tmin>Tmax")
+   break
+ } 
+  
+  TTav  <- 0
+  TTsum <- 0
+  
+  for(n in 1:8){ 
+    
+    tn <- 0
+    
+    TT_tn <- 0
+    
+    tn <- ((0.931 +  0.114*n - 0.0703 * n^2
+            + 0.0053 * n^3) * (Tmax-Tmin)) + 
+      Tmin # 8-h temperature
+    
+    TT_tn <- int_func(tt_card$temp, tt_card$T,tn) 
+    
+    TTsum <- TT_tn + TTsum
+    
+    print(TT_tn)
+    
+    }
+  TTav <- TTsum/8
+  
+  return(TTav)
+  }
+
+TTfunc(10,30)
+
+```
+
+```{r ReadCalcTt}
+#Here a comparison between the simple TT calculation (Tx-Tm/2) and Jones 8 hours calculation
+df_We_tt <- df_Weiv %>%
+  mutate(TTday=TTfunc(Tm,Tx), TTday_s=(Tm+Tx)/2, diff=(TTday_s/TTday)*100)
+
+```
+
+
+```{r}
+#Check TT 
+df_We_tt  %>% 
+ggplot(aes(x=TTday_s, y= TTday)) +
+    geom_point(shape=21,alpha=0.2)+
+  geom_abline(intercept = 0, slope = 1)
+
+```
+
+
+
+
+
+```{r}
+
+#Calculate accumulated Themal time 
+
+df_CumTTiv <- df_We_tt %>%
+mutate(SumTTday = cumsum(TTday)) 
+
+
+head(df_CumTTiv)
+
+
+```
+
+```{r, fig.height=5, fig.width=10}
+#Graph Accumulated TT 
+
+df_CumTTiv %>% 
+ggplot(aes(x=Date, y= SumTTday)) +
+  theme_bw()+
+  geom_line()+
+  xlab(expression(Date~~"(Year-Month)")) + 
+  ylab(expression(Thermal~time~~"(d"^"o"*"C)"))
+    
+
+
+```
+
+
+
+
+```{r}
+
+write.table(df_CumTTiv, "df_CumTTiv.txt")
+
+```
+

@@ -175,15 +175,16 @@ dodge_x <- position_dodge(width = 0.9)
                 width=0.25, size=0.3,position=dodge_x)   +
   theme_grey(base_size = 18) +
     theme_bw()+
+    scale_fill_brewer(palette="Blues")+
   facet_grid(.~SowTreat, scales="free") +
     ylab(expression(Number~of~seedss~per~m^"2")) +
   theme_bw()+
 theme(axis.text.y = element_text( size = 11))+
-  theme(axis.title.y = element_text(face="bold", size=14))+
+  #theme(axis.title.y = element_text(face="bold", size=14))+
 theme(axis.text.x=element_text(angle = 90, hjust=0.95,vjust=0.2,size = 12)) +
   theme(text = element_text(size = 18))
 
-
+ggsave("plot_SeedNumberperm2Pok.png", width=12, height=6, dpi=400)
 ```
 
 
@@ -278,7 +279,7 @@ theme(text = element_text(size = 20))
 ```
 
 graph not considering depth - sum above and below samples 
-
+for coour look at : http://www.cookbook-r.com/Graphs/Colors_(ggplot2)/
 
 ```{r, fig.height=5, fig.width=10}
 
@@ -313,12 +314,14 @@ dodge_x <- position_dodge(width = 0.9)
                 width=0.25, size=0.3,position=dodge_x)   +
   theme_grey(base_size = 16) +
   theme_bw()+
-  facet_grid(.~SowTreat, scales="free") +
+   #scale_fill_manual("legend", values = c("Antas" = "#660066", "Denmark" = "lightgrey","Leura" = "darkgrey", "Monti" = "#FF9933","Narrikup" = "blue",  "Woogenellup" = "#033333"))+
+      scale_fill_brewer(palette="Blues")+
+     facet_grid(.~SowTreat, scales="free") +
     labs(y= "Seed yield (kg per ha)")+
-theme(axis.text.x=element_text(angle = +90, hjust = 0))+
+theme(axis.text.x=element_text(angle = +90, hjust = 1,vjust=0.2 ))+
 theme(text = element_text(size = 20))
 
-
+ ggsave("plot_seedyield.png", width=12, height=6, dpi=300)
 ```
 
 

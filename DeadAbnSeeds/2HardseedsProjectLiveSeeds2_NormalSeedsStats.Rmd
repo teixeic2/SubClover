@@ -136,7 +136,7 @@ Find means by Cultivar and Sow Treat to combine with Seed weight data
 ```{r}
 
 dfMean_Germination<- df_SoftGerm %>%
-    filter(Round == 119, SowTreat!="S6",SowTreat!="S7" ) %>%
+    filter(Round == 119 ) %>%
   group_by(Cultivar,SowTreat) %>%
   dplyr::select(SoftGerm_perc) %>%
   summarise_all(funs(mean,sd))
