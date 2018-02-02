@@ -60,7 +60,7 @@ df_trifo %>% filter(Plot ==1) %>% summary()
 
 Graph the results : DAS and number of trifoliates 
 
-```{r, fig.height=5, fig.width=10}
+```{r, fig.height=8, fig.width=15}
 #Graph         
   df_trifo %>%
   mutate (SowTreat= factor(SowTreat, levels=c("S1", "S2", "S3", "S4", "S5", "S6","S7", "S8"),labels=c("June", "July", "September", "November", "December", "February","March", "May")))%>%
@@ -75,11 +75,13 @@ Graph the results : DAS and number of trifoliates
   labs(y="Number of trifoliates",x="Days after sowing")+
   theme_grey(base_size = 16) +
   theme_bw()+
-      #geom_abline(intercept = 6, slope = 0)
+    geom_abline(intercept = 1, slope = 0, linetype=2)+
    geom_abline(intercept = 5,  slope = 0, linetype=2)+
    geom_abline(intercept = 10,  slope = 0, linetype=2)+
 theme(axis.text.x=element_text(angle = 0, hjust = 0))+
 theme(text = element_text(size = 20))
+
+
 ```
 
 Other graphics with same dat 
@@ -132,15 +134,6 @@ compare sowing dates
 ```{r}
 #Graph 
 
-  df_trifo %>%  group_by(Cultivar, SowTreat, DAS) %>%
-  summarise_each(funs(mean,sd)) %>%
-  ggplot(aes(x=DAS, y=Trifo)) + 
-  geom_point(aes(shape=SowTreat,colour=SowTreat)) +
-  geom_line(aes(colour=SowTreat)) +
-  #facet_grid (SowTreat~., scales = "free")+
-  theme_bw()+
-  labs(y="Number of trifoliates",x="Days after sowing")+
-    geom_abline(intercept = 6, slope = 0)
 
 ```
 

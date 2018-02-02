@@ -9,14 +9,22 @@ se
 Calculation for the seed number per burr for measurements in  2016 
 ANOVA for the variates : SeedPerBur
 
-```{r, warning=FALSE}
+
+```{r,warning=FALSE}
+
 #Load libraries 
 library(tidyr)
 library (dplyr)
 library (ggplot2)
 library(agricolae)
 library(lubridate)
+
+
 ```
+
+
+
+
 
 Read File 
 
@@ -50,7 +58,7 @@ summary(file)
 
 
 
-Graph the seedperburr
+Graph the seedling per m2 
 ```{r, fig.height= 5, fig.width=15 , warning=FALSE}
 
 # define position of bar and errorbar
@@ -86,7 +94,7 @@ Here graph with the SE (SE = std/ sqrt n ; n=4)
 
 #calculate the SE in this case for 4 reps ! sqrt of 4 = 2 
 df_burSE<-file %>%
-  #filter(Month =="January")%>%
+    #filter(Month =="January")%>%
   group_by(Cultivar, Treat,Month) %>%
   summarise_each(funs(mean,sd)) %>%
   mutate(SE=SeedlingPerm2_sd/2)
@@ -122,12 +130,20 @@ theme(axis.text.x=element_text(angle = 90, hjust=0.95,vjust=0.2,size = 14))
 
 #calculate the SE in this case for 4 reps ! sqrt of 4 = 2 
 df_burSE<-file %>%
-  filter(Month !="June")%>%
+  filter(Month !="JuneMid")%>%
+  filter(Treat=="Cut")%>%
+  filter(Cultivar=="Antas"| 
+         Cultivar=="Denmark"|
+         Cultivar=="Coolamon"|
+           Cultivar=="MountBarker"|
+           Cultivar=="Narrikup"|
+           Cultivar=="Rosabrook"|
+           Cultivar=="Woogenellup")%>%
   group_by(Cultivar, Treat,Month) %>%
   summarise_all(funs(mean,sd)) %>%
   mutate(SE=SeedlingPerm2_sd/2)
   
-df_burSE$Month_f=factor(df_burSE$Month, levels=c("January", "March", "May", "June"))
+df_burSE$Month_f=factor(df_burSE$Month, levels=c("January", "March", "June", "JuneMid"))
   
  df_burSE %>%
     
@@ -138,8 +154,8 @@ df_burSE$Month_f=factor(df_burSE$Month, levels=c("January", "March", "May", "Jun
    #geom_text(position="stack",angle = 90)+
   geom_errorbar(aes(ymin=SeedlingPerm2_mean-SE/2, ymax=SeedlingPerm2_mean+SE/2),
                 width=0.25, size=0.3,position=dodge_x)   +
-  theme_grey(base_size = 16) +
-    facet_grid(Treat~Month_f) +
+  theme_grey(base_size = 20) +
+   facet_grid(.~Month_f) +
     labs(y="Seedlings per m2") +
     ylim(0,2000)+
   theme_bw()+
@@ -160,7 +176,22 @@ Do ANOVA simple as per D. Saville :each seson and variate separately
 Select year and variable to analyse
 
 ```{r}
-df_seedANOVA <- file %>%
+
+#prepare dataframe for ANOVA ; filter rows of interest within columns
+
+filesub <- file %>%
+  filter(Month !="JuneMid")%>%
+  filter(Treat=="Cut")%>%
+  filter(Cultivar=="Antas"| 
+         Cultivar=="Denmark"|
+         Cultivar=="Coolamon"|
+           Cultivar=="MountBarker"|
+           Cultivar=="Narrikup"|
+           Cultivar=="Rosabrook"|
+           Cultivar=="Woogenellup")
+
+##Filter the month 
+df_seedANOVA <- filesub %>%
 filter(Month=="January")%>%
 dplyr:: select(Cultivar:SeedlingPerm2)
 ```
@@ -191,14 +222,14 @@ and then consider cultivar within each sowing date
 #ANOVA
 
 #my.anova <- aov(PropBurrBuried ~ Cultivar + Block, data = file.subset)
-my.anova <- aov(SeedlingPerm2 ~ Cultivar*Treat + Block, data = file.subset)
+my.anova <- aov(SeedlingPerm2 ~ Cultivar + Block, data = file.subset)
 summary(my.anova)
 ```
 
 ```{r}
 #Means separation after ANOVA
-(LSD.test(my.anova, c("Treat"), alpha= 0.05, p.adj="none")) 
-#(LSD.test(my.anova, c("Cultivar"), alpha= 0.05, p.adj="none")) 
+#(LSD.test(my.anova, c("Treat"), alpha= 0.05, p.adj="none")) 
+(LSD.test(my.anova, c("Cultivar"), alpha= 0.05, p.adj="none")) 
 ```
 
 Perform anova in cultivars 
@@ -210,7 +241,7 @@ Perform anova in cultivars
 
 #Means separation after ANOVA
 #(LSD.test(my.anova, c("Cultivar"), alpha= 0.05, p.adj="none")) 
-(LSD.test(my.anova, c("Treat", "Cultivar"), alpha= 0.05, p.adj="none")) 
+#(LSD.test(my.anova, c("Treat", "Cultivar"), alpha= 0.05, p.adj="none")) 
 ```
 
 now do the mean table to write
@@ -219,7 +250,7 @@ now do the mean table to write
 
 
 means<-file.subset%>%
-  group_by(Treat,Cultivar)%>%
+  group_by(Cultivar)%>%
   dplyr::select( SeedlingPerm2)%>%
   summarise_all(funs(mean))
 
@@ -234,9 +265,9 @@ Select month and variable to analyse
 ```{r}
 
 str(file)
-df_seedANOVA2 <- file %>%
+df_seedANOVA2 <- filesub %>%
 filter(Month=="March")%>%
-   select(Cultivar,Plot,Block,Treat, SeedlingPerm2)
+   dplyr::select(Cultivar,Plot,Block,Treat, SeedlingPerm2)
 ```
 
 
@@ -265,7 +296,7 @@ Here Analyse
 #ANOVA
 
 #my.anova <- aov(PropBurrBuried ~ Cultivar + Block, data = file.subset)
-my.anova <- aov(SeedlingPerm2 ~ Cultivar*Treat + Block, data = file.subset2)
+my.anova <- aov(SeedlingPerm2 ~ Cultivar + Block, data = file.subset2)
 summary(my.anova)
 ```
 
@@ -284,7 +315,7 @@ Perform anova in cultivars
 
 #Means separation after ANOVA
 #(LSD.test(my.anova, c("Cultivar"), alpha= 0.05, p.adj="none")) 
-(LSD.test(my.anova, c("Treat", "Cultivar"), alpha= 0.05, p.adj="none")) 
+#(LSD.test(my.anova, c("Treat", "Cultivar"), alpha= 0.05, p.adj="none")) 
 ```
 
 
@@ -345,8 +376,8 @@ Now perform for June
 
 ```{r}
 str(file)
-df_seedANOVA3 <- file %>%
-filter(Month=="May")
+df_seedANOVA3 <- filesub %>%
+filter(Month=="June")
   #dplyr:: select_(Cultivar,Plot,Block,Treat, SeedlingPerm2)
 
 
@@ -368,7 +399,7 @@ Run ANova
 #ANOVA
 
 #my.anova <- aov(PropBurrBuried ~ Cultivar + Block, data = file.subset)
-my.anova <- aov(SeedlingPerm2 ~ Cultivar*Treat , data = file.subset3)
+my.anova <- aov(SeedlingPerm2 ~ Cultivar , data = file.subset3)
 summary(my.anova)
 ```
 

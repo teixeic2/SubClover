@@ -55,7 +55,7 @@ summary(file)
 merge dataframes by cultivar 
 ```{r, fig.height= 5, fig.width=15 , warning=FALSE}
 
-# define position of bar and errorbar
+# define merging by 
 df_merge <- merge (file, rank, by.x="Cultivar")
 
 df_merge <-df_merge %>%
@@ -99,6 +99,45 @@ facet_wrap(~Month_f,ncol=3, scales = "free")+
 
 
 ```
+
+subset : 
+Select only the seven cultivars in January 
+
+```{r}
+
+str(df_merge)
+df_merge$Month_f=factor(df_merge$Month, levels=c("January", "March", "May"))%>%
+  
+  
+#graph it
+ df_merge %>%
+   ggplot(aes(x=HardseedRank, y=CumSeedlingPerm2, colour=Cultivar)) + # do percentage here
+ 
+  geom_point(aes(shape= Cultivar), size=5)+
+  scale_shape_manual(values = c(0,1,2,3,4,5,6,7,8,9,10,11,12,13,14))+
+  geom_point()+
+    #labs(x="Hours",y="Cummulative Germination Percent(%)")+
+  #facet_grid(.~Temp)
+  #facet_wrap(.~Temp, ncol=6)
+
+facet_wrap(~Month_f,ncol=3, scales = "free")+
+  theme_bw(base_size=16)+
+  #scale_x_continuous(breaks = c(1,200,300))+
+ # ylim(0, 2000)+
+  xlim(0, 6)+
+  theme(axis.text.x=element_text(angle = +0, hjust = 0, size= 12))+
+  theme(axis.text.y=element_text(angle = +0, hjust = 0, size= 12))+
+  labs(y="Mean Cumulative Seedlings per m2 ",x="Hardseed Rank ")
+ # geom_abline(intercept = 50, slope = 0)
+
+
+
+```
+
+
+
+
+
 
 
 Explore with the cumulative number of seedlings according to date

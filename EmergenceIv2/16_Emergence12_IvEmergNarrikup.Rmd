@@ -172,9 +172,20 @@ p1
 ```{r}
 #get statistical summary here 
 summary(lm(y ~ x, df))
+
+#SE std/sqrt n
+
+#Ci95% = observed mean +- SEM* t (t=1.96)
+confint(lm(y ~ x, df))
+#
 ```
 
 Tb for Narrikup is - intercept / slope x = -( -0.015654/0.015232 = 1.02 (±0.05)
+
+
+
+
+
 
 End of this script
  

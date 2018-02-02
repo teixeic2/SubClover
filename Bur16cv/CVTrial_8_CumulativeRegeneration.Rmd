@@ -1,0 +1,427 @@
+ ---
+title: "SeedlingRegeneration_Analysis_16 cv_trial"
+author: "CT"
+date: "28.12. 2017"
+output: html_document
+---
+Purpose : 
+se
+Calculation for the cumulative seedling numbers for the subset of 7 cultivars 
+
+
+```{r,warning=FALSE}
+
+#Load libraries 
+library(tidyr)
+library (dplyr)
+library (ggplot2)
+library(agricolae)
+library(lubridate)
+
+
+```
+
+
+
+
+
+Read File 
+
+```{r, echo=FALSE}
+setwd("C:\\GitHubRepos\\SubCloverPhD\\SubClover\\Bur16cv")
+getwd()
+file <- read.table("CVTrial2017_Regeneration.txt",header=TRUE)
+
+seed <-  read.table("CVTrial2017_Seed.txt",header=TRUE)
+
+df_HardRank <-  read.table("CVTrial2017_RankHard.txt",header=TRUE)
+
+head(file)
+summary(file)
+```
+
+Define the formats  
+
+```{r}
+
+# define factors and formats
+file <- file %>%
+  #select(-PlotSide)%>%
+  mutate(
+    Plot = as.factor(Plot),
+    Block = as.factor(Block),
+    Cultivar = as.factor(Cultivar),
+    Treat=as.factor(Treat)
+   
+  )
+
+str(file)
+summary(file)
+
+```
+
+
+
+
+
+```{r, fig.height= 5, fig.width=15 , warning=FALSE}
+
+#subset the data of interest 
+df_fileSub <-file %>%
+  filter(Month !="JuneMid")%>%
+  filter(Treat=="Cut")%>%
+  filter(Cultivar=="Antas"| 
+         Cultivar=="Denmark"|
+         Cultivar=="Coolamon"|
+           Cultivar=="MountBarker"|
+           Cultivar=="Narrikup"|
+           Cultivar=="Rosabrook"|
+           Cultivar=="Woogenellup")
+
+
+
+
+
+```
+
+
+
+Calculate the cumulative number of seedlings by each plot 
+
+```{r}
+
+#
+
+
+# create an ID of each chunk
+df_temp <- df_fileSub %>%
+  
+  mutate(codeID = as.factor(paste0(Plot,"_",Treat)))
+  
+# define unique factors to loop around
+codesNames <- unique(df_temp$codeID)
+  
+  
+
+# prepare final df to store data
+df_final <- data.frame()
+
+
+
+# loop
+for(i in 1:length(codesNames)) {
+  
+  df_sub <- data.frame() # empty df
+  
+  df_sub <- df_temp %>%
+    subset(codeID == codesNames[i]) %>% # segment one unique combination
+    mutate(codeID = factor(codeID)) %>%
+    arrange(MeasurementDate) %>%
+    mutate(SeedlingNumber_cum = cumsum(SeedlingPerm2))
+       
+    
+     df_final <- rbind(df_final,df_sub)
+  
+}
+
+summary(df_final)
+
+
+```
+
+
+
+then rename dataframe 
+```{r}
+
+#rename dataframe
+
+df_Cum <- df_final
+  
+  # filter(Month=="June")
+
+
+
+```
+
+
+Then merge with dataframe which contains the total number of seeds per m2 to calculate the remaining seeds in the soil bank. 
+
+```{r}
+
+#Select only columns of interest for seed data to merge 
+df_seedSub <- seed %>%
+  filter(Year !="2017")%>%
+  filter(Treat=="Cut")%>%
+  filter(Cultivar=="Antas"| 
+         Cultivar=="Denmark"|
+         Cultivar=="Coolamon"|
+           Cultivar=="MountBarker"|
+           Cultivar=="Narrikup"|
+           Cultivar=="Rosabrook"|
+           Cultivar=="Woogenellup")%>%
+  dplyr::select(Plot,SeedsPerM2)
+
+
+```
+
+merge dataframes 
+
+```{r}
+
+df_total <- merge(df_Cum,df_seedSub,by="Plot")
+
+```
+
+Calculate number of remaining seed in soil bank
+
+
+
+```{r}
+str(df_total)
+
+df_total<-df_total %>%
+  mutate(NumberRemainSeeds=SeedsPerM2- SeedlingNumber_cum)%>%
+  mutate(PercRemainSeeds=100*(NumberRemainSeeds/SeedsPerM2))
+  
+  str(df_total)
+```
+
+Merge with the hardseed rank to graph Remaining seeds in soil versus Hardseed Rank
+
+```{r}
+
+
+
+df_totalRank <- merge(df_total,df_HardRank,by="Cultivar")
+```
+
+
+
+Plot mean number remaining seeds against hard Rank 
+
+```{r}
+df_totalRankMean<-df_totalRank%>%
+  group_by(Month,Cultivar)%>%
+  dplyr::select(NumberRemainSeeds,HardseedRank,PercRemainSeeds)%>%
+summarise_all(funs(mean))
+
+#gather vvalues 
+
+df_gathered<-df_totalRankMean %>%
+  gather(key= "Variable" , value = "Value" , NumberRemainSeeds,PercRemainSeeds)
+```
+
+Plot mean percent of  remaining seeds against hard Rank in June 
+
+
+```{r, fig.height=8, fig.width=18}
+
+df_gathered %>%
+filter(Month=="January"|Month=="June")%>%
+ggplot(aes(x=HardseedRank, y=Value, colour=Cultivar)) + 
+ 
+  geom_point(aes(shape= Cultivar), size=7)+
+  scale_shape_manual(values = c(0,1,2,3,4,5,6,7))+
+  geom_point()+
+    #labs(x="Hours",y="Cummulative Germination Percent(%)")+
+  #facet_grid(.~Temp)
+  #facet_wrap(.~Temp, ncol=6)
+
+facet_wrap(Variable~Month, scales = "free")+
+  theme_bw(base_size=16)+
+  #scale_x_continuous(breaks = c(1,200,300))+
+ # ylim(0, 2000)+
+  xlim(0, 6)+
+  theme(axis.text.x=element_text(angle = +0, hjust = 0, size= 16))+
+  theme(axis.text.y=element_text(angle = +0, hjust = 0, size= 14))+
+  theme(axis.title.y = element_text(angle = 90, hjust = 0, size= 16))+
+  labs(y= "        Percentage (%)                       Number of remaining seeds per m2 ",x="Hardseed Rank ")
+ # geom_abline(intercept = 50, slope = 0)
+
+
+```
+
+get the lm for January 
+
+
+
+
+```{r}
+
+df_January<-df_totalRankMean %>%
+  
+filter(Month=="January")
+
+str(df_January)
+  
+require(ggplot2)
+require(plyr)
+require(dplyr)
+
+lm_eqn = function(df){
+  m = lm(y ~ x, df);
+  eq <- substitute(italic(y) == a + b %.% italic(x)*","~~italic(r)^2~"="~r2, 
+                   list(a = format(coef(m)[1], digits = 2), 
+                        b = format(coef(m)[2], digits = 2), 
+                        r2 = format(summary(m)$r.squared, digits = 3)))
+  as.character(as.expression(eq));                 
+}
+
+#use all datapoints 
+df <- df_January%>% 
+  #dplyr::select(SowTreat,Cultivar, Plot, meanTemp_Em, InvDAS50E) %>%
+  #group_by(SowTreat,Cultivar) %>%
+  #summarise_each(funs(mean)) %>%
+  mutate(y=PercRemainSeeds,x=HardseedRank)%>%
+  dplyr::select(-PercRemainSeeds, -HardseedRank)
+
+eq <- ddply(df,.(Cultivar),lm_eqn)
+
+yx<-quantile(df$y,0.75)
+xn<- quantile(df$x,0.25)
+
+p <- ggplot(data = df, aes(x = x, y = y)) +
+  geom_smooth(method = "lm", se=FALSE, color="black", formula = y ~ x) +
+  geom_point(aes(colour = factor(Cultivar)), size=5) + scale_shape(solid = FALSE)+ 
+  
+  theme_bw()+
+  scale_x_continuous(limits = c(0,6))+
+  scale_y_continuous(limits = c(90,100))
+
+p1 <- p + geom_text(data=eq,aes(x = xn, y = yx,label=V1), parse = TRUE, inherit.aes=FALSE)  
+  #facet_grid(Cultivar~.,scales="free")
+  
+p1
+
+
+```
+
+
+Here Analyse 
+
+
+```{r}
+
+#ANOVA
+
+#my.anova <- aov(PropBurrBuried ~ Cultivar + Block, data = file.subset)
+my.anova <- aov(SeedlingPerm2 ~ Cultivar + Block, data = file.subset2)
+summary(my.anova)
+```
+
+```{r}
+#Means separation after ANOVA
+#(LSD.test(my.anova, c("Treat"), alpha= 0.05, p.adj="none")) 
+(LSD.test(my.anova, c("Cultivar"), alpha= 0.05, p.adj="none")) 
+```
+
+
+Perform anova in cultivars 
+
+
+```{r}
+
+
+#Means separation after ANOVA
+#(LSD.test(my.anova, c("Cultivar"), alpha= 0.05, p.adj="none")) 
+#(LSD.test(my.anova, c("Treat", "Cultivar"), alpha= 0.05, p.adj="none")) 
+```
+
+
+tistics
+   MSerror Df     Mean       CV  t.value      LSD
+  57883.99 87 600.0483 40.09526 1.987608 239.1003
+
+$parameters
+        test p.ajusted   name.t ntr alpha
+  Fisher-LSD      none Cultivar  15  0.05
+
+$means
+            SeedlingPerm2      std r         LCL       UCL Min  Max    Q25    Q50    Q75
+Antas             982.750 337.1578 8  813.680589 1151.8194 252 1358  884.0 1042.0 1200.0
+Campeda           370.600 234.3231 8  201.530589  539.6694   0  726  252.0  299.4  568.0
+Coolamon          429.750 151.0179 8  260.680589  598.8194 252  568  299.4  457.4  568.0
+Denmark           449.500 163.5455 8  280.430589  618.5694 252  726  370.5  410.0  568.0
+Karridale         528.500 219.4194 8  359.430589  697.5694 252  884  370.5  568.0  607.5
+Leura             177.250 156.1938 8    8.180589  346.3194   0  410    0.0  252.0  252.0
+Monti             187.125 219.6851 8   18.055589  356.1944   0  568    0.0  133.5  291.5
+MountBarker      1219.750 259.4487 8 1050.680589 1388.8194 726 1516 1160.5 1200.0 1397.5
+Napier            686.500 184.0644 8  517.430589  855.5694 410  884  568.0  647.0  884.0
+Narrikup          923.500 163.5455 8  754.430589 1092.5694 726 1200  844.5  884.0 1042.0
+Rosabrook         350.750 187.6621 8  181.680589  519.8194 252  726  252.0  252.0  331.0
+SeatonPark        587.750 320.8995 8  418.680589  756.8194 252 1042  252.0  568.0  884.0
+Trikkala          370.500 163.5455 8  201.430589  539.5694 252  568  252.0  252.0  568.0
+Whatawhata        516.750 332.9366 8  347.680589  685.8194   0 1042  252.0  568.0  726.0
+Woogenellup      1219.750 259.4487 8 1050.680589 1388.8194 884 1516 1002.5 1279.0 1397.5
+
+$comparison
+NULL
+
+$groups
+            SeedlingPerm2 groups
+MountBarker      1219.750      a
+Woogenellup      1219.750      a
+Antas             982.750     ab
+Narrikup          923.500     bc
+Napier            686.500     cd
+SeatonPark        587.750     de
+Karridale         528.500     de
+Whatawhata        516.750     de
+Denmark           449.500     de
+Coolamon          429.750      e
+Campeda           370.600     ef
+Trikkala          370.500     ef
+Rosabrook         350.750     ef
+Monti             187.125      f
+Leura             177.250      f
+
+attr(,"class")
+[1] "group"
+Show in New WindowClear OutputExpand/Collapse Output
+$statistics
+
+Now perform for June 
+
+
+```{r}
+str(file)
+df_seedANOVA3 <- filesub %>%
+filter(Month=="June")
+  #dplyr:: select_(Cultivar,Plot,Block,Treat, SeedlingPerm2)
+
+
+summary(df_seedANOVA3)
+
+#-------------------------------------------------
+# anova 
+
+file.subset3 <- df_seedANOVA3 
+
+head(file.subset3)
+summary(file.subset3)
+
+```
+
+Run ANova
+
+```{r}
+#ANOVA
+
+#my.anova <- aov(PropBurrBuried ~ Cultivar + Block, data = file.subset)
+my.anova <- aov(SeedlingPerm2 ~ Cultivar , data = file.subset3)
+summary(my.anova)
+```
+
+
+
+```{r}
+#Means separation after ANOVA
+#(LSD.test(my.anova, c("Treat"), alpha= 0.05, p.adj="none")) 
+(LSD.test(my.anova, c("Cultivar"), alpha= 0.05, p.adj="none")) 
+#(LSD.test(my.anova, c("Cultivar", "Treat"), alpha= 0.05, p.adj="none")) 
+```
+
+
+
+end of this script 

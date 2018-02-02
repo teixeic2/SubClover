@@ -8,7 +8,7 @@ output: html_document
 Purpose:
 
 -Analysis of trifoliates expansion for Iversen from previous script (use number Trifo)
-- Calculate the ti,me to reach 5 number of leaves
+- Calculate the time to reach 5 number of leaves
 - Calculate rate of leaf appearance (1/Days) 
  
 ```{r loadLibraries}

@@ -176,5 +176,21 @@ summary(lm(y ~ x, df))
 
 Tb for Monti is - intercept / slope x = -0.026756/0.015915 = -1.73 (±0.05)
 
+```{r}
+
+mod = lm(y~x, data=df)
+summary(mod)
+
+
+#Call:
+lm(formula = y ~ x, data = df)
+
+confint(mod)
+
+```
+
+
+
+
 End of this script
  

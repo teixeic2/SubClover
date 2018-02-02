@@ -122,6 +122,63 @@ mutate(Variable = factor(Variable, levels = c("Dmweed",
 
 ```
 
+Then filter only the even selected cultivars 
+
+
+
+```{r fig.height=5, fig.width=10}
+
+
+df_Seven<-file %>%
+  gather(key= "Variable" , value = "KgHa" , Dmclover:Dmweed)%>%
+  group_by(Cultivar, Treat,Variable, Month) %>%
+  #filter(Year !="2017")%>%
+  filter(Treat=="Cut")%>%
+  filter(Cultivar=="Antas"| 
+         Cultivar=="Denmark"|
+         Cultivar=="Coolamon"|
+           Cultivar=="MountBarker"|
+           Cultivar=="Narrikup"|
+           Cultivar=="Rosabrook"|
+           Cultivar=="Woogenellup") %>%
+  
+  
+  dplyr::select(KgHa) %>%
+  summarise_all(funs(mean,sd))
+  
+#colours
+cols <- c(Weed="darkgrey", Clover="black")
+  
+##graph as a stack bar
+df_Seven%>%
+  ungroup(Variable)%>%
+mutate(Variable = factor(Variable, levels = c("Dmweed",
+                                 "Dmclover"),
+                          labels = c("Weed",
+                                 "Clover")
+                          )) %>%
+   mutate (Month= factor(Month, levels=c("September", "October" ),labels=c("September", "October")))%>%
+  
+  
+  ggplot(aes(x=Cultivar, y=mean, fill=factor(Variable))) +
+  
+  geom_bar(stat="identity") +
+  theme_bw()+
+  facet_grid(Treat~Month) +
+  scale_fill_manual(values = cols)+
+  ylab("DM yield (Kg per ha)") +
+  xlab("Cultivar") +
+  theme(axis.text.x = element_text( angle=90,hjust=0.95,vjust=0.2)) + 
+  theme(legend.title=element_blank()) +
+  theme(text = element_text(size=16))
+
+
+
+```
+
+
+
+
 Make the sum of September and October
 
 ```{r}

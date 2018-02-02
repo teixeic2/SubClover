@@ -176,5 +176,20 @@ summary(lm(y ~ x, df))
 
 Tb for Denmark is intercept / slope (x) = -0.0137 / 0.132 ~ 1.0 (0.03).
 
+
+```{r}
+mod = lm(y~x, data=df)
+summary(mod)
+
+
+#Call:
+lm(formula = y ~ x, data = df)
+
+confint(mod)
+```
+
+
+
+
 End of this script
  

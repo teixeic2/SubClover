@@ -76,7 +76,7 @@ theme(axis.text.x=element_text(angle = 90, hjust=0.95,vjust=0.2,size = 12))
 
 ```
 
-Here graph with the SE (SE = std/ sqrt n ; n=3)
+Here graph with the SE (SE = std/ sqrt n ; n=4)
 
 ```{r,fig.height= 5, fig.width=10 , warning=FALSE}
 
@@ -110,20 +110,64 @@ theme(axis.text.x=element_text(angle = 90, hjust=0.95,vjust=0.2,size = 12))
 ```
 
 
+select only the seven cultivars 
+
+Here graph with the SE (SE = std/ sqrt n ; n=4)
+
+```{r,fig.height= 5, fig.width=10 , warning=FALSE}
+
+#calculate the SE in this case for 4 reps ! sqrt of 4 = 2 
+df_burSE2<-file %>%
+  filter(Treat=="Cut")%>%
+  filter(Cultivar=="Antas"| 
+         Cultivar=="Denmark"|
+         Cultivar=="Coolamon"|
+           Cultivar=="MountBarker"|
+           Cultivar=="Narrikup"|
+           Cultivar=="Rosabrook"|
+           Cultivar=="Woogenellup")%>%
+
+  group_by(Cultivar) %>%
+  summarise_each(funs(mean,sd)) %>%
+  mutate(SE=PercentBurBurial_sd/2)
+  
+  #graph it 
+  df_burSE2 %>%
+  #mutate(colPal = ifelse(Cultivar=="Antas","Brachy",ifelse(Cultivar=="Monti","Brachy","Yanny"))) %>%
+  #ggplot(aes(x=Cultivar, y=(PercentBurBurial_mean),fill=colPal)) +
+  ggplot(aes(x=Cultivar, y=(PercentBurBurial_mean),fill=Cultivar))+
+  geom_bar(stat="identity", position = dodge_x) +
+  geom_errorbar(aes(ymin=PercentBurBurial_mean-SE/2, ymax=PercentBurBurial_mean+SE/2),
+                width=0.25, size=0.3,position=dodge_x)   +
+  theme_grey(base_size = 16) +
+    #facet_grid(.~Treat) +
+    labs(y="% Buried burrs") +
+  theme_bw()+
+theme(axis.text.y = element_text( size = 10))+
+theme(axis.title.y = element_text(face="bold", size=12))+
+theme(axis.text.x=element_text(angle = 0, hjust=0.5,vjust=0.5,size = 12))
 
 
+```
 
-
-Statistical Analisis 
-Do ANOVA simple as per D. Saville : each sowing date separately.
 
 ```{r}
+#Statistical Analisis 
+#Do ANOVA simple as per D. Saville : each sowing date separately.
+
 
  
-summary(file)
+#summary(file)
 
-df_burANOVA <- file #use to filter%>%
-  
+df_burANOVA <- file %>%    #use to filter%>%
+  filter(Treat=="Cut")%>%
+  filter(Cultivar=="Antas"| 
+         Cultivar=="Denmark"|
+         Cultivar=="Coolamon"|
+           Cultivar=="MountBarker"|
+           Cultivar=="Narrikup"|
+           Cultivar=="Rosabrook"|
+           Cultivar=="Woogenellup")
 
 
 #-------------------------------------------------
@@ -132,12 +176,19 @@ file <- df_burANOVA
 
 
 file.subset <- file %>%
-  select(-PropBurrBurial)
+ dplyr:: select(-PropBurrBurial)
 
 head(file.subset)
 summary(file.subset)
-
 ```
+
+
+
+
+
+
+
+
 
 Here Analyse the percentage of buried burs overall :
 consider sow Treat as a factor  (overview)
@@ -148,15 +199,76 @@ and then consider cultivar within each sowing date
 #ANOVA
 
 #my.anova <- aov(PropBurrBuried ~ Cultivar + Block, data = file.subset)
-my.anova <- aov(PercentBurBurial ~ Cultivar*Treat + Block, data = file.subset)
+#my.anova <- aov(PercentBurBurial ~ Cultivar*Treat + Block, data = file.subset)
+my.anova <- aov(PercentBurBurial ~ Cultivar + Block, data = file.subset)
 summary(my.anova)
 ```
 
 ```{r}
 #Means separation after ANOVA
-(LSD.test(my.anova, c("Treat"), alpha= 0.05, p.adj="none")) 
-#(LSD.test(my.anova, c("Cultivar"), alpha= 0.05, p.adj="none")) 
+#(LSD.test(my.anova, c("Treat"), alpha= 0.05, p.adj="none")) 
+(LSD.test(my.anova, c("Cultivar"), alpha= 0.05, p.adj="none")) 
 ```
+
+Correlate with the burr burial ranks by Nichols 2013
+
+```{r}
+
+
+rankBur <- read.table("CVTrial2017_RankBurBurial.txt",header=TRUE)
+```
+
+
+merge dataframes of interest 
+
+```{r}
+
+
+# define merging by 
+df_merge <- merge (  df_burSE2, rankBur, by.x="Cultivar")
+
+df_merge <-df_merge %>%
+  mutate (BurialRank=as.numeric(BurialRank))
+```
+
+Plot percent buried burrs against the ranks 
+
+```{r, fig.height=5, fig.width=10}
+
+df_merge %>%
+   ggplot(aes(x=BurialRank, y=PercentBurBurial_mean, colour=Cultivar)) + # do percentage here
+ 
+  geom_point(aes(shape= Cultivar), size=5)+
+  scale_shape_manual(values = c(0,1,2,3,4,5,6))+
+  geom_point()+
+  geom_errorbar(aes(ymin=PercentBurBurial_mean-PercentBurBurial_sd/4,
+                    ymax=PercentBurBurial_mean+PercentBurBurial_sd/4))+
+    #labs(x="Hours",y="Cummulative Germination Percent(%)")+
+  #facet_grid(.~Temp)
+  #facet_wrap(.~Temp, ncol=6)
+
+#facet_wrap(~Month_f,ncol=3, scales = "free")+
+  theme_bw(base_size=16)+
+  #scale_x_continuous(breaks = c(1,200,300))+
+ #ylim(0, 2000)+
+  xlim(0, 8)+
+  theme(axis.text.x=element_text(angle = +0, hjust = 0, size= 12))+
+  theme(axis.text.y=element_text(angle = +0, hjust = 0, size= 12))+
+  labs(y="Mean Percentage of buried burrs ",x="Burial Rank ")
+ # geom_abline(intercept = 50, slope = 0)
+
+
+ggsave("plot_BurrBurial.png", width=12, height=6, dpi=400)
+
+
+
+```
+
+
+
+
+
+
 
 Perform anova in cultivars 
 

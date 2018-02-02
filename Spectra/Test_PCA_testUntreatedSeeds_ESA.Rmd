@@ -4,7 +4,7 @@ author: "CT"
 date: "15.01.2017
 output: html_document
 ---
-- This script is an attempt for the PCA analysis with the subbset for untreated seeds for the ESA paper . Compre with Unscrambler results 
+- This script is an attempt for the PCA analysis with the subbset for untreated seeds for the ESA paper . Compare with Unscrambler results 
 
 -Used guidelines from : http://www.sthda.com/english/articles/31-principal-component-methods-in-r-practical-guide/118-principal-component-analysis-in-r-prcomp-vs-princomp/
 
@@ -49,8 +49,8 @@ df_spU <- df_sp%>%
   filter(IncubationDays!="84")%>%
 dplyr::select(-Rep, -Hardness, -RowNo, -IncubationDays, -Seed)
 
-#here define the wavenumbers 
-df_sp.activeU <- df_spU[,1:1738, 1:25]
+#here define the wavenumbers ;set active row numbers and column of variables
+df_sp.activeU <- df_spU[,1:25, 2:1738 ]
 
 
 
@@ -71,8 +71,7 @@ head(df_sp.activeU[, 1:6])
 
 #Need to convert the cultivar names to numbers as numeric
 
-df_sp.activeU%>%
-  mutate()
+
 
 
 #compute PCA
@@ -113,11 +112,11 @@ fviz_pca_ind(res.pca,
 Separate by groups for Antas 
 
 ```{r, fig.height=6, fig.width=12}
-fviz_pca_ind(res.pca, label="none", habillage=df_spA$IncubationDays)
-
+fviz_pca_ind(res.pca, label="none", habillage=df_sp.activeU$Cultivar)
+df_sp.activeU
 
 # Add ellipses
-p <- fviz_pca_ind(res.pca, label="none", habillage=df_spA$IncubationDays,
+p <- fviz_pca_ind(res.pca, label="none", habillage=df_sp.activeU$Cultivar,
              addEllipses=TRUE, ellipse.level=0.95, alpha=0.9)
 print(p)
 ```

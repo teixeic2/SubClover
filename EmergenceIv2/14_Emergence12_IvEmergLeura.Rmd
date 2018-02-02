@@ -175,6 +175,26 @@ summary(lm(y ~ x, df))
 ```
 
 
-Tb for Leura is - intercept / slope x = -0.00178/0.01377 = -1.29 (±0.045)
+Tb for Leura is - intercept / slope x = -0.00178/0.01377 = -0.129 (±0.045)
+
+
+```{r}
+
+
+mod = lm(y~x, data=df)
+summary(mod)
+
+
+#Call:
+lm(formula = y ~ x, data = df)
+
+confint(mod)
+
+```
+
+
+
+
+
 End of this script
  

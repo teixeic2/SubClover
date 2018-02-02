@@ -176,6 +176,16 @@ summary(lm(y ~ x, df))
 
 Tb for Wooge = - interc / slope = -(-0.0407811.02)/  0.018820 = 2.16 (±0.01)
 
+```{r}
+
+#Ci95% = observed mean +- SEM* t (t=1.96)
+confint(lm(y ~ x, df))
+
+```
+
+
+
+
 
 End of this script
  

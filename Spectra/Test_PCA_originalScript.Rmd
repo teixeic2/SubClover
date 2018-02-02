@@ -28,9 +28,19 @@ library(calibrate)
 library("factoextra")
 data(decathlon2)
 
-decathlon2.active <- decathlon2[1:23, 1:10]
 
+
+decathlon2.active <- decathlon2[1:23, 1:10]
+ncol(decathlon2.active)
 head(decathlon2.active[, 1:6])
+
+str(decathlon2.active)
+
+row.names(decathlon2.active)
+
+# here:
+df<-data.frame(x=c(1,2,3,4,5,6,7,8),y=c(4,5,6,7,8,9,0,23),z=c(14,25,36,47,38,49,40,23))
+row.names(df) <-c("q","m","b","s","e","r","t","y")
 ```
 
 
@@ -40,6 +50,8 @@ head(decathlon2.active[, 1:6])
 ```{r readData}
 #compute PCA
 res.pca <- prcomp(decathlon2.active, scale = TRUE)
+
+#res.pca <- prcomp(df, scale = TRUE)
 ```
 
 ## Visualize eigenvalues (scree plot). Show the percentage of variances explained by each principal component. 

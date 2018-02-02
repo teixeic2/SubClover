@@ -1,0 +1,226 @@
+ ---
+title: "SeedWeight_Analysis"
+author: "CT"
+date: "Friday, March 18, 2016"
+output: html_document
+---
+Purpose : 
+
+Calculation for the seed weight per individual seed (mg)
+
+```{r, warning=FALSE}
+#Load libraries 
+library(tidyr)
+library (dplyr)
+library (ggplot2)
+library(agricolae)
+library(lubridate)
+```
+
+
+
+
+Read File 
+
+```{r, echo=FALSE}
+setwd("C:\\GitHubRepos\\SubCloverPhD\\SubClover\\Bur16cv")
+getwd()
+file <- read.table("CVTrial2017_Seed.txt",header=TRUE)
+head(file)
+summary(file)
+```
+
+Define the formats  
+
+```{r}
+
+# define factors and formats
+file <- file %>%
+  mutate(
+    Plot = as.factor(Plot),
+    Block = as.factor(Block),
+    Cultivar = as.factor(Cultivar),
+    Treat=as.factor(Treat)
+   
+  )
+
+str(file)
+summary(file)
+
+```
+
+
+Calculate seed weight as = divide seedyield per 10000 to have kg per m2. then divide /1000 to have grams then divide again in 1000 to havve in mg
+
+```{r}
+file <-file %>%
+  mutate(IndivSeedweight=((SeedYieldKgHa/10000)/SeedsPerM2)*1000000)
+```
+
+
+
+
+Graph the IndivSeedweight  average of both years!
+
+```{r, fig.height= 5, fig.width=10 , warning=FALSE}
+
+# define position of bar and errorbar
+# dodge_x <- position_dodge(width = 0.9)
+# 
+# file %>%
+#   group_by(Cultivar, Treat) %>%
+#   summarise_each(funs(mean,sd)) %>%
+#   #mutate(colPal = ifelse(Cultivar=="Antas","Brachy",ifelse(Cultivar=="Monti","Brachy","Yanny"))) %>%
+#   #ggplot(aes(x=Cultivar, y=(PropBurrBuried_mean),fill=colPal)) +
+#   ggplot(aes(x=Cultivar, y=(SeedsPerM2_mean),fill=Cultivar))+
+#    geom_bar(stat="identity", position = dodge_x) +
+#   geom_errorbar(aes(ymin=SeedsPerM2_mean-SeedsPerM2_sd/2, ymax=SeedsPerM2_mean+SeedsPerM2_sd/2),
+#                 width=0.25, size=0.3,position=dodge_x)   +
+#   theme_grey(base_size = 16) +
+#     facet_grid(.~Treat) +
+#     labs(y="Seeds per m2") +
+#   theme_bw()+
+# theme(axis.text.y = element_text( size = 10))+
+# theme(axis.title.y = element_text(face="bold", size=12))+
+# theme(axis.text.x=element_text(angle = 90, hjust=0.95,vjust=0.2,size = 12))
+
+
+```
+
+Here graph with the SE (SE = std/ sqrt n ; n=4)
+
+```{r,fig.height= 5, fig.width=10 , warning=FALSE}
+
+# #calculate the SE in this case for 4 reps ! sqrt of 4 = 2 
+# df_burSE<-file %>%
+#   group_by(Cultivar, Treat) %>%
+#   summarise_each(funs(mean,sd)) %>%
+#   mutate(SE=SeedsPerM2_sd/2)
+#   
+#   
+#   df_burSE %>%
+#   #mutate(colPal = ifelse(Cultivar=="Antas","Brachy",ifelse(Cultivar=="Monti","Brachy","Yanny"))) %>%
+#   #ggplot(aes(x=Cultivar, y=(SeedsPerM2_mean),fill=colPal)) +
+#   ggplot(aes(x=Cultivar, y=(SeedsPerM2_mean),fill=Cultivar))+
+#   geom_bar(stat="identity", position = dodge_x) +
+#   geom_errorbar(aes(ymin=SeedsPerM2_mean-SE/2, ymax=SeedsPerM2_mean+SE/2),
+#                 width=0.25, size=0.3,position=dodge_x)   +
+#   theme_grey(base_size = 16) +
+#     facet_grid(.~Treat) +
+#     labs(y="Seeds per m2") +
+#   theme_bw()+
+# theme(axis.text.y = element_text( size = 10))+
+# theme(axis.title.y = element_text(face="bold", size=12))+
+# theme(axis.text.x=element_text(angle = 90, hjust=0.95,vjust=0.2,size = 12))
+
+
+
+
+
+
+```
+
+
+Do graph only with the 7 cultivars 
+
+
+
+```{r}
+# define position of bar and errorbar
+dodge_x <- position_dodge(width = 0.9)
+
+df_burSubset<-file %>%
+  filter(Year !="2017")%>%
+  filter(Treat=="Cut")%>%
+  filter(Cultivar=="Antas"| 
+         Cultivar=="Denmark"|
+         Cultivar=="Coolamon"|
+           Cultivar=="MountBarker"|
+           Cultivar=="Narrikup"|
+           Cultivar=="Rosabrook"|
+           Cultivar=="Woogenellup")%>%
+  group_by(Cultivar) %>% 
+  dplyr::select(IndivSeedweight)%>%
+  summarise_each(funs(mean,sd)) %>%
+  mutate(SE=sd/2)
+
+  #Then graph it 
+df_burSubset %>%
+  #mutate(colPal = ifelse(Cultivar=="Antas","Brachy",ifelse(Cultivar=="Monti","Brachy","Yanny"))) %>%
+  #ggplot(aes(x=Cultivar, y=(SeedsPerM2_mean),fill=colPal)) +
+  ggplot(aes(x=Cultivar, y=(mean),fill=Cultivar))+
+  geom_bar(stat="identity", position = dodge_x) +
+  geom_errorbar(aes(ymin=mean-SE/2, ymax=mean+SE/2),
+                width=0.25, size=0.3,position=dodge_x)   +
+  theme_grey(base_size = 16) +
+    #facet_grid(.~Treat) +
+    labs(y="Seeds per m2") +
+  theme_bw()+
+theme(axis.text.y = element_text( size = 10))+
+theme(axis.title.y = element_text(face="bold", size=12))+
+theme(axis.text.x=element_text(angle = 90, hjust=0.95,vjust=0.2,size = 12))
+ 
+
+```
+
+
+Statistical Analisis 
+Do ANOVA simple as per D. Saville :each seson and variate separately
+Select year and variable to analyse
+
+```{r}
+df_seedANOVA <- file %>%
+#use filters to select  data 
+  filter(Year=="2016")%>%
+  filter(Treat=="Cut")%>%
+  filter(Cultivar=="Antas"| 
+         Cultivar=="Denmark"|
+         Cultivar=="Coolamon"|
+           Cultivar=="MountBarker"|
+           Cultivar=="Narrikup"|
+           Cultivar=="Rosabrook"|
+           Cultivar=="Woogenellup")%>%
+  dplyr:: select(Cultivar:IndivSeedweight)
+```
+
+subset for anova
+```{r}
+
+ 
+summary(df_seedANOVA)
+
+#-------------------------------------------------
+# anova 
+
+file.subset <- df_seedANOVA 
+
+head(file.subset)
+summary(file.subset)
+
+```
+
+
+Here Analyse the percentage ofseeds overall :
+consider sow Treat as a factor  (overview)
+and then consider cultivar within each sowing date 
+
+```{r}
+
+#ANOVA
+
+my.anova <- aov(IndivSeedweight ~ Cultivar + Block, data = file.subset)
+#my.anova <- aov(SeedsPerM2 ~ Cultivar + Block, data = file.subset)
+summary(my.anova)
+```
+
+```{r}
+#Means separation after ANOVA
+#(LSD.test(my.anova, c("Treat"), alpha= 0.05, p.adj="none")) 
+(LSD.test(my.anova, c("Cultivar"), alpha= 0.05, p.adj="none")) 
+```
+
+
+
+
+
+end of this script 

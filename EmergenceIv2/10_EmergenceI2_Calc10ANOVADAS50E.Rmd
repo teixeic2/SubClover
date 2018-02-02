@@ -104,7 +104,7 @@ file.subset <- file
 
 head(file.subset, 50)
 summary(file.subset)
-my.anova <- aov(transf_no ~ SowTreat + Block, 
+my.anova <- aov(DAS50E ~ SowTreat + Block, 
                 data = file.subset)
 
 summary(my.anova)
@@ -120,9 +120,6 @@ summary(my.anova)
 (LSD.test(my.anova, c("SowTreat"), alpha= 0.05, p.adj="none") )
 #(LSD.test(my.anova, "Cultivar"))
 ```
-
-
-
 
 
 then to run statistic tests select each sowing date individually

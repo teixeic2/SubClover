@@ -7,9 +7,9 @@ output: html_document
 
 This script does this:
 
--get dataframe from Iversen Emergence and mean soil Temp for Antas only between 5 and 16.38 degrees 
-- optimum mean Temp for Antas is 15.51  
-
+-get dataframe from Iversen Emergence and mean soil Temp for all cultivars only between 5 and 16.0 degrees 
+- optimum mean Temp for all cvs  is 15.0  
+- Find mean Tb and confidential intervals for Tb 
 
 
 ```{r loadLibraries, warning=FALSE}
@@ -71,12 +71,12 @@ Subset cultivars Antas between temperature 5 to max 16.4
 
 #subset Cultivar
 
-df_A <-df_G %>%
-subset(Cultivar=="Antas")
+#df_A <-df_G %>%
+#subset(Cultivar=="Antas")
 
 #subset Temperature range 
-df_A1 <-df_A %>%
-  subset (meanTemp_Em>5 & meanTemp_Em<15.2)
+df_A1 <-df_G %>%
+  subset (meanTemp_Em>5 & meanTemp_Em<15.0)
 
 
 #remove SowingDate 1and 8  from both locations 
@@ -145,7 +145,7 @@ lm_eqn = function(df){
 df <- df_A2 %>%
   dplyr::select(SowTreat,Cultivar, Plot, meanTemp_Em, InvDAS50E) %>%
   group_by(SowTreat,Cultivar) %>%
-  summarise_each(funs(mean)) %>%
+  summarise_all(funs(mean)) %>%
   mutate(y=InvDAS50E,x=meanTemp_Em) %>%
   dplyr::select(-meanTemp_Em, -InvDAS50E)
 
@@ -175,26 +175,24 @@ summary(lm(y ~ x, df))
 
 ```
 
-Tb for Antas is -intercept / slope x = -0.023/0.0124 = -1.85 (±0.02)
-
 
 
 get confidential intervals 
 
 ```{r}
 
- 
-confint(lm(y ~ x, df))
+ mod = lm(y~x, data=df)
+summary(mod)
+
+#Call:
+lm(formula = y ~ x, data = df)
+#print conf.intLow ; conf.intHigh
+confint(mod)
+
 
 
 ```
 
-------------------------------------------------------------------------------------------------
-Cultivar	Item 	Value	LowCi2.5%	UpperCi97.5%
-Antas 	intercept	0.023342	-0.35610656	0.4027914
-Antas 	slopex	0.012476	-0.01891031	0.0438626
-Antas 	Tb	1.9	18.8	9.2
-Antas 	Tb	-1.9	-18.8	-9.2
 --------------------------------------------------------------------------------------------
 
 
