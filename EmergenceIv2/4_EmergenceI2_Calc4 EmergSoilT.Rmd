@@ -33,6 +33,7 @@ getwd()
 
 #create file
 df_emerg4 <- read.table("df_emerg_perc_soilTT.txt",header=TRUE)
+
 #head(df_emerg4)
 
 df_emerg4$ReadingDate <- ymd(df_emerg4$ReadingDate )
@@ -60,6 +61,7 @@ getwd()
 
 #create file
 df_emerg5 <- read.table("df_tt_50p_emerg.txt",header=TRUE)
+
 head(df_emerg5)
 
 #df_emerg5$ReadingDate <- ymd(df_emerg5$ReadingDate )
@@ -212,6 +214,8 @@ df_soilTemp$Date <- round(df_soilTemp$Date,0)
 summary(df_merge)
 
 write.table(df_merge, "df_MeanSoilTemp50Emerg.txt") 
+
+
 ```
 
 get the TT and SE for all cultivars. exclude S1 . Consider Tb=0 for all cultivars. 

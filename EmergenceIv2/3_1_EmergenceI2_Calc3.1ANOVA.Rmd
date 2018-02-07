@@ -20,6 +20,7 @@ library(knitr)
 library (lubridate)
 library(mosaic)
 library(lattice)
+
 ```
 Read file 
 
@@ -29,6 +30,7 @@ getwd()
 
 #create file
 df_emerg1 <- read.table("df_tt_50p_emerg.txt",header=TRUE)
+
 head(df_emerg1)
 
 
@@ -122,45 +124,120 @@ TukeyHSD(my.anova)
 
 #Means separation 
 (LSD.test(my.anova, c("SowTreat"), alpha= 0.05, p.adj="none")) 
-(LSD.test(my.anova, c("Cultivar"), alpha= 0.05, p.adj="none") )
-(LSD.test(my.anova, c("SowTreat","Cultivar"), alpha= 0.05, p.adj="none"))
-
-#loop trough each combination of factor levels
-```
-
-
-Here ANOVA for each individual sowTreat (need to filter S1, S2, ...S8)
-```{r}
-
-
-#-------------------------------------------------
-# ANOVA (selecing by hand SowTreat)
-file.subset <- file %>% subset(SowTreat == "S1")
-#file.subset <- file 
-
-head(file.subset, 50)
-summary(file.subset)
-my.anova <- aov(transf_no ~ Cultivar + Block, 
-                data = file.subset)
-
-summary(my.anova)
-
-TukeyHSD(my.anova)
-
-
-
-```
-
-LSD anova ; select variable to write 
-
-```{r}
-#Means separation 
-#(LSD.test(my.anova, c("SowTreat"), alpha= 0.05, p.adj="none")) 
-(LSD.test(my.anova, c("Cultivar"), alpha= 0.05, p.adj="none") )
+#(LSD.test(my.anova, c("Cultivar"), alpha= 0.05, p.adj="none") )
 #(LSD.test(my.anova, c("SowTreat","Cultivar"), alpha= 0.05, p.adj="none"))
 
 #loop trough each combination of factor levels
 ```
+
+
+make an ANOVA loop here 
+Then make anova for DAS50E 
+get mean separation when P <0.05
+
+```{r}
+
+y <- c("S1","S2","S3","S4","S5","S6","S7", "S8")
+
+sdIndex <- unique(df_emerg1$SowTreat)
+
+sdIndex[order(match(sdIndex,y))]
+
+length(sdIndex)
+sdIndex
+
+
+for (i in 1:length(sdIndex)) {
+  
+ #print(i)
+ print(paste0(sdIndex[i],"--------------------------------"))
+  
+  file.subset <- df_emerg1 %>%
+    #dplyr::select(Plot, Cultivar, Block, SowTreat, DAS50E)
+  filter(SowTreat==sdIndex[i])
+
+  head(file.subset, 50)
+   summary(file.subset)
+my.anova <- aov(DAS50E~Cultivar + Block, data = file.subset)
+print(summary(my.anova))
+
+if ((summary(my.anova)[[1]][["Pr(>F)"]][1])<0.05) {
+  print("***Sig CV***") 
+  print((LSD.test(my.anova, c("Cultivar"), alpha= 0.05, p.adj="none"))) } # do if
+
+#if ((summary(my.anova)[[1]][["Pr(>F)"]][2])<0.05) {print("***Sig Depth***")
+  #print((LSD.test(my.anova, c("depth"), alpha= 0.05, p.adj="none")))
+  #} 
+if ((summary(my.anova)[[1]][["Pr(>F)"]][2])<0.05) {print("***Sig Block***")
+  print((LSD.test(my.anova, c("Block"), alpha= 0.05, p.adj="none")))
+  } 
+#if ((summary(my.anova)[[1]][["Pr(>F)"]][4])<0.05) {print("***Sig CV:Depth Int***")
+  #print((LSD.test(my.anova, c("cv:depth"), alpha= 0.05, p.adj="none")))
+  #} 
+
+# make mean separation if significant
+
+(LSD.test(my.anova, c("Cultivar"), alpha= 0.05, p.adj="none"))
+  
+}
+
+
+
+```
+
+Now get mean values of TT50E when significant P<0.05
+
+```{r}
+
+y <- c("S1","S2","S3","S4","S5","S6","S7", "S8")
+
+sdIndex <- unique(df_emerg1$SowTreat)
+
+sdIndex[order(match(sdIndex,y))]
+
+length(sdIndex)
+sdIndex
+
+
+for (i in 1:length(sdIndex)) {
+  
+ #print(i)
+ print(paste0(sdIndex[i],"--------------------------------"))
+  
+  file.subset <- df_emerg1 %>%
+    #dplyr::select(Plot, Cultivar, Block, SowTreat, DAS50E)
+  filter(SowTreat==sdIndex[i])
+
+  head(file.subset, 50)
+   summary(file.subset)
+my.anova <- aov(TT50E~Cultivar + Block, data = file.subset)
+print(summary(my.anova))
+
+if ((summary(my.anova)[[1]][["Pr(>F)"]][1])<0.05) {
+  print("***Sig CV***") 
+  print((LSD.test(my.anova, c("Cultivar"), alpha= 0.05, p.adj="none"))) } # do if
+
+#if ((summary(my.anova)[[1]][["Pr(>F)"]][2])<0.05) {print("***Sig Depth***")
+  #print((LSD.test(my.anova, c("depth"), alpha= 0.05, p.adj="none")))
+  #} 
+if ((summary(my.anova)[[1]][["Pr(>F)"]][2])<0.05) {print("***Sig Block***")
+  print((LSD.test(my.anova, c("Block"), alpha= 0.05, p.adj="none")))
+  } 
+#if ((summary(my.anova)[[1]][["Pr(>F)"]][4])<0.05) {print("***Sig CV:Depth Int***")
+  #print((LSD.test(my.anova, c("cv:depth"), alpha= 0.05, p.adj="none")))
+  #} 
+
+# make mean separation if significant
+
+(LSD.test(my.anova, c("Cultivar"), alpha= 0.05, p.adj="none"))
+  
+}
+
+```
+
+
+
+
 
 
 

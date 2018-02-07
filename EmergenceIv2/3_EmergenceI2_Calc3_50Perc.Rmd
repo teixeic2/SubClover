@@ -22,6 +22,7 @@ library(knitr)
 library(lubridate)
 library(mosaic)
 library(lattice)
+library (gridExtra)
 ```
 
 
@@ -46,45 +47,38 @@ df_emerg1$Block <- as.factor(df_emerg1$Block)
 df_emerg1$Plot <- as.factor(df_emerg1$Plot)
 str(df_emerg1)
 head(df_emerg1)
-summary(df_emerg1)
+
+
+
+#clean not needed columns 
+df_emerg1<-df_emerg1%>%
+  dplyr::select(-Sub1, -Sub2, -Sub3,-TT.y)
+str(df_emerg1)
 ```
+
+
+Need to subset only DAS with less than 100 % emergence (above 100% means seedlings had died and need the 50% of emergence based on final plant population!!! )
+```{r}
+df_emerg1 <- df_emerg1%>%
+  subset(PercFinalEmerg>0 & PercFinalEmerg<101 )
+
+
+```
+
+
 
 Calculate 50 PercentEmergence  
 
 ```{r SummariseDf}
 
-# This step is now unnecessary as we want Plot values anyway (FIXME)
-# df_50_Perc <- df_emerg1 %>%
-#   mutate(DAS = as.numeric(ReadingDate-SowingDate)) %>%
-#   mutate(ReadingDate=ymd(ReadingDate)) %>%
-#   group_by(Plot, Block,Cultivar,SowTreat) %>%
-#   summarise(av_Perc = mean(PercEmerg), 
-#             av_TT = mean(TT_to_emerg),
-#             av_DAS = mean(DAS)
-#             )
 
-# str(df_50_Perc)
-# summary(df_50_Perc)
-# head(df_50_Perc)
 
-# write.table(df_50_Perc, "df_50_PercEmerg.txt") # FIXME: this file is not yet 50%
+#  loop to calculate tt_50p_flow for each plot 
 
-#  loop to calculate tt_50p_flow for each var x sd x cv
-#cv <- unique(df_50_Perc$Cultivar)
-#var <- unique(df_50_Perc$PercEmerg)
-#sow <- unique(df_50_Perc$SowTreat)
 #sowd <- unique(df_50_Perc$SowingDate)
 plots <- unique(df_emerg1$Plot)
  
 
-# create empty df
-# df_tt_50p_emerg <- data.frame(Plot = NULL,
-#                               Block = NULL,
-#                              SowingD = NULL,
-#                              Cultivar = NULL, 
-#                              SowTreat = NULL,
-#                              PercEmerg = NULL, 
-#                              TT50Em = NULL)
 
 #loop trough each combination of factor levels
 
@@ -96,9 +90,7 @@ for(p in 1:length(plots)) {
       DAS_50p_emerg <- 0
       tt_50p_emerg <- 0
       
-      #FIX ME Partially set 
-    
-     # print(paste0(cv[i]," ",var[j]," ", sow[k]))
+     
       # filter for each combination
 
   df_sub <- df_emerg1 %>%
@@ -107,8 +99,9 @@ for(p in 1:length(plots)) {
     #   Block == as.character(var[b]) &
     # SowTreat == as.character(sow[k])) %>%
     subset(Plot == plots[p]) %>%
-    arrange(PercEmerg)
-  
+    arrange(PercFinalEmerg)
+    #arrange(DAS)
+    
   df_sub
   head(df_sub)
   # create percentage with maximum value recorded 
@@ -118,8 +111,8 @@ for(p in 1:length(plots)) {
   
   for(z in 1:nrow(df_sub)) {
     
-    df_sub$av_Perc_max[z] <- max(df_sub$PercEmerg[z],
-                                 df_sub$PercEmerg[z-1])
+    df_sub$av_Perc_max[z] <- max(df_sub$PercFinalEmerg[z],
+                                 df_sub$PercFinalEmerg[z-1])
     
   }
   
@@ -134,7 +127,7 @@ for(p in 1:length(plots)) {
   #find DAS at 50 Pecent Emergence 
 
   tryCatch(  
-  DAS_50p_emerg <- approx(df_sub$PercEmerg, 
+  DAS_50p_emerg <- approx(df_sub$PercFinalEmerg, 
   df_sub$DAS , xout = y_ref, rule = 1)$y,
   error = function(e) 
   {
@@ -143,7 +136,7 @@ for(p in 1:length(plots)) {
 )
   #find TT at 50 Pecent Emergence
   tryCatch(  
-  tt_50p_emerg <- approx(df_sub$PercEmerg, 
+  tt_50p_emerg <- approx(df_sub$PercFinalEmerg, 
   df_sub$TT_to_emerg , xout = y_ref, rule = 1)$y,
   error = function(e) 
   {
@@ -153,7 +146,7 @@ for(p in 1:length(plots)) {
 
   df_temp <- NULL
   df_temp <- data.frame(Cultivar = df_sub$Cultivar[1],
-                             PercEmerg = df_sub$PercEmerg[1], 
+                             PercFinalEmerg = df_sub$PercFinalEmerg[1], 
                              SowTreat = df_sub$SowTreat[1],
                              Plot = df_sub$Plot[1],
                              Block = df_sub$Block[1],
@@ -171,15 +164,26 @@ for(p in 1:length(plots)) {
   } # end plot loop
 
 
+```
+
+
+
+```{r}
+
 head(df_tt_50p_emerg)
 
 write.table(df_tt_50p_emerg,"df_tt_50p_emerg.txt")
+#write.table(df_tt_50p_emerg,"df_tt_50p_emerg_2.txt")
 
 summary(df_tt_50p_emerg)
 
+
 ```
 
+
+
 Graph results: include the sowing treatments again. 
+
 
 ```{r GraphResults}
 
@@ -202,7 +206,11 @@ summary(df_tt_50p_emerg)
 
 ```
 
-Data visualisation and means check.
+
+
+
+
+Data visualisation and means check.With standard deviation 
 ```{r, fig.height=5, fig.width=10}
 
 #Here just to check means 
@@ -239,6 +247,80 @@ ggplot(aes(x=SowingDate, y=mean, colour=factor(Cultivar), shape=factor(Cultivar)
 
 ```
 
+Do new graph with the standard error 
+
+```{r, fig.height=8, fig.width=12}
+
+#Work dataframe with DAS50
+df_Graph1 <-df_tt_50p_emerg %>%
+  group_by(SowingDate, Cultivar) %>%
+  dplyr::select(DAS50E) %>%
+  summarise_each(funs(mean,sd)) %>%
+  mutate(SE=sd/1.73)
+
+g1<-df_Graph1%>%
+ggplot(aes(x=SowingDate, y=mean)) +
+  geom_point(aes(shape=Cultivar),size=4) +
+  #geom_line() +
+  labs(x="Sowing Date") +
+  ylab(expression(Time~to~Emergennce~"("*"days"*")"))+
+  geom_errorbar(aes(ymin=mean-SE/2,
+  ymax=mean+SE/2))+
+  theme_bw()+
+  scale_x_date(date_breaks = "1 month",
+               labels=date_format("%b-%Y"),
+               limits = as.Date(c("2015-06-01", "2016-06-01")))+
+  ylim(0,45)+
+  #theme(axis.text.x = element_text(angle = 45, hjust = 1, size = 14))+
+  theme(axis.text.x = element_blank())+
+  theme(axis.title.x = element_blank())+
+  theme(axis.text.y = element_text(angle = 0, hjust = 1, size = 14))+
+  theme(axis.title.y = element_text(angle = 90, hjust = 0.5, size = 14))
+
+#work dataframe for TT50
+
+df_Graph2 <-df_tt_50p_emerg %>%
+  group_by(SowingDate, Cultivar) %>%
+  dplyr::select(TT50E) %>%
+  summarise_each(funs(mean,sd)) %>%
+  mutate(SE=sd/1.73)
+
+g2<-df_Graph2%>%
+ggplot(aes(x=SowingDate, y=mean)) +
+  geom_point(aes(shape=Cultivar),size=4) +
+  #geom_line() +
+  labs(x="Sowing Date") +
+  ylab(expression(Thermal~time ~"("^"o"*"Cd)"))+
+  geom_errorbar(aes(ymin=mean-SE/2,
+  ymax=mean+SE/2))+
+  theme_bw()+
+  scale_x_date(date_breaks = "1 month",
+               labels=date_format("%b-%Y"),
+               limits = as.Date(c("2015-06-01", "2016-06-01")))+
+  ylim(0,250)+
+  
+  theme(axis.text.x = element_text(angle = 45, hjust = 1, size = 14))+
+  theme(axis.text.y = element_text(angle = 0, hjust = 1, size = 14))+
+  theme(axis.title.y = element_text(angle = 90, hjust = 0.5, size = 14))
+
+#align the vertical axes using maxWidths
+gA <- ggplotGrob(g1)
+gB <- ggplotGrob(g2)
+ maxWidth=grid::unit.pmax(gA$widths[2:5],gB$widths[2:5])
+ gA$widths[2:5] <-as.list(maxWidth)
+ gB$widths[2:5] <-as.list(maxWidth)
+ g <- grid.arrange(gA,gB, ncol=1)
+ 
+ #save graph - to save a grid need to atribute to "g" 
+ 
+ ggsave(file="DAS50E&TTAS50E.png", width=12, height=6, dpi=400,g)
+ 
+```
+
+
+
+
+
 Calculate the rate of emergence (1/Days to 50% emergence)
 
 ```{r}
@@ -273,6 +355,8 @@ df_RateEmerg %>%
   theme_bw()
   
   write.table(df_RateEmerg, "df_RateEmerg.txt")
+
+  
 ```
 
 Graph here only for "Woogenellup (draft paper") . Here alread with Stanard error (1.73)
@@ -329,7 +413,8 @@ df_tt_50p_emerg %>%
   
 ggplot(aes(x=SowingDate, y=mean, colour=factor(Cultivar), shape=factor(Cultivar))) +
   geom_point() +
-  geom_line() +
+  #geom_line() +
+  
   labs(x="Sowing Date",y="Thermal time to 50% emergence ") +
   theme(axis.text.x = element_text(angle = 90, hjust = 1))+
   geom_errorbar(aes(ymin=mean-sd/2,
@@ -339,26 +424,10 @@ ggplot(aes(x=SowingDate, y=mean, colour=factor(Cultivar), shape=factor(Cultivar)
 
 ```
 
-GRaph the percentage of emergence versus the average thermal time 
+
 
 ```{r}
-
-df_50_Perc %>%
-  ungroup() %>%
-  mutate(Cultivar=factor(Cultivar)) %>%
-  mutate(SowTreat=factor(SowTreat)) %>%
-  mutate(ReadingDate= ymd(ReadingDate)) %>%
-  group_by(Cultivar,SowTreat, ReadingDate) %>%
-  summarise_each(funs(mean)) %>%
-  ggplot(aes(x=av_TT,y=PercEmerg)) +
-  geom_point(aes(colour=Cultivar)) + 
-  facet_wrap(~SowTreat,ncol=4)+
-  geom_line(aes(linetype=Cultivar)) +
-  geom_abline(intercept=50,slope=0) +
-  geom_vline(xintercept = 100, linetype=2)
-
-
-
+#empty
 
 ```
 

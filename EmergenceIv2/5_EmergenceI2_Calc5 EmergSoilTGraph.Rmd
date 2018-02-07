@@ -68,7 +68,7 @@ fontSize <- 12.0
  
 
   g1 <- df_H %>%
-  filter(Cultivar=="Antas"|Cultivar=="Monti") %>%
+ # filter(Cultivar=="Antas"|Cultivar=="Monti") %>%
   ggplot(aes(x=meanTemp_Em, y=DAS50E, colour=SowTreat))  +
   geom_point(alpha=0.8, size=3) +
   #geom_smooth()+
@@ -83,7 +83,7 @@ fontSize <- 12.0
 
 # 1/DAS50E
   g2 <- df_H %>%
-    filter(Cultivar=="Antas"|Cultivar=="Monti") %>%
+   # filter(Cultivar=="Antas"|Cultivar=="Monti") %>%
   ggplot(aes(x=meanTemp_Em, y=InvDAS50E, colour=SowTreat))  +
   geom_point(alpha=0.8, size=3) +
   #geom_smooth(colour="red")+
@@ -182,7 +182,7 @@ lm_eqn = function(df){
 df <- df_H %>%
   dplyr::select(SowTreat,Cultivar, Plot, meanTemp_Em, InvDAS50E) %>%
   group_by(SowTreat,Cultivar) %>%
-  summarise_each(funs(mean)) %>%
+  summarise_all(funs(mean)) %>%
   mutate(y=InvDAS50E,x=meanTemp_Em) %>%
   dplyr::select(-meanTemp_Em, -InvDAS50E)
 
@@ -266,34 +266,44 @@ This is the portion of the data which is ascending.
 ```{r}
 
 # 1/DAS50E (going up)
-  g1 <- df_H %>%
-    filter(SowTreat!="S1")%>%
-  ggplot(aes(x=meanTemp_Em, y=InvDAS50E, shape=Cultivar))+
-  geom_point(colour= "red", alpha=0.2)+
-  #geom_smooth(colour="red")+
-  #stat_smooth(level = 0.9, size = 1, colour="white") + 
-  #geom_smooth(method = "lm")+
-  geom_smooth(method = "lm", se=FALSE, color="blue", formula = y ~ x) +
-            geom_point()
+  require(ggplot2)
+require(plyr)
+require(dplyr)
+
+lm_eqn = function(df){
+  m = lm(y ~ x, df);
+  eq <- substitute(italic(y) == a + b %.% italic(x)*","~~italic(r)^2~"="~r2, 
+                   list(a = format(coef(m)[1], digits = 2), 
+                        b = format(coef(m)[2], digits = 2), 
+                        r2 = format(summary(m)$r.squared, digits = 3)))
+  as.character(as.expression(eq));                 
+}
 
 
-p1 = g1 + geom_text(data=eq,aes(x = 5, y = 0.25,label=V1), parse = TRUE, inherit.aes=FALSE) + #facet_grid(group~.)
-p1 
-  theme_bw() +
-  xlab("Mean Soil Temp (oC)") + 
-  ylab(" Rate (1/ Days) to 50% emergence") +
-  facet_grid(.~Cultivar, scales="free")+
-  theme(text = element_text(size=10))+
- scale_x_continuous(limits = c(0,17))+
- scale_y_continuous(limits = c(0,0.25))+
- 
-   
+df <- df_H %>%
+  dplyr::select(SowTreat,Cultivar, Plot, meanTemp_Em, InvDAS50E) %>%
+ # filter(SowTreat!="S1", SowTreat!="S8")%>%
+  group_by(SowTreat,Cultivar) %>%
+  summarise_all(funs(mean)) %>%
+  mutate(y=InvDAS50E,x=meanTemp_Em) %>%
+  dplyr::select(-meanTemp_Em, -InvDAS50E)
 
-  #grid.arrange(g1, g2)
-# 
+eq <- ddply(df,.(Cultivar),lm_eqn)
 
+yx<-quantile(df$y,0.75)
+xn<- quantile(df$x,0.25)
+
+p <- ggplot(data = df, aes(x = x, y = y)) +
+  geom_smooth(method = "lm", se=FALSE, color="black", formula = y ~ x) +
+  geom_point(aes(shape=SowTreat))+
+  theme_bw()+
+  scale_x_continuous(limits = c(0,25))+
+  scale_y_continuous(limits = c(0,0.45))
+
+p1 <- p + geom_text(data=eq,aes(x = xn, y = yx,label=V1), parse = TRUE, inherit.aes=FALSE) + 
+  facet_grid(Cultivar~.,scales="free")
   
-  grid.arrange(g1, g2)
+p1
 
 
 

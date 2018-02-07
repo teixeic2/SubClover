@@ -148,7 +148,7 @@ use the TB for emergence
 
 'Antas'	-1.85 (±0.02)
 'Denmark'	 +1.0 (±0.03)
-'Leura'	-1.29 (±0.04)
+'Leura'	-0.13  (±0.04)
 'Monti'	-1.73 (±0.05)
 'Narrikup'	+1.02 (±0.05) 
 'Woogenellup'	 +2.2 (±0.01)
@@ -159,12 +159,12 @@ use consistent method as per re analysis tb=0, t opt range =15, 22, t max = 35 o
 
 For Leura  : 
 ```{r}
-#Create Thermal time cardinal temperatures see data above- TT = Topt - Tb ... 20 - (-1.3)= 21.3 ! 
+#Create Thermal time cardinal temperatures see data above- TT = Topt - Tb ... 20 - (-0.13)= 21.3 ! 
 
 #For cardinal temperatures 
-#tt_card <- data.frame(temp=c(-1.29,15,22,35),TT=c(0,15,15,0))
+tt_card <- data.frame(temp=c(-0.13,15,22,35),TT=c(0,15,15,0))
 #for Tb=0
-tt_card <- data.frame(temp=c(0,15,22,35),TT=c(0,15,15,0))
+#tt_card <- data.frame(temp=c(0,15,22,35),TT=c(0,15,15,0))
 tt_card %>%
   ggplot(aes(x=temp, y=TT))+
   #labs(x="Temperature (degree Celsius)")+
