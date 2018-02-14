@@ -163,9 +163,9 @@ For Denmark  :
 
 #For cardinal temperatures 
 
-#tt_card <- data.frame(temp=c(1,15,22,35),TT=c(0,15,15,0))
+tt_card <- data.frame(temp=c(1,15,22,35),TT=c(0,15,15,0))
 #for Tb=0
-tt_card <- data.frame(temp=c(0,15,22,35),TT=c(0,15,15,0))
+#tt_card <- data.frame(temp=c(0,15,22,35),TT=c(0,15,15,0))
 tt_card %>%
   ggplot(aes(x=temp, y=TT))+
   #labs(x="Temperature (degree Celsius)")+

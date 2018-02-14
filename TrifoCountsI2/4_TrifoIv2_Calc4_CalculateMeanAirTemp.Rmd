@@ -55,6 +55,156 @@ write.table(H, "DateTo5Trifos.txt")
 
 ```
 
+
+
+Read the soil Temp data and Air temp data and  adjust formats 
+
+```{r}
+
+#create file
+df_A <- read.table("AirTemp.txt",header=TRUE)
+df_Soil <-read.table("SoilTemp.txt",header=TRUE)
+
+#adjust formats
+df_A %>%
+  mutate(Date=dmy(Date))
+
+str(df_A)
+
+#adjust formats
+df_Soil <- df_Soil%>%
+mutate(Date=dmy(Date))
+
+
+```
+
+Now 
+Add the accumulation of of soil temperatures to calculate the average temperature during the desired process (here 5 trifos). 
+
+```{r}
+#cumulate air
+df_B <- df_A %>%
+  mutate(SumAir = cumsum(AirTt)) %>%
+  mutate(Date=dmy(Date))%>%
+  dplyr::select(-AirTt)
+
+#cumulate soil
+
+df_Soil1 <- df_Soil %>%
+  mutate(SumTempSo = cumsum(TempSoil10mm)) %>%
+  #mutate(Date=dmy(Date))%>%
+  dplyr::select(-TempSoil10mm)
+
+
+```
+
+check data with graph
+
+```{r}
+df_Soil1 %>%
+  ggplot(aes(x=Date,y=SumTempSo)) +
+  geom_point()
+
+df_B%>%
+  ggplot(aes(x=Date,y=SumAir)) +
+  geom_point()
+
+```
+
+
+
+
+Merge dataframes by date
+
+```{r}
+
+# first merge the soil and air temperature dataframes 
+
+df_Temp <- merge(df_Soil1,df_B,by="Date") 
+
+
+#Merge the two dataframes by Date
+df1 <- merge(df_MD,df_Temp, by.x="SowingDate",by.y="Date") %>%
+  mutate(soilTempAcc_sow = SumTempSo) %>%
+  mutate(airTempAcc_sow=SumAir)%>%
+  mutate(Date5Trifo=Date50E)%>%
+dplyr::select(-SumTempSo,-SumAir,-DAS50E,-Date50E)
+
+str(df1)
+
+
+```
+
+Need to force a date for 50 % of plants with five trifoliates  (round) to calculate the average temperature during this phase  
+
+Save dataframe as txt file
+
+
+
+```{r}
+
+
+# force formats of dates
+df1$Date <- round(df1$Date5Trifo,0)
+df_Temp$Date <- round(df_Temp$Date,0)
+
+#then repeat same procedure done for the soing date but use the dat for 1 Trifoliate
+  df_merge <- merge(df1, df_Temp, by="Date") %>%
+  mutate(soilTempAcc_5T = SumTempSo) %>%
+  mutate(airTempAcc_5T=SumAir)%>%
+  dplyr::select(-SumTempSo, -SumAir) %>%
+ 
+#subtract accumulate temperature das1T from sowing 
+  mutate(meanTempSoil_5T = (soilTempAcc_5T-soilTempAcc_sow)/DAS5T ) %>% 
+  mutate(meanTempAir_5T = (airTempAcc_5T-airTempAcc_sow)/DAS5T )
+  
+  summary(df_merge)
+
+  ##Use this dataframe to build graph in script 5 
+write.table(df_merge, "df_MeanTempFiveTrifo.txt") 
+
+```
+
+
+
+
+get the simple TT and SE for all cultivars. exclude S1 . Consider Tb=0 for all cultivars. 
+
+```{r}
+
+df_TT5T <- df_merge%>%
+  mutate(TTto5TSoil=soilTempAcc_5T -soilTempAcc_sow)%>%
+  mutate(TTto5TAir=airTempAcc_5T -airTempAcc_sow)
+
+#then select sow treat and means and se
+
+df_TTAllcv <-df_TT5T%>%
+  filter(SowTreat!= "S1")%>% 
+  #group_by(Cultivar) %>%
+  group_by(SowTreat)%>%
+  dplyr::select(TTto5TSoil)%>%
+#dplyr::select(TTto1TAir)
+  summarise_all(funs(mean,sd))%>%
+    mutate(SE=sd/1.73)
+
+```
+
+
+Graph results 
+
+Then graph results  (remember that here each replicate has a different temperature set... need to average to get a simpler graph 
+## complete graph 
+```{r, fig.height=5, fig.width=8}
+dGraph <-df_merge %>%
+  group_by(SowTreat, Cultivar) %>%
+  dplyr::select(Rate,meanTempSoil_5T) %>%
+  summarise_all(funs(mean,sd)) 
+
+
+
+
+```
+
 Bring data from emergence foldeer 
 
 ```{r}
@@ -186,7 +336,7 @@ dfok %>%
 
 
   
-  write.table(dfok,"df_DAS5Trifo_MeanAirT.txt")
+  #write.table(dfok,"df_DAS5Trifo_MeanAirT.txt")
 
 ```
 

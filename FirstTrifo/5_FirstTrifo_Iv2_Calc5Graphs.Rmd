@@ -6,9 +6,9 @@ output: html_document
 ---
 
 This script does this:
--get dataframe produced in Calc4_2(dfok; df_DASFirstTrifo_MeanAirT.txt)
--graph y=Days to First trifoliate ; x= mean air Temp
--graph y= 1/days to First trifoliates ; x= mean air Temp
+-get dataframe produced in Calc4_2(df_MeanTempFirstTrifo.txt) which contains all elements to produce graphs! 
+-graph y=Days to First trifoliate ; x= mean air Temp and soil Temp
+-graph y= 1/days to First trifoliates ; x= mean air Temp and soil Temp 
 -produces the linear equations leaf appearance  as a function of temperature 
 
 
@@ -28,13 +28,14 @@ library (gridExtra)
 Read file and correct formats 
 ```{r loadFile}
 # Get dataframe from previous script (written table )
-setwd("C:\\GitHubRepos\\SubCloverPhD\\SubClover\\TrifoCountsI2")
+setwd("C:\\GitHubRepos\\SubCloverPhD\\SubClover\\FirstTrifo")
 getwd()
 
 #create file
-df_G <- read.table("df_DASFirstTrifo_MeanAirT.txt",header=TRUE)
+#df_G <- read.table("df_DASFirstTrifo_MeanAirT.txt",header=TRUE)
+df_G <- read.table("df_MeanTempFirstTrifo.txt",header=TRUE)
 
-
+"df_MeanTempFirstTrifo.txt"
 
 
 ```
@@ -48,18 +49,29 @@ df_G$Plot <- as.factor(df_G$Plot)
 #check data 
 summary(df_G)
 
-#then remove extra columns 
-df_G<-df_G %>%
-  dplyr::select (-DAS50E)
-str (df_G)
+
 
 # this is to "clean previous dfs : df_emerg4 <- NULL
 ```
 
 
 
+```{r}
+df_mean<-df_G%>%
+  group_by(Cultivar,SowTreat)%>%
+   summarise_all(funs(mean))
 
-Graph DAS5T  and rate against meanTemp at trifoliate appearance  
+
+
+df_meanSow <-df_G %>%
+  group_by(SowTreat)%>%
+   summarise_all(funs(mean))
+
+```
+
+
+
+Graph DAS1T (days to first trifo )  and rate (first trifo) against meanSoil Temp at trifoliate appearance  
 
 ```{r, fig.height=5, fig.width=10, echo = FALSE}
 
@@ -68,37 +80,90 @@ Graph DAS5T  and rate against meanTemp at trifoliate appearance
 fontSize <- 12.0
 
 
-  g1 <- df_G %>%
-  ggplot(aes(x= MeanAirTempTrifo, y=DAS1T, colour=SowTreat))  +
-  geom_point(alpha=0.8) +
+  g1 <- df_mean %>%
+  ggplot(aes(x=  meanTempSoil_1T, y=DAS1T, shape=SowTreat))  +
+  #geom_point(alpha=0.8) +
+  geom_point(aes(shape= SowTreat), size=4)+
+  scale_shape_manual(values = c(0,1,2,3,4,5,6,7,8))+
+  #geom_smooth()+
+  #stat_smooth(level = 0.9, size = 1, colour="white") + 
+  theme_bw() +
+  xlab(expression(Mean~Soil~temperature~~"("^"o"*"C)")) +  
+  ylab("Days to first trifoliate  (days)") +
+    facet_grid(.~Cultivar, scales="free")+
+  theme(text = element_text(size=11))+
+  scale_x_continuous(limits = c(0,25))+
+  scale_y_continuous(limits = c(0,75))
+
+# 1/DAS1T
+  g2 <- df_mean %>%
+  ggplot(aes(x= meanTempSoil_1T, y=Rate, shape=SowTreat))  +
+  #geom_point(alpha=0.8) +
+  geom_point(aes(shape= SowTreat), size=4)+
+  scale_shape_manual(values = c(0,1,2,3,4,5,6,7,8))+
+  #geom_smooth(colour="red")+
+  #stat_smooth(level = 0.9, size = 1, colour="white") + 
+  theme_bw() +
+  xlab(expression(Mean~Soil~temperature~~"("^"o"*"C)")) + 
+  ylab("  First Trifoliate  Rate (1/ Days) ") +
+  facet_grid(.~Cultivar, scales="free")+
+  theme(text = element_text(size=11))+
+ scale_x_continuous(limits = c(0,25))
+ scale_y_continuous(limits = c(0,0.08))
+  
+  #grid.arrange(g1, g2)
+# 
+
+ g <-grid.arrange(g1, g2)
+  
+  ggsave(file="plot_DAS_Rate_FirstTrifoIversenSoilTemp.png", width=12, height=6, dpi=400,g)
+
+```
+
+
+
+then do the graph with air temperature 
+
+
+```{r,fig.height=5, fig.width=10, echo = FALSE}
+
+ g3 <- df_mean %>%
+  ggplot(aes(x=  meanTempAir_1T, y=DAS1T, shape=SowTreat))  +
+  #geom_point(alpha=0.8) +
+  geom_point(aes(shape= SowTreat), size=4)+
+  scale_shape_manual(values = c(0,1,2,3,4,5,6,7,8))+
   #geom_smooth()+
   #stat_smooth(level = 0.9, size = 1, colour="white") + 
   theme_bw() +
   xlab(expression(Mean~Air~temperature~~"("^"o"*"C)")) +  
-  ylab("Days to 5 trifoliates  (days)") +
+  ylab("Days to first trifoliate  (days)") +
     facet_grid(.~Cultivar, scales="free")+
   theme(text = element_text(size=11))+
   scale_x_continuous(limits = c(0,25))+
-  scale_y_continuous(limits = c(0,100))
+  scale_y_continuous(limits = c(0,75))
 
-# 1/DAS50E
-  g2 <- df_G %>%
-  ggplot(aes(x= MeanAirTempTrifo, y=Rate, colour=SowTreat))  +
-  geom_point(alpha=0.8) +
+# 1/DAS1T
+  g4 <- df_mean %>%
+  ggplot(aes(x= meanTempAir_1T, y=Rate, shape=SowTreat))  +
+  #geom_point(alpha=0.8) +
+  geom_point(aes(shape= SowTreat), size=4)+
+  scale_shape_manual(values = c(0,1,2,3,4,5,6,7,8))+
   #geom_smooth(colour="red")+
   #stat_smooth(level = 0.9, size = 1, colour="white") + 
   theme_bw() +
   xlab(expression(Mean~Air~temperature~~"("^"o"*"C)")) + 
-  ylab(" 5 Trifoliate leaf appearance Rate (1/ Days) ") +
+  ylab(" First Trifoliate  Rate (1/ Days) ") +
   facet_grid(.~Cultivar, scales="free")+
   theme(text = element_text(size=11))+
  scale_x_continuous(limits = c(0,25))
- scale_y_continuous(limits = c(0,0.04))
+ scale_y_continuous(limits = c(0,0.08))
   
-  grid.arrange(g1, g2)
-# 
+   g <-grid.arrange(g3, g4)
+  
+  ggsave(file="plot_DAS_Rate_FirstTrifoIvAirTemp.png", width=12, height=6, dpi=400,g)
 
-# 
+
+
 
 ```
 

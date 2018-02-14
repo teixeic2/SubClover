@@ -1,0 +1,264 @@
+---
+title: "Trifoliates Iversen "
+author: "CT"
+date: "17.08.2017"
+output: html_document
+---
+
+Purpose:
+
+This script does this:
+
+- get the dataframe with sowing dates and date to 50% first trifo   
+- get the dataframe with soil temperature 
+- merge the two dataframes to calculate the mean temperature during first trifo appearance 
+-graph y=Days to 50% first trifo ; x= mean Soil Temp
+-graph y= 1/days to 50% emergence ; x= mean Soil Temp   
+ 
+```{r loadLibraries}
+library(tidyr)
+library (dplyr)
+library (ggplot2)
+library(agricolae)
+library (lubridate)
+library(mosaic)
+library(lattice)
+```
+
+Get data from Emergence Folder, Daily Mean Air temperature and dates to combine in dataframe 
+
+
+```{r}
+
+setwd("C:\\GitHubRepos\\SubCloverPhD\\SubClover\\FirstTrifo")
+getwd()
+#create file
+
+df_trif <- read.table("RateFirstTrifo.txt",header=TRUE)
+#adjust formats 
+df_trif$SowingDate <- ymd(df_trif$SowingDate )
+df_trif$Block <- as.factor(df_trif$Block)
+df_trif$Plot <- as.factor(df_trif$Plot)
+df_trif$DAS1T <- as.numeric(df_trif$DAS1T)
+
+```
+
+Create df_MD to workout dates to % trifoliates 
+```{r}
+
+  df_MD <- df_trif %>%
+  select(-DAS50E)%>%
+  mutate(Date50FirstTrif=SowingDate+DAS1T) %>%
+  group_by(Plot, DAS1T) %>% 
+  dplyr::filter(row_number() == 1)
+
+head(df_MD)
+
+H <-df_MD %>%
+ dplyr:: select (Plot, Date50FirstTrif)
+
+#save and store table 
+write.table(H, "DateToFirstTrifo.txt")
+
+```
+
+Read the soil Temp data and Air temp data and  adjust formats 
+
+```{r}
+
+#create file
+df_A <- read.table("AirTemp.txt",header=TRUE)
+df_Soil <-read.table("SoilTemp.txt",header=TRUE)
+
+#adjust formats
+df_A %>%
+  mutate(Date=dmy(Date))
+
+str(df_A)
+
+#adjust formats
+df_Soil <- df_Soil%>%
+mutate(Date=dmy(Date))
+
+
+```
+
+Add the accumulation of of soil temperatures to calculate the average temperature during emergence. 
+
+```{r}
+#cumulate air
+df_B <- df_A %>%
+  mutate(SumAir = cumsum(AirTt)) %>%
+  mutate(Date=dmy(Date))%>%
+  dplyr::select(-AirTt)
+
+#cumulate soil
+
+df_Soil1 <- df_Soil %>%
+  mutate(SumTempSo = cumsum(TempSoil10mm)) %>%
+  #mutate(Date=dmy(Date))%>%
+  dplyr::select(-TempSoil10mm)
+
+
+```
+
+check data with graph
+
+```{r}
+df_Soil1 %>%
+  ggplot(aes(x=Date,y=SumTempSo)) +
+  geom_point()
+
+df_B%>%
+  ggplot(aes(x=Date,y=SumAir)) +
+  geom_point()
+
+```
+
+
+Merge dataframes by date
+
+```{r}
+
+# first merge the soil and air temperature dataframes 
+
+df_Temp <- merge(df_Soil1,df_B,by="Date") 
+
+
+#Merge the two dataframes by Date
+df1 <- merge(df_MD,df_Temp, by.x="SowingDate",by.y="Date") %>%
+  mutate(soilTempAcc_sow = SumTempSo) %>%
+  mutate(airTempAcc_sow=SumAir)%>%
+  dplyr::select(-SumTempSo,-SumAir)
+
+str(df1)
+
+
+
+```
+
+Need to force a date for 50 % of plants with first trifo  (round) to calculate the average temperature during first trifo emergence
+
+Save dataframe as txt file
+
+
+```{r}
+
+
+# force formats of dates
+df1$Date <- round(df1$Date50FirstTrif,0)
+df_Temp$Date <- round(df_Temp$Date,0)
+
+#then repeat same procedure done for the soing date but use the dat for 1 Trifoliate
+  df_merge <- merge(df1, df_Temp, by="Date") %>%
+  mutate(soilTempAcc_1T = SumTempSo) %>%
+  mutate(airTempAcc_1T=SumAir)%>%
+  dplyr::select(-SumTempSo, -SumAir) %>%
+ 
+     #subtract accumulate temperature das1T from sowing 
+  mutate(meanTempSoil_1T = (soilTempAcc_1T-soilTempAcc_sow)/DAS1T ) %>% 
+  mutate(meanTempAir_1T = (airTempAcc_1T-airTempAcc_sow)/DAS1T )
+  summary(df_merge)
+
+write.table(df_merge, "df_MeanTempFirstTrifo.txt") 
+
+```
+
+
+get the TT and SE for all cultivars. exclude S1 . Consider Tb=0 for all cultivars. 
+
+```{r}
+
+df_TT1T <- df_merge%>%
+  mutate(TTto1TSoil=soilTempAcc_1T -soilTempAcc_sow)%>%
+  mutate(TTto1TAir=airTempAcc_1T -airTempAcc_sow)
+
+#then select sow treat and means and se
+
+df_TTAllcv <-df_TT1T%>%
+  filter(SowTreat!= "S1")%>% 
+  #group_by(Cultivar) %>%
+  group_by(SowTreat)%>%
+  dplyr::select(TTto1TSoil)%>%
+#dplyr::select(TTto1TAir)
+  summarise_all(funs(mean,sd))%>%
+    mutate(SE=sd/1.73)
+
+```
+
+
+Graph results 
+
+
+
+
+Then graph results  (remember that here each replicate has a different temperature set... need to average to get a simpler graph 
+## complete graph 
+```{r, fig.height=5, fig.width=8}
+dGraph <-df_merge %>%
+  group_by(SowTreat, Cultivar) %>%
+  dplyr::select(Rate,meanTempSoil_1T) %>%
+  summarise_all(funs(mean,sd)) 
+
+
+
+
+```
+
+
+
+```{r}
+
+dGraph%>%
+  #Graph
+  #ggplot(aes(x=MeanAirTempTrifo, y=mean, colour=(Cultivar), shape=factor(Cultivar) )) +
+ ggplot(aes(x=meanTempSoil_1T_mean, y=Rate_mean,colour=SowTreat, shape=Cultivar)) +
+  geom_point(size=5) +
+  #geom_line() +
+  
+  labs(y="Rate to first trifoliate stage (1/days)") +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1))+
+  geom_errorbar(aes(ymin=Rate_mean-Rate_sd/2,
+  ymax=Rate_mean+Rate_sd/2))+
+  theme_bw()+
+  xlim(0,25)+
+  ylim(0,0.08)+
+  #facet_wrap(~Cultivar,ncol=3, scales = "free")+
+  xlab(expression(Mean~Soil~Temperature~"("^"o"*"C)"))+
+  theme(axis.text.x=element_text(angle = 0, hjust = 0, size= 12))+
+  theme(axis.text.y=element_text(angle = 0, hjust = 0, size= 12))+
+  theme(axis.title.y=element_text(angle = 90, hjust = 0, size= 14))+
+  theme(axis.title.x=element_text(angle = 0, hjust = 0.5, size= 14))+
+  theme(legend.text=element_text(size=12))
+  
+
+
+```
+
+
+
+Graph rate and SowTreat
+
+```{r}
+#Graph 
+
+  df_merge %>%
+  group_by(SowingDate, Cultivar) %>%
+  dplyr::select(DAS1T) %>%
+  summarise_each(funs(mean,sd)) %>%
+  #Graph
+  ggplot(aes(x=SowingDate, y=mean, colour=factor(Cultivar), shape=factor(Cultivar))) +
+  geom_point() +
+  geom_line() +
+  labs(x="Sowing Date",y=" Days to 50% first Trifo emergence  ") +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1))+
+  geom_errorbar(aes(ymin=mean-sd/2,
+  ymax=mean+sd/2))+
+  theme_bw()
+
+```
+
+
+
+End of this script . 
+Move to script 5.  and graph soil and air temperature 

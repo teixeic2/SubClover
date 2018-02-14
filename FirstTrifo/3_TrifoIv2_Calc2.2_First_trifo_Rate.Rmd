@@ -24,7 +24,7 @@ library(lattice)
 
 
 ```{r}
-setwd("C:\\GitHubRepos\\SubCloverPhD\\SubClover\\TrifoCountsI2")
+setwd("C:\\GitHubRepos\\SubCloverPhD\\SubClover\\FirstTrifo")
 getwd()
 #create file
 df_trif <- read.table("Number_Trifo.txt",header=TRUE)
@@ -246,10 +246,10 @@ Bring dataframe from emergence folder which contains the number of days to emerg
 
 ```{r}
 
-setwd("C:\\GitHubRepos\\SubCloverPhD\\SubClover\\TrifoCountsI2")
+setwd("C:\\GitHubRepos\\SubCloverPhD\\SubClover\\FirstTrifo")
 getwd()
 #create file
-#df_Emergence <- read.table("df_RateEmerg_2.txt",header=TRUE)
+
 df_Emergence <- read.table("df_RateEmerg.txt",header=TRUE)
 str(df_Emergence)
 
@@ -294,7 +294,9 @@ Check the mean values for each sowing date !!
 str(TfromEmerg_Trifo1)
 
 Mean_TfromEmerg<-TfromEmerg_Trifo1 %>%
-  group_by(SowTreat)%>%
+ 
+ # group_by(Cultivar, SowTreat)%>%
+   group_by(SowTreat)%>%
   dplyr::select(DASfromEmerg)%>%
   summarise_all(funs(mean,sd))%>%
   mutate(SE=sd/1.73)
@@ -353,7 +355,7 @@ df_RateFirstTrifo %>%
   ggplot(aes(x=SowingDate, y=mean, colour=factor(Cultivar), shape=factor(Cultivar))) +
   geom_point() +
   geom_line() +
-  labs(x="Sowing Date",y="1/ Days to 5 trifoliates  ") +
+  labs(x="Sowing Date",y="1/ Days to first  trifoliate ") +
   theme(axis.text.x = element_text(angle = 90, hjust = 1))+
   geom_errorbar(aes(ymin=mean-sd/2,
   ymax=mean+sd/2))+
@@ -364,5 +366,6 @@ df_RateFirstTrifo %>%
 
 
 
-End of this script Calc 2.2. 
+End of this script Calc 3. 
+
 Move to script 4 to include temperatures  

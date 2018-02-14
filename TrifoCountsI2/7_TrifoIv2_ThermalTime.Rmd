@@ -300,7 +300,7 @@ get the TT and SE for the cultivar. exclude Sow treats if needed.
 
 ```{r}
 df_TT <- df_merge %>%
-  select(Date:Plot,Block, Pp.x,SummTT5Trifo)
+  select(Date:Plot,Block, DAS5T, Pp.x,SummTT5Trifo)
   
    #filter(SowTreat!= "S1")
 
@@ -404,6 +404,59 @@ str(df_TT)
 write.table(df_TT,"ThermalT_5_Trifo.txt")
 ```
 
+
+Perform Anova 
+
+
+
+## Create index to filter for loop ANOVA
+
+```{r}
+y <- c("S1","S2","S3","S4","S5","S6","S7","S8")
+
+sdIndex <- unique(df_TT$SowTreat)
+
+sdIndex[order(match(sdIndex,y))]
+
+length(sdIndex)
+sdIndex
+```
+
+# Then loop anova for each individual sowing date 
+
+```{r}
+for (i in 1:length(sdIndex)) {
+  
+ #print(i)
+ print(paste0(sdIndex[i],"--------------------------------"))
+  
+  file.subset <- df_TT %>%
+  filter(SowTreat==sdIndex[i])
+  
+ 
+head(file.subset, 50)
+   summary(file.subset)
+#my.anova <- aov( DAS5T ~ Cultivar + Block, data = file.subset)
+   my.anova <- aov( SummTT5Trifo ~ Cultivar + Block, data = file.subset)
+
+print(summary(my.anova))
+
+if ((summary(my.anova)[[1]][["Pr(>F)"]][1])<0.05) {
+  print("***Sig Cultivar***") 
+  print((LSD.test(my.anova, c("Cultivar"), alpha= 0.05, p.adj="none"))) } 
+
+
+if ((summary(my.anova)[[1]][["Pr(>F)"]][1])>0.05) {
+  print("***Sig Cultivar***") 
+  print((LSD.test(my.anova, c("Cultivar"), alpha= 0.05, p.adj="none"))) } 
+
+# make mean separation if significant
+
+(LSD.test(my.anova, c("Cultivar"), alpha= 0.05, p.adj="none"))
+  
+}
+
+```
 
 
 END ....graphs with DAS50E with mean soil Temp continue in Script EmergenceI2_Calc5EmergSoilGraph

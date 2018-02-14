@@ -9,7 +9,9 @@ se
 Calculation for the cumulative seedling numbers for the subset of 7 cultivars 
 
 
-```{r,warning=FALSE}
+
+
+```{r}
 
 #Load libraries 
 library(tidyr)
@@ -18,12 +20,7 @@ library (ggplot2)
 library(agricolae)
 library(lubridate)
 
-
 ```
-
-
-
-
 
 Read File 
 
@@ -51,7 +48,8 @@ file <- file %>%
     Plot = as.factor(Plot),
     Block = as.factor(Block),
     Cultivar = as.factor(Cultivar),
-    Treat=as.factor(Treat)
+    Treat=as.factor(Treat),
+    MeasurementDate=as.Date(dmy(MeasurementDate))
    
   )
 
@@ -62,13 +60,13 @@ summary(file)
 
 
 
-
+Filter treatments and cultivars of interest 
 
 ```{r, fig.height= 5, fig.width=15 , warning=FALSE}
 
 #subset the data of interest 
 df_fileSub <-file %>%
-  filter(Month !="JuneMid")%>%
+  #filter(Month !="JuneMid")%>%
   filter(Treat=="Cut")%>%
   filter(Cultivar=="Antas"| 
          Cultivar=="Denmark"|
@@ -77,9 +75,6 @@ df_fileSub <-file %>%
            Cultivar=="Narrikup"|
            Cultivar=="Rosabrook"|
            Cultivar=="Woogenellup")
-
-
-
 
 
 ```
@@ -91,6 +86,8 @@ Calculate the cumulative number of seedlings by each plot
 ```{r}
 
 #
+str(df_fileSub)
+
 
 
 # create an ID of each chunk
@@ -145,6 +142,8 @@ df_Cum <- df_final
 ```
 
 
+
+
 Then merge with dataframe which contains the total number of seeds per m2 to calculate the remaining seeds in the soil bank. 
 
 ```{r}
@@ -182,10 +181,15 @@ str(df_total)
 
 df_total<-df_total %>%
   mutate(NumberRemainSeeds=SeedsPerM2- SeedlingNumber_cum)%>%
-  mutate(PercRemainSeeds=100*(NumberRemainSeeds/SeedsPerM2))
+  mutate(PercRemainSeeds=100*(NumberRemainSeeds/SeedsPerM2))%>%
+  mutate(PercLostSeeds=100-PercRemainSeeds)
   
   str(df_total)
 ```
+
+
+
+
 
 Merge with the hardseed rank to graph Remaining seeds in soil versus Hardseed Rank
 
@@ -196,6 +200,20 @@ Merge with the hardseed rank to graph Remaining seeds in soil versus Hardseed Ra
 df_totalRank <- merge(df_total,df_HardRank,by="Cultivar")
 ```
 
+Check mean values 
+
+```{r}
+df_MM<-df_totalRank%>%
+  group_by(Month,Cultivar)%>%
+  filter (Month != "JuneMid")%>%
+  arrange(MeasurementDate)%>%
+summarise_all(funs(mean))
+
+
+```
+
+
+
 
 
 Plot mean number remaining seeds against hard Rank 
@@ -203,44 +221,67 @@ Plot mean number remaining seeds against hard Rank
 ```{r}
 df_totalRankMean<-df_totalRank%>%
   group_by(Month,Cultivar)%>%
-  dplyr::select(NumberRemainSeeds,HardseedRank,PercRemainSeeds)%>%
+  dplyr::select(SeedsPerM2, NumberRemainSeeds,HardseedRank,PercRemainSeeds,PercLostSeeds)%>%
 summarise_all(funs(mean))
 
 #gather vvalues 
 
 df_gathered<-df_totalRankMean %>%
-  gather(key= "Variable" , value = "Value" , NumberRemainSeeds,PercRemainSeeds)
+  gather(key= "Variable" , value = "Value" , NumberRemainSeeds,PercRemainSeeds,PercLostSeeds)
 ```
+
+```{r}
+
+
+```
+
+
+
+
 
 Plot mean percent of  remaining seeds against hard Rank in June 
 
 
-```{r, fig.height=8, fig.width=18}
+```{r, fig.height=16, fig.width=20}
+
+#min_xy <- min(min(df_gathered$HardseedRank), min(df_gathered$Value))
+#max_xy <- max(max(df_gathered$HardseedRank), max(df_gathered$Value))
 
 df_gathered %>%
-filter(Month=="January"|Month=="June")%>%
-ggplot(aes(x=HardseedRank, y=Value, colour=Cultivar)) + 
- 
-  geom_point(aes(shape= Cultivar), size=7)+
+    filter(Month=="January"|Month=="March"|Month=="June")%>%
+  mutate (Month2= factor(Month, levels=c("January", "March", "June"),labels=c("A_January", "B_March", "C_June")))%>%
+  #filter(Month=="January"|Month=="March")%>%
+    
+  
+  #filter(Month=="March")%>%
+ggplot(aes(x=HardseedRank, y=Value)) + 
+  
+   geom_point(aes(shape= Cultivar), size=6)+
   scale_shape_manual(values = c(0,1,2,3,4,5,6,7))+
-  geom_point()+
-    #labs(x="Hours",y="Cummulative Germination Percent(%)")+
+     #labs(x="Hours",y="Cummulative Germination Percent(%)")+
   #facet_grid(.~Temp)
   #facet_wrap(.~Temp, ncol=6)
 
-facet_wrap(Variable~Month, scales = "free")+
+facet_wrap(Variable~Month2, scales = "free")+
+  #facet_wrap(Variable~Month2)+
   theme_bw(base_size=16)+
-  #scale_x_continuous(breaks = c(1,200,300))+
- # ylim(0, 2000)+
+  scale_x_continuous(breaks = c(1,200,300))+
+  #scale_y_continuous(limits = c(min_xy, max_xy))+
   xlim(0, 6)+
   theme(axis.text.x=element_text(angle = +0, hjust = 0, size= 16))+
   theme(axis.text.y=element_text(angle = +0, hjust = 0, size= 14))+
-  theme(axis.title.y = element_text(angle = 90, hjust = 0, size= 16))+
-  labs(y= "        Percentage (%)                       Number of remaining seeds per m2 ",x="Hardseed Rank ")
+  theme(axis.title.y = element_text(angle = 90, hjust = 0.5, size= 12))+
+  labs(y= "       Percentage            (%)                                       Number of remaining seeds per m2 ",
+       x="Hardseed Rank ")
  # geom_abline(intercept = 50, slope = 0)
 
+ ggsave( "plot_SeedRemainPerc_.png", width=15, height=10, dpi=400)
 
 ```
+
+
+
+
 
 get the lm for January 
 

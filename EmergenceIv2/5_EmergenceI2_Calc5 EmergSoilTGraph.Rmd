@@ -112,9 +112,9 @@ df_mean<-df_H%>%
 ```
 
 
-```{r, fig.height=5, fig.width=10}
+```{r, fig.height=6, fig.width=12}
 
-fontSize <- 14.0
+fontSize <- 16.0
 
 
 
@@ -125,7 +125,8 @@ fontSize <- 14.0
   #filter (SowTreat== "S2"| SowTreat== "S3"|SowTreat== "S4"|SowTreat== "S6")%>%
     #group_by(Cultivar,SowTreat)%>%
     #summarise_all(funs(mean))
-  ggplot(aes(x=meanTemp_Em, y=DAS50E, colour=SowTreat))  +
+  #ggplot(aes(x=meanTemp_Em, y=DAS50E, colour=SowTreat))  +
+     ggplot(aes(x=meanTemp_Em, y=DAS50E))  +
     geom_point(aes(shape= SowTreat), size=4)+
   scale_shape_manual(values = c(0,1,2,3,4,5,6,7,8))+
  # geom_point(alpha=0.8) +
@@ -137,13 +138,14 @@ fontSize <- 14.0
     facet_grid(.~Cultivar, scales="free")+
   theme(text = element_text(size=11))+
   scale_x_continuous(limits = c(0,25))+
-  scale_y_continuous(limits = c(0,60))
+  scale_y_continuous(limits = c(0,40))
 
 # 1/DAS50E
   g4 <- df_mean %>%
    #filter(Cultivar=="Monti"| Cultivar=="Antas")%>%
   #filter (SowTreat== "S2"| SowTreat== "S3"|SowTreat== "S4"|SowTreat== "S6")%>% 
-  ggplot(aes(x=meanTemp_Em, y=InvDAS50E, colour=SowTreat))  +
+    #ggplot(aes(x=meanTemp_Em, y=InvDAS50E, colour=SowTreat))  +
+  ggplot(aes(x=meanTemp_Em, y=InvDAS50E))  +
     geom_point(aes(shape= SowTreat), size=4)+
   scale_shape_manual(values = c(0,1,2,3,4,5,6,7,8))+
   #geom_point(alpha=0.8) +
@@ -155,8 +157,11 @@ fontSize <- 14.0
   facet_grid(.~Cultivar, scales="free")+
   theme(text = element_text(size=11))+
  scale_x_continuous(limits = c(0,25))+
-  scale_y_continuous(limits = c(0,0.50))
-  grid.arrange(g3, g4)
+  scale_y_continuous(limits = c(0,0.30))
+  
+  g <-grid.arrange(g3, g4)
+  
+  ggsave(file="plot_DAS50E_Rate_Iv.png", width=12, height=6, dpi=400,g)
 
 ```
 

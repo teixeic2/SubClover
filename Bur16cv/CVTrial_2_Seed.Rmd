@@ -117,7 +117,8 @@ Do graph only with the 7 cultivars
 
 
 
-```{r}
+```{r, fig.height=5, fig.width=10}
+
 # define position of bar and errorbar
 dodge_x <- position_dodge(width = 0.9)
 
@@ -140,7 +141,8 @@ df_burSubset<-file %>%
 df_burSubset %>%
   #mutate(colPal = ifelse(Cultivar=="Antas","Brachy",ifelse(Cultivar=="Monti","Brachy","Yanny"))) %>%
   #ggplot(aes(x=Cultivar, y=(SeedsPerM2_mean),fill=colPal)) +
-  ggplot(aes(x=Cultivar, y=(mean),fill=Cultivar))+
+  #ggplot(aes(x=Cultivar, y=(mean),fill=Cultivar))+
+  ggplot(aes(x=Cultivar, y=(mean)))+
   geom_bar(stat="identity", position = dodge_x) +
   geom_errorbar(aes(ymin=mean-SE/2, ymax=mean+SE/2),
                 width=0.25, size=0.3,position=dodge_x)   +
@@ -152,7 +154,7 @@ theme(axis.text.y = element_text( size = 10))+
 theme(axis.title.y = element_text(face="bold", size=12))+
 theme(axis.text.x=element_text(angle = 90, hjust=0.95,vjust=0.2,size = 12))
  
-
+ggsave( "plot_SeedNumberTotal_.png", width=10, height=5, dpi=400)
 ```
 
 

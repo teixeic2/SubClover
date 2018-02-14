@@ -255,7 +255,42 @@ Do new graph with the standard error
 df_Graph1 <-df_tt_50p_emerg %>%
   group_by(SowingDate, Cultivar) %>%
   dplyr::select(DAS50E) %>%
-  summarise_each(funs(mean,sd)) %>%
+  summarise_all(funs(mean,sd)) %>%
+  mutate(SE=sd/1.73)
+
+df_Graph1 %>%
+ggplot(aes(x=SowingDate, y=mean)) +
+  geom_point(aes(shape=Cultivar),size=4) +
+  #geom_line() +
+  labs(x="Sowing Date") +
+  ylab(expression(Time~to~Emergennce~"("*"days"*")"))+
+  geom_errorbar(aes(ymin=mean-SE/2,
+  ymax=mean+SE/2))+
+  theme_bw()+
+  scale_x_date(date_breaks = "1 month",
+               #labels=date_format("%b-%Y"),
+               limits = as.Date(c("2015-06-01", "2016-06-01")))+
+  ylim(0,40)+
+  #theme(axis.text.x = element_text(angle = 45, hjust = 1, size = 14))+
+  theme(axis.text.x = element_blank())+
+  theme(axis.title.x = element_blank())+
+  theme(axis.text.y = element_text(angle = 0, hjust = 1, size = 14))+
+  theme(axis.title.y = element_text(angle = 90, hjust = 0.5, size = 14))
+
+
+```
+
+
+Here combine graphs with DAS and TTAS 
+
+
+```{r, fig.height=8, fig.width=12}
+
+#Work dataframe with DAS50
+df_Graph1 <-df_tt_50p_emerg %>%
+  group_by(SowingDate, Cultivar) %>%
+  dplyr::select(DAS50E) %>%
+  summarise_all(funs(mean,sd)) %>%
   mutate(SE=sd/1.73)
 
 g1<-df_Graph1%>%
@@ -268,7 +303,7 @@ ggplot(aes(x=SowingDate, y=mean)) +
   ymax=mean+SE/2))+
   theme_bw()+
   scale_x_date(date_breaks = "1 month",
-               labels=date_format("%b-%Y"),
+               #labels=date_format("%b-%Y"),
                limits = as.Date(c("2015-06-01", "2016-06-01")))+
   ylim(0,45)+
   #theme(axis.text.x = element_text(angle = 45, hjust = 1, size = 14))+
@@ -276,6 +311,10 @@ ggplot(aes(x=SowingDate, y=mean)) +
   theme(axis.title.x = element_blank())+
   theme(axis.text.y = element_text(angle = 0, hjust = 1, size = 14))+
   theme(axis.title.y = element_text(angle = 90, hjust = 0.5, size = 14))
+
+
+
+
 
 #work dataframe for TT50
 
@@ -295,7 +334,7 @@ ggplot(aes(x=SowingDate, y=mean)) +
   ymax=mean+SE/2))+
   theme_bw()+
   scale_x_date(date_breaks = "1 month",
-               labels=date_format("%b-%Y"),
+               #labels=date_format("%b-%Y"),
                limits = as.Date(c("2015-06-01", "2016-06-01")))+
   ylim(0,250)+
   
@@ -311,9 +350,9 @@ gB <- ggplotGrob(g2)
  gB$widths[2:5] <-as.list(maxWidth)
  g <- grid.arrange(gA,gB, ncol=1)
  
- #save graph - to save a grid need to atribute to "g" 
+ #save graph - to save a grid need to atribute to "g"  
  
- ggsave(file="DAS50E&TTAS50E.png", width=12, height=6, dpi=400,g)
+ #ggsave(file="DAS50E&TTAS50E.png", width=12, height=6, dpi=400,g)
  
 ```
 

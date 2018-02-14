@@ -67,7 +67,7 @@ Change name of column TrifoNumber for PercentTrifo to keep stable code. Multipli
 #change name of column TrifoNumber for PercentTrifo
 
 df_trif <-df_trif %>%
-  mutate(PercentTrifo= 10 *(TrifoNumber))
+  mutate(PercentTrifo= 1 *(TrifoNumber))
 
 str(df_trif)
 ```
@@ -166,7 +166,7 @@ for(p in 1:length(plots)) {
   tail(df_sub)
 
   # Interpolate 
-  y_ref <- 50 # y value where we want to find x by interpolation
+  y_ref <- 5 # y value where we want to find x by interpolation in this case needed 5 trifoliates 
   
   # interpolate
   #find DAS at 50 Pecent Emergence 

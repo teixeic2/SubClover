@@ -24,10 +24,11 @@ library(lattice)
 Read document generated in script "2.2" First Trifo_rate
 
 ```{r}
-setwd("C:\\GitHubRepos\\SubCloverPhD\\SubClover\\TrifoCountsI2")
+
+setwd("C:\\GitHubRepos\\SubCloverPhD\\SubClover\\FirstTrifo")
 getwd()
 #create file
-df_trifo1 <- read.table("df_DAS_1_Trifo.txt",header=TRUE)
+df_trifo1 <- read.table("RateFirstTrifo.txt",header=TRUE)
 head(df_trifo1)
 
 

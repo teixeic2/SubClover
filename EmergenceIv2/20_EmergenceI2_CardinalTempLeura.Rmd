@@ -162,9 +162,9 @@ For Leura  :
 #Create Thermal time cardinal temperatures see data above- TT = Topt - Tb ... 20 - (-0.13)= 21.3 ! 
 
 #For cardinal temperatures 
-tt_card <- data.frame(temp=c(-0.13,15,22,35),TT=c(0,15,15,0))
+#tt_card <- data.frame(temp=c(-0.13,15,22,35),TT=c(0,15,15,0))
 #for Tb=0
-#tt_card <- data.frame(temp=c(0,15,22,35),TT=c(0,15,15,0))
+tt_card <- data.frame(temp=c(0,15,22,35),TT=c(0,15,15,0))
 tt_card %>%
   ggplot(aes(x=temp, y=TT))+
   #labs(x="Temperature (degree Celsius)")+

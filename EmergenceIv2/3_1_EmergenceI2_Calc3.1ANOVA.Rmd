@@ -110,21 +110,23 @@ qqline(var, col = 2)
 ```{r}
 
 # ANOVA (selecing by hand FIXME: do loop)
-# file.subset <- file %>% subset(SowTreat == "S2" & round==1)
-file.subset <- file 
+file.subset <- file %>% subset(SowTreat == "S7" )
+#file.subset <- file 
 
 head(file.subset, 50)
 summary(file.subset)
-my.anova <- aov(transf_no ~ Cultivar*SowTreat + Block, 
-                data = file.subset)
+#my.anova <- aov(transf_no ~ Cultivar*SowTreat + Block, 
+                #data = file.subset)
 
+my.anova <- aov(transf_no ~ Cultivar+ Block, 
+                data = file.subset)
 summary(my.anova)
 
-TukeyHSD(my.anova)
+#TukeyHSD(my.anova)
 
 #Means separation 
-(LSD.test(my.anova, c("SowTreat"), alpha= 0.05, p.adj="none")) 
-#(LSD.test(my.anova, c("Cultivar"), alpha= 0.05, p.adj="none") )
+#(LSD.test(my.anova, c("SowTreat"), alpha= 0.05, p.adj="none")) 
+(LSD.test(my.anova, c("Cultivar"), alpha= 0.05, p.adj="none") )
 #(LSD.test(my.anova, c("SowTreat","Cultivar"), alpha= 0.05, p.adj="none"))
 
 #loop trough each combination of factor levels
@@ -158,16 +160,16 @@ for (i in 1:length(sdIndex)) {
 
   head(file.subset, 50)
    summary(file.subset)
-my.anova <- aov(DAS50E~Cultivar + Block, data = file.subset)
+my.anova <- aov(DAS50E~ Cultivar + Block, data = file.subset)
 print(summary(my.anova))
 
 if ((summary(my.anova)[[1]][["Pr(>F)"]][1])<0.05) {
   print("***Sig CV***") 
   print((LSD.test(my.anova, c("Cultivar"), alpha= 0.05, p.adj="none"))) } # do if
 
-#if ((summary(my.anova)[[1]][["Pr(>F)"]][2])<0.05) {print("***Sig Depth***")
-  #print((LSD.test(my.anova, c("depth"), alpha= 0.05, p.adj="none")))
-  #} 
+if ((summary(my.anova)[[1]][["Pr(>F)"]][2])>0.05) {print("***Not Signfican CV***")
+  print((LSD.test(my.anova, c("Cultivar"), alpha= 0.05, p.adj="none")))
+  } 
 if ((summary(my.anova)[[1]][["Pr(>F)"]][2])<0.05) {print("***Sig Block***")
   print((LSD.test(my.anova, c("Block"), alpha= 0.05, p.adj="none")))
   } 

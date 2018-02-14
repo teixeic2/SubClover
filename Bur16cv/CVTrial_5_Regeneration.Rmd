@@ -197,7 +197,7 @@ dplyr:: select(Cultivar:SeedlingPerm2)
 ```
 
 subset for anova
-```{r}
+```{r} 
 
  
 summary(df_seedANOVA)

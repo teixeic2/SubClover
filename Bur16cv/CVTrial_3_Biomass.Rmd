@@ -83,6 +83,7 @@ Here graph with the SE (SE = std/ sqrt n ; n=4)
 
 #calculate the SE in this case for 4 reps ! sqrt of 4 = 2 
 df_burSE<-file %>%
+  filter(Treat=="Cut")%>%
   gather(key= "Variable" , value = "KgHa" , Dmclover:Dmweed)%>%
   group_by(Cultivar, Treat,Variable, Month) %>%
   dplyr::select(KgHa) %>%

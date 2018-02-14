@@ -134,6 +134,5 @@ if ((summary(my.anova)[[1]][["Pr(>F)"]][1])>0.05) {
 
 
 
-
 End of this script Calc 2. 
 Move to script 3 to calculate rate of leaf appearance 

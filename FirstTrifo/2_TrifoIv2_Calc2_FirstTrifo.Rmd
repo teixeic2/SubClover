@@ -1,0 +1,78 @@
+---
+title: "Trifoliates Iversen "
+author: "CT"
+date: "31.08.2016"
+output: html_document
+---
+
+Purpose:
+
+-Analysis of trifoliates expansion for Iversen
+- Calculate days to reach first  trifoliate (makes more sense than percent of maximum number of leaves)
+- Calculate DAS to reach first trifo  in each sowing date 
+ 
+```{r loadLibraries}
+library(tidyr)
+library (dplyr)
+library (ggplot2)
+library(agricolae)
+library (lubridate)
+library(mosaic)
+library(lattice)
+```
+
+
+
+```{r}
+setwd("C:\\GitHubRepos\\SubCloverPhD\\SubClover\\FirstTrifo")
+getwd()
+#create file
+df_trifo <- read.table("TrifoCountall.txt",header=TRUE)
+head(df_trifo)
+
+
+```
+Define formats and calculate the number of trifoliates considering the sub samples (S1-S10)
+
+```{r loadFile}
+
+
+# define factors for the ones that "look like" values
+df_trifo$Plot <- as.factor(df_trifo$Plot)
+df_trifo$Block <- as.factor(df_trifo$Block)
+df_trifo$Cultivar <- as.factor(df_trifo$Cultivar)
+df_trifo$SowTreat <- as.factor(df_trifo$SowTreat)
+
+ df_trifo <- df_trifo %>%
+  mutate(SowingDate = dmy(SowingDate), 
+         ReadingDate = dmy(ReadingDate),
+         Trifo = (s1+s2+s3+s4+s5+s6+s7+s8+s9+s10)/10)
+
+str(df_trifo)
+head(df_trifo)
+tail(df_trifo)
+
+
+df_trifo %>% filter(Plot ==1) %>% summary()
+
+#select columns of interest and rename columns 
+
+df_Tr <- df_trifo %>%
+mutate(TrifoNumber=as.numeric(Trifo))%>%
+dplyr::select(-s1:-s10, -Trifo)
+```
+
+
+
+Prepare dataframe to calculate rate (1/Days to 1 trifo) in the next script.
+
+
+```{r}
+write.table(df_Tr, "Number_Trifo.txt")
+
+
+```
+
+
+End of this script Calc 2. 
+Move to script 2_2 to calculate rate of leaf appearance 
