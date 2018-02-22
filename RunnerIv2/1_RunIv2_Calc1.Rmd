@@ -1,0 +1,194 @@
+---
+title: "Trifoliates Iversen "
+author: "CT"
+date: "31.08.2016"
+output: html_document
+---
+
+Purpose:
+
+-This script is under construction!!! here runner numbers are evaluated but should fit other variables as well. 
+- Graph the main dataset 
+ 
+```{r loadLibraries}
+library(tidyr)
+library (dplyr)
+library (ggplot2)
+library(agricolae)
+library (lubridate)
+library(mosaic)
+library(lattice)
+```
+
+
+
+```{r}
+setwd("C:\\GitHubRepos\\SubCloverPhD\\SubClover\\RunnerIv2")
+getwd()
+#create file
+df_trifo_raw <- read.table("RunIv2.txt",header=TRUE)
+head(df_trifo_raw)
+
+
+```
+Define formats and calculate the mean number of trifoliates considering the sub samples (S1-S10)
+
+```{r loadFile}
+
+
+# define factors for the ones that "look like" values
+ df_trifo_worked <- df_trifo_raw %>%
+  mutate(SowingDate = dmy(SowingDate), 
+         ReadingDate = dmy(ReadingDate),
+         Plot=factor(Plot),
+         Block=factor(Block),
+         Cultivar=factor(Cultivar),
+         SowTreat=factor(SowTreat)
+         )  %>%
+  mutate(SowMonth= factor(SowTreat, levels=c("S1", "S2", "S3", "S4", "S5", "S6","S7", "S8"),
+                           labels=c("June", "July", "September", "November", "December", "February","March", "May")))
+         
+
+summary(df_trifo_worked)
+
+
+```
+
+```{r}
+str(df_trifo_worked)
+
+```
+
+```{r, include=FALSE}
+head(df_trifo_worked)
+tail(df_trifo_worked)
+```
+
+Graph the results : DAS and number of trifoliates 
+
+```{r, fig.height=8, fig.width=15, include = FALSE}
+#Graph 1        
+  
+df_RunMean<-df_trifo_worked %>%
+  filter(Cultivar=="Antas"|Cultivar=="Denmark"|Cultivar=="Leura")%>%
+  group_by(Cultivar, SowMonth, DAS) %>%
+  #dplyr::select(NumberRun)+
+  summarise_all(funs(mean,sd))
+
+
+
+```
+
+
+```{r}
+
+# find size of bar per month
+# find single position of x y to put the bar
+
+extraPos<- 1.10 # extra position for single error bar
+
+x_max<-max(df_RunMean$DAS)
+y_max<-max(df_RunMean$NumberRun_mean)
+
+# find largest standard error
+sd_df <- df_RunMean %>% 
+  group_by(SowMonth) %>%
+  summarise(max_sd = max(NumberRun_sd)) %>% 
+  ungroup() %>%
+  rowwise() %>%
+  mutate(DAS = x_max*extraPos, NumberRun_mean = y_max*extraPos)
+
+summary(sd_df)
+
+```
+
+
+```{r , fig.height=5, fig.width= 15}
+# set a lo
+df_RunMean %>% 
+  select(DAS, Cultivar, NumberRun_mean,NumberRun_sd) %>%
+  ggplot(aes(x=DAS, y=NumberRun_mean)) + 
+#  geom_point(data=sd_df,aes(x=DAS,y=NumberRun_mean)) +
+  geom_point(aes(shape=Cultivar), size=4) +
+  scale_shape_manual(values = c(1,2,0)) +
+  geom_errorbar(data=sd_df, aes(ymin=NumberRun_mean-max_sd,
+                    ymax=NumberRun_mean+max_sd), width=4)+
+  facet_wrap (~SowMonth,ncol=4)+
+  ylim(0,20) +
+  labs(y="Number of runners",x="Days after sowing")+
+  theme_grey(base_size = 16) +
+  theme_bw()+
+   geom_abline(intercept = 1, slope = 0, linetype=2)+
+   geom_abline(intercept = 5,  slope = 0, linetype=2)+
+   geom_abline(intercept = 9,  slope = 0, linetype=2)+
+theme(axis.text.x=element_text(angle = 0, hjust = 0))+
+theme(text = element_text(size = 20))
+
+
+```
+
+
+
+
+## Loop, apply function approx and try catch to get das =9  
+```{r}
+plots <- unique(df_trifo_worked$Plot)
+ 
+df_all <- data.frame()
+
+for(p in 1:length(plots)) {
+
+      # clean value holders
+      DAS_nine_run <- 0
+
+  df_sub <- df_trifo_worked %>%
+    subset(Plot == plots[p]) %>%
+    arrange(NumberRun)
+  
+  df_sub
+  head(df_sub)
+ 
+   # record maximum value recorded to avoid crossing- FIXME: Not needed here?
+  max_run <- max(df_sub$NumberRun) # create new col
+  
+  # for(z in 1:nrow(df_sub)) {
+  #   
+  #   df_sub$max_run[z] <- max(df_sub$NumberRun[z],
+  #                                df_sub$NumberRun[z-1])
+  #   
+  # }
+  # 
+  df_sub
+
+  # Interpolate 
+  y_ref <- 9 # y value where we want to find x by interpolation in this case needed 9 
+  
+  # interpolate
+  tryCatch(  
+  DAS_nine_run <- approx(df_sub$NumberRun, 
+  df_sub$DAS, xout = y_ref, rule = 1)$y,
+  error = function(e) 
+  {
+  DAS_nine_run <- max_run # FIXME: This should give max but gives NA - quick fix below temporarily
+  }
+)
+  
+ # COMPACT SYNTHAX FOR IFELSE
+ DAS_nine_run <- ifelse(is.na(DAS_nine_run),max_run,DAS_nine_run) # FIXME: This should be unecessary if try catch gives max value
+ 
+  df_temp <- NULL 
+  df_temp <- data.frame(Cultivar = df_sub$Cultivar[1],
+                             SowTreat = df_sub$SowTreat[1],
+                             Plot = df_sub$Plot[1],
+                             Block = df_sub$Block[1],
+                             DAS_nine_run = DAS_nine_run,
+                             NumberRun = min(y_ref,max_run))
+
+#  print(p)
+  
+df_all <- rbind(df_all,df_temp)                 
+  
+  } # end plot loop
+
+summary(df_all)
+```

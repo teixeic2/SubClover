@@ -32,8 +32,8 @@ setwd("C:\\GitHubRepos\\SubCloverPhD\\SubClover\\EmergenceIv2")
 getwd()
 
 #create file
-df_G <- read.table("df_MeanSoilTemp50Emerg.txt",header=TRUE)
-
+#df_G <- read.table("df_MeanSoilTemp50Emerg.txt",header=TRUE)
+df_G <- read.table("df_MeanSoilTemp50Emerg_2.txt",header=TRUE)
 
 df_G$Date50E <- ymd(df_G$Date50E)
 df_G$SowingDate <- ymd(df_G$SowingDate )
@@ -107,7 +107,9 @@ calculate mean values for each cultivar and sow Treat
 
 ```{r}
 df_mean<-df_H%>%
-  group_by(Cultivar,SowTreat)%>%
+  mutate(SowMonth= factor(SowTreat, levels=c("S1", "S2", "S3", "S4", "S5", "S6","S7", "S8"),
+                           labels=c("June", "July", "September", "November", "December", "February","March", "May")))%>%
+  group_by(Cultivar,SowTreat,SowMonth)%>%
    summarise_all(funs(mean))
 ```
 
@@ -127,7 +129,8 @@ fontSize <- 16.0
     #summarise_all(funs(mean))
   #ggplot(aes(x=meanTemp_Em, y=DAS50E, colour=SowTreat))  +
      ggplot(aes(x=meanTemp_Em, y=DAS50E))  +
-    geom_point(aes(shape= SowTreat), size=4)+
+    #geom_point(aes(shape= SowTreat), size=4)+
+    geom_point(aes(shape= SowMonth), size=4)+
   scale_shape_manual(values = c(0,1,2,3,4,5,6,7,8))+
  # geom_point(alpha=0.8) +
   #geom_smooth()+
@@ -146,7 +149,8 @@ fontSize <- 16.0
   #filter (SowTreat== "S2"| SowTreat== "S3"|SowTreat== "S4"|SowTreat== "S6")%>% 
     #ggplot(aes(x=meanTemp_Em, y=InvDAS50E, colour=SowTreat))  +
   ggplot(aes(x=meanTemp_Em, y=InvDAS50E))  +
-    geom_point(aes(shape= SowTreat), size=4)+
+    geom_point(aes(shape= SowMonth), size=4)+
+    #geom_point(aes(shape= SowTreat), size=4)+
   scale_shape_manual(values = c(0,1,2,3,4,5,6,7,8))+
   #geom_point(alpha=0.8) +
   #geom_smooth(colour="red")+
@@ -164,6 +168,8 @@ fontSize <- 16.0
   ggsave(file="plot_DAS50E_Rate_Iv.png", width=12, height=6, dpi=400,g)
 
 ```
+ 
+
 
 
 

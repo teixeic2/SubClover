@@ -32,11 +32,11 @@ library(lattice)
 
 ```{r loadFile}
 # Get dataframe 1 with DAS5trifo info 
-setwd("C:\\GitHubRepos\\SubCloverPhD\\SubClover\\TrifoCountsI2")
+setwd("C:\\GitHubRepos\\SubCloverPhD\\SubClover\\TrifosNineI2")
 getwd()
 
 #create file
-df_emerg4 <- read.table("df_DAS_5_Trifo.txt",header=TRUE)
+df_emerg4 <- read.table("df_DAS_9_Trifo.txt",header=TRUE)
 
 df_emerg4$SowingDate <- ymd(df_emerg4$SowingDate )
 df_emerg4$Block <- as.factor(df_emerg4$Block)
@@ -45,7 +45,7 @@ df_emerg4$Plot <- as.factor(df_emerg4$Plot)
 # head(df_emerg4)
 
 D <- df_emerg4 %>%
-dplyr::select(Cultivar,SowTreat, Plot, SowingDate,DAS5T,Block)
+dplyr::select(Cultivar,SowTreat, Plot, SowingDate,DAS9T,Block)
 
 str(D)
 
@@ -61,12 +61,12 @@ df_emerg4 <- NULL
 #Note df_Md has duplicated rows - fix it!! 
 
 df_MD <- D %>%
-  mutate(Date5T=SowingDate+DAS5T) 
+  mutate(Date9T=SowingDate+DAS9T) 
   # group_by(Plot, DAS5T) %>% 
   # dplyr::filter(row_number() == 1)
 
 str(df_MD)
-#Here DAte5T is included no need to change format 
+#Here DAte9T is included no need to change format 
 
          
 ```
@@ -78,7 +78,7 @@ Read the temperature  data and adjust formats
 ```{r}
 
 # Get dataframe 1 with the soil Temp 
-setwd("C:\\GitHubRepos\\SubCloverPhD\\SubClover\\TrifoCountsI2")
+setwd("C:\\GitHubRepos\\SubCloverPhD\\SubClover\\TrifosNineI2")
 getwd()
 
 #create file here using the Air temperature !!!! 
@@ -264,7 +264,7 @@ summary(df_TT)
 ```
 
 
-figure out how to calculate tt at sow then tt ate date of 50 % plants with 5T  make one minus another to find TT emerg 
+figure out how to calculate tt at sow then tt ate date of 50 % plants with 9T  make one minus another to find TT
 
 ```{r}
 df1 <- merge(df_MD,df_TT, by.x="SowingDate",by.y="Date") %>%
@@ -282,14 +282,14 @@ Save dataframe as txt file
 ```{r}
 
 # force formats of dates
-df1$Date <- round(df1$Date5T,0)
+df1$Date <- round(df1$Date9T,0)
 df_TT$Date <- round(df_TT$Date,0)
 
 
   df_merge <- merge(df1, df_TT, by="Date") %>%
     mutate(AirTempAcc_em = SumTTday) %>%
   dplyr::select(-SumTTday) %>%
-  mutate(SummTT5Trifo = (AirTempAcc_em-AirTempAcc_sow))  
+  mutate(SummTT9Trifo = (AirTempAcc_em-AirTempAcc_sow))  
 
 summary(df_merge)
 
@@ -300,7 +300,7 @@ get the TT and SE for the cultivar. exclude Sow treats if needed.
 
 ```{r}
 df_TT <- df_merge %>%
-  select(Date:Plot,Block, DAS5T, Pp.x,SummTT5Trifo)
+  select(Date:Plot,Block, DAS9T, Pp.x,SummTT9Trifo)
   
    #filter(SowTreat!= "S1")
 
@@ -313,18 +313,19 @@ df_TT <- df_merge %>%
 
 df_TTN <-df_TT %>%
   group_by(Cultivar,SowTreat,Pp.x) %>%
-  dplyr::select(SummTT5Trifo)%>%
+  dplyr::select(SummTT9Trifo)%>%
   summarise_all(funs(mean,sd))%>%
     mutate(SE=sd/1.73)
   
 ```
 
 
-Calculate the phyllocron (oCd/leaf) consider 6 leaves (5 trifoliates + spade leaf)
+Calculate the phyllocron (oCd/leaf) consider 10 leaves (9 trifoliates + spade leaf) but this is not accurate as need to calculate phyllochron from the first to the 9 trifoliates!!! 
+
 
 ```{r}
 dfPhyllo <-df_TT %>%
-  mutate(PhylC=SummTT5Trifo/6)
+  mutate(PhylC=SummTT9Trifo/10) #here it considers from sowing ! not accurate ! 
 
 #then select sow treat and means and se
 
@@ -367,7 +368,7 @@ str(df_TT)
   theme(text = element_text(size=12))+
   theme(legend.text=element_text(size=10))+
   #scale_x_continuous(limits = c(10,20))+
-  scale_y_continuous(limits = c(0,600))
+  scale_y_continuous(limits = c(0,800))
 
 # 1/DAS50E
   g4 <- df_Phyllo2 %>%
@@ -401,7 +402,7 @@ str(df_TT)
 ```{r}
 #save df_TT as table to do statistics in script 8 _ stats Thermal time 
 
-write.table(df_TT,"ThermalT_5_Trifo.txt")
+write.table(df_TT,"ThermalT_9_Trifo.txt")
 ```
 
 
@@ -437,7 +438,7 @@ for (i in 1:length(sdIndex)) {
 head(file.subset, 50)
    summary(file.subset)
 #my.anova <- aov( DAS5T ~ Cultivar + Block, data = file.subset)
-   my.anova <- aov( SummTT5Trifo ~ Cultivar + Block, data = file.subset)
+   my.anova <- aov( SummTT9Trifo ~ Cultivar + Block, data = file.subset)
 
 print(summary(my.anova))
 

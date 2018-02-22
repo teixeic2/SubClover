@@ -1,0 +1,178 @@
+---
+title: "Incubator Temperatures for the Germination Seeds different Temperatures  4Cultivar"
+author: "CT"
+date: " September  , 2017"
+output: html_document
+---
+
+```{r loadLibraries}
+library(tidyr)
+library (dplyr)
+library (ggplot2)  
+library(agricolae)
+library(knitr)
+library (lubridate)
+library (gridExtra)
+```
+
+
+```{r loadFile}
+setwd("C:\\GitHubRepos\\SubCloverPhD\\SubClover\\SeedGermTemp")
+getwd()
+
+#create file
+df_inc <- read.table("DailyIncubTemp.txt",header=TRUE)
+str(df_inc) # check formats
+
+
+
+
+
+```
+
+
+
+```{r}
+df_inc_gathered <-  df_inc %>%
+  gather(key= "Incubator" , value = "temperature" , Incubator2.5: Incubator35)
+  
+str(df_inc_gathered)
+
+
+  
+```
+
+```{r, fig.height=5, fig.width=20}
+
+df_inc_gathered2 <- df_inc_gathered %>%
+  arrange(Hour)
+  
+  
+   
+```
+
+
+
+graph it 
+
+
+```{r, fig.height=5, fig.width=20}
+
+df_inc_gathered2%>%
+  
+ggplot(aes(x=Hour, y=temperature, shape=Incubator)) + 
+ geom_point(aes(shape= Incubator), size=5)+
+  scale_shape_manual(values = c(0,1,2,3,4,5,6,7,8,9,10,11,12,13,14))+
+  geom_point()+
+    #labs(x="Hours",y="Cummulative Germination Percent(%)")+
+  #facet_grid(.~Temp)
+  #facet_wrap(.~Temp, ncol=6)
+
+#facet_wrap(~Month_f,ncol=3, scales = "free")+
+  theme_bw(base_size=16)+
+  scale_y_continuous(breaks=seq(0,40,5))+
+  scale_x_continuous(breaks=seq(0,23,2))+
+ # scale_x_discrete(breaks=c("0:00","6:00","12:00", "18:00"))+
+  #scale_x_continuous(breaks = "1")+
+  #scale_x_datetime(labels = date_format("%H:%m"), 
+                       # breaks = date_breaks("2 hours"))+
+  ylim(0, 40)+
+  #xlim(0, 6)+
+  theme(axis.text.x=element_text(angle = +0, hjust = 0, size= 14))+
+  theme(axis.text.y=element_text(angle = +0, hjust = 0, size= 14))+
+  xlab(expression(Hour~"("*"hs"*")")) + 
+  ylab(expression(Temperature~~"("^"o"*"C)"))
+  
+ # geom_abline(intercept = 50, slope = 0)
+
+
+#ggsave("plot_Regeneration.png", width=12, height=6, dpi=400)
+
+```
+
+Now separate the points to generate a grid graph to have less points in each graph  
+
+```{r, fig.height=5, fig.width=10 }
+
+#Create a graph selected  hours of test 
+ g1 <-df_inc_gathered2 %>%
+  filter (Incubator=="Incubator2.5"|
+          Incubator=="Incubator7.5"|
+          Incubator=="Incubator12.5"|
+            Incubator=="Incubator17.5"|
+            Incubator=="Incubator25")
+
+g1 %>%
+ggplot(aes(x=Hour, y=temperature, shape=Incubator)) + 
+ geom_point(aes(shape= Incubator), size=5,fill="black")+
+  scale_shape_manual(values = c(0,1,2,3,4))+
+  #geom_point()+
+  theme_bw(base_size=16)+
+  
+  scale_y_continuous(breaks=seq(0,40,5))+
+  scale_x_continuous(breaks=seq(0,23,2))+
+#remove legend 
+  guides(fill=FALSE)+
+  ylim(0, 40)+
+  #xlim(0, 6)+
+  theme(axis.text.x=element_text(angle = +0, hjust = 0, size= 14))+
+  theme(axis.text.y=element_text(angle = +0, hjust = 0, size= 14))+
+  xlab(expression(Hour~"("*"hs"*")")) + 
+  ylab(expression(Temperature~~"("^"o"*"C)"))
+  
+ # geom_abline(intercept = 50, slope = 0)
+
+
+ggsave("plot_IncubTemps1.png", width=12, height=6, dpi=400)
+
+ 
+ 
+```
+
+do same for second set  
+
+```{r fig.height=5, fig.width=10 }
+
+g2 <-df_inc_gathered2 %>%
+  filter (Incubator=="Incubator5"|
+          Incubator=="Incubator10"|
+          Incubator=="Incubator15"|
+            Incubator=="Incubator20"|
+            Incubator=="Incubator30"|
+            Incubator=="Incubator35")
+
+g2 %>%
+ggplot(aes(x=Hour, y=temperature, shape=Incubator)) + 
+ geom_point(aes(shape= Incubator), size=5)+
+  scale_shape_manual(values = c(5,6,15,16,17,18))+
+  #geom_point()+
+    #labs(x="Hours",y="Cummulative Germination Percent(%)")+
+  #facet_grid(.~Temp)
+  #facet_wrap(.~Temp, ncol=6)
+
+#facet_wrap(~Month_f,ncol=3, scales = "free")+
+  theme_bw(base_size=16)+
+  scale_y_continuous(breaks=seq(0,40,5))+
+  scale_x_continuous(breaks=seq(0,23,2))+
+ # scale_x_discrete(breaks=c("0:00","6:00","12:00", "18:00"))+
+  #scale_x_continuous(breaks = "1")+
+  #scale_x_datetime(labels = date_format("%H:%m"), 
+                       # breaks = date_breaks("2 hours"))+
+ # ylim(0, 40)+
+  #xlim(0, 6)+
+  #remove legend
+  guides(fill=FALSE)+
+  theme(axis.text.x=element_text(angle = +0, hjust = 0, size= 14))+
+  theme(axis.text.y=element_text(angle = +0, hjust = 0, size= 14))+
+  xlab(expression(Hour~"("*"hs"*")")) + 
+  ylab(expression(Temperature~~"("^"o"*"C)"))
+
+
+  
+ ggsave("plot_IncubTemps2.png", width=12, height=6, dpi=400)
+
+```
+
+
+
+

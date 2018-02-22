@@ -12,6 +12,8 @@ library (ggplot2)
 library(agricolae)
 library(knitr)
 library (lubridate)
+library(survival)
+library(growthmodels)
 
 ```
 
@@ -21,54 +23,153 @@ setwd("C:\\GitHubRepos\\SubCloverPhD\\SubClover\\SeedGermTemp")
 getwd()
 
 #create file
-df_seed <- read.table("SeedGerm1.txt",header=TRUE)
+df_seed <- read.table("dataToCurveFitGerm.txt",header=TRUE)
+attach(df_seed)
 head(df_seed)
-# Jeito 1 de trocar formato (usando base R)
-df_seed$Date <- dmy(df_seed$Date)
 
-# jeito 2 de trocar formato (usando dplyr)
-df_seed <- df_seed %>%
-  mutate(Temp = as.factor(Temp), Block = as.factor(Block))%>%
-#  mutate(PropSoft =round((Soft/SeedNumber)*100),2)
-  mutate(PropGerm = round(CountedGerm/50*100,digits=2))
-
-summary(df_seed) # explore values
-str(df_seed) # check formats
 
 
 ```
+
+
+```{r}
+
+
+
+# jeito 2 de trocar formato (usando dplyr)
+df_seed <- df_seed %>%
+  mutate(Temp = as.factor(Temp), Block = as.factor(Block), PercentRelative=as.numeric(PercentRelative/100))%>%
+  dplyr::select(Plot:PercentRelative)
+
+str(df_seed) # check formats
+
+
+
+```
+
+Try data with just one plot to test function 
+
+```{r}
+df_Plot65<-df_seed %>%
+  filter(Plot=="65")%>%
+  dplyr:: select(DAS,PercentRelative)
+
+
+```
+
+Use simple method to fit a curve non linear model 
+
+```{r}
+
+
+plot(df_Plot65)
+
+
+
+
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+Now use this mini set to fit a curve 
+
+
+```{r}
+
+growth <-df_Plot65 %>%
+   gompertz(0:16, 16, 0.5)
+
+summary(growth)
+
+plot(growth)
+
+
+
+
+```
+
+
+
+
+Use same procedure for survival analysis 
 
 
 
 ```{r}
-df_seed1 <-df_seed%>%
-  group_by(Cultivar, Temp,DAS, HoursofTest)%>%
-  dplyr::select(CumPercent) %>%
-  summarise_all(funs(mean,sd))
 
+# define variables 
+
+time <-DAS
+event <- PercentRelative/100
+group <- Cultivar
 
 
 ```
 
+Descriptive stats
 ```{r, fig.height=5, fig.width=10}
-df_seed1%>%
-ggplot(aes(x=HoursofTest, y=mean, colour=factor(Cultivar))) + 
-  geom_point()+
-  geom_line()+
-  #labs(x="Hours",y="Cummulative Germination Percnet(%)")+
-  #facet_grid(.~Temp)
-  #facet_wrap(.~Temp, ncol=6)
-facet_wrap(~Temp,ncol=6, scales = "free")+
-  theme_bw()+
-  scale_x_continuous(breaks = c(100,200,300))+
-  ylim(0, 120)+
-  #xlim(0, 400)+
-  labs(y="Mean cumulative germination Percent",x="Hours of test")+ 
-  geom_abline(intercept = 50, slope = 0)
+
+#DEscriptive statitistics 
+summary(time)
+summary(event)
+summary(Cultivar)
+
+
 ```
 
 
-build a graph black and white 
+```{r}
+plot (time, event, pch=15)
+
+
+```
+
+Perform the logistic regression 
+
+```{r}
+
+
+Eq.glm <- glm(event~time,data=df_seed, family=binomial)
+summary(Eq.glm)
+
+```
+
+
+
+
+Kaplan Meyer non parametric analysis 
+
+
+
+
+```{r}
+kmsurvival <- survfit(Surv(time,event) ~1)
+summary(kmsurvival)
+plot(kmsurvival, xlab="Time", ylab="Survival Probability")
+
+
+```
+
+
+
+Try weibull equations 
+```{r}
+
+weibull <- survreg(Surv(time,event), dist = "weibull")
+summary(weibull)
+
+
+```
 
 
 ```{r, fig.height=5, fig.width=15}

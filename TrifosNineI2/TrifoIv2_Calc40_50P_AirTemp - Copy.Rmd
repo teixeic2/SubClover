@@ -1,0 +1,214 @@
+---
+title: "Trifoliates Iversen "
+author: "CT"
+date: "17.08.2017"
+output: html_document
+---
+
+Purpose:
+
+-Analysis of trifoliates expansion for Iversen from previous script (use file RateTrifo.txt)
+- Calculate the date to 50% percent leaf emergence
+- Calculate the mean air temperature during period
+- merge the dataframes and plot 
+ 
+```{r loadLibraries}
+library(tidyr)
+library (dplyr)
+library (ggplot2)
+library(agricolae)
+library (lubridate)
+library(mosaic)
+library(lattice)
+```
+
+
+
+```{r}
+setwd("C:\\GitHubRepos\\SubCloverPhD\\SubClover\\TrifoCountsI2")
+getwd()
+#create file
+df_trif <- read.table("RateTrifo.txt",header=TRUE)
+str(df_trif)
+
+
+```
+
+adjust formats and Calculate the date to 50%  
+```{r}
+
+
+df_trif$SowingDate <- ymd(df_trif$SowingDate )
+df_trif$Block <- as.factor(df_trif$Block)
+df_trif$Plot <- as.factor(df_trif$Plot)
+df_trif$PercEmerg <- as.numeric(df_trif$PercEmerg)
+
+#Then calculate the date to 50% Emergence sum the date or sowing + DAS50E
+#Note df_Md has duplicated rows - fix it!! 
+
+df_MD <- df_trif %>%
+  mutate(Date50E=SowingDate+DAS50E) %>%
+  group_by(Plot, DAS50E) %>% 
+  dplyr::filter(row_number() == 1)
+
+str(df_MD)
+#Here DAte50E is included no nee to change format 
+
+```
+
+
+Then merge with dates for seedling emergence to find out how many days from 50 % seedling emergence to 50% leaf appearance  
+
+```{r loadFile}
+
+
+setwd("C:\\GitHubRepos\\SubCloverPhD\\SubClover\\TrifoCountsI2")
+getwd()
+#create file
+df_S <- read.table("DASSeedEmer.txt",header=TRUE)
+
+#change formats 
+df_S <- df_S %>%
+  mutate(Plot=as.factor(Plot),
+         DAS50SeedEm= as.numeric(DAS50SeedEm),
+         Date50SeedEm= dmy(Date50SeedEm))
+
+         
+str(df_S)
+
+
+```
+
+
+Now bring the Air temperature data 
+```{r}
+
+
+setwd("C:\\GitHubRepos\\SubCloverPhD\\SubClover\\TrifoCountsI2")
+getwd()
+#create file
+df_A <- read.table("AirTemp.txt",header=TRUE)
+
+#adjust formats
+df_A %>%
+  mutate(Date=dmy(Date))
+
+str(df_A)
+
+df_B <- df_A %>%
+  mutate(SumAir = cumsum(AirTt)) %>%
+  mutate(Date=dmy(Date))%>%
+  dplyr::select(-AirTt)
+
+#head(df_soilTemp)
+
+summary(df_B)
+summary (df_S)
+
+```
+
+Problem merging here 
+
+
+
+```{r}
+
+
+df1 <- merge(df_S,df_B, by.x="Date50SeedEm",by.y="Date")%>%
+mutate(AirTempAcc_emerg = SumAir) %>%
+  dplyr::select(-SumAir)
+
+str(df1)
+```
+
+then merge with the data frame which contains the trifoliate info 
+```{r}
+
+
+df_M <- df_MD%>%
+  group_by(SowingDate,SowTreat,Plot,Block,Cultivar)
+
+df2 <- merge(df_B,df_M, by.x="Date",by.y="Date50E")%>%
+mutate(AirTempAcc_tri = SumAir) %>%
+  dplyr::select(-SumAir)
+
+str(df2)
+
+
+
+# then merge the dataframes to find out the mean temperature 
+
+
+```
+
+
+
+Include dates of sowing again in dataframe 
+```{r}
+sdLookup <- data.frame (
+  SowTreat = c("S1","S2","S3","S4","S5","S6","S7","S8"),
+  SowingDate = c("24/06/2015", 
+                 "28/07/2015" ,
+                 "15/09/2015" ,
+                 "5/11/2015" ,
+                 "15/12/2015" ,
+                 "17/02/2016" ,
+                 "15/03/2016",
+                 "4/05/2016"))
+
+sdLookup$SowingDate <- dmy(sdLookup$SowingDate)
+
+df_tt_50p_emerg <- merge(df_tt_50p_emerg, sdLookup, by="SowTreat")
+summary(df_tt_50p_emerg)
+
+
+write.table(df_tt_50p_emerg,"df_tt_50p_emergTrifo.txt")
+```
+
+
+
+
+Calculate RAte (1/days to 50%) 
+
+
+```{r}
+
+#try 1/DAS50% = Rate
+
+df_RateTrifo <- df_tt_50p_emerg %>%
+  mutate(Rate=1/DAS50E)
+
+  summary(df_RateTrifo)
+  
+  write.table(df_RateTrifo,"RateTrifo.txt")
+
+```
+
+
+
+Graph rate and SowTreat
+
+```{r}
+#Graph 
+
+  df_RateTrifo %>%
+  group_by(SowingDate, Cultivar) %>%
+  dplyr::select(Rate) %>%
+  summarise_each(funs(mean,sd)) %>%
+  #Graph
+  ggplot(aes(x=SowingDate, y=mean, colour=factor(Cultivar), shape=factor(Cultivar))) +
+  geom_point() +
+  geom_line() +
+  labs(x="Sowing Date",y="1/ Days to 50% leaf emergence  ") +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1))+
+  geom_errorbar(aes(ymin=mean-sd/2,
+  ymax=mean+sd/2))+
+  theme_bw()
+
+```
+
+
+
+
+End of this script Calc 3. 
+Move to script 4 to include temperatures  

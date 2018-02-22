@@ -28,18 +28,25 @@ library(lattice)
 ```{r loadFile}
 # Get dataframe with info and DAS50E 
 
-setwd("C:\\GitHubRepos\\SubCloverPhD\\SubClover\\EmergencePokawa")
+setwd("C:\\GitHubRepos\\SubCloverPhD\\SubClover\\EmergencePoukawa")
 getwd()
 
 #create file
 df_emerg4 <- read.table("df_MeanSoilTemp50EmergPo.txt",header=TRUE)
 #head(df_emerg4)
 
-df_emerg4$ReadingDate <- ymd(df_emerg4$ReadingDate )
+str( df_emerg4)
+
+#change formats
+
+
+df_emerg4$Date <- ymd(df_emerg4$Date )
 df_emerg4$SowingDate <- ymd(df_emerg4$SowingDate )
-df_emerg4$Block <- as.factor(df_emerg4$Block)
+df_emerg4$Date50E <- ymd(df_emerg4$Date50E) 
+#df_emerg4$Block <- as.factor(df_emerg4$Block)
 df_emerg4$Plot <- as.factor(df_emerg4$Plot)
-# str(df_emerg4)
+
+str(df_emerg4)
 # head(df_emerg4)
 
 D <- df_emerg4 %>%
@@ -55,11 +62,11 @@ df_emerg4 <- NULL
 ```{r}
 
 # Get dataframe 2 with the date to 50 % Emerg
-setwd("C:\\GitHubRepos\\SubCloverPhD\\SubClover\\EmergenceIv2")
+setwd("C:\\GitHubRepos\\SubCloverPhD\\SubClover\\EmergencePoukawa")
 getwd()
 
 #create file
-df_emerg5 <- read.table("df_tt_50p_emerg.txt",header=TRUE)
+df_emerg5 <- read.table("df_tt_50p_emergPo.txt",header=TRUE)
 head(df_emerg5)
 
 #df_emerg5$ReadingDate <- ymd(df_emerg5$ReadingDate )
@@ -132,16 +139,16 @@ TRy to erase duplicated rows
 
 ```
 
-Read the soil data (and adjust formats
+Read the soil data (and adjust formats : need to add data Pouk
 
 ```{r}
 
 # Get dataframe 1 with the soil Temp 
-setwd("C:\\GitHubRepos\\SubCloverPhD\\SubClover\\EmergenceIv2")
+setwd("C:\\GitHubRepos\\SubCloverPhD\\SubClover\\EmergencePoukawa")
 getwd()
 
 #create file
-df_emerg6 <- read.table("SoilTempTXTM.txt",header=TRUE)
+#df_emerg6 <- read.table("SoilTempTXTM.txt",header=TRUE)
 head(df_emerg6)
 
 df_emerg6$Date <- dmy(df_emerg6$Date )

@@ -22,11 +22,12 @@ library(knitr)
 library(lubridate)
 library(mosaic)
 library(lattice)
+library(gridExtra)
 ```
 
 
 ```{r loadFile}
-#setwd("C:\\GitHubRepos\\SubCloverPhD\\SubClover\\EmergenceIv2")
+
 setwd("C:\\GitHubRepos\\SubcloverPhD\\Subclover\\SeedGermTemp")
 getwd()
 
@@ -44,7 +45,7 @@ Format changes
 df_emerg1$DAS <- as.numeric(df_emerg1$DAS )
 df_emerg1$Block <- as.factor(df_emerg1$Block)
 df_emerg1$Plot <- as.factor(df_emerg1$Plot)
-df_emerg1$Temp <- as.factor(df_emerg1$Temp)
+#df_emerg1$Temp <- as.factor(df_emerg1$Temp)
 
 str(df_emerg1)
 
@@ -83,7 +84,6 @@ Now calculate the 50 percent emerge relative
 
 str(df_3)
 
-# This step is now unnecessary as we want Plot values anyway (FIXME)
 df_50_Perc <- df_3 %>%
   #change name variable
   mutate(av_Perc=PercentRelative)%>%
@@ -92,6 +92,7 @@ mutate(av_DAS=DAS)%>%
 
 str(df_50_Perc)
 
+write.table(df_50_Perc,"dataToCurveFitGerm.txt")
 
 
 ```
@@ -204,9 +205,9 @@ df_temp <- NULL
 ```{r}
 summary(df_tt_50p_emerg)
 
-write.table(df_tt_50p_emerg,"df_tt_50p_emerg.txt")
+write.table(df_tt_50p_emerg,"df_tt_50p_germination.txt")
 
-summary(df_tt_50p_emerg)
+#summary(df_tt_50p_emerg)
 ```
 
 Graph results:  
@@ -246,7 +247,7 @@ ggplot(aes(x=Temp, y=mean, colour=factor(Cultivar), shape=factor(Cultivar))) +
   facet_wrap(~Cultivar,ncol=2, scales = "free")+
   theme_bw(base_size = 16)
  
-ggsave("plot_.png", width=10, height=6, dpi=400)
+#ggsave("plot_.png", width=10, height=6, dpi=400)
 
 ```
 
@@ -259,49 +260,222 @@ Calculate the rate of emergence (1/Days to 50% emergence)
 df_RateEmerg <- df_tt_50p_emerg %>%
   mutate(Rate=1/DAS50E)
 
-  summary(df_RateEmerg)
+  str(df_RateEmerg)
   
-  
+  write.table(df_RateEmerg, "df_RateGerm.txt")
   
 ```
 
-graph and save a dataframe as txt .Here data shows SE as sd/2/2
+Make graph with DAS50E
+
 ```{r, fig.height=5, fig.width=10}
-df_RateEmerg %>%
+
+#select the variable and find mean and sd 
+df_Rate_MeanD <-df_RateEmerg%>%
+  group_by(Cultivar, Temp ) %>%
+    dplyr::select(DAS50E)%>%
+  summarise_all(funs(mean,sd))
+
+#then create the error bar position
+#Here how to create the end error bar with max Sd 
+# find size of bar per cultivar and temp
+# find single position of x y to put the bar
+
+#extraPos<- 1.10 # extra position for single error bar
+extraPos<- 1.2 # extra position for single error bar
+x_max<-max(df_Rate_MeanD$Temp)
+y_max<-max(df_Rate_MeanD$mean)
+
+# find largest standard error
+sd_df <- df_Rate_MeanD %>% 
+  group_by(Cultivar) %>%
+  summarise(max_sd = max(sd)) %>% 
+  ungroup() %>%
+  rowwise() %>%
+  mutate(Temp = x_max*extraPos, mean = y_max*extraPos)
+
+summary(sd_df)
+
+
+#make a graph 
+#then graph 
+
+
+df_Rate_MeanD %>% 
+  #select( Variable, Cultivar, Temp, mean,sd) %>%
+  ggplot(aes(x=Temp, y=mean)) + 
+#  geom_point(data=sd_df,aes(x=DAS,y=NumberRun_mean)) +
+  geom_point(aes(shape=Cultivar), size=4) +
+  scale_shape_manual(values = c(1,2,0,7)) +
+  geom_errorbar(data=sd_df, aes(ymin=mean-max_sd,
+                    ymax=mean+max_sd), width=4)+
+  facet_wrap (~Cultivar,ncol=2)+
+  ylim(0,20 ) +
+  labs(y="Days 50% germination",x="Temperature")+
+  theme_grey(base_size = 16) +
+  theme_bw()+
+  # geom_abline(intercept = 1, slope = 0, linetype=2)+
+   geom_abline(intercept = 5,  slope = 0, linetype=2)+
+   #geom_abline(intercept = 9,  slope = 0, linetype=2)+
+theme(axis.text.x=element_text(angle = 0, hjust = 0))+
+theme(text = element_text(size = 20))
+
+
+ ggsave("plot_DAS50Perc_Germ.png", width=12, height=6, dpi=400)
+
+
+```
+
+
+
+make the same graph with rate 
+
+```{r , fig.height=5, fig.width=10}
+
+#select the variable and find mean and sd 
+df_Rate_MeanR <-df_RateEmerg%>%
+  group_by(Cultivar, Temp ) %>%
+    dplyr::select(Rate)%>%
+  summarise_all(funs(mean,sd))
+
+#then create the error bar position
+#Here how to create the end error bar with max Sd 
+# find size of bar per cultivar and temp
+# find single position of x y to put the bar
+
+#extraPos<- 1.10 # extra position for single error bar
+extraPos<- 1.1 # extra position for single error bar
+x_max<-max(df_Rate_MeanR$Temp)
+y_max<-max(df_Rate_MeanR$mean)
+
+# find largest standard error
+sd_df1 <- df_Rate_MeanR %>% 
+  group_by(Cultivar) %>%
+  summarise(max_sd = max(sd)) %>% 
+  ungroup() %>%
+  rowwise() %>%
+  mutate(Temp = x_max*extraPos, mean = y_max*extraPos)
+
+summary(sd_df1)
+
+#make a graph 
+#then graph 
+
+
+df_Rate_MeanR %>% 
+  #select( Variable, Cultivar, Temp, mean,sd) %>%
+  ggplot(aes(x=Temp, y=mean)) + 
+#  geom_point(data=sd_df,aes(x=DAS,y=NumberRun_mean)) +
+  geom_point(aes(shape=Cultivar), size=4) +
+  scale_shape_manual(values = c(1,2,0,7)) +
+  geom_errorbar(data=sd_df1, aes(ymin=mean-max_sd,
+                    ymax=mean+max_sd), width=4)+
+  facet_wrap (~Cultivar,ncol=2)+
+  ylim(0,1.4 ) +
+  labs(y="Germination rate (1/days)",x="Temperature")+
+  theme_grey(base_size = 16) +
+  theme_bw()+
+  # geom_abline(intercept = 1, slope = 0, linetype=2)+
+   geom_abline(intercept = 5,  slope = 0, linetype=2)+
+   #geom_abline(intercept = 9,  slope = 0, linetype=2)+
+theme(axis.text.x=element_text(angle = 0, hjust = 0))+
+theme(text = element_text(size = 20))
+
+
+ ggsave("plot_RatePerc_Germ.png", width=12, height=6, dpi=400)
+
+
+```
+
+
+
+
+
+
+
+graph and save a dataframe as txt .Here data shows SE as sd/2/2
+```{r, fig.height=8, fig.width=15}
+
+#Here how to create the end error bar with max Sd 
+# find size of bar per month
+# find single position of x y to put the bar
+
+#extraPos<- 1.10 # extra position for single error bar
+extraPos<- 1.1 # extra position for single error bar
+x_max<-max(df_Rate_Mean$Temp)
+y_max<-max(df_Rate_Mean$mean)
+
+# find largest standard error
+sd_df <- df_Rate_Mean %>% 
+  group_by(Cultivar) %>%
+  summarise(max_sd = max(sd)) %>% 
+  ungroup() %>%
+  rowwise() %>%
+  mutate(Temp = x_max*extraPos, mean = y_max*extraPos)
+
+summary(sd_df)
+
+#DAS 50% germ 
+
+g1 <-df_RateEmerg %>%
   group_by(Temp, Cultivar) %>%
   #filter(Cultivar=="Woogenellup")%>%
  # filter (SowTreat== "S2"| SowTreat== "S2"|SowTreat== "S2"|)
-  dplyr::select(Rate) %>%
-  summarise_each(funs(mean,sd)) %>%
+  dplyr::select(DAS50E) %>%
+  summarise_all(funs(mean,sd)) %>%
   #Graph
-  ggplot(aes(x=Temp, y=mean, colour=Cultivar, shape=Cultivar)) +
-  geom_point() +
-  geom_line() +
-  labs(x="Temperature",y="1/ Days to 50% emergence ") +
+  ggplot(aes(x=Temp, y=mean,  shape=Cultivar)) +
+  #geom_point(aes(shape)) +
+  geom_point(aes(shape=Cultivar),size=4)+
+  geom_errorbar(data=sd_df, aes(ymin=mean-max_sd,
+                    ymax=mean+max_sd), width=4)+
+  #scale_shape_manual(values = c(0,1,2,3,4))+
+  scale_shape_manual(values = c(1,2,4,7))+
+  labs(x="Temperature",y="Days to 50% germination ") +
   theme(axis.text.x = element_text(angle = 90, hjust = 1, size =14 ))+
   theme(axis.text.y = element_text(angle = 0,  size =16 ))+
-  geom_errorbar(aes(ymin=mean-(sd/2)/2,
-  ymax=mean+(sd/2)/2))+
+  #geom_errorbar(aes(ymin=mean-(sd/2)/2,
+  #ymax=mean+(sd/2)/2))+
   #facet_wrap(~Cultivar,ncol=2, scales = "free")+
   facet_wrap(~Cultivar,ncol=2)+
   #theme_bw()+
   theme_bw(base_size = 16) +
-  ylim(0,1.0)
+  ylim(0,25)
+
+#Rate to Germ 
+g2 <- df_RateEmerg %>%
+  group_by(Temp, Cultivar) %>%
+  #filter(Cultivar=="Woogenellup")%>%
+ # filter (SowTreat== "S2"| SowTreat== "S2"|SowTreat== "S2"|)
+  dplyr::select(Rate) %>%
+  summarise_all(funs(mean,sd)) %>%
+  #Graph
+  ggplot(aes(x=Temp, y=mean,  shape=Cultivar)) +
+  #geom_point(aes(shape)) +
+  geom_point(aes(shape=Cultivar),size=4)+
+  geom_errorbar(data=sd_df, aes(ymin=mean-max_sd,
+                    ymax=mean+max_sd), width=4)+
+  #scale_shape_manual(values = c(0,1,2,3,4))+
+  scale_shape_manual(values = c(1,2,4,7))+
+  labs(x="Temperature",y="Rate 50% germination ") +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1, size =14 ))+
+  theme(axis.text.y = element_text(angle = 0,  size =16 ))+
+  #geom_errorbar(aes(ymin=mean-(sd/2)/2,
+  #ymax=mean+(sd/2)/2))+
+  #facet_wrap(~Cultivar,ncol=2, scales = "free")+
+  facet_wrap(~Cultivar,ncol=2)+
+  #theme_bw()+
+  theme_bw(base_size = 16) +
+  ylim(0,30)
   
-  write.table(df_RateEmerg, "df_RateGerm.txt")
-```
 
 
-make a combo graph with days and rate (as per emergence) grid 
+g <-grid.arrange(g1, g2)
+  
+  #ggsave(file="plot_DAS50E_Rate_Germination.png", width=12, height=6, dpi=400,g)
 
 
-```{r}
-
-
-
-
-
-
+  
 ```
 
 

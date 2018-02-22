@@ -9,7 +9,7 @@ output:
 
 Purpose:
 
--Analysis of DAS50 Pokawa site dataset 
+-Analysis of DAS50 Pokawa site dataset using dataframe generated in script 3 (df_RateEmergPo)
  
 
 ```{r loadLibraries}
@@ -30,7 +30,7 @@ setwd("C:\\GitHubRepos\\SubCloverPhD\\SubClover\\EmergencePoukawa")
 getwd()
 
 #create file
-df_emerg <- read.table("df_tt_50p_emergPo.txt",header=TRUE)
+df_emerg <- read.table("df_RateEmergPo.txt",header=TRUE)
 
 # define factors for the ones that "look like" values
 df_emerg$Plot <- as.factor(df_emerg$Plot)
@@ -73,263 +73,91 @@ str(df_emerg)
 Here only change dataframe name and check
 
 
-```{r ANOVA DAS 50% Emerg}
 
-#compare DAS 50% emerg in eavh Sowing dates and cultivars
-
-df_emerg_perc3 <- df_emerg
-
-
-head(df_emerg_perc3)
-summary (df_emerg_perc3)
-
-write.table(df_emerg_perc3, "df_emerg_perc3.txt")
-str(df_emerg_perc3)
-```
-
-then select each sowing date individually for statistics; here starting with S1  
-
+##Run stats for the number of days to reach 5 ttrifoliates (DAS9T) - general use Sow Treat as Factor 
+##Here run as balanced design 
 
 ```{r}
-df_emerg_S1 <-df_emerg_perc3 %>%
-filter(SowTreat=="S1") 
-summary (df_emerg_S1)  
-  
-```
-
-
-Run ANOVA pure numbers for DAS50Emergence
-Repeat the process for all sowing dates 
-Write in Chapter 4 
-
-```{r}
-#data transf
-file <- df_emerg_S1
-file$transf_no <- 1*(df_emerg_S1$DAS50E)
-head(file)
-
-#-------------------------------------------------
-# ANOVA 
-file.subset <- file 
-
-head(file.subset, 50)
-summary(file.subset)
-#To get means select the factor : SowTreat or Cultivar
-my.anova <- aov(transf_no ~ Cultivar + Block, 
-                data = file.subset)
-
-summary(my.anova)
-
-#Means separation 
-(LSD.test(my.anova, c("Cultivar"), alpha= 0.05, p.adj="none") )
-
-
-```
-
-S2
  
-```{r}
+  file <- df_emerg
 
-df_emerg_S1 <-df_emerg_perc3 %>%
-filter(SowTreat=="S2") 
-summary (df_emerg_S1)  
 
-#data transf
-file <- df_emerg_S1
-file$transf_no <- 1*(df_emerg_S1$DAS50E)
-head(file)
+file.subs <- file 
 
-#-------------------------------------------------
-# ANOVA 
-file.subset <- file 
+head(file.subs)
+summary(file.subs)
 
-head(file.subset, 50)
-summary(file.subset)
-my.anova <- aov(transf_no ~ Cultivar + Block, 
-                data = file.subset)
+#ANOVA
+
+my.anova <- aov(DAS50E ~ SowTreat + Block, data = file.subs)
+#my.anova <- aov(DAS50E ~ Cultivar + Block, data = file.subs)
 
 summary(my.anova)
-
-#Means separation 
-(LSD.test(my.anova, c("Cultivar"), alpha= 0.05, p.adj="none") )
-
-```
-
-S3
-
-```{r}
-df_emerg_S1 <-df_emerg_perc3 %>%
-filter(SowTreat=="S3") 
-summary (df_emerg_S1)  
-
-#data transf
-file <- df_emerg_S1
-file$transf_no <- 1*(df_emerg_S1$DAS50E)
-head(file)
-
-#-------------------------------------------------
-# ANOVA 
-file.subset <- file 
-
-head(file.subset, 50)
-summary(file.subset)
-my.anova <- aov(transf_no ~ Cultivar + Block, 
-                data = file.subset)
-
-summary(my.anova)
-
-#Means separation 
-(LSD.test(my.anova, c("Cultivar"), alpha= 0.05, p.adj="none") )
-
-
-```
-S4
-
-
-```{r}
-df_emerg_S1 <-df_emerg_perc3 %>%
-filter(SowTreat=="S4") 
-summary (df_emerg_S1)  
-
-#data transf
-file <- df_emerg_S1
-file$transf_no <- 1*(df_emerg_S1$DAS50E)
-head(file)
-
-#-------------------------------------------------
-# ANOVA 
-file.subset <- file 
-
-head(file.subset, 50)
-summary(file.subset)
-my.anova <- aov(transf_no ~ Cultivar + Block, 
-                data = file.subset)
-
-summary(my.anova)
-
-#Means separation 
-(LSD.test(my.anova, c("Cultivar"), alpha= 0.05, p.adj="none") )
-
-
-
-```
-
-S5
-
-
-```{r}
-
-df_emerg_S1 <-df_emerg_perc3 %>%
-filter(SowTreat=="S5") 
-summary (df_emerg_S1)  
-
-#data transf
-file <- df_emerg_S1
-file$transf_no <- 1*(df_emerg_S1$DAS50E)
-head(file)
-
-#-------------------------------------------------
-# ANOVA 
-file.subset <- file 
-
-head(file.subset, 50)
-summary(file.subset)
-my.anova <- aov(transf_no ~ Cultivar + Block, 
-                data = file.subset)
-
-summary(my.anova)
-
-#Means separation 
-(LSD.test(my.anova, c("Cultivar"), alpha= 0.05, p.adj="none") )
-
-
-```
-
-S6
-
-```{r}
-df_emerg_S1 <-df_emerg_perc3 %>%
-filter(SowTreat=="S6") 
-summary (df_emerg_S1)  
-
-#data transf
-file <- df_emerg_S1
-file$transf_no <- 1*(df_emerg_S1$DAS50E)
-head(file)
-
-#-------------------------------------------------
-# ANOVA 
-file.subset <- file 
-
-head(file.subset, 50)
-summary(file.subset)
-my.anova <- aov(transf_no ~ Cultivar + Block, 
-                data = file.subset)
-
-summary(my.anova)
-
-#Means separation 
-(LSD.test(my.anova, c("Cultivar"), alpha= 0.05, p.adj="none") )
-
 
 ```
 
 
-S7 
-
 ```{r}
-
-df_emerg_S1 <-df_emerg_perc3 %>%
-filter(SowTreat=="S7") 
-summary (df_emerg_S1)  
-
-#data transf
-file <- df_emerg_S1
-file$transf_no <- 1*(df_emerg_S1$DAS50E)
-head(file)
-
-#-------------------------------------------------
-# ANOVA 
-file.subset <- file 
-
-head(file.subset, 50)
-summary(file.subset)
-my.anova <- aov(transf_no ~ Cultivar + Block, 
-                data = file.subset)
-
-summary(my.anova)
-
-#Means separation 
-(LSD.test(my.anova, c("Cultivar"), alpha= 0.05, p.adj="none") )
+(LSD.test(my.anova, c("SowTreat"), alpha= 0.05, p.adj="none"))
+#(LSD.test(my.anova, c("Cultivar"), alpha= 0.05, p.adj="none"))
 
 ```
-S8
+
+
+then create a loop anova for DAS50E 
+
+
+## Create index to filter for loop ANOVA
 
 ```{r}
-df_emerg_S1 <-df_emerg_perc3 %>%
-filter(SowTreat=="S8") 
-summary (df_emerg_S1)  
+y <- c("S1","S2","S3","S4","S5","S6","S7","S8")
 
-#data transf
-file <- df_emerg_S1
-file$transf_no <- 1*(df_emerg_S1$DAS50E)
-head(file)
+sdIndex <- unique(df_emerg$SowTreat)
 
-#-------------------------------------------------
-# ANOVA 
-file.subset <- file 
+sdIndex[order(match(sdIndex,y))]
 
+length(sdIndex)
+sdIndex
+```
+
+
+then loop anova if significant 
+
+## Then loop anova for each individual sowing date 
+```{r}
+for (i in 1:length(sdIndex)) {
+  
+ #print(i)
+ print(paste0(sdIndex[i],"--------------------------------"))
+  
+  file.subset <- df_emerg %>%
+  filter(SowTreat==sdIndex[i])
+  
+ 
 head(file.subset, 50)
-summary(file.subset)
-my.anova <- aov(transf_no ~ Cultivar + Block, 
-                data = file.subset)
+   summary(file.subset)
+my.anova <- aov(DAS50E ~ Cultivar + Block, data = file.subset)
+print(summary(my.anova))
 
-summary(my.anova)
+if ((summary(my.anova)[[1]][["Pr(>F)"]][1])<0.05) {
+  print("***Sig Cultivar***") 
+  print((LSD.test(my.anova, c("Cultivar"), alpha= 0.05, p.adj="none"))) } 
 
-#Means separation 
-(LSD.test(my.anova, c("Cultivar"), alpha= 0.05, p.adj="none") )
+
+ if ((summary(my.anova)[[1]][["Pr(>F)"]][1])>0.05) {
+   print("***Sig Cultivar***") 
+   print((LSD.test(my.anova, c("Cultivar"), alpha= 0.05, p.adj="none"))) } 
+
+# make mean separation if significant
+
+(LSD.test(my.anova, c("Cultivar"), alpha= 0.05, p.adj="none"))
+  
+}
 
 ```
+
+
+
 End of this script. 
 Continue with ANOVA for TT50 in the next script. 
 

@@ -1,0 +1,244 @@
+---
+title: "Trifoliates Iversen "
+author: "CT"
+date: "17.08.2017"
+output: html_document
+---
+
+Purpose:
+
+-Analysis of trifoliates expansion for Iversen from previous script (use number Trifo)
+- Calculate the time to reach 10 number of leaves
+- Calculate rate of leaf appearance (1/Days) 
+ 
+```{r loadLibraries}
+library(tidyr)
+library (dplyr)
+library (ggplot2)
+library(agricolae)
+library (lubridate)
+library(mosaic)
+library(lattice)
+```
+
+
+
+```{r}
+setwd("C:\\GitHubRepos\\SubCloverPhD\\SubClover\\TrifosNineI2")
+getwd()
+#create file
+df_trif <- read.table("Number_Trifo.txt",header=TRUE)
+str(df_trif)
+
+
+```
+
+
+Define formats 
+
+```{r loadFile}
+
+
+# define factors for the ones that "look like" values
+
+df_trif_worked <- df_trif %>%
+  mutate(SowingDate = ymd(SowingDate), 
+         ReadingDate = ymd(ReadingDate),
+         DAS = as.numeric(DAS),
+         Plot= as.factor(Plot),
+         Block=as.factor(Block),
+         Cultivar=as.factor(Cultivar),
+         SowTreat=as.factor(SowTreat))
+
+ 
+
+
+```
+
+
+```{r}
+
+str(df_trif_worked)
+
+```
+
+
+
+update the loop
+
+```{r}
+
+plots <- unique(df_trif_worked$Plot)
+ 
+df_all <- data.frame()
+
+for(p in 1:length(plots)) {
+
+      # clean value holders
+      DAS_nine_trifos <- 0
+
+  df_sub <- df_trif_worked %>%
+    subset(Plot == plots[p]) %>%
+    arrange(TrifoNumber)
+  
+  df_sub
+  head(df_sub)
+ 
+   # record maximum value recorded to avoid crossing- FIXME: Not needed here?
+  max_trifo <- max(df_sub$TrifoNumber) # create new col
+  
+  # for(z in 1:nrow(df_sub)) {
+  #   
+  #   df_sub$max_run[z] <- max(df_sub$NumberRun[z],
+  #                                df_sub$NumberRun[z-1])
+  #   
+  # }
+  # 
+  df_sub
+  
+  
+  ##############################################
+   # Interpolate 
+  y_ref <- 9 # y value where we want to find x by interpolation in this case needed 9 
+  
+  # interpolate
+  tryCatch(  
+  DAS_nine_trifos <- approx(df_sub$TrifoNumber, 
+  df_sub$DAS, xout = y_ref, rule = 1)$y,
+  error = function(e) 
+  {
+  DAS_nine_trifos <- max_trifo # FIXME: This should give max but gives NA - quick fix below temporarily
+  }
+)
+  
+ # COMPACT SYNTHAX FOR IFELSE when plots had reachedmore than 8 but less than 9 trifoliates ! 
+  
+ DAS_nine_trifos <- ifelse(is.na(DAS_nine_trifos),max_trifo,DAS_nine_trifos) # FIXME: This should be unecessary if try catch gives max value
+ 
+  df_temp <- NULL 
+  df_temp <- data.frame(Cultivar = df_sub$Cultivar[1],
+                             SowTreat = df_sub$SowTreat[1],
+                             Plot = df_sub$Plot[1],
+                             Block = df_sub$Block[1],
+                             DAS_nine_trifos = DAS_nine_trifos,
+                             TrifoNumber = min(y_ref,max_trifo))
+
+#  print(p)
+  
+df_all <- rbind(df_all,df_temp)                 
+  
+  } # end plot loop
+
+summary(df_all)
+
+
+```
+
+
+
+
+Include dates of sowing again in dataframe 
+```{r}
+sdLookup <- data.frame (
+  SowTreat = c("S1","S2","S3","S4","S5","S6","S7","S8"),
+  SowingDate = c("24/06/2015", 
+                 "28/07/2015" ,
+                 "15/09/2015" ,
+                 "5/11/2015" ,
+                 "15/12/2015" ,
+                 "17/02/2016" ,
+                 "15/03/2016",
+                 "4/05/2016"))
+
+sdLookup$SowingDate <- dmy(sdLookup$SowingDate)
+
+df_509T <- merge(df_all, sdLookup, by="SowTreat")
+summary(df_509T)
+
+
+```
+
+
+
+Now correct column names after loop not to mix with other generated tables
+
+```{r}
+
+df_9T<-df_509T%>%
+  mutate(DAS9T=as.numeric(DAS_nine_trifos))%>%
+  dplyr::select(-DAS_nine_trifos)
+
+str(df_9T)
+ 
+
+
+```
+
+
+
+```{r}
+
+write.table(df_9T,"df_DAS_9_Trifo.txt")
+```
+
+
+
+
+Calculate RAte (1/days to 50%) 
+
+
+```{r}
+
+#try 1/DAS50% = Rate
+
+df_RateTrifo <- df_9T %>%
+  mutate(Rate=1/DAS9T)
+
+  summary(df_RateTrifo)
+  
+  write.table(df_RateTrifo,"RateTrifo.txt")
+
+```
+
+
+
+Graph rate and SowTreat
+
+```{r}
+#Graph 
+
+  df_RateTrifo %>%
+  group_by(SowingDate, Cultivar) %>%
+  dplyr::select(DAS9T)%>%
+  summarise_each(funs(mean,sd)) %>%
+  #Graph
+  ggplot(aes(x=SowingDate, y=mean, colour=factor(Cultivar), shape=factor(Cultivar))) +
+  geom_point() +
+  geom_line() +
+  labs(x="Sowing Date",y="1/ Days to 9 trifoliates  ") +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1))+
+  geom_errorbar(aes(ymin=mean-sd/2,
+  ymax=mean+sd/2))+
+  theme_bw()
+
+df_RateTrifo %>%
+  group_by(SowingDate, Cultivar) %>%
+  dplyr::select(Rate) %>%
+  summarise_each(funs(mean,sd)) %>%
+  #Graph
+  ggplot(aes(x=SowingDate, y=mean, colour=factor(Cultivar), shape=factor(Cultivar))) +
+  geom_point() +
+  geom_line() +
+  labs(x="Sowing Date",y="1/ Days to 9 trifoliates  ") +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1))+
+  geom_errorbar(aes(ymin=mean-sd/2,
+  ymax=mean+sd/2))+
+  theme_bw()
+
+```
+
+
+
+
+End of this script Calc 3. 
+Move to script 4 to include temperatures  

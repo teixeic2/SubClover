@@ -70,7 +70,7 @@ Read the soil Temp data with Max an Min records to calculate TT with the 8x3 hou
 setwd("C:\\GitHubRepos\\SubCloverPhD\\SubClover\\EmergenceIv2")
 getwd()
 
-#create file
+#create file for the first trifo still using soil temperature (file SoilTempTXTM; if need air temperature use file RawweaIv in folder TrifoCounts Iv (5 Trifos) )
 df_emerg6 <- read.table("SoilTempTXTM.txt",header=TRUE)
 head(df_emerg6)
 

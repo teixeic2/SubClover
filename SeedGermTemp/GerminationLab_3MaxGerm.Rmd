@@ -28,7 +28,7 @@ str(df_seed)
 
 # jeito 2 de trocar formato (usando dplyr)
 df_seed <- df_seed %>%
-  mutate(Temp = as.factor(Temp), 
+  mutate(Temp = as.numeric(Temp), 
          Block = as.factor(Block),
          PercGerm_cum= as.numeric(PercGerm_cum))
 
@@ -51,7 +51,6 @@ dplyr::select(Temp,Cultivar,PercGerm_cum) %>%
 
 
 ```
-
 
 
 
@@ -89,9 +88,70 @@ facet_wrap(~Cultivar,ncol=2, scales = "free")+
   #labs(y="Maximum germination Percent (%)",x="Temperature")+ 
   geom_abline(intercept = 100, slope = 0, linetype=2)
 
+#ggsave("plot_MaxGerm.png", width=12, height=6, dpi=400)
+
+```
+
+produce the graph with the max error bar 
+
+
+```{r, fig.height=5, fig.width=10}
+
+#then create the error bar position
+#Here how to create the end error bar with max Sd 
+# find size of bar per cultivar and temp
+# find single position of x y to put the bar
+
+#extraPos<- 1.10 # extra position for single error bar
+extraPos<- 1.1 # extra position for single error bar
+x_max<-max(dMax$Temp)
+y_max<-max(dMax$max)
+
+
+sd_df <- dMax %>% 
+  group_by(Cultivar) %>%
+  summarise(max_sd = max(sd)) %>% 
+  ungroup() %>%
+  rowwise() %>%
+  mutate(Temp = x_max*extraPos, max = y_max*extraPos)
+
+summary(sd_df)
+
+
+#make a graph 
+#then graph remember sd/2 because of 4 replicates 
+
+
+dMax %>% 
+  #select( Variable, Cultivar, Temp, mean,sd) %>%
+  ggplot(aes(x=Temp, y=max)) + 
+#  geom_point(data=sd_df,aes(x=DAS,y=NumberRun_mean)) +
+  geom_point(aes(shape=Cultivar), size=4) +
+  scale_shape_manual(values = c(1,2,0,7)) +
+  geom_errorbar(data=sd_df, aes(ymin=max-max_sd/2,
+                    ymax=max+max_sd/2), width=4)+
+  facet_wrap (~Cultivar,ncol=2)+
+  ylim(0,160 ) +
+  ylab(expression(Maximum~Germination~"(%)"))+
+  theme(text = element_text(size=18))+
+  #xlab(expression(Temperature~"("^"o"*"C)"))+
+  #labs(y="Maximum ",x="Temperature")+
+  theme_grey(base_size = 16) +
+  theme_bw()+
+  # geom_abline(intercept = 1, slope = 0, linetype=2)+
+   geom_abline(intercept = 100,  slope = 0, linetype=2)+
+   #geom_abline(intercept = 9,  slope = 0, linetype=2)+
+theme(axis.text.x=element_text(angle = 0, hjust = 0))+
+theme(text = element_text(size = 20))
+
 ggsave("plot_MaxGerm.png", width=12, height=6, dpi=400)
 
 ```
+
+
+
+
+
 
 Get the means/stats  for temperature and cultivar 
 Vaariable : Max Germination 

@@ -86,34 +86,46 @@ DAta visualisation: Graph the seedling population per 1m2
 
 ```
 
-Calculate the percentage of emergence based on maximum plant population 
-
-
+Now Calculate the Percentage of Emergence in relation to the final emergence. Need to calculate the final population first and then estimate the percentage. all  plots have to end up with 100% !! 
+ 
 
 ```{r CalculatePercentageEmergence, fig.height=5, fig.width= 10 }
 
-df_emerg_perc <- df_emerg %>%
+df_FinalPop<- df_emerg %>%
+#not using max pop due to mortality 
+  #group_by(Plot) %>%
+  #mutate(PercEmerg = round(PlantPop/max(PlantPop)*100,digits=2))
+
 group_by(Plot) %>%
-  mutate(PercEmerg = round(PlantPop/max(PlantPop)*100,digits=2))
+  filter(DAS==max(DAS))%>%
+  dplyr::select(PlantPop)%>%
+  summarise_all(funs(max))%>%
+  mutate(FinalPop=round((PlantPop)*1,digits=2))%>%
+  dplyr::select(-PlantPop)
 
 
-# Check
-summary(df_emerg_perc)
-tail(df_emerg_perc)
-df_emerg_perc %>%  filter(Plot=="2")
+#Now merge the two dataframes to calculate the percentage of emergence relative to the final pop 
 
-
-
-
+df_merged1 <- merge(df_FinalPop,df_emerg,by="Plot")%>%
+  mutate(PercFinalEmerg=PlantPop/FinalPop*100)
 
 
 ```
-Graph the percentage of emergence versus days after sowing 
 
 ```{r}
 
+
+```
+
+
+
+
+Graph the percentage of emergence versus days after sowing 
+
+```{r, fig.height=5, fig.width=10}
+
  #Graph         
-  df_emerg_perc %>%  
+  df_merged1 %>%  
    #mutate (SowTreat= factor(SowTreat, levels=c("S2","S3"),labels=c( "March", "May")))%>%
   mutate (SowTreat= factor(SowTreat, levels=c("S1", "S2", "S3", "S4", "S5", "S6","S7","S8"),labels=c("February", "March", "May", "July", "August","October","November","January")))%>%
   group_by(Cultivar, SowTreat, DAS) %>%
@@ -122,84 +134,21 @@ Graph the percentage of emergence versus days after sowing
 #  filter(Cultivar =="Monti") %>%
   dplyr::select(-SowingDate, - ReadingDate) %>%
   summarise_each(funs(mean,sd)) %>%
-  ggplot(aes(x=DAS, y=PercEmerg_mean)) + 
+  ggplot(aes(x=DAS, y=PercFinalEmerg_mean)) + 
   geom_point(aes(colour=Cultivar)) +
   geom_line(aes(colour=Cultivar)) +
   facet_wrap (~SowTreat,ncol=4, scales = "free")+
   labs(y="Percentage  of Seedling emergence (%)",x="Days after sowing") +
     theme_bw()+
   theme(axis.text.x = element_text(angle = 90, hjust = 1))+
-                  geom_errorbar(aes(ymin=PercEmerg_mean-PercEmerg_sd/1.73,
-                    ymax=PercEmerg_mean+PercEmerg_sd/1.73))+
-  ylim(0,100)+
+                  geom_errorbar(aes(ymin=PercFinalEmerg_mean-PercFinalEmerg_sd/1.73,
+                    ymax=PercFinalEmerg_mean+PercFinalEmerg_sd/1.73))+
+  ylim(0,200)+
   geom_abline(intercept = 50, slope = 0)
 ```
 
  
 
-```{r}
-
-```
-
-
-```{r ANOVAMaxPlantPop}
-
-
-
-
-
-
-#data transformation
-file <- df_emerg_perc3
-
-file$transf_sqr <- sqrt(df_emerg_perc3$FinalPop)
-file$transf_log <- log(df_emerg_perc3$FinalPop)
-file$transf_log1 <- log(df_emerg_perc3$FinalPop+1)
-file$transf_no <- 1*(df_emerg_perc3$FinalPop)
-head(file)
-
-
-
-x <- c("transf_sqr", "transf_log","transf_log1", "transf_no")
-colsSelec <- match(x,colnames(file))
-
-file %>%
-  tidyr::gather("transformation","value",colsSelec) %>%
-  ggplot(aes(value)) + 
-  geom_histogram() +
- # facet_wrap(SowTreat~transformation, scales="free", ncol=4) +
-  facet_grid(transformation~SowTreat, scales="free")
-
-head(file)
-
-
-#QQplot
-# var<-file$transf_no
-# qqnorm(var)
-# qqline(var, col = 2)
-# qqplot(var, rt(300))
-
-#-------------------------------------------------
-# ANOVA (selecing by hand FIXME: do loop)
-# file.subset <- file %>% subset(SowTreat == "S2" & round==1)
-file.subset <- file 
-
-head(file.subset, 50)
-summary(file.subset)
-my.anova <- aov(transf_no ~ Cultivar*SowTreat + Block, 
-                data = file.subset)
-
-summary(my.anova)
-
-TukeyHSD(my.anova)
-
-#Means separation 
-(LSD.test(my.anova, c("SowTreat"), alpha= 0.05, p.adj="none") ) 
-(LSD.test(my.anova, c("Cultivar"), alpha= 0.05, p.adj="none") )
-(LSD.test(my.anova, c("SowTreat","Cultivar"), alpha= 0.05, p.adj="none"))
-
-
-```
 
 
 
@@ -234,7 +183,7 @@ Merge the dataframes
 
 # Merge Tt at measurement date
 df_emerg_perc_TT <- NULL
-df_emerg_perc_TT <- merge(df_emerg_perc,df_SoilTT,by.x="ReadingDate",by.y="Date")
+df_emerg_perc_TT <- merge(df_merged1,df_SoilTT,by.x="ReadingDate",by.y="Date")
 df_emerg_perc_TT <- merge(df_emerg_perc_TT,df_SoilTT,by.x="SowingDate",by.y="Date")
 
 df_emerg_perc_TT$TT_to_emerg <- df_emerg_perc_TT$SumTTday.x-df_emerg_perc_TT$SumTTday.y
@@ -242,7 +191,7 @@ summary(df_emerg_perc_TT)
 
 #Remove extra columns 
 df <-df_emerg_perc_TT %>%
-  dplyr::select(SowingDate:DAS, PlantPop:PercEmerg,Pp.x,TT_to_emerg)
+  dplyr::select(SowingDate:DAS, PlantPop:PercFinalEmerg,Pp.x,TT_to_emerg)
 
 summary(df)
 

@@ -108,14 +108,16 @@ calculate mean values for each cultivar and sow Treat
 
 ```{r}
 df_mean<-df_H%>%
-  group_by(Cultivar,SowTreat)%>%
+  mutate(SowMonth= factor(SowTreat, levels=c("S1", "S2", "S3", "S4", "S5", "S6","S7", "S8"),
+                           labels=c("February","March", "May", "July", "August", "October", "November", "January")))%>%
+  group_by(Cultivar,SowTreat,SowMonth)%>%
    summarise_all(funs(mean))
 ```
 
 
 ```{r, fig.height=5, fig.width=10}
 
-fontSize <- 14.0
+fontSize <- 16.0
 
 
 
@@ -126,7 +128,7 @@ fontSize <- 14.0
  # filter (SowTreat== "S3"| SowTreat== "S4"|SowTreat== "S5"|SowTreat== "S6")%>%
     #group_by(Cultivar,SowTreat)%>%
     #summarise_all(funs(mean))
-  ggplot(aes(x=meanTemp_Em, y=DAS50E, colour=SowTreat))  +
+  ggplot(aes(x=meanTemp_Em, y=DAS50E, shape=SowTreat))  +
     geom_point(aes(shape= SowTreat), size=4)+
   scale_shape_manual(values = c(0,1,2,3,4,5,6,7,8))+
  # geom_point(alpha=0.8) +
@@ -144,7 +146,7 @@ fontSize <- 14.0
   g4 <- df_mean %>%
    #filter(Cultivar=="Monti"| Cultivar=="Antas")%>%
   #filter (SowTreat== "S3"| SowTreat== "S4"|SowTreat== "S5"|SowTreat== "S6")%>%
-  ggplot(aes(x=meanTemp_Em, y=InvDAS50E, colour=SowTreat))  +
+  ggplot(aes(x=meanTemp_Em, y=InvDAS50E, shape=SowTreat))  +
     geom_point(aes(shape= SowTreat), size=4)+
   scale_shape_manual(values = c(0,1,2,3,4,5,6,7,8))+
   #geom_point(alpha=0.8) +
@@ -157,13 +159,81 @@ fontSize <- 14.0
   theme(text = element_text(size=11))+
  scale_x_continuous(limits = c(0,25))+
   scale_y_continuous(limits = c(0,0.25))
-  grid.arrange(g3, g4)
+  #grid.arrange(g3, g4)
+  
+  
+  g <-grid.arrange(g3, g4)
+  #ggsave(file="plot_DAS50E_Rate_Pok.png", width=12, height=6, dpi=400,g)
+
+```
+
+try adding the sowing month instead of sowTreat 
+
+
+
+```{r, fig.height=5, fig.width=10}
+
+fontSize <- 16.0
+
+
+
+#DAS50E
+#
+  g5 <- df_mean %>%
+  #filter(Cultivar=="Monti"| Cultivar=="Antas")%>%
+ # filter (SowTreat== "S3"| SowTreat== "S4"|SowTreat== "S5"|SowTreat== "S6")%>%
+    #group_by(Cultivar,SowTreat)%>%
+    #summarise_all(funs(mean))
+  ggplot(aes(x=meanTemp_Em, y=DAS50E, shape=SowMonth))  +
+    geom_point(aes(shape= SowMonth), size=4)+
+  scale_shape_manual(values = c(0,1,2,3,4,5,6,7,8))+
+ # geom_point(alpha=0.8) +
+  #geom_smooth()+
+  #stat_smooth(level = 0.9, size = 1, colour="white") + 
+  theme_bw() +
+  xlab(expression(Estimated~Soil~temperature~~"("^"o"*"C)")) +  
+  ylab("Days to 50% emergence  (days)") +
+    facet_grid(.~Cultivar, scales="free")+
+  theme(text = element_text(size=11))+
+  scale_x_continuous(limits = c(0,25))+
+  scale_y_continuous(limits = c(0,40))
+
+# 1/DAS50E
+  g6 <- df_mean %>%
+   #filter(Cultivar=="Monti"| Cultivar=="Antas")%>%
+  #filter (SowTreat== "S3"| SowTreat== "S4"|SowTreat== "S5"|SowTreat== "S6")%>%
+  ggplot(aes(x=meanTemp_Em, y=InvDAS50E, shape=SowMonth))  +
+    geom_point(aes(shape= SowMonth), size=4)+
+  scale_shape_manual(values = c(0,1,2,3,4,5,6,7,8))+
+  #geom_point(alpha=0.8) +
+  #geom_smooth(colour="red")+
+  #stat_smooth(level = 0.9, size = 1, colour="white") + 
+  theme_bw() +
+  xlab(expression(Estimated~Soil~temperature~~"("^"o"*"C)")) + 
+  ylab(" Rate (1/ Days) to 50% emergence") +
+  facet_grid(.~Cultivar, scales="free")+
+  theme(text = element_text(size=11))+
+ scale_x_continuous(limits = c(0,25))+
+  scale_y_continuous(limits = c(0,0.20))
+  #grid.arrange(g3, g4)
+  
+  
+  g <-grid.arrange(g5, g6)
+  ggsave(file="plot_DAS50E_Rate_Pok.png", width=12, height=6, dpi=400,g)
 
 ```
 
 
 
+
+
+
 ```{r}
+
+
+
+
+
 
 ```
 

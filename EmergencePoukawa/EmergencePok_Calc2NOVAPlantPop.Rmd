@@ -114,6 +114,7 @@ summary(my.anova)
 
 
 
+
 Then select each sowing date individually to perform ANOVA; here starting with S1  
 
 
