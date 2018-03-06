@@ -49,7 +49,6 @@ str(dfDAS50)
 ```
 
 
-
 Graph DAS 50 vs temperature 
 
 
@@ -85,7 +84,7 @@ facet_wrap(~Cultivar,ncol=2, scales = "free")+
   #labs(y="Maximum germination Percent (%)",x="Temperature") 
   #geom_abline(intercept = 100, slope = 0)
 
-  ggsave("plot_Days50Germ.png", width=12, height=6, dpi=400)
+   ggsave("plot_Days50Germ.png", width=12, height=6, dpi=400)
 
 ```
 
@@ -127,6 +126,7 @@ summary(file.subset)
 
 #ANOVA
 my.anova <- aov(DAS50E~ Cultivar*Temp + Block, data = file.subset)
+#my.anova <- aov(DAS50E~ Temp + Block, data = file.subset)
 #my.anova <- aov(TSW ~ Cultivar*Depth + Block, data = file.subset)
 summary(my.anova)
 ```

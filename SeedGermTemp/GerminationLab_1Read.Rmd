@@ -84,10 +84,13 @@ y_max<-max(df_seed1$mean)
 # find largest standard error
 sd_df <- df_seed1 %>% 
   group_by(Temp) %>%
-  summarise(max_sd = max(sd)) %>% 
+  dplyr::select(sd)%>%
+  summarise_all(max)%>%
+  #summarise(max_sd = max(sd)) %>% 
   ungroup() %>%
   rowwise() %>%
-  mutate(DAS = x_max*extraPos, mean = y_max*extraPos)
+  #rename variables
+  mutate(DAS = x_max*extraPos, mean = y_max*extraPos,max_sd=sd )
 
 summary(sd_df)
 

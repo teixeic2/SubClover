@@ -156,7 +156,9 @@ df_H <- df_file_Hourly %>%
     rowwise() %>%
   mutate(TThour=int_func(temp,TT,AI_TEMP)) %>%
   group_by(Date) %>%
-  summarise(TTday=mean(TThour)) %>%
+  dplyr::select(TThour)%>%
+  summarise_all(funs(mean))%>%
+  mutate(TTday=TThour) %>%
   mutate(SumTTday = cumsum(TTday))
 
 summary(df_H)

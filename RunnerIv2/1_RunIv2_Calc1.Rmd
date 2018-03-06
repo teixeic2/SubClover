@@ -75,14 +75,14 @@ df_RunMean<-df_trifo_worked %>%
   #dplyr::select(NumberRun)+
   summarise_all(funs(mean,sd))
 
-
+str(df_RunMean)
 
 ```
 
 
 ```{r}
 
-# find size of bar per month
+# find size of bar overall!!! Here is not calculating per month!!! see chunck below 
 # find single position of x y to put the bar
 
 extraPos<- 1.10 # extra position for single error bar
@@ -104,6 +104,30 @@ summary(sd_df)
 
 
 ```{r , fig.height=5, fig.width= 15}
+
+#Here how to create the end error bar with max Sd 
+# find size of bar per month
+# find single position of x y to put the bar
+
+extraPos<- 1.10 # extra position for single error bar
+
+x_max<-max(df_RunMean$DAS)
+y_max<-max(df_RunMean$NumberRun_mean)
+
+# find largest standard error for each sowing date 
+sd_df2 <- df_RunMean %>% 
+  group_by(SowMonth) %>%
+  #summarise(max_sd = max(NumberRun_sd)) %>% 
+  #mutate(max_sd=max(NumberRun_sd))%>%
+  dplyr::select(NumberRun_sd)%>%
+  summarise_all(funs(max))%>%
+  ungroup() %>%
+  rowwise() %>%
+  mutate(DAS = x_max*extraPos, NumberRun_mean = y_max*extraPos, max_sd=NumberRun_sd)
+
+summary(sd_df2)
+
+
 # set a lo
 df_RunMean %>% 
   select(DAS, Cultivar, NumberRun_mean,NumberRun_sd) %>%
@@ -111,10 +135,10 @@ df_RunMean %>%
 #  geom_point(data=sd_df,aes(x=DAS,y=NumberRun_mean)) +
   geom_point(aes(shape=Cultivar), size=4) +
   scale_shape_manual(values = c(1,2,0)) +
-  geom_errorbar(data=sd_df, aes(ymin=NumberRun_mean-max_sd,
+  geom_errorbar(data=sd_df2, aes(ymin=NumberRun_mean-max_sd,
                     ymax=NumberRun_mean+max_sd), width=4)+
   facet_wrap (~SowMonth,ncol=4)+
-  ylim(0,20) +
+  ylim(0,20 ) +
   labs(y="Number of runners",x="Days after sowing")+
   theme_grey(base_size = 16) +
   theme_bw()+

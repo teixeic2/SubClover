@@ -110,10 +110,12 @@ y_max<-max(dMax$max)
 
 sd_df <- dMax %>% 
   group_by(Cultivar) %>%
-  summarise(max_sd = max(sd)) %>% 
+  dplyr::select(sd)%>%
+  summarise_all(funs(max))%>%
+  #summarise(max_sd = max(sd)) %>% 
   ungroup() %>%
   rowwise() %>%
-  mutate(Temp = x_max*extraPos, max = y_max*extraPos)
+  mutate(Temp = x_max*extraPos, max = y_max*extraPos, max_sd=sd)
 
 summary(sd_df)
 
@@ -134,7 +136,7 @@ dMax %>%
   ylim(0,160 ) +
   ylab(expression(Maximum~Germination~"(%)"))+
   theme(text = element_text(size=18))+
-  #xlab(expression(Temperature~"("^"o"*"C)"))+
+  xlab(expression(Temperature~"("^"o"*"C)"))+
   #labs(y="Maximum ",x="Temperature")+
   theme_grey(base_size = 16) +
   theme_bw()+
@@ -185,9 +187,9 @@ summary(my.anova)
 
 ```{r}
 
-(LSD.test(my.anova, c( "Cultivar"), alpha= 0.05, p.adj="none"))
-
-#(LSD.test(my.anova, c("Cultivar", "Temp"), alpha= 0.05, p.adj="none"))
+#(LSD.test(my.anova, c( "Cultivar"), alpha= 0.05, p.adj="none"))
+#(LSD.test(my.anova, c( "Temp"), alpha= 0.05, p.adj="none"))
+(LSD.test(my.anova, c("Cultivar", "Temp"), alpha= 0.05, p.adj="none"))
 ```
 
 

@@ -1,0 +1,330 @@
+
+---
+title: 'Incubator temperatures '
+author: "CT"
+date: "12.2.2018"
+output:
+  word_document: default
+  html_document: default
+  pdf_document: default
+---
+
+This script calculates the Thermal time using the incubator temperatures : 
+1. hourly as average of the 30minutes  measurements 
+2. simple linear method ; super simple calculation Tb = 0 and no treshold for none of the cultivars 
+3. Uses the datapoints for each linear ascending equation 
+
+For Antas
+
+'Antas'	ascending	 2.5-20
+'Antas'	descending 	25-35
+'Denmark'	ascending	2.5-25
+'Denmark'	descending	25-25
+'Monti'	ascending	2.5-17.5
+'Monti'	descending	25-35
+'Narrikup'	ascending	2.5-17.5
+'Narrikup'	descending	25-35
+
+
+```{r}
+library(tidyr)
+library (dplyr)
+library (ggplot2)
+library (lubridate)
+library (scales)
+library(gridExtra)
+library(knitr)
+```
+
+
+
+## 
+# ATTENTION HERE ; select the Tb according to Cultivar 
+
+Cultivar	Tb 	Topt 	Tmax
+		(oC)	
+'Antas'	-2.7 (±0.9)	22.0 (±1.4)	36.0 (±0.4)
+'Denmark'	 1.7 (±0.3)	24.0 (±0.4)	35.0 (±0.3)
+'Monti'	-0.7 (±0.3)	19.0 (±1.7)	37.0 (±0.7)
+'Narrikup'	 0.9 (±0.6)	16.0 (±1.0)	39.0 (±0.3)
+
+							
+```{r}
+
+tt_card <- data.frame(temp=c(-0.7,40,40,40),TT=c(0,40,40,40))
+#tt_card <- data.frame(temp=c(0,40,40,40),TT=c(0,40,40,40))
+tt_card %>%
+  ggplot(aes(x=temp, y=TT))+
+  labs(x="Temperature (degree Celsius)")+
+  labs(y="Thermal Time (degree days)") +
+  theme_bw()+
+  geom_line()
+  
+```
+
+
+
+```{r}
+
+ 
+
+#Create and test interpolation function - Test if works 
+
+temp_ref  <- 20 # x-axes reference
+temp <- tt_card$temp # x-axes
+TT <- tt_card$TT # y-axes
+
+
+int_func <- function(temp,TT,temp_ref){
+
+  # if temp is too low or too high give extreme TT values
+ if(temp_ref>temp[length(temp)]) {
+   
+   out <- TT[length(TT)] 
+   # FIXME: approx functions seems to do that - need param
+   
+ } else if (temp_ref<temp[1]) {
+   
+   out <- TT[1]
+   
+ } else {
+   
+   # else interpolate
+   
+   tryCatch(  
+   
+  out <- approx(temp, TT, xout = temp_ref, 
+         method="linear", 
+         rule = 2)$y,
+  error = function(e) 
+  {
+  out <- NA
+  }
+) 
+  
+} # end if check
+
+  return(out)  
+  
+ }
+  
+int_func(temp,TT,temp_ref)
+
+
+```
+
+
+
+
+Note: this file produces the graphs for recorded temperatues i incubators  
+
+```{r, load file}
+
+setwd("C:\\GitHubRepos\\SubCloverPhD\\SubClover\\SeedGermTemp")
+getwd()
+#read data , use row.names=NULL to delete Error message 
+
+df_file <- read.table("TempIncub.txt",header =TRUE,row.names= NULL )
+
+```
+
+```{r}
+summary(df_file)
+```
+
+##Method 1. TT calculate hourly from measurements every 30 minutes!!!  
+
+```{r}
+
+#Average the Temp per Hour
+
+df_file_Hourly<- df_file %>%
+  mutate(Date=dmy(Date)) %>%
+  group_by(Date, Hour)%>%
+  dplyr::select(RecTemp )%>%
+  summarise_all(funs(mean))
+  
+str(df_file_Hourly)
+```
+
+`
+
+Connect function TT calculation 
+
+
+```{r}
+
+
+df_H <- df_file_Hourly %>%
+  #dplyr::select(Date:RecTemp) %>%
+    rowwise() %>%
+  mutate(TThour=int_func(temp,TT,RecTemp)) %>%
+   group_by(Date) %>%
+    dplyr::select(TThour)%>%
+   summarise_all(funs(mean))%>% 
+    mutate(TTday=TThour)%>%
+  dplyr::select(-TThour)%>%
+    mutate(SumTTday = cumsum(TTday))
+
+summary(df_H)
+str(df_H)
+#write.table(df_H, "SumTTHourGC.txt")
+
+
+```
+
+
+Now merge with the dates of start (sowing) and the dates to reach 50% germination
+1. Bring data frame with relevant info with dates 
+2. Select the cultivar and temperature range to work 
+
+Example : Antas 
+subset(Temp>2 & Temp<22)%>%
+  filter(Cultivar=="Antas") %>%
+  --------------------------------------
+  Denmark 
+  subset(Temp>2 & Temp<26)%>%
+  filter(Cultivar=="Denmark") %>%
+  ------------------------------------
+  
+  Monti
+  subset(Temp>2 & Temp<17.7)%>%
+  filter(Cultivar=="Monti") 
+  -----------------------------------------
+  
+  subset(Temp>2 & Temp<17.7)%>%
+  filter(Cultivar=="Narrikup")
+  ----------------------------------------
+
+```{r}
+
+setwd("C:\\GitHubRepos\\SubCloverPhD\\SubClover\\SeedGermTemp")
+getwd()
+#read data , use row.names=NULL to delete Error message 
+
+df_GDates <- read.table("SeedGerm1.txt",header =TRUE,row.names= NULL )
+str(df_GDates)
+
+# select cultivars of interest , temperatures of interest and then only Plot and StartDate
+
+D<-df_GDates %>%
+  ###ATTENTION HERE - select! 
+  subset(Temp>2 & Temp<17.7)%>%
+  filter(Cultivar=="Denmark") %>%
+  dplyr::select(Plot,startDate)%>%
+  mutate(startDate=dmy(startDate))
+  
+  
+
+str(D)
+
+```
+
+
+Then bring dataframe with the number of days to DAS50
+
+
+
+```{r}
+
+setwd("C:\\GitHubRepos\\SubCloverPhD\\SubClover\\SeedGermTemp")
+getwd()
+#read data , use row.names=NULL to delete Error message 
+
+df_germ <- read.table("df_RateGerm.txt",header =TRUE,row.names= NULL )
+str(df_germ)
+
+```
+
+Select
+
+							
+```{r}
+
+E <-df_germ %>%
+dplyr::select(Cultivar, Block,Plot,DAS50E)
+
+summary(E)
+
+df_germ <- NULL
+
+
+
+```
+
+merge the dataframes by Plot 
+```{r}
+
+
+#Merge the two dataframes by plot
+
+
+df_M <- merge(D,E,by ="Plot")
+str(df_M)
+head(df_M)
+
+#Then calculate the date to 50% Emergence sum the date or sowing + DAS50E
+#Note df_Md has duplicated rows - fix it!! 
+
+df_MD <- df_M %>%
+  mutate(Date50E=startDate+DAS50E) %>%
+  group_by(Plot, DAS50E) %>% 
+  dplyr::filter(row_number() == 1)
+
+str(df_MD)
+#Here DAte50E is included no need to change format 
+
+# mutate(Date50E = dmy(Date50E)
+
+E <- D <- df_M <- NULL
+
+
+
+```
+
+
+
+figure out how to calculate tt at sow (start) then tt at the date of 50 emergence make one minus another to find TT emerg 
+
+```{r}
+df1 <- merge(df_MD,df_H, by.x="startDate",by.y="Date") %>%
+  mutate(SumTT_sow = SumTTday) %>%
+  dplyr::select(-SumTTday)
+  #filter(Cultivar=="Antas")
+
+str(df1)
+```
+then subtract from the SummTT at the date of 50% germ 
+
+```{r}
+
+
+# force formats of dates
+df1$Date <- round(df1$Date50E,0)
+df_H$Date <- round(df_H$Date,0)
+
+df2 <-  merge(df1,df_H, by="Date") %>%
+  mutate(SumTT_DAS50Germ = SumTTday) %>%
+  dplyr::select(-SumTTday)%>%
+  mutate(SumTTGerm = SumTT_DAS50Germ-SumTT_sow)
+
+str(df2)
+
+
+```
+get the means for each cultivar 
+
+```{r}
+
+dfMean_Allcv<- df2 %>%
+  #group_by(Cultivar)%>%
+  dplyr::select(SumTTGerm)%>%
+  summarise_all(funs(mean,sd))%>%
+  mutate(SE=sd/2)
+
+
+
+
+```
+
+

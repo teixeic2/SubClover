@@ -22,7 +22,7 @@ setwd("C:\\GitHubRepos\\SubCloverPhD\\SubClover\\SeedGermTemp")
 getwd()
 
 #create file Use here df_RAteGErm2 as it has the zeros to include in graphics 
-df_seed <- read.table("df_RateGerm2.txt",header=TRUE)
+df_seed <- read.table("df_RateGerm.txt",header=TRUE)
 str(df_seed)
 # change format with  base R)
 #df_seed$Date <- dmy(df_seed$Date)
@@ -42,9 +42,9 @@ Need to fix here ...Replace the NA's per zero values to graphic it
 
 ```{r}
 dfTT <-df_seed %>%
-  dplyr:: select(-Rate,-PercEmerg)%>%
-  subset(DAS50E>0.7 )%>%
-  subset(Temp>3 & Temp<25)%>%
+  dplyr:: select(-Rate,-PercentRelative)%>%
+ # subset(DAS50E>0.7 )%>%
+  subset(Temp>2.5 & Temp<25)%>%
   mutate(TT=(Temp*DAS50E))
   
 dfTT2 <- dfTT %>%
@@ -76,7 +76,7 @@ group_by( Cultivar) %>%
 dodge_x <- position_dodge(width = 0.9)
   # here sd/4 correspond to standard error 
   a %>%
-  ggplot(aes(x=Cultivar, y=(mean), fill=Cultivar)) +
+  ggplot(aes(x=Cultivar, y=(mean))) +
   geom_bar(stat="identity",position = dodge_x) +
   geom_errorbar(aes(ymin=mean-sd/4,
                     ymax=mean+sd/4),
@@ -100,9 +100,6 @@ Vaariable : TT
   #Prepare data frame for ANOVA
 df_s<- dfTT
   
-  
-
-
 #-------------------------------------------------
 # anova 
 file <- df_s

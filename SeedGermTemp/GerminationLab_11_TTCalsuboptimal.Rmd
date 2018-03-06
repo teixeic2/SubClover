@@ -22,7 +22,7 @@ setwd("C:\\GitHubRepos\\SubCloverPhD\\SubClover\\SeedGermTemp")
 getwd()
 
 #create file Use here df_RAteGErm2 as it has the zeros to include in graphics 
-df_seed <- read.table("df_RateGerm2.txt",header=TRUE)
+df_seed <- read.table("df_RateGerm.txt",header=TRUE)
 str(df_seed)
 # change format with  base R)
 #df_seed$Date <- dmy(df_seed$Date)
@@ -39,19 +39,62 @@ str(df_seed) # check formats
 ```
 
  Ttsub= from Tb to Topt; Ttsup= from Topt to Tmax.
- Here select first cultivar Antas range of suboptimal is Tb= 0.05 and Topt = 19.7
-
+ Here select first cultivar Antas range of suboptimal is Tb= -2.7
+ 
+ 
 ```{r}
 dfTT <-df_seed %>%
-  dplyr:: select(-Rate,-PercEmerg)%>%
+  dplyr:: select(-Rate,-PercentRelative)%>%
   filter(Cultivar=="Antas")%>%
   subset(DAS50E>0.7 )%>%
   subset(Temp>0.05 & Temp<19.7)%>%
-  mutate(TT=(Temp*DAS50E))
-  
+  mutate(TTzero=(Temp*DAS50E))%>%
+  mutate(TTbased=((Temp-(-2.7))*DAS50E))
+
 dfTTAntasTTsub <- dfTT %>%
   group_by( Cultivar) %>%
-  dplyr::select(TT) %>%
+  dplyr::select( TTbased) %>%
+  summarise_all(funs(mean,sd))%>%
+  mutate(SE=sd/2)
+  
+
+
+```
+ 
+ for Denmark : Tb = 1.7
+
+```{r}
+
+dfTTD <-df_seed %>%
+  dplyr:: select(-Rate,-PercentRelative)%>%
+  filter(Cultivar=="Denmark")%>%
+  subset(DAS50E>0.7 )%>%
+  subset(Temp>0.05 & Temp<19.7)%>%
+  mutate(TTzero=(Temp*DAS50E))%>%
+  mutate(TTbased=((Temp-1.7)*DAS50E))
+
+dfTTDenmarkTTsub <- dfTTD %>%
+  group_by( Cultivar) %>%
+  dplyr::select( TTbased) %>%
+  summarise_all(funs(mean,sd))%>%
+  mutate(SE=sd/2)
+```
+
+
+Monti, Tb= -0.7
+
+```{r}
+dfTTM <-df_seed %>%
+  dplyr:: select(-Rate,-PercentRelative)%>%
+  filter(Cultivar=="Monti")%>%
+  subset(DAS50E>0.7 )%>%
+  subset(Temp>0.05 & Temp<19.7)%>%
+  mutate(TTzero=(Temp*DAS50E))%>%
+  mutate(TTbased=((Temp-(-0.7))*DAS50E))
+
+dfTTMontiTTsub <- dfTTM %>%
+  group_by( Cultivar) %>%
+  dplyr::select( TTbased) %>%
   summarise_all(funs(mean,sd))%>%
   mutate(SE=sd/2)
 
@@ -59,20 +102,103 @@ dfTTAntasTTsub <- dfTT %>%
 ```
 
 
+Narrikup, Tb= 0.8
+
+```{r}
+
+dfTTN <-df_seed %>%
+  dplyr:: select(-Rate,-PercentRelative)%>%
+  filter(Cultivar=="Narrikup")%>%
+  subset(DAS50E>0.7 )%>%
+  subset(Temp>0.05 & Temp<19.7)%>%
+  mutate(TTzero=((Temp-0.8)*DAS50E))%>%
+  mutate(TTbased=((Temp-1.7)*DAS50E))
+
+dfTTNarrikupTTsub <- dfTTN %>%
+  group_by( Cultivar) %>%
+  dplyr::select( TTbased) %>%
+  summarise_all(funs(mean,sd))%>%
+  mutate(SE=sd/2)
+
+```
+
+then bind all df with all plots to perform anova with the TT calculated with the estimated base temperatures 
+dfTT; dfTTD; dfTTM, dfTTN
+
+
+```{r}
+
+
+totalTT <- rbind(dfTT, dfTTD, dfTTM, dfTTN)
+
+```
+
+then ANOVA 
+
+```{r}
+
+
+#prepare for  anova 
+file <- totalTT
+
+file.subset <- file 
+
+head(file.subset)
+summary(file.subset)
+
+```
+
+
+```{r}
+
+#ANOVA
+my.anova <- aov(TTbased~ Cultivar + Block, data = file.subset)
+#my.anova <- aov(TSW ~ Cultivar*Depth + Block, data = file.subset)
+summary(my.anova)
+
+```
+
+
+```{r}
+
+(LSD.test(my.anova, c("Cultivar"), alpha= 0.05, p.adj="none"))
+```
+
 
 summary of linear regressions :
 
-
 Appendix ZZ. Table XX. Segmented linear regressions and coefficients applied to estimate cardinal temperatures for germination of sub clover cultivars 'Antas', 'Denmark', 'Monti' and 'Narrikup' under constant temperatures. 
-Cultivar	Regression 	intercept	SE (intercept)	slope	SE(slope)	R2	P value
-Antas'	ascending	0.05	0.0095	0.029	0.0007	0.98	<0.001
-Antas'	descending	1.81	0.34	-0.052	0.011	0.83	0.263
-Denmark'	ascending	-0.11	0.02	0.042	0.0017	0.97	<0.01
-Denmark'	descending	1.55	0.23	-0.046	0.0085	0.79	0.11
-Monti'	ascending	-0.02	0.00	0.03	0.00	0.93	<0.001
-Monti'	descending	0.68	0.12	-0.02	0.00	0.86	0.24
-Narrikup'	ascending	-0.07	0.03	0.04	0.00	0.88	0.00
-Narrikup'	descending	1.11	0.19	-0.04	0.01	0.85	0.25
+Cultivar	Regression 	intercept	slope	R2	P value
+'Antas'	ascending	0.08 (±0.04)	0.03 (±0.002) 	93	<0.001
+'Antas'	descending	1.8 (±0.6)	-0.05 (±0.02)	84	0.3
+Denmark'	ascending	-0.07 (±0.04)	0.042 (±0.004)	95	<0.001
+Denmark'	descending	1.7 (±0.9)	-0.043(±0.04)	79	0.11
+Monti'
+ascending
+0.02(±0.04)
+0.03(±0.002)
+94
+<0.001
+Monti'
+descending
+1.0 (±0.34)
+-0.03(±0.006)
+84
+0.3
+Narrikup'
+ascending
+-0.025(±0.06)
+0.03(±0.006)
+85
+0.003
+Narrikup'
+descending
+0.9(±0.24)
+-0.02(±0.008)
+83
+0.3
+
+
 
 
 Calculations Ttsub and Ttsup

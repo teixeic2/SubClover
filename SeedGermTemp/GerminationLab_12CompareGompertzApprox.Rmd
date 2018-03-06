@@ -1,0 +1,214 @@
+---
+title: "Compare results of Gompertz Sigmaplot and  "
+author: "CT"
+date: "07.10..2017"
+output: html_document
+---
+
+This script does this:
+
+-get dataframe produced in by comparing Gompertz sigmaplot(GermDataFitSigma.xls) with approx values produced in script 2 
+
+
+
+
+```{r loadLibraries, warning=FALSE}
+library(tidyr)
+library(dplyr)
+library(ggplot2)
+library(agricolae)
+library(knitr)
+library(lubridate)
+library(mosaic)
+library(lattice)
+library (gridExtra)
+```
+
+get file 
+
+```{r loadFile}
+# Get dataframe from previous script (written table )
+setwd("C:\\GitHubRepos\\SubCloverPhD\\SubClover\\SeedGermTemp")
+getwd()
+
+#create file
+df_GAprox <- read.table("CompareGompertzApproxFunction.txt",header=TRUE)
+
+
+str(df_GAprox)
+
+
+```
+
+select columns of interest and Adjust formats 
+```{r}
+
+#change formats
+df_GAprox$Cultivar <- as.factor(df_GAprox$Cultivar)
+df_GAprox$Block <- as.factor(df_GAprox$Block)
+df_GAprox$Plot <- as.factor(df_GAprox$Plot)
+df_GAprox$Temp <- as.numeric(df_GAprox$Temp)#note Temp here needs to be numeric for subseting 
+
+
+str(df_GAprox)
+
+# this is to "clean previous dfs : df_emerg4 <- NULL
+```
+
+rename variables
+
+
+
+```{r}
+
+
+df_graph <-df_GAprox %>%
+  mutate(y=DAS50Germ_Gompertz,x=DAS50Germ_Approx) %>%
+  dplyr::select(-DAS50Germ_Approx, -DAS50Germ_Gompertz,-Plot)
+
+str(df_graph)
+
+```
+
+got the means here ... and graph it
+
+```{r, fig.height=5, fig.width=15, echo = FALSE}
+df_graph%>%
+ggplot(aes(x=x, y=y))  +
+  geom_point(aes(shape=Cultivar), size=4) +
+  scale_shape_manual(values = c(1,2,0,7)) +
+  #geom_line(colour="grey", linetype=2)+
+  #stat_smooth(level = 0.9, size = 1, colour="white") + 
+  theme_bw() +
+ # xlab(expression(Gompertz~estimated~days"("*"DAS50"*")")) + 
+  ylab("  Days to 50% germination-Gompertz ")+
+  xlab(" Days to 50% germination -Approx") +
+  facet_grid(.~Cultivar, scales="free")+
+  theme(text = element_text(size=12))+
+ scale_x_continuous(limits = c(0,16))+
+  scale_y_continuous(limits = c(0,16))+
+   geom_abline(intercept = 5,  slope = 0, linetype=2)
+
+
+ggsave("plot_GompertzApprox.png", width=12, height=6, dpi=400)
+
+```
+
+
+
+here get the equations for the Antas subset (min to optimum)  
+
+```{r, fig.height=5,fig.width=10}
+require(ggplot2)
+require(plyr)
+require(dplyr)
+
+lm_eqn = function(df){
+  m = lm(y ~ x, df);
+  eq <- substitute(italic(y) == a + b %.% italic(x)*","~~italic(r)^2~"="~r2, 
+                   list(a = format(coef(m)[1], digits = 2), 
+                        b = format(coef(m)[2], digits = 2), 
+                        r2 = format(summary(m)$r.squared, digits = 3)))
+  as.character(as.expression(eq));                 
+}
+
+#use all datapoints 
+df <- df_graph
+  #dplyr::select(Temp,Cultivar, Plot) %>%
+  #group_by(Temp)%>%
+  #summarise_all(funs(mean)) 
+  #mutate(y=Rate,x=Temp) %>%
+  #dplyr::select(-Temp, -Rate)
+
+eq <- ddply(df,.(Cultivar),lm_eqn)
+
+yx<-quantile(df$y,0.75)
+xn<- quantile(df$x,0.25)
+
+p <- ggplot(data = df, aes(x = x, y = y)) +
+  geom_smooth(method = "lm", se=FALSE, color="black", formula = y ~ x) +
+  geom_point(aes(colour = factor(Temp)), size=5) + scale_shape(solid = FALSE)+ 
+  
+  theme_bw()+
+  scale_x_continuous(limits = c(0,25))+
+  scale_y_continuous(limits = c(0,25))
+
+p1 <- p + geom_text(data=eq,aes(x = xn, y = yx,label=V1), parse = TRUE, inherit.aes=FALSE)  +
+  facet_grid(Cultivar~.,scales="free")
+  
+p1
+```
+(parei aqui ..update table )
+
+```{r}
+#get statistical summary here 
+summary(lm(y ~ x, df))
+```
+
+
+
+get confidential intervals 
+
+```{r}
+
+ 
+confint(lm(y ~ x, df))
+
+
+```
+
+now perform anova with the two values as factor (Temp, cultivar, ValueDAS) compare if they are stts differnet 
+
+```{r}
+
+#transform Gompertz and Approx values as variables. Prepare dataframe
+
+str(df_GAprox)
+
+df_gathered <-df_GAprox%>%
+  gather(key= "Method" , value = "DAS50" , DAS50Germ_Gompertz,DAS50Germ_Approx)%>%
+  mutate(Method=as.factor(Method), 
+         DAS50=as.numeric(DAS50),
+         Temp=as.factor(Temp)
+         )
+  str(df_gathered)
+
+```
+
+Anova
+```{r}
+
+
+# anova 
+
+file.subset <- df_gathered
+
+head(file.subset)
+str(file.subset)
+```
+
+Check if method has any significant difference! 
+
+```{r}
+
+#ANOVA
+
+
+my.anova <- aov(DAS50 ~ Method*Temp + Cultivar, data = file.subset)
+summary(my.anova)
+
+```
+
+There is no significant differencesbetween the methods !!!! P= 0.4!! Now do the mean separation to confirm
+
+```{r}
+
+#(LSD.test(my.anova, c("Method", "Cultivar"), alpha= 0.05, p.adj="none")) 
+(LSD.test(my.anova, c("Method", "Temp"), alpha= 0.05, p.adj="none")) 
+
+```
+
+
+conclusion : o differences between the methods!!! 
+
+End of this script

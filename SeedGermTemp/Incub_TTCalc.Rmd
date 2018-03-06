@@ -1,0 +1,281 @@
+
+---
+title: 'Incubator temperatures '
+author: "CT"
+date: "12.2.2018"
+output:
+  word_document: default
+  html_document: default
+  pdf_document: default
+---
+
+This script calculates the Thermal time using the incubator temperatures : 
+1. hourly as average of the 30minutes  measurements 
+2. simple linear method ; super simple calculation Tb = 0 and no treshold for none of the cultivars 
+
+```{r}
+library(tidyr)
+library (dplyr)
+library (ggplot2)
+library (lubridate)
+library (scales)
+library(gridExtra)
+library(knitr)
+```
+
+Equation  to calculate the TT 
+
+
+
+## Define Tt cardinal temperatures
+
+Considered an overall average the following references:
+Tb: 0.0
+Top range:18-25
+Tmax: 35
+REFS: MonksEtAl2009	,LonatiEtAl2009	,MootEtal2003, SilsburyetAl1984. 
+							
+```{r}
+
+tt_card <- data.frame(temp=c(0,15,22,35),TT=c(0,15,15,0))
+tt_card %>%
+  ggplot(aes(x=temp, y=TT))+
+  labs(x="Temperature (degree Celsius)")+
+  labs(y="Thermal Time (degree days)") +
+  theme_bw()+
+  geom_line()
+  
+```
+
+
+
+```{r}
+
+ 
+
+#Create and test interpolation function - Test if works 
+
+temp_ref  <- 20 # x-axes reference
+temp <- tt_card$temp # x-axes
+TT <- tt_card$TT # y-axes
+
+
+int_func <- function(temp,TT,temp_ref){
+
+  # if temp is too low or too high give extreme TT values
+ if(temp_ref>temp[length(temp)]) {
+   
+   out <- TT[length(TT)] 
+   # FIXME: approx functions seems to do that - need param
+   
+ } else if (temp_ref<temp[1]) {
+   
+   out <- TT[1]
+   
+ } else {
+   
+   # else interpolate
+   
+   tryCatch(  
+   
+  out <- approx(temp, TT, xout = temp_ref, 
+         method="linear", 
+         rule = 2)$y,
+  error = function(e) 
+  {
+  out <- NA
+  }
+) 
+  
+} # end if check
+
+  return(out)  
+  
+ }
+  
+int_func(temp,TT,temp_ref)
+
+
+```
+
+
+
+
+Note: this file produces the graphs for recorded variables in growht cabinet. measurements are done every 18 seconds. 
+
+```{r, load file}
+
+setwd("C:\\GitHubRepos\\SubCloverPhD\\SubClover\\SeedGermTemp")
+getwd()
+#read data , use row.names=NULL to delete Error message 
+
+df_file <- read.table("TempIncub.txt",header =TRUE,row.names= NULL )
+
+```
+
+```{r}
+summary(df_file)
+```
+
+##Method 1. TT calculate hourly from measurements every 30 minutes!!!  
+
+```{r}
+
+#Average the Temp per Hour
+
+df_file_Hourly<- df_file %>%
+  mutate(Date=dmy(Date)) %>%
+  group_by(Date, Hour)%>%
+  dplyr::select(RecTemp )%>%
+  summarise_all(funs(mean))
+  
+str(df_file_Hourly)
+```
+
+`
+
+Connect function TT calculation 
+
+
+```{r}
+
+
+df_H <- df_file_Hourly %>%
+  #dplyr::select(Date:RecTemp) %>%
+    rowwise() %>%
+  mutate(TThour=int_func(temp,TT,RecTemp)) %>%
+   group_by(Date) %>%
+    dplyr::select(TThour)%>%
+   summarise_all(funs(mean))%>% 
+    mutate(TTday=TThour)%>%
+  dplyr::select(-TThour)%>%
+    mutate(SumTTday = cumsum(TTday))
+
+summary(df_H)
+str(df_H)
+#write.table(df_H, "SumTTHourGC.txt")
+
+
+```
+
+
+Now merge with the dates of start (sowing) and the dates to reach 50% germination
+1. Bring data frame with relevant info with dates 
+
+
+
+
+```{r}
+
+setwd("C:\\GitHubRepos\\SubCloverPhD\\SubClover\\SeedGermTemp")
+getwd()
+#read data , use row.names=NULL to delete Error message 
+
+df_GDates <- read.table("SeedGerm1.txt",header =TRUE,row.names= NULL )
+str(df_GDates)
+
+# select only Plot and StartDate
+
+D<-df_GDates %>%
+  dplyr::select(Plot,startDate)%>%
+  mutate(startDate=dmy(startDate))
+str(D)
+
+```
+
+
+Then bring dataframe with the number of days to DAS50
+
+
+
+```{r}
+
+setwd("C:\\GitHubRepos\\SubCloverPhD\\SubClover\\SeedGermTemp")
+getwd()
+#read data , use row.names=NULL to delete Error message 
+
+df_germ <- read.table("df_RateGerm.txt",header =TRUE,row.names= NULL )
+str(df_germ)
+
+```
+
+Select
+
+							
+```{r}
+
+E <-df_germ %>%
+dplyr::select(Cultivar, Block,Plot,DAS50E)
+
+summary(E)
+
+df_germ <- NULL
+
+
+
+```
+
+merge the dataframes by Plot 
+```{r}
+
+
+#Merge the two dataframes by plot
+
+
+df_M <- merge(D,E,by ="Plot")
+str(df_M)
+head(df_M)
+
+#Then calculate the date to 50% Emergence sum the date or sowing + DAS50E
+#Note df_Md has duplicated rows - fix it!! 
+
+df_MD <- df_M %>%
+  mutate(Date50E=startDate+DAS50E) %>%
+  group_by(Plot, DAS50E) %>% 
+  dplyr::filter(row_number() == 1)
+
+str(df_MD)
+#Here DAte50E is included no need to change format 
+
+# mutate(Date50E = dmy(Date50E)
+
+E <- D <- df_M <- NULL
+
+
+
+```
+
+
+
+figure out how to calculate tt at sow (start) then tt at the date of 50 emergence make one minus another to find TT emerg 
+
+```{r}
+df1 <- merge(df_MD,df_H, by.x="startDate",by.y="Date") %>%
+  mutate(SumTT_sow = SumTTday) %>%
+  dplyr::select(-SumTTday)
+  #filter(Cultivar=="Antas")
+
+str(df1)
+```
+then subtract from the SummTT at the date of 50% germ 
+
+```{r}
+
+
+# force formats of dates
+df1$Date <- round(df1$Date50E,0)
+df_H$Date <- round(df_H$Date,0)
+
+df2 <-  merge(df1,df_H, by="Date") %>%
+  mutate(SumTT_DAS50Germ = SumTTday) %>%
+  dplyr::select(-SumTTday)%>%
+  mutate(SummTTGerm = (SumTT_DAS50Germ-SumTT_sow))
+
+str(df2)
+
+
+```
+
+
+
+

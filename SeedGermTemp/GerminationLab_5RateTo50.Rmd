@@ -20,7 +20,7 @@ library (lubridate)
 setwd("C:\\GitHubRepos\\SubCloverPhD\\SubClover\\SeedGermTemp")
 getwd()
 
-#create file Use here df_RAteGErm2 as it has the zeros to include in graphics. No need for that anymore FIXED! 
+#create file Use here df_RAteGErm2 as it has the zeros to include in graphics. No need for that anymore FIXED in script 2 ! 
 df_seed <- read.table("df_RateGerm.txt",header=TRUE)
 str(df_seed)
 # change format with  base R)
@@ -115,7 +115,7 @@ summary(file.subset)
 ```{r}
 
 #ANOVA
-my.anova <- aov(DAS50E~ Cultivar*Temp + Block, data = file.subset)
+my.anova <- aov(Rate~ Cultivar*Temp + Block, data = file.subset)
 #my.anova <- aov(TSW ~ Cultivar*Depth + Block, data = file.subset)
 summary(my.anova)
 ```

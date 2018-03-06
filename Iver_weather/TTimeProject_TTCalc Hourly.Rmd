@@ -108,10 +108,17 @@ df_W <- df_W_raw %>%
   dplyr::select(Date:TempAir) %>%
   mutate(Date=dmy(Date)) %>%
   rowwise() %>%
-  mutate(TThour=int_func(x_temp, y_TT,TempAir)) %>%
+  mutate(TThour=int_func(x_temp, y_TT,TempAir))
+
+
+#then average the TT per Date
+  df_W <-df_W %>%
   group_by(Date) %>%
-  summarise(TTday=mean(TThour)) %>%
-  mutate(SumTTday = cumsum(TTday))
+    dplyr::select(TThour)%>%
+   summarise_all(funs(mean))%>% 
+    mutate(TTday=TThour)%>%
+    mutate(SumTTday = cumsum(TTday))
+  
 
 summary(df_W)
 
@@ -186,7 +193,7 @@ write.table(dfMax_MinAir, "MinMaxAirIv.txt")
 
 ```
 
-
+Here consider daily temps adjusted by the 3x8 formula
 
 
 ```{r}

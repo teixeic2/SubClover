@@ -98,6 +98,52 @@ write.table(df_50_Perc,"dataToCurveFitGerm.txt")
 ```
 
 
+graph the data of one plot to add in material and methods (compare with gompertz ). use Narrikup at 10 oC as example 
+
+
+
+```{r, fig.height=5, fig.width=8}
+
+df_N <-df_50_Perc %>%
+filter(Plot=="131")%>%
+  #filter(Cultivar=="Narrikup")%>%
+  #filter(Temp==10.0)%>%
+  group_by(DAS,Cultivar)%>%
+  dplyr::select(PercentRelative)%>%
+  summarise_all(funs(mean,sd))
+  
+
+
+df_N %>%
+ggplot(aes(x=DAS, y=mean, shape=Cultivar))+  # do percentage here
+  #geom_point(size =4 )+
+  geom_line(aes(), linetype= 2, colour="grey")+
+  geom_point(aes(shape=Cultivar), size=5) +
+  scale_shape_manual(values = c(7)) +
+  geom_errorbar(aes(ymin=mean-sd/4,
+  ymax=mean+sd/4))+
+  #facet_wrap (~Plot,ncol=2)+
+  ylim(0,110 ) +
+   xlim(0,16 ) +
+  labs(y="Cumulative germination %",x="Days")+
+  #theme_grey(base_size = 16) +
+  theme_bw()+
+  # geom_abline(intercept = 1, slope = 0, linetype=2)+
+   #geom_abline(intercept = 5,  slope = 0, linetype=2)+
+   geom_abline(intercept = 50,  slope = 0, linetype=2)+
+theme(axis.text.x=element_text(angle = 0, hjust = 0))+
+theme(text = element_text(size = 20))
+
+
+ #ggsave("plot_Example_Narrikup_DAS50Perc_Germ.png", width=12, height=6, dpi=400)
+
+
+```
+
+
+
+
+
 use PercRelative to calculate 50 Perc of germ.
 
 ```{r}
@@ -286,13 +332,14 @@ extraPos<- 1.2 # extra position for single error bar
 x_max<-max(df_Rate_MeanD$Temp)
 y_max<-max(df_Rate_MeanD$mean)
 
-# find largest standard error
+# find largest standard error for each cultivar 
 sd_df <- df_Rate_MeanD %>% 
   group_by(Cultivar) %>%
-  summarise(max_sd = max(sd)) %>% 
+  dplyr:: select(sd)%>%
+  summarise_all(funs(max))%>% 
   ungroup() %>%
   rowwise() %>%
-  mutate(Temp = x_max*extraPos, mean = y_max*extraPos)
+  mutate(Temp = x_max*extraPos, mean = y_max*extraPos, max_sd=sd)
 
 summary(sd_df)
 
@@ -307,11 +354,13 @@ df_Rate_MeanD %>%
 #  geom_point(data=sd_df,aes(x=DAS,y=NumberRun_mean)) +
   geom_point(aes(shape=Cultivar), size=4) +
   scale_shape_manual(values = c(1,2,0,7)) +
-  geom_errorbar(data=sd_df, aes(ymin=mean-max_sd,
-                    ymax=mean+max_sd), width=4)+
+  geom_errorbar(data=sd_df, aes(ymin=mean-max_sd/2,
+                    ymax=mean+max_sd/2), width=4)+
   facet_wrap (~Cultivar,ncol=2)+
   ylim(0,20 ) +
-  labs(y="Days 50% germination",x="Temperature")+
+  #labs(y="Days 50% germination",x="Temperature")+
+  ylab(expression(Days~to~50~"%"~Germination))+
+  xlab(expression(Temperature~"("^"o"*"C)"))+
   theme_grey(base_size = 16) +
   theme_bw()+
   # geom_abline(intercept = 1, slope = 0, linetype=2)+
@@ -325,6 +374,9 @@ theme(text = element_text(size = 20))
 
 
 ```
+
+
+
 
 
 
@@ -351,15 +403,16 @@ y_max<-max(df_Rate_MeanR$mean)
 # find largest standard error
 sd_df1 <- df_Rate_MeanR %>% 
   group_by(Cultivar) %>%
-  summarise(max_sd = max(sd)) %>% 
+  dplyr:: select(sd)%>%
+  summarise_all(funs(max))%>%
   ungroup() %>%
   rowwise() %>%
-  mutate(Temp = x_max*extraPos, mean = y_max*extraPos)
+  mutate(Temp = x_max*extraPos, mean = y_max*extraPos, max_sd=sd)
 
 summary(sd_df1)
 
 #make a graph 
-#then graph 
+#then graph and remember to divide the sd /2 because of the 4 replicates 
 
 
 df_Rate_MeanR %>% 
@@ -368,11 +421,13 @@ df_Rate_MeanR %>%
 #  geom_point(data=sd_df,aes(x=DAS,y=NumberRun_mean)) +
   geom_point(aes(shape=Cultivar), size=4) +
   scale_shape_manual(values = c(1,2,0,7)) +
-  geom_errorbar(data=sd_df1, aes(ymin=mean-max_sd,
-                    ymax=mean+max_sd), width=4)+
+  geom_errorbar(data=sd_df1, aes(ymin=mean-max_sd/2,
+                    ymax=mean+max_sd/2), width=4)+
   facet_wrap (~Cultivar,ncol=2)+
-  ylim(0,1.4 ) +
-  labs(y="Germination rate (1/days)",x="Temperature")+
+  ylim(0,1.3 ) +
+  ylab(expression(Germination~Rate~"(1/Days)"))+
+  xlab(expression(Temperature~"("^"o"*"C)"))+
+  #labs(y="Germination rate (1/days)",x="Temperature")+
   theme_grey(base_size = 16) +
   theme_bw()+
   # geom_abline(intercept = 1, slope = 0, linetype=2)+

@@ -5,8 +5,12 @@ date: "28.12. 2017"
 output: html_document
 ---
 Purpose : 
-se
-Calculation for the cumulative seedling numbers for the subset of 7 cultivars 
+
+Calculation for the cumulative seedling numbers for the subset of 7 cultivars.
+
+
+
+
 
 
 
@@ -68,13 +72,15 @@ Filter treatments and cultivars of interest
 df_fileSub <-file %>%
   #filter(Month !="JuneMid")%>%
   filter(Treat=="Cut")%>%
-  filter(Cultivar=="Antas"| 
-         Cultivar=="Denmark"|
-         Cultivar=="Coolamon"|
-           Cultivar=="MountBarker"|
-           Cultivar=="Narrikup"|
-           Cultivar=="Rosabrook"|
-           Cultivar=="Woogenellup")
+
+   filter(Cultivar=="Antas"|
+          Cultivar=="Denmark"|
+          Cultivar=="Coolamon"|
+            Cultivar=="MountBarker"|
+            Cultivar=="Narrikup"|
+            Cultivar=="Rosabrook"|
+             #Cultivar=="Whatawhata"|
+            Cultivar=="Woogenellup")
 
 
 ```
@@ -152,13 +158,16 @@ Then merge with dataframe which contains the total number of seeds per m2 to cal
 df_seedSub <- seed %>%
   filter(Year !="2017")%>%
   filter(Treat=="Cut")%>%
-  filter(Cultivar=="Antas"| 
-         Cultivar=="Denmark"|
-         Cultivar=="Coolamon"|
-           Cultivar=="MountBarker"|
-           Cultivar=="Narrikup"|
-           Cultivar=="Rosabrook"|
-           Cultivar=="Woogenellup")%>%
+  
+  
+filter(Cultivar=="Antas"|
+          Cultivar=="Denmark"|
+          Cultivar=="Coolamon"|
+            Cultivar=="MountBarker"|
+            Cultivar=="Narrikup"|
+            Cultivar=="Rosabrook"|
+            #Cultivar=="Whatawhata"|
+            Cultivar=="Woogenellup")%>%
   dplyr::select(Plot,SeedsPerM2)
 
 
@@ -188,6 +197,38 @@ df_total<-df_total %>%
 ```
 
 
+```{r,fig.height=8; fig.widht=18}
+
+checkMean <-df_total %>%
+  #filter(Month!=JuneMid)%>%
+  group_by(Cultivar,Month)%>%
+  dplyr::select(PercLostSeeds)%>%
+  summarise_all(funs(mean))
+
+checkMean %>%
+   filter(Month== "January"|Month== "March")%>%
+  ggplot(aes(x=Cultivar, y=PercLostSeeds)) + 
+   geom_point(aes(shape= Cultivar,colour = Cultivar), size=6)+
+  scale_shape_manual(values = c(0,1,2,3,4,5,6,7,8,9,10,11,12,13,14))+
+     #labs(x="Hours",y="Cummulative Germination Percent(%)")+
+  #facet_grid(.~Temp)
+  #facet_wrap(.~Temp, ncol=6)
+
+facet_wrap(~Month, scales = "free")+
+  #facet_wrap(Variable~Month2)+
+  theme_bw(base_size=16)+
+  #scale_x_continuous(breaks = c(1,200,300))+
+  #scale_y_continuous(limits = c(min_xy, max_xy))+
+  #xlim(0, 6)+
+  theme(axis.text.x=element_text(angle = +90, hjust = 0, size= 7))+
+  theme(axis.text.y=element_text(angle = +0, hjust = 0, size= 14))+
+  theme(axis.title.y = element_text(angle = 90, hjust = 0.5, size= 12))+
+  labs(y= "       Percentage lost seeds (%)  ",
+       x="Hardseed Rank ")
+ # geom_abline(intercept = 50, slope = 0)
+
+#ggsave( "plot_SeedLostwhata_.png", width=15, height=10, dpi=400)
+```
 
 
 
@@ -230,13 +271,6 @@ df_gathered<-df_totalRankMean %>%
   gather(key= "Variable" , value = "Value" , NumberRemainSeeds,PercRemainSeeds,PercLostSeeds)
 ```
 
-```{r}
-
-
-```
-
-
-
 
 
 Plot mean percent of  remaining seeds against hard Rank in June 
@@ -255,9 +289,9 @@ df_gathered %>%
   
   #filter(Month=="March")%>%
 ggplot(aes(x=HardseedRank, y=Value)) + 
-  
+  #ggplot(aes(x=Variable, y=Value)) + 
    geom_point(aes(shape= Cultivar), size=6)+
-  scale_shape_manual(values = c(0,1,2,3,4,5,6,7))+
+  scale_shape_manual(values = c(0,1,2,3,4,5,6,7,8))+
      #labs(x="Hours",y="Cummulative Germination Percent(%)")+
   #facet_grid(.~Temp)
   #facet_wrap(.~Temp, ncol=6)
@@ -265,14 +299,14 @@ ggplot(aes(x=HardseedRank, y=Value)) +
 facet_wrap(Variable~Month2, scales = "free")+
   #facet_wrap(Variable~Month2)+
   theme_bw(base_size=16)+
-  scale_x_continuous(breaks = c(1,200,300))+
+  #scale_x_continuous(breaks = c(1,200,300))+
   #scale_y_continuous(limits = c(min_xy, max_xy))+
-  xlim(0, 6)+
+  #xlim(0, 6)+
   theme(axis.text.x=element_text(angle = +0, hjust = 0, size= 16))+
   theme(axis.text.y=element_text(angle = +0, hjust = 0, size= 14))+
   theme(axis.title.y = element_text(angle = 90, hjust = 0.5, size= 12))+
-  labs(y= "       Percentage            (%)                                       Number of remaining seeds per m2 ",
-       x="Hardseed Rank ")
+  labs(y= "       Percentage            (%)                                                                 Number of remaining seeds per m2 ",
+       x="Hardseed Rank ")  
  # geom_abline(intercept = 50, slope = 0)
 
  ggsave( "plot_SeedRemainPerc_.png", width=15, height=10, dpi=400)

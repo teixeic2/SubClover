@@ -1,0 +1,164 @@
+---
+title: "ReAnalysis Location Map"
+author: "CT"
+date: "06 march 2018"
+output:
+  word_document: default
+  html_document: default
+note: Re analysis data compilation; map of locations
+---
+
+Aim:
+
+- Reads file MapLocation.txt with eperiments coordinates
+
+- Check the data
+
+- Graph a map 
+
+
+
+```{r loadLibraries}
+library("maps")
+library(tidyr)
+library(ggmap)
+library(ggplot2)
+library("dplyr")
+library(ggthemes)
+library(readxl)
+library(GGally)
+
+```
+Here loading the database : publication, location and dates of experiments 
+
+
+```{r   loadFile}
+setwd("C:\\GitHubRepos\\SubCloverPhD\\SubClover\\ReAnalysis")
+getwd()
+
+
+#create file
+sites <- read.table("MapLocations.txt",header=TRUE)
+
+#head(df_Data)
+
+summary(sites)
+
+
+
+
+```
+
+```{r fig.height=5, fig.width=20}
+
+#sites <- data.frame(lat=c(lat),long=c(long),region=c("Here"))
+
+#sites %>%
+if (require("maps")) {
+  # Create a lat-long dataframe from the maps package
+  nz <- map_data("nz")
+ # nz <- map_data("world2")
+  # Prepare a plot of the map
+  nzmap <- ggplot(nz, aes(x = long, y = lat, group = region)) +
+ #   geom_polygon()
+    geom_polygon(fill = "white", colour = "black")
+  
+  # Plot it in cartesian coordinates
+  nzmap
+  # With correct mercator projection
+  nzmap + coord_map()
+  # With the aspect ratio approximation
+  nzmap + coord_quickmap() +geom_point(data = sites, aes(x=long, y=lat, group = region, color = region), shape = 21,size=2, alpha=.9)
+}
+
+```
+
+```{r, fig.width=15}
+library(ggmap)
+
+map <- get_map(location = c(lon = 165, lat = -35), maptype = c("terrain"), zoom = 3)
+map
+ggmap(map) + geom_point(data = sites, aes(x=long, y=lat, group = region, color = region, size=DataPoints), alpha=.9) # ,shape=21
+```
+
+Check data quality , graph
+
+```{r}
+df_Data %>%
+  ggplot(aes(x=Location,y=DaysToFlower))+
+  geom_jitter(width = 0.2)+
+  geom_boxplot(alpha=0.2)+
+theme(axis.text.x = element_text(angle = 90, hjust = 1))+
+  
+  facet_wrap(~Country)
+```
+
+
+```{r, }
+
+
+  df_Data%>%
+  ggplot(aes(x=month(SowingDate),y=DaysToFlower,colour=Location, shape=Country))+
+  geom_jitter(width = 0.2)+
+  geom_point(alpha=0.2)+
+  theme(axis.text.x = element_text(angle = 90, hjust = 1))+
+  
+  facet_wrap(~Country)
+```
+
+
+```{r, fig.height=5, fig.width=10,warning=FALSE}
+
+df_Data%>% 
+  ggplot(aes(x=month(SowingDate), y=DaysToFlower))+
+  geom_boxplot()+
+  geom_jitter(width = 0.1, aes(colour=Location))+
+  theme(axis.text.x = element_text(angle = 90, hjust = 1))+
+  #theme(legend.position="none")+
+  labs(x=" Month", y="Days to flower")+
+  facet_wrap(~Country)
+
+
+```
+
+
+Graph Box Plot 
+
+```{r GraphBoxPlot, warning=FALSE}
+
+# Graph DAS and Location 
+
+df_Data %>%
+  filter(Location != "Canberra"& Location != "Lismore") %>%
+  ggplot(aes(x=Country, y=DaysToFlower)) + 
+  geom_boxplot(alpha =0.2) +
+  geom_violin(alpha =0.2)+
+  geom_jitter(aes(colour=Location), width=0.25)+
+  labs(y="DAS to flower ",x="Country")
+  
+
+```
+
+
+```{r}
+# Graph DAS and Location by month 
+
+df_Data %>%
+  filter(Location != "Canberra"& Location != "Lismore"& Location != "Perth") %>%
+  ggplot(aes(x=month(SowingDate), y=DaysToFlower))+
+  geom_boxplot(alpha=0.2)+
+  geom_jitter(width = 0.1, aes(colour=Location))+
+  theme(axis.text.x = element_text(angle = 90, hjust = 1))+
+  
+  #theme(legend.position="none")+
+  xlab("Month")+ ylab (expression(paste("PM(",mu, "g/", m^3,")", sep=""))) +
+     scale_x_discrete(labels=month.abb) +
+  facet_wrap(~Country)
+```
+
+
+
+```{r}
+write.table(df_Data,file="df_DaysToFlower.txt", row.names = FALSE, quote = FALSE, sep="\t")
+```
+
