@@ -76,9 +76,11 @@ if (require("maps")) {
 ```{r, fig.width=15}
 library(ggmap)
 
-map <- get_map(location = c(lon = 165, lat = -35), maptype = c("terrain"), zoom = 3)
+map <- get_map(location = c(lon = 150, lat = -35),  zoom = 3)
 map
-ggmap(map) + geom_point(data = sites, aes(x=long, y=lat, group = region, color = region, size=DataPoints), alpha=.9) # ,shape=21
+ggmap(map) + geom_jitter(data = sites, aes(x=long, y=lat, group = region, color = region, size=DataPoints), alpha=0.6) +
+ylim(-47,0)  + xlim(110,180) 
+
 ```
 
 Check data quality , graph
