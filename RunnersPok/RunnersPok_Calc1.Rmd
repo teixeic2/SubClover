@@ -73,7 +73,7 @@ df_run %>% filter(Plot ==1) %>% summary()
 
 Stop here !!!not finished
 
-```{r ANOVAMaxPlantPop}
+```{r ANOVA}
 
 #compare max plant population among Sowing dates and cultivars
 

@@ -38,19 +38,24 @@ Cultivar	Tb 	Topt 	Tmax
 'Denmark'	 1.7 (±0.3)	24.0 (±0.4)	35.0 (±0.3)
 'Monti'	-0.7 (±0.3)	19.0 (±1.7)	37.0 (±0.7)
 'Narrikup'	 0.9 (±0.6)	16.0 (±1.0)	39.0 (±0.3)
+And a generic proposed funciton uses : 0 ,20 and 35 
 
 							
 ```{r}
 #Antas
 #tt_card <- data.frame(temp=c(-2.7,22,22,36),TT=c(0,22,22,0))
+
 #Denmark
 #tt_card <- data.frame(temp=c(1.7,24,24,35),TT=c(0,24,24,0))
 
 #Monti
-tt_card <- data.frame(temp=c(-0.7,19,19,37),TT=c(0,19,19,0))
+#tt_card <- data.frame(temp=c(-0.7,19,19,37),TT=c(0,19,19,0))
 
 #Narrikup
-#tt_card <- data.frame(temp=c(0.9,16,16,39),TT=c(0,19,19,0))
+tt_card <- data.frame(temp=c(0.9,16,16,39),TT=c(0,19,19,0))
+
+#Generic
+#tt_card <- data.frame(temp=c(0,20,20,35),TT=c(0,20,20,0))
 
 
 #tt_card <- data.frame(temp=c(0,40,40,40),TT=c(0,40,40,40))
@@ -60,11 +65,47 @@ tt_card %>%
   labs(y="Thermal Time (degree days)") +
   xlab(expression(Temperature~~"("^"o"*"C)"))+
   ylab(expression(Thermal~time~~"("^"o"*"Cd)"))+
+  xlim(-3, 40)+
   theme_bw()+
-  geom_line()
+  #geom_smooth
+  geom_line()+
+  theme(axis.title.x=element_text(angle = 0, hjust = 0.5, size= 14))+
+theme(axis.title.y=element_text(angle = 90, hjust = 0.5, size= 14))
+theme(axis.text.x=element_text(angle = 0, hjust = 0, size= 14))+
+theme(axis.text.y=element_text(angle = 0, hjust = 0, size= 14))
   
 
 ```
+
+```{r}
+
+#save HD graphs here 
+#"antas" 
+
+#ggsave("plot_BilinearAntasc.png", width=12, height=6, dpi=400)
+
+#Denmark
+
+#ggsave("plot_BilinearDenmark.png", width=12, height=6, dpi=400)
+
+
+#Monti
+
+#ggsave("plot_BilinearMonti.png", width=12, height=6, dpi=400)
+
+#Narrikup
+
+#ggsave("plot_BilinearNarrikup.png", width=12, height=6, dpi=400)
+
+
+#generic
+
+ ggsave("plot_BilinearGeneric.png", width=12, height=6, dpi=400)
+
+```
+
+
+
 
 
 
