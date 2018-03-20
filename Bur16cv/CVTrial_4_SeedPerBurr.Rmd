@@ -92,7 +92,7 @@ df_burSE<-file %>%
   #ggplot(aes(x=Cultivar, y=(SeedsPerBur_mean),fill=colPal)) +
   ggplot(aes(x=Cultivar, y=(SeedsPerBur_mean),fill=Cultivar))+
   geom_bar(stat="identity", position = dodge_x) +
-  geom_errorbar(aes(ymin=SeedsPerBur_mean-SE/2, ymax=SeedsPerBur_mean+SE/2),
+  geom_errorbar(aes(ymin=SeedsPerBur_mean-SE, ymax=SeedsPerBur_mean+SE),
                 width=0.25, size=0.3,position=dodge_x)   +
   theme_grey(base_size = 16) +
     facet_grid(.~Treat) +
@@ -109,6 +109,53 @@ theme(axis.text.x=element_text(angle = 90, hjust=0.95,vjust=0.2,size = 12))
 
 ```
 
+Select the seven cultivars and do graph 
+
+
+```{r, fig.height=6, fig.width=12}
+
+
+
+fileSeven2 <-file %>%
+  filter(Cultivar=="Antas"|
+          Cultivar=="Denmark"|
+          Cultivar=="Coolamon"|
+            Cultivar=="MountBarker"|
+            Cultivar=="Narrikup"|
+            Cultivar=="Rosabrook"|
+            #Cultivar=="Whatawhata"|
+            Cultivar=="Woogenellup")
+
+fileSeven3 <-fileSeven2 %>%
+  group_by(Cultivar) %>%
+  dplyr::select(SeedsPerBur)%>%
+  summarise_each(funs(mean,sd))
+
+
+# define position of bar and errorbar
+dodge_x <- position_dodge(width = 0.9)
+#need to divide by 4 to get the SE !!! 
+fileSeven3%>%
+  ggplot(aes(x=Cultivar, y=(mean),fill=Cultivar))+
+  geom_bar(stat="identity", position = dodge_x, fill = "cornsilk4") +
+  geom_errorbar(aes(ymin=mean-sd/4, ymax=mean+sd/4),
+                width=0.25, size=0.3,position=dodge_x)   +
+  theme_grey(base_size = 16) +
+    #facet_grid(.~Treat) +
+    #labs(y="Seeds per Burr") +
+  ylab(expression(Seeds~per~"Burr")) +
+  theme_bw()+
+theme(axis.text.y = element_text( size = 14))+
+theme(axis.title.y = element_text(face="bold", size=18))+
+theme(axis.text.x=element_text(angle = 0, hjust=0.5,vjust=0,size = 11))+
+theme(axis.title.x = element_text(face="bold", size=16))
+
+
+ggsave( "plot_SeedsPerBur_.png", width=15, height=10, dpi=400)
+
+
+
+```
 
 
 
@@ -117,7 +164,8 @@ Do ANOVA simple as per D. Saville :each seson and variate separately
 Select year and variable to analyse
 
 ```{r}
-df_seedANOVA <- file 
+#df_seedANOVA <- file 
+df_seedANOVA <- fileSeven2
 #filter(Year=="2016")%>%
    #select_(Cultivar:SeedsPerBur)
 ```
@@ -148,14 +196,14 @@ and then consider cultivar within each sowing date
 #ANOVA
 
 #my.anova <- aov(PropBurrBuried ~ Cultivar + Block, data = file.subset)
-my.anova <- aov(SeedsPerBur ~ Cultivar*Treat + Block, data = file.subset)
+my.anova <- aov(SeedsPerBur ~ Cultivar + Block, data = file.subset)
 summary(my.anova)
 ```
 
 ```{r}
 #Means separation after ANOVA
-(LSD.test(my.anova, c("Treat"), alpha= 0.05, p.adj="none")) 
-#(LSD.test(my.anova, c("Cultivar"), alpha= 0.05, p.adj="none")) 
+#(LSD.test(my.anova, c("Treat"), alpha= 0.05, p.adj="none")) 
+(LSD.test(my.anova, c("Cultivar"), alpha= 0.05, p.adj="none")) 
 ```
 
 Perform anova in cultivars 

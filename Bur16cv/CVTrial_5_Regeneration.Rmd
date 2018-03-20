@@ -193,7 +193,8 @@ filesub <- file %>%
 ##Filter the month 
 df_seedANOVA <- filesub %>%
 filter(Month=="January")%>%
-dplyr:: select(Cultivar:SeedlingPerm2)
+#dplyr:: select(Cultivar:SeedlingPerm2)
+dplyr:: select(Cultivar:Score)
 ```
 
 subset for anova
@@ -222,7 +223,9 @@ and then consider cultivar within each sowing date
 #ANOVA
 
 #my.anova <- aov(PropBurrBuried ~ Cultivar + Block, data = file.subset)
-my.anova <- aov(SeedlingPerm2 ~ Cultivar + Block, data = file.subset)
+#my.anova <- aov(SeedlingPerm2 ~ Cultivar + Block, data = file.subset)
+#perform for score as well to check 
+my.anova <- aov(Score~ Cultivar + Block, data = file.subset)
 summary(my.anova)
 ```
 
@@ -267,7 +270,8 @@ Select month and variable to analyse
 str(file)
 df_seedANOVA2 <- filesub %>%
 filter(Month=="March")%>%
-   dplyr::select(Cultivar,Plot,Block,Treat, SeedlingPerm2)
+   #dplyr::select(Cultivar,Plot,Block,Treat, SeedlingPerm2)
+  dplyr::select(Cultivar,Plot,Block,Treat, Score)
 ```
 
 
@@ -296,7 +300,8 @@ Here Analyse
 #ANOVA
 
 #my.anova <- aov(PropBurrBuried ~ Cultivar + Block, data = file.subset)
-my.anova <- aov(SeedlingPerm2 ~ Cultivar + Block, data = file.subset2)
+#my.anova <- aov(SeedlingPerm2 ~ Cultivar + Block, data = file.subset2)
+my.anova <- aov(Score ~ Cultivar + Block, data = file.subset2)
 summary(my.anova)
 ```
 
@@ -399,7 +404,8 @@ Run ANova
 #ANOVA
 
 #my.anova <- aov(PropBurrBuried ~ Cultivar + Block, data = file.subset)
-my.anova <- aov(SeedlingPerm2 ~ Cultivar , data = file.subset3)
+#my.anova <- aov(SeedlingPerm2 ~ Cultivar , data = file.subset3)
+my.anova <- aov(Score ~ Cultivar , data = file.subset3)
 summary(my.anova)
 ```
 

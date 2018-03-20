@@ -1,0 +1,139 @@
+---
+title: "Runners Iversen "
+author: "CT"
+date: "31.10.2017"
+output: html_document
+---
+
+Purpose:
+
+-Analysis of runner expansion for Iversen
+- Calculate stat for the days to reach 50% runners  
+- Run ANOVA for variable "Number of days to reach 50% runners  " 
+ 
+```{r loadLibraries}
+library(tidyr)
+library (dplyr)
+library (ggplot2)
+library(agricolae)
+library (lubridate)
+library(mosaic)
+library(lattice)
+```
+
+Read document generated in script "3" 9Trifo_rate
+
+```{r}
+setwd("C:\\GitHubRepos\\SubCloverPhD\\SubClover\\RunnerIv2")
+getwd()
+#create file
+df_Ru <- read.table("df_DAS_50toRunner.txt",header=TRUE)
+head(df_Ru)
+
+
+```
+Define formats and calculate the number of trifoliates considering the sub samples (S1-S10)
+
+```{r loadFile}
+
+
+# define factors for the ones that "look like" values
+df_Ru$Plot <- as.factor(df_Ru$Plot)
+df_Ru$Block <- as.factor(df_Ru$Block)
+df_Ru$Cultivar <- as.factor(df_Ru$Cultivar)
+df_Ru$SowTreat <- as.factor(df_Ru$SowTreat)
+
+ df_Ru <- df_Ru %>%
+  mutate(SowingDate = ymd(SowingDate)) 
+
+str(df_Ru)
+
+
+
+```
+
+
+
+
+##Run stats for the number of days to reach 5 ttrifoliates (DAS9T) - general use Sow Treat as Factor 
+##Here run as balanced design 
+
+```{r}
+ 
+  file <- df_Ru
+
+
+file.subs <- file 
+
+head(file.subs)
+summary(file.subs)
+
+#ANOVA
+
+#my.anova <- aov(DAS ~ SowTreat + Block, data = file.subs)
+my.anova <- aov(DAS ~ Cultivar + Block, data = file.subs)
+
+summary(my.anova)
+
+```
+
+
+```{r}
+#(LSD.test(my.anova, c("SowTreat"), alpha= 0.05, p.adj="none"))
+(LSD.test(my.anova, c("Cultivar"), alpha= 0.05, p.adj="none"))
+
+```
+
+
+
+## Create index to filter for loop ANOVA
+
+```{r}
+y <- c("S1","S2","S3","S4","S5","S6","S7","S8")
+
+sdIndex <- unique(df_Ru$SowTreat)
+
+sdIndex[order(match(sdIndex,y))]
+
+length(sdIndex)
+sdIndex
+```
+## Then loop anova for each individual sowing date 
+```{r}
+for (i in 1:length(sdIndex)) {
+  
+ #print(i)
+ print(paste0(sdIndex[i],"--------------------------------"))
+  
+  file.subset <- df_Ru %>%
+  filter(SowTreat==sdIndex[i])
+  
+ 
+head(file.subset, 50)
+   summary(file.subset)
+my.anova <- aov(DAS ~ Cultivar + Block, data = file.subset)
+print(summary(my.anova))
+
+if ((summary(my.anova)[[1]][["Pr(>F)"]][1])<0.05) {
+  print("***Sig Cultivar***") 
+  print((LSD.test(my.anova, c("Cultivar"), alpha= 0.05, p.adj="none"))) } 
+
+
+if ((summary(my.anova)[[1]][["Pr(>F)"]][1])>0.05) {
+  print("***Sig Cultivar***") 
+  print((LSD.test(my.anova, c("Cultivar"), alpha= 0.05, p.adj="none"))) } 
+
+# make mean separation if significant
+
+(LSD.test(my.anova, c("Cultivar"), alpha= 0.05, p.adj="none"))
+  
+}
+
+```
+
+
+
+
+
+End of this script . 
+Move to script 3 to calculate rate of leaf appearance 

@@ -1,0 +1,364 @@
+---
+title: "Runner DA50% and rate to 50%  Iversen "
+author: "CT"
+date: "17.08.2017"
+output: html_document
+---
+
+Purpose:
+
+-Combine the rate of runner appearance of 50% plants with one runner  and  Mean Air Temp during runner  appearance   
+ 
+```{r loadLibraries}
+library(tidyr)
+library (dplyr)
+library (ggplot2)
+library(agricolae)
+library (lubridate)
+library(mosaic)
+library(lattice)
+```
+
+Get data from Emergence Folder, Daily Mean Air temperature and dates to combine in dataframe 
+
+
+```{r}
+
+setwd("C:\\GitHubRepos\\SubCloverPhD\\SubClover\\RunnerIv2")
+getwd()
+#create file
+
+df_RunnerRate <- read.table("RateRunner.txt",header=TRUE)
+
+
+
+#adjust formats 
+df_RunnerRate$SowingDate <- ymd(df_RunnerRate$SowingDate )
+df_RunnerRate$Block <- as.factor(df_RunnerRate$Block)
+df_RunnerRate$Plot <- as.factor(df_RunnerRate$Plot)
+df_RunnerRate$DAS50Run <- as.numeric(df_RunnerRate$DAS)
+
+```
+
+Create df_MD to workout dates to % trifoliates 
+```{r}
+
+  df_MD <- df_RunnerRate %>%
+  mutate(DateRunner=SowingDate+DAS) %>%
+  group_by(Plot, DAS) %>% 
+  dplyr::filter(row_number() == 1)
+
+str(df_MD)
+
+H <-df_MD %>%
+ dplyr:: select (Plot, DateRunner)
+
+#save and store table 
+write.table(H, "DateTo50Runner.txt")
+
+```
+
+
+
+Read the soil Temp data and Air temp data and  adjust formats 
+
+```{r}
+
+#create file
+df_A <- read.table("AirTemp.txt",header=TRUE)
+df_Soil <-read.table("SoilTemp.txt",header=TRUE)
+
+#adjust formats
+df_A %>%
+  mutate(Date=dmy(Date))
+
+str(df_A)
+
+#adjust formats
+df_Soil <- df_Soil%>%
+mutate(Date=dmy(Date))
+
+
+```
+
+Now 
+Add the accumulation of of soil temperatures to calculate the average temperature during the desired process (here 50% plants with first runner ). 
+
+```{r}
+#cumulate air
+df_B <- df_A %>%
+  mutate(SumAir = cumsum(AirTt)) %>%
+  mutate(Date=dmy(Date))%>%
+  dplyr::select(-AirTt)
+
+#cumulate soil
+
+df_Soil1 <- df_Soil %>%
+  mutate(SumTempSo = cumsum(TempSoil10mm)) %>%
+  #mutate(Date=dmy(Date))%>%
+  dplyr::select(-TempSoil10mm)
+
+
+```
+
+check data with graph
+
+```{r}
+df_Soil1 %>%
+  ggplot(aes(x=Date,y=SumTempSo)) +
+  geom_point()
+
+df_B%>%
+  ggplot(aes(x=Date,y=SumAir)) +
+  geom_point()
+
+```
+
+
+
+
+Merge dataframes by date
+
+```{r}
+
+# first merge the soil and air temperature dataframes 
+
+df_Temp <- merge(df_Soil1,df_B,by="Date") 
+
+
+#Merge the two dataframes by Date
+df1 <- merge(df_MD,df_Temp, by.x="SowingDate",by.y="Date") %>%
+  mutate(soilTempAcc_sow = SumTempSo) %>% 
+  mutate(airTempAcc_sow=SumAir)%>%
+dplyr::select(-SumTempSo,-SumAir)
+
+str(df1)
+
+
+```
+
+Need to force a date for 50 % of plants with runners  (round) to calculate the average temperature during this phase  
+
+Save dataframe as txt file
+
+
+```{r}
+
+
+# force formats of dates
+df1$Date <- round(df1$DateRunner,0)
+df_Temp$Date <- round(df_Temp$Date,0)
+
+#then repeat same procedure done for the soing date but use the dat for 1 Trifoliate
+  df_merge <- merge(df1, df_Temp, by="Date") %>%
+  mutate(soilTempAcc_Runner = SumTempSo) %>%
+  mutate(airTempAcc_Runner=SumAir)%>%
+  dplyr::select(-SumTempSo, -SumAir) %>%
+ 
+#subtract accumulate temperature das1T from sowing 
+  mutate(meanTempSoil_Runner = (soilTempAcc_Runner-soilTempAcc_sow)/DAS50Run ) %>% 
+  mutate(meanTempAir_Runner = (airTempAcc_Runner-airTempAcc_sow)/DAS50Run)
+  
+  summary(df_merge)
+
+  ##Use this dataframe to build graph in script 4 
+write.table(df_merge, "df_MeanTempRunner.txt") 
+
+
+
+```
+
+
+get the simple TT and SE for all cultivars. exclude S1 . Consider Tb=0 for all cultivars. 
+
+```{r}
+
+df_TTRunner <- df_merge%>%
+  mutate(TTtoRunnerSoil= soilTempAcc_Runner -soilTempAcc_sow)%>%
+  mutate(TTtoRunnerTAir=airTempAcc_Runner -airTempAcc_sow)
+
+#then select sow treat and means and se
+
+df_TTAllcv <-df_TTRunner%>%
+  #filter(SowTreat!= "S1")%>% 
+  #group_by(Cultivar) %>%
+  group_by(SowTreat)%>%
+  dplyr::select(TTtoRunnerSoil)%>%
+#dplyr::select(TTto1TAir)
+  summarise_all(funs(mean,sd))%>%
+    mutate(SE=sd/1.73)
+
+```
+
+
+Graph results 
+
+Then graph results  (remember that here each replicate has a different temperature set... need to average to get a simpler graph 
+## complete graph 
+```{r, fig.height=5, fig.width=8}
+dGraph <-df_merge %>%
+  group_by(SowTreat, Cultivar) %>%
+  dplyr::select(Rate,meanTempSoil_Runner) %>%
+  summarise_all(funs(mean,sd)) 
+
+```
+
+
+
+
+Not using this part yet . Bring data from emergence folder ....
+
+
+
+```{r}
+# df_S <- read.table("DASSeedEmer.txt",header=TRUE)
+# 
+# #change formats 
+# df_S <- df_S %>%
+#   mutate(Plot=as.factor(Plot),
+#          DAS50SeedEm= as.numeric(DAS50SeedEm),
+#          Date50SeedEm= dmy(Date50SeedEm))
+# 
+#          
+# str(df_S)
+
+
+```
+
+
+
+```{r}
+
+
+# #create file
+# df_A <- read.table("AirTemp.txt",header=TRUE)
+# 
+# #adjust formats
+# df_A %>%
+#   mutate(Date=dmy(Date))
+# 
+# str(df_A)
+# 
+# df_B <- df_A %>%
+#   mutate(SumAir = cumsum(AirTt)) %>%
+#   mutate(Date=dmy(Date))%>%
+#   dplyr::select(-AirTt)
+# 
+# 
+# summary(df_B)
+# summary (df_S)
+# 
+# 
+# #then save table df_B with the ACcumulated Air Temperature and merge 
+# 
+# write.table(df_B, "AccumAir.txt")
+# 
+# df1 <- merge(df_S,df_B, by.x="Date50SeedEm",by.y="Date")%>%
+# mutate(AirTempAcc_emerg = SumAir) %>%
+#   dplyr::select(-SumAir)
+# 
+# str(df1)
+# 
+# write.table(df1,"AccAirEmerg_Runner.txt")
+```
+
+Re start from here : Bring the calculated Mean AirTrifo file and merge 
+
+```{r}
+
+# #create file
+# df_RunnerRate <- read.table("RateRunner.txt",header=TRUE)
+# df_MeanAir <- read.table("MeanAirTrifo.txt",header=TRUE)
+# 
+# str(df_RunnerRate)
+# str(df_MeanAir)
+
+
+```
+
+adjust formats and Calculate the date to 50%  
+```{r}
+
+# #adjust formats 
+# df_trif$SowingDate <- ymd(df_trif$SowingDate )
+# df_trif$Block <- as.factor(df_trif$Block)
+# df_trif$Plot <- as.factor(df_trif$Plot)
+# df_trif$DAS5T <- as.numeric(df_trif$DAS5T)
+# 
+# df_MeanAir$Plot <- as.factor(df_MeanAir$Plot)
+
+
+
+```
+
+
+```{r}
+# 
+# 
+# dfok <- merge(df_trif,df_MeanAir, by="Plot")
+# 
+# str(dfok)
+```
+
+Then graph results  (remember that here each replicate has a different temperature set... need to average to get a simpler graph 
+## complete graph 
+```{r, fig.height=5, fig.width=8}
+# dfok %>%
+#   group_by(MeanAirTempTrifo, SowingDate, SowTreat, Cultivar) %>%
+#   dplyr::select(Rate) %>%
+#   summarise_each(funs(mean,sd)) %>%
+#   #Graph
+#   #ggplot(aes(x=MeanAirTempTrifo, y=mean, colour=(Cultivar), shape=factor(Cultivar) )) +
+#  ggplot(aes(x=MeanAirTempTrifo, y=mean,colour=SowTreat, shape=Cultivar)) +
+#   geom_point(size=5) +
+#   #geom_line() +
+#   
+#   labs(y="Rate to five trifoliate stage (1/days)") +
+#   theme(axis.text.x = element_text(angle = 90, hjust = 1))+
+#   geom_errorbar(aes(ymin=mean-sd/2,
+#   ymax=mean+sd/2))+
+#   theme_bw()+
+#   xlim(0,20)+
+#   ylim(0,0.04)+
+#   #facet_wrap(~Cultivar,ncol=3, scales = "free")+
+#   xlab(expression(Mean~Air~Temperature~"("^"o"*"C)"))+
+#   theme(axis.text.x=element_text(angle = 0, hjust = 0, size= 12))+
+#   theme(axis.text.y=element_text(angle = 0, hjust = 0, size= 12))+
+#   theme(axis.title.y=element_text(angle = 90, hjust = 0, size= 14))+
+#   theme(axis.title.x=element_text(angle = 0, hjust = 0.5, size= 14))+
+#   theme(legend.text=element_text(size=12))
+#   
+# # then merge the dataframes to find out the mean temperature 
+
+
+```
+
+
+
+
+Graph rate and SowTreat
+
+```{r}
+#Graph 
+# 
+#   dfok %>%
+#   group_by(SowingDate, Cultivar) %>%
+#   dplyr::select(Rate) %>%
+#   summarise_each(funs(mean,sd)) %>%
+#   #Graph
+#   ggplot(aes(x=SowingDate, y=mean, colour=factor(Cultivar), shape=factor(Cultivar))) +
+#   geom_point() +
+#   geom_line() +
+#   labs(x="Sowing Date",y="1/ Days to 50% leaf emergence  ") +
+#   theme(axis.text.x = element_text(angle = 90, hjust = 1))+
+#   geom_errorbar(aes(ymin=mean-sd/2,
+#   ymax=mean+sd/2))+
+#   theme_bw()
+
+```
+
+
+
+
+End of this script . 
+Move to script 4.  

@@ -1,13 +1,12 @@
 ---
-title: "BurrBurialAnalysis"
+title: "Seed weightAnalysis"
 author: "CT"
 date: "Friday, March 18, 2016"
 output: html_document
 ---
 Purpose : 
 
-Calculation for the percentage of buried burs for the 16 cv trial in 2017 
-ANOVA for the variate : precentage of buried burs 
+Create a graph comparing the seed weight measured and published by Nichols
 
 ```{r, warning=FALSE}
 #Load libraries 
@@ -19,11 +18,12 @@ library(lubridate)
 ```
 
 Read File 
+Need to bring the whole seedweight file to have the SE !!!!
 
 ```{r, echo=FALSE}
 setwd("C:\\GitHubRepos\\SubCloverPhD\\SubClover\\Bur16cv")
 getwd()
-file <- read.table("CVTrial2017.txt",header=TRUE)
+file <- read.table("CVTrial2016_SeedWeightCompare.txt",header=TRUE)
 head(file)
 summary(file)
 ```

@@ -1,0 +1,244 @@
+---
+title: "Runners Iversen "
+author: "CT"
+date: "17.08.2017"
+output: html_document
+---
+
+Purpose:
+
+-Analysis of runner elongation for Iversen from previous script (use Runner)
+- Calculate the time to reach 50% plants with runner (5 plants as all 10 plants had produced runners )
+- Calculate rate of leaf appearance (1/Days) 
+ - variable Runner is already in percentage!!! 
+ 
+```{r loadLibraries}
+library(tidyr)
+library (dplyr)
+library (ggplot2)
+library(agricolae)
+library (lubridate)
+library(mosaic)
+library(lattice)
+```
+
+
+
+```{r}
+setwd("C:\\GitHubRepos\\SubCloverPhD\\SubClover\\RunnerIv2")
+getwd()
+#create file
+df_Runner <- read.table("Number_Runner.txt",header=TRUE)
+str(df_Runner)
+
+
+```
+
+
+Define formats 
+
+```{r loadFile}
+
+
+# define factors for the ones that "look like" values
+
+df_run_worked <- df_Runner %>%
+  mutate(SowingDate = ymd(SowingDate), 
+         ReadingDate = ymd(ReadingDate),
+         DAS = as.numeric(DAS),
+         Plot= as.factor(Plot),
+         Block=as.factor(Block),
+         Cultivar=as.factor(Cultivar),
+         SowTreat=as.factor(SowTreat))%>%
+  dplyr::select(-s1,-s2,-s3,-s4,-s5,-s6,-s7,-s8,-s9,-s10)
+
+ 
+
+```
+
+
+```{r}
+
+str(df_run_worked)
+
+```
+
+
+
+update the loop
+
+```{r}
+
+plots <- unique(df_run_worked$Plot)
+ 
+df_all <- data.frame()
+
+for(p in 1:length(plots)) {
+
+      # clean value holders
+      DAS_50_run <- 0
+
+  df_sub <- df_run_worked %>%
+    subset(Plot == plots[p]) %>%
+    arrange(Runner)
+  
+  df_sub
+  head(df_sub)
+ 
+   # record maximum value recorded to avoid crossing- FIXME: Not needed here?
+  max_runner <- max(df_sub$Runner) # create new col
+  
+  # for(z in 1:nrow(df_sub)) {
+  #   
+  #   df_sub$max_run[z] <- max(df_sub$NumberRun[z],
+  #                                df_sub$NumberRun[z-1])
+  #   
+  # }
+  # 
+  df_sub
+  
+  
+  ##############################################
+   # Interpolate 
+  y_ref <- 50 # y value where we want to find x by interpolation in this case needed 5 
+  
+  # interpolate
+  tryCatch(  
+ DAS_50_run <- approx(df_sub$Runner, 
+  df_sub$DAS, xout = y_ref, rule = 1)$y,
+  error = function(e) 
+  {
+   DAS_50_runs <- max_trifo # FIXME: This should give max but gives NA - quick fix below temporarily
+  }
+)
+  
+ # COMPACT SYNTHAX FOR IFELSE when plots had reachedmore than 8 but less than 9 trifoliates ! 
+  
+ DAS_50_run <- ifelse(is.na( DAS_50_run),max_trifo, DAS_50_run) # FIXME: This should be unecessary if try catch gives max value
+ 
+  df_temp <- NULL 
+  df_temp <- data.frame(Cultivar = df_sub$Cultivar[1],
+                             SowTreat = df_sub$SowTreat[1],
+                             Plot = df_sub$Plot[1],
+                             Block = df_sub$Block[1],
+                             DAS50Run = DAS_50_run,
+                             RunnerNumber = min(y_ref,max_runner))
+
+#  print(p)
+  
+df_all <- rbind(df_all,df_temp)                 
+  
+  } # end plot loop
+
+summary(df_all)
+
+
+```
+
+
+
+Include dates of sowing again in dataframe 
+```{r}
+sdLookup <- data.frame (
+  SowTreat = c("S1","S2","S3","S4","S5","S6","S7","S8"),
+  SowingDate = c("24/06/2015", 
+                 "28/07/2015" ,
+                 "15/09/2015" ,
+                 "5/11/2015" ,
+                 "15/12/2015" ,
+                 "17/02/2016" ,
+                 "15/03/2016",
+                 "4/05/2016"))
+
+sdLookup$SowingDate <- dmy(sdLookup$SowingDate)
+
+df_50Run <- merge(df_all, sdLookup, by="SowTreat")
+summary(df_50Run)
+
+
+```
+
+
+
+Now correct column names after loop not to mix with other generated tables
+
+```{r}
+
+df_50R<-df_50Run%>%
+  mutate(DAS=as.numeric(DAS50Run))%>%
+  dplyr::select(-DAS50Run)
+
+str(df_50R)
+ 
+
+
+```
+
+
+
+```{r}
+
+write.table(df_50R,"df_DAS_50toRunner.txt")
+```
+
+
+
+
+Calculate RAte (1/days to 50%) 
+
+
+```{r}
+
+#try 1/DAS50% = Rate
+
+df_RateRunner <- df_50R %>%
+  mutate(Rate=1/ DAS)
+
+  summary(df_RateRunner)
+  
+  write.table(df_RateRunner,"RateRunner.txt")
+
+```
+
+
+
+Graph rate and SowTreat
+
+```{r}
+#Graph 
+
+  df_RateRunner %>%
+  group_by(SowingDate, Cultivar) %>%
+  dplyr::select(DAS)%>%
+  summarise_each(funs(mean,sd)) %>%
+  #Graph
+  ggplot(aes(x=SowingDate, y=mean, colour=factor(Cultivar), shape=factor(Cultivar))) +
+  geom_point() +
+  geom_line() +
+  labs(x="Sowing Date",y="1/ Days to 9 trifoliates  ") +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1))+
+  geom_errorbar(aes(ymin=mean-sd/2,
+  ymax=mean+sd/2))+
+  theme_bw()
+
+df_RateRunner %>%
+  group_by(SowingDate, Cultivar) %>%
+  dplyr::select(Rate) %>%
+  summarise_each(funs(mean,sd)) %>%
+  #Graph
+  ggplot(aes(x=SowingDate, y=mean, colour=factor(Cultivar), shape=factor(Cultivar))) +
+  geom_point() +
+  geom_line() +
+  labs(x="Sowing Date",y="1/ Days to 9 trifoliates  ") +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1))+
+  geom_errorbar(aes(ymin=mean-sd/2,
+  ymax=mean+sd/2))+
+  theme_bw()
+
+```
+
+
+
+
+End of this script Calc 2. 
+Move to script 3 to include temperatures  
