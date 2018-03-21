@@ -15,6 +15,7 @@ library (lubridate)
 ```
 
 This script reads the dataframe ( df_tt_50p_flow) created in previous script 3 and makes graphs 
+
 ```{r loadFile}
 setwd("C:\\GitHubRepos\\SubCloverPhD\\SubClover\\FlowIv2")
 getwd()
@@ -61,6 +62,20 @@ ylab(expression(Tt~"("^"o"*"Cd)"~~~~~~~~~~~~~~~~Days))
 
 
 ```
+
+
+Build graph grid with DAS and TT as per vegetative stage 
+
+
+```{r}
+
+
+
+
+
+
+```
+
 
 
 ```{r}

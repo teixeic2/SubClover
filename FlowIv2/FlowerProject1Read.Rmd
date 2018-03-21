@@ -400,8 +400,6 @@ xlab(expression(Thermal~time~~"("^"o"*"Cd)"))+
 
 
 
-
-
 here try to accumulate the percentage of floral stages to do a cumulative value instead of qualitative 
 ```{r}
 

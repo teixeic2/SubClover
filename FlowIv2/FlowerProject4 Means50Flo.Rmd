@@ -26,13 +26,19 @@ setwd("C:\\GitHubRepos\\SubCloverPhD\\SubClover\\FlowIv2")
 getwd()
 
 #create file
-df_f <- read.table("df_tt_50p_flow.txt",header=TRUE)
+df_raw <- read.table("df_tt_50p_flow.txt",header=TRUE)
 
-head (df_f)
+head (df_raw)
 ```
 check formats
 ```{r}
-str(df_f)
+
+df_work<-df_raw %>%
+  mutate(SowingD=ymd(SowingD)) %>%
+  rename(PhenoStage=Variable)%>%
+  mutate(Plot=factor(Plot), Block=factor(Block))
+         
+str(df_work)
 
 ```
 
@@ -40,18 +46,18 @@ Get mean values to write chapter
 
 ```{r}
 
-dfMean<-df_f%>%
+df_Narri_S7_mean <- df_work %>%
   #use filter to check single variables -Bud, Flowering and Bur
   #filter(Cultivar == "Narrikup") %>%
-  filter(Variable=="Bud")%>%
+  filter(PhenoStage=="Bud")%>%
   #filter (SowTreat=="S8"|SowTreat=="S7")%>%
   filter (SowTreat=="S7")%>%
   group_by(Cultivar)%>%
-  dplyr::select(TT50F)%>%
+  dplyr::select(Cultivar,TT50F)%>%
   summarise_all(funs(mean,sd))%>%
   mutate(SE=sd/1.73)
 
-
+summary(df_Narri_S7_mean)
 
 
 ```
@@ -59,36 +65,95 @@ dfMean<-df_f%>%
 
 
 
-Here only graph by month of sowing for report 
+Here only graph by month of sowing for report ; split in two graphs to be able to see cultivars. 
 
-```{r}
+```{r, fig.height=6, fig.width=12}
 
-a <-df_f %>%
-  mutate(SowingD=ymd(SowingD))
-  str(a)
 
-  a%>%
-    #use filter to check single variables -Bud, Flowering and Bur
-  filter( Cultivar == "Monti") %>%
-  filter(Variable=="Flowering"| Variable == "Bur")%>%
-  tidyr::gather("Variable3","Value",DAS50F:TT50F) %>%
-  mutate(Variable3=as.factor(Variable3))%>%
-  ggplot(aes(x=SowingD,y=Value,colour=Cultivar, shape=Cultivar))+
-    #scale_x_discrete(name="Mon")
-  geom_point()+
-  geom_line(aes(colour=Variable))+
-  facet_grid(Variable3~., scales="free")+
-  theme_bw()+
+  df_work_bud_mean <- df_work %>%
+  tidyr::gather("Variable","Value",DAS50F:TT50F) %>%
+  mutate(Variable=factor(Variable)) %>%
+  dplyr::select(-Plot,-Block) %>%
+  mutate(SowingD=factor(SowingD)) %>%
+  group_by(Cultivar, SowTreat,SowingD,Variable,PhenoStage)%>%
+  summarise_all(funs(mean,sd)) %>%
+  ungroup()%>%
+  mutate(SowingD=ymd(as.character(SowingD)))
+
+
+summary(df_work_bud_mean)
+  
+  
+  
+```
+
+
+
+graph DAS and TT 50Bud for all cultivars and sowing dates 
+
+```{r, fig.height=6, fig.width=15}
+
+df_work_bud_mean%>%
+  
+ggplot(aes(x=SowingD,y=mean, shape=Cultivar))+
+  geom_point(aes(shape=Cultivar),size=5)+
+    scale_shape_manual(values = c(1,2,0,4,7,8)) +
+  facet_grid(Variable~PhenoStage, scales="free")+
+  
+    theme_grey(base_size = 16) +
+    theme_bw()+
+    geom_abline(intercept = 100, slope = 0, linetype=2)+
+   
+theme(axis.text.x=element_text(angle = 0, hjust = 0))+
+theme(text = element_text(size = 16))+
  # theme(axis.text.x = element_text(angle = 0, hjust = 1.5))+
   #scale_x_date(date_breaks = "1 month",date_labels =  "%b")+
 labs(x="Sowing Month")+
     #limits = as.Date (c("2016"))
 ylab(expression(Tt~"("^"o"*"Cd)"~~~~~~~~~~~~~~~~~~~~~~Days))
     
-
-
-  
+#ggsave("plot_CumulativeRunnerA_D_L.png", width=12, height=6, dpi=400)
+ summary(df_work_bud_mean)
 ```
+
+
+
+Make the mean and SE
+`
+```{r}
+
+aMean <- a %>%
+  tidyr::gather("Variable","Value",DAS50F:TT50F) %>%
+  dplyr::select(SowingD,SowTreat, Variable, Value) %>%
+  
+  
+  summarise_all(funs(max(PercGerm_cum), sd)) 
+  summarise_all(funs)
+  ggplot(aes(x=SowingD,y=Value, shape=Cultivar))+
+    #scale_x_discrete(name="Mon")
+  geom_point(aes(shape=Cultivar),size=5)+
+    scale_shape_manual(values = c(1,2,0,4,7,8)) +
+     #scale_shape_manual(values = c(1,2,0)) +
+  #geom_line(aes(colour=Variable))+
+  facet_grid(Variable3~., scales="free")+
+  
+    theme_grey(base_size = 16) +
+    theme_bw()+
+    geom_abline(intercept = 100, slope = 0, linetype=2)+
+   
+theme(axis.text.x=element_text(angle = 0, hjust = 0))+
+theme(text = element_text(size = 16))+
+labs(x="Sowing Month")+
+ylab(expression(Tt~"("^"o"*"Cd)"~~~~~~~~~~~~~~~~~~~~~~Days))
+    
+
+
+
+```
+
+
+
+
 
 ```{r}
 write.table(a, "graph.txt")
