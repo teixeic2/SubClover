@@ -211,8 +211,8 @@ ANOVA
 
 #my.anova <- aov(SeedsNo_m2 ~ Cultivar*SowTreat + Block, data = file.subset)
 #my.anova <- aov(SeedsNo_m2 ~ SowTreat*Depth + Block, data = file.subset)
-my.anova <- aov(SeedsNo_m2 ~ Cultivar*Depth + Block, data = file.subset)
-#my.anova <- aov(SeedsNo_m2 ~ Depth + Block, data = file.subset)
+#my.anova <- aov(SeedsNo_m2 ~ Cultivar*Depth + Block, data = file.subset)
+my.anova <- aov(SeedsNo_m2 ~ Cultivar + Block, data = file.subset)
 summary(my.anova)
 ```
 
@@ -221,9 +221,9 @@ means
 #Means separation after ANOVA
 #(LSD.test(my.anova, c( "SowTreat", "Depth"), alpha= 0.05, p.adj="none"))
 #(LSD.test(my.anova, c("Cultivar","Depth"), alpha= 0.05, p.adj="none")) 
-(LSD.test(my.anova, c( "Depth"), alpha= 0.05, p.adj="none"))
+#(LSD.test(my.anova, c( "Depth"), alpha= 0.05, p.adj="none"))
 #(LSD.test(my.anova, c( "SowTreat", "Cultivar"), alpha= 0.05, p.adj="none"))
-#(LSD.test(my.anova, c("Cultivar"), alpha= 0.05, p.adj="none")) 
+(LSD.test(my.anova, c("Cultivar"), alpha= 0.05, p.adj="none")) 
 ```
 
 ```{r}
@@ -257,7 +257,7 @@ s2 anova
 
 #my.anova <- aov(SeedsNo_m2 ~ Cultivar*SowTreat + Block, data = file.subset)
 #my.anova <- aov(SeedsNo_m2 ~ SowTreat*Depth + Block, data = file.subset)
-my.anova <- aov(SeedsNo_m2 ~ Cultivar*Depth + Block, data = file.subset)
+my.anova <- aov(SeedsNo_m2 ~ Cultivar + Block, data = file.subset)
 #my.anova <- aov(SeedsNo_m2 ~ Depth + Block, data = file.subset)
 summary(my.anova)
 ```
@@ -267,9 +267,9 @@ means S2
 #Means separation after ANOVA
 #(LSD.test(my.anova, c( "SowTreat", "Depth"), alpha= 0.05, p.adj="none"))
 #(LSD.test(my.anova, c("Cultivar","Depth"), alpha= 0.05, p.adj="none")) 
-(LSD.test(my.anova, c( "Depth"), alpha= 0.05, p.adj="none"))
+#(LSD.test(my.anova, c( "Depth"), alpha= 0.05, p.adj="none"))
 #(LSD.test(my.anova, c( "SowTreat", "Cultivar"), alpha= 0.05, p.adj="none"))
-#(LSD.test(my.anova, c("Cultivar"), alpha= 0.05, p.adj="none"))
+(LSD.test(my.anova, c("Cultivar"), alpha= 0.05, p.adj="none"))
 ```
 
 S3filter 
@@ -294,7 +294,7 @@ S3 anova
 #ANOVA
 #my.anova <- aov(SeedsNo_m2 ~ Cultivar*SowTreat + Block, data = file.subset)
 #my.anova <- aov(SeedsNo_m2 ~ SowTreat*Depth + Block, data = file.subset)
-my.anova <- aov(SeedsNo_m2 ~ Cultivar*Depth + Block, data = file.subset)
+my.anova <- aov(SeedsNo_m2 ~ Cultivar + Block, data = file.subset)
 #my.anova <- aov(SeedsNo_m2 ~ Depth + Block, data = file.subset)
 summary(my.anova)
 ```
@@ -306,9 +306,9 @@ S3 means
 #Means separation after ANOVA
 #(LSD.test(my.anova, c( "SowTreat", "Depth"), alpha= 0.05, p.adj="none"))
 #(LSD.test(my.anova, c("Cultivar","Depth"), alpha= 0.05, p.adj="none")) 
-(LSD.test(my.anova, c( "Depth"), alpha= 0.05, p.adj="none"))
+#(LSD.test(my.anova, c( "Depth"), alpha= 0.05, p.adj="none"))
 #(LSD.test(my.anova, c( "SowTreat", "Cultivar"), alpha= 0.05, p.adj="none"))
-#(LSD.test(my.anova, c("Cultivar"), alpha= 0.05, p.adj="none"))
+(LSD.test(my.anova, c("Cultivar"), alpha= 0.05, p.adj="none"))
 ```
 
 S4
@@ -335,7 +335,7 @@ S4
 #ANOVA
 #my.anova <- aov(SeedsNo_m2 ~ Cultivar*SowTreat + Block, data = file.subset)
 #my.anova <- aov(SeedsNo_m2 ~ SowTreat*Depth + Block, data = file.subset)
-my.anova <- aov(SeedsNo_m2 ~ Cultivar*Depth + Block, data = file.subset)
+my.anova <- aov(SeedsNo_m2 ~ Cultivar + Block, data = file.subset)
 #my.anova <- aov(SeedsNo_m2 ~ Depth + Block, data = file.subset)
 summary(my.anova)
 ```
@@ -344,10 +344,10 @@ S4
 ```{r}
 #Means separation after ANOVA
 #(LSD.test(my.anova, c( "SowTreat", "Depth"), alpha= 0.05, p.adj="none"))
-(LSD.test(my.anova, c("Cultivar","Depth"), alpha= 0.05, p.adj="none")) 
+#(LSD.test(my.anova, c("Cultivar","Depth"), alpha= 0.05, p.adj="none")) 
 #(LSD.test(my.anova, c( "Depth"), alpha= 0.05, p.adj="none"))
 #(LSD.test(my.anova, c( "SowTreat", "Cultivar"), alpha= 0.05, p.adj="none"))
-#(LSD.test(my.anova, c("Cultivar"), alpha= 0.05, p.adj="none"))
+(LSD.test(my.anova, c("Cultivar"), alpha= 0.05, p.adj="none"))
 ```
 
 

@@ -1,0 +1,125 @@
+---
+title: "PCA Test with fake data "
+author: "CT"
+date: "Wednesday, Mai 23, 2018"
+output:
+  pdf_document: default
+  html_document: default
+  word_document: default
+---
+
+Purpose:
+
+-Test a new R code for PCA analysis 
+ 
+
+this method is available at : https://www.r-bloggers.com/computing-and-visualizing-pca-in-r/
+
+```{r loadLibraries}
+library(tidyr)
+library (dplyr)
+library (ggplot2)
+library(agricolae)
+library(knitr)
+library (lubridate)
+library(mosaic)
+library(lattice)
+```
+
+
+```{r loadFile}
+#setwd("C:\\GitHubRepos\\SubCloverPhD\\SubClover\\EmergenceIv2")
+setwd("C:\\GitHubRepos\\SubcloverPhD\\Subclover\\PCATest")
+getwd()
+
+#create file
+df_raw <- read.table("Data.txt",header=TRUE)
+
+
+```
+
+
+
+```{r}
+
+str(df_raw)
+
+
+
+# define factors for the ones that "look like" values
+df_raw$Treatments <- as.factor(df_raw$Treatments)
+df_raw$V2 <- as.numeric(df_raw$V2)
+df_raw$V3<- as.numeric(df_raw$V3)
+
+str(df_raw)
+
+
+
+
+```
+
+
+```{r}
+# apply PCA - scale. = TRUE is highly 
+# advisable, but default is FALSE. 
+
+#leave only numbers here 
+
+df_worked<-df_raw %>%
+  dplyr::select(V1:V3)
+  
+df_Treatments <- df_raw %>%
+dplyr::select(Treatments)
+
+
+str(df_worked)
+
+Data.pca <- prcomp(df_worked,
+                 center = TRUE,
+                 scale. = TRUE) 
+
+
+
+
+
+```
+
+Print 
+
+```{r}
+
+# print method
+print(Data.pca)
+
+
+```
+
+The plot method returns a plot of the variances (y-axis) associated with the PCs (x-axis). 
+
+```{r}
+
+# plot method
+plot(Data.pca, type = "l")
+
+```
+
+The summary method describe the importance of the PCs. The first row describe again the standard deviation associated with each PC. The second row shows the proportion of the variance in the data explained by each component while the third row describe the cumulative proportion of explained variance. We can see there that the first two PCs accounts for more than {95\%} of the variance of the data.
+
+```{r}
+
+# summary method
+summary(Data.pca)
+
+```
+
+biplot 
+
+```{r}
+
+biplot (Data.pca)
+
+```
+
+
+
+

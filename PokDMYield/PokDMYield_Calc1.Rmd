@@ -1,0 +1,161 @@
+---
+title: "Dry matter I2" 
+author: "CT"
+date: " December 31, 2016"
+output:
+  pdf_document: default
+  html_document: default
+  word_document: default
+---
+
+Purpose:
+
+-DM yield of selected sowing dates in Poukawa 
+
+
+
+```{r loadLibraries}
+library(tidyr)
+library (dplyr)
+library (ggplot2)
+library(agricolae)
+library(knitr)
+library (lubridate)
+library(mosaic)
+library(lattice)
+library(reshape2)
+```
+
+
+```{r loadFile}
+setwd("C:\\GitHubRepos\\SubCloverPhD\\SubClover\\PokDMYield")
+getwd()
+
+#create file
+df_y <- read.table("PokDMYield.txt",header=TRUE)
+
+# define factors for the ones that "look like" values
+df_y$Plot <- as.factor(df_y$Plot)
+df_y$Block <- as.factor(df_y$Block)
+df_y$Sowtreat <- as.factor(df_y$Sowtreat)
+df_y$Cultivar <- as.factor(df_y$Cultivar)
+ # df_y <- df_y %>%
+ #  mutate(SowingDate = dmy(SowingDate), 
+ #         Date = dmy(Date))
+
+str(df_y)
+
+head(df_y)
+
+
+
+
+```
+
+```{r, fig.height= 5, fig.width= 10}
+
+
+# define position of bar and errorbar
+dodge_x <- position_dodge(width = 0.9)
+
+ 
+
+
+# Graph it 
+
+
+
+df_y1 <-df_y %>%
+  group_by(Cultivar, Sowtreat) %>%
+  summarise_each(funs(mean,sd))
+  
+
+df_y1%>%
+filter(Sowtreat=="S7" | Sowtreat=="S8")%>%
+  #mutate(colPal = ifelse(Cultivar=="Antas","Brachy",ifelse(Cultivar=="Monti","Brachy","Yanny"))) %>%
+  #ggplot(aes(x=Cultivar, y=(PropBurrBuried_mean),fill=colPal)) +
+  ggplot(aes(x=Cultivar, y=( DMkgHa_mean),fill=Cultivar))+
+   geom_bar(stat="identity", position = dodge_x) +
+  geom_errorbar(aes(ymin= DMkgHa_mean- DMkgHa_sd/3.46, ymax= DMkgHa_mean+ DMkgHa_sd/3.46),
+                width=0.25, size=0.3,position=dodge_x)   +
+  theme_grey(base_size = 16) +
+    facet_grid(.~Sowtreat) +
+    labs(y="DM subclover kg/ha") +
+  theme_bw()+
+theme(axis.text.y = element_text( size = 16))+
+theme(axis.title.y = element_text(face="bold", size=16))+
+theme(axis.text.x=element_text(angle = 90, hjust=0.95,vjust=0.2,size = 16))
+
+
+
+
+```
+
+
+ANOVA
+
+```{r}
+# then change file name 
+
+file <- df_y  
+
+```
+
+
+## Create index to filter for loop ANOVA
+
+```{r}
+y <- c("S2","S3","S4","S5", "S7","S8")
+
+sdIndex <- unique(file$Sowtreat)
+
+sdIndex[order(match(sdIndex,y))]
+
+length(sdIndex)
+sdIndex
+
+
+
+```
+
+
+
+
+then loop anova if significant . But note only S7 and S8 can run ANOVa because the others just one rep was harvested 
+
+## Then loop anova for each individual sowing date 
+```{r}
+for (i in 1:length(sdIndex)) {
+  
+ #print(i)
+ print(paste0(sdIndex[i],"--------------------------------"))
+  
+  file.subset <- file %>%
+  filter(Sowtreat==sdIndex[i])
+  
+ 
+head(file.subset, 50)
+   summary(file.subset)
+my.anova <- aov(DMkgHa ~ Cultivar + Block, data = file.subset)
+print(summary(my.anova))
+
+if ((summary(my.anova)[[1]][["Pr(>F)"]][1])<0.05) {
+  print("***Sig Cultivar***") 
+  print((LSD.test(my.anova, c("Cultivar"), alpha= 0.05, p.adj="none"))) } 
+
+
+ if ((summary(my.anova)[[1]][["Pr(>F)"]][1])>0.05) {
+   print("***Sig Cultivar***") 
+   print((LSD.test(my.anova, c("Cultivar"), alpha= 0.05, p.adj="none"))) } 
+
+# make mean separation if significant
+
+(LSD.test(my.anova, c("Cultivar"), alpha= 0.05, p.adj="none"))
+  
+}
+
+```
+
+
+
+

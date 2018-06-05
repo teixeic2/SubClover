@@ -4,8 +4,9 @@ author: "CT"
 date: "15.01.2017
 output: html_document
 ---
-- This script is an attempt for the PCA analysis with a example dataset
--Used guidelines from : http://www.sthda.com/english/articles/31-principal-component-methods-in-r-practical-guide/118-principal-component-analysis-in-r-prcomp-vs-princomp/
+- This script is an attempt to plot the baselined and Normalised spectra of Antas and Monti 
+
+
 
 
 ```{r setup, include=FALSE, loadlibraires}
@@ -18,43 +19,107 @@ library(knitr)
 library (lubridate)
 library(scales)
 library(calibrate)
-
+library(factoextra)
 ```
 
 
 ```{r}
 
 
-library("factoextra")
-data(decathlon2)
+setwd("C:\\GitHubRepos\\SubCloverPhD\\SubClover\\Spectra")
+getwd()
+
+#create file
+#This is baselined corrected only 
+#df_sp <- read.table("BreakBaseLined3cv.txt",header=TRUE)
+
+#df_sp <- read.table("UntreatedESA.txt",header=TRUE)
+
+#this tests the baseline and normalised dataset 
+df_sp <- read.table("UntreatedESANormalised.txt",header=TRUE)
+str(df_sp)
+
+tail(df_sp)
+
+```
+
+Now need to tidy wavenumbers and absorbance in columns as per other scripts 
+ $ Cultivar      : Factor w/ 3 levels "A","M","N": 1 1 1 1 1 1 1 1 1 1 ...
+ $ IncubationDays: int  0 0 0 0 0 0 0 0 0 0 ...
+ $ WaveNumber    : num  650 652 654 656 658 ...
+ $ Absorbance    : num  0.0169 0.0176 0.0183 0.0191 0.0197 ...
+
+```{r}
+df_sp1 <- df_sp%>%
+gather(key = 'Wavenumber', value = 'Absorbance', X3997.741:X649.8979)
+
+#ok now how can I remove the X from the string here ?? 
+  
+str(df_sp1)
+df_sp1 %>%
+  mutate(Wavenumber = as.Date.numeric(Wavenumber))
+```
 
 
+```{r}
 
-decathlon2.active <- decathlon2[1:23, 1:10]
-ncol(decathlon2.active)
-head(decathlon2.active[, 1:6])
+df_sp2<-df_sp1%>%
+  group_by(Cultivar,IncubationDays, Wavenumber)%>%
+  dplyr::select(Absorbance)%>%
+  summarise_all(funs(mean))
+  
+  
+  str(df_sp2)
 
-str(decathlon2.active)
+  write.table(df_sp2,"NormSpectraESA2018.txt")
+```
 
-row.names(decathlon2.active)
 
-# here:
-df<-data.frame(x=c(1,2,3,4,5,6,7,8),y=c(4,5,6,7,8,9,0,23),z=c(14,25,36,47,38,49,40,23))
-row.names(df) <-c("q","m","b","s","e","r","t","y")
-head(df)
+Then read the worked data table 
+```{r}
+
+
+df_worked <- read.table("UntreatedESANormalised_2.txt",header=TRUE)
+
+str(df_worked)
+```
+
+hum i did not like this one!!! Too weak abssorbance sig  nal!! 
+
+```{r}
+
+df_worked%>%
+   ggplot(aes(x=Wavenumber2,y=Absorbance))+
+  geom_line(aes(colour=factor(IncubationDays)))+
+  theme_bw()+
+  #scale_x_continuous(breaks=seq(min(df_sp$WaveNumber),max(df_sp$WaveNumber),by =50))+
+  
+  scale_x_continuous(breaks=round(seq(min(df_worked$Wavenumber2),max(df_worked$Wavenumber2),by =50)))+
+  facet_grid(Cultivar ~.) +
+  #facet_grid(IncubationDays ~.) +
+  scale_x_reverse()+
+  theme_bw()+
+  theme(axis.text.x = element_text(angle = 90, hjust = 1)) +
+  expand_limits(y=c(0,0.01)) +
+  geom_abline(intercept = 0.1, slope = 0)
+
 ```
 
 
 
-
-
 ```{r readData}
+
+
+#Need to convert the cultivar names to numbers as numeric
+
+
+
+
 #compute PCA
-#res.pca <- prcomp(decathlon2.active, scale = TRUE)
-res.pca <- prcomp(df, scale = TRUE)
-#res.pca <- prcomp(df, scale = TRUE)
+#res.pca <- prcomp (df_sp.active[,apply(df_sp.active, 2, var, na.rm=TRUE) != 0])
 
-
+res.pca <- prcomp(df_sp.activeU, scale = TRUE)
+#res.pca <- prcomp(df_sp.active)
 ```
 
 ## Visualize eigenvalues (scree plot). Show the percentage of variances explained by each principal component. 
@@ -71,15 +136,73 @@ fviz_eig(res.pca)
 
 ##Graph of individuals. Individuals with a similar profile are grouped together.  
 
-
+FIX ME: how to change columns for the incubation days !!
 ```{r, fig.height=5, fig.width=10}
+
+# fviz_pca_ind(res.pca,
+#              col.ind = "cos2", # Color by the quality of representation
+#              #col.ind = "Cultivar", 
+#              gradient.cols = c("#00AFBB", "#E7B800", "#FC4E07"),
+#              #gradient.cols = c("#00AFBB", "#E7B800"),
+#              geom="point",
+#              
+#              repel = TRUE     # Avoid text overlapping
+#              )
+
 
 fviz_pca_ind(res.pca,
              col.ind = "cos2", # Color by the quality of representation
-             gradient.cols = c("#00AFBB", "#E7B800", "#FC4E07"),
+             #gradient.cols = c("#00AFBB", "#E7B800", "#FC4E07"),
+             geom = c("point", "text"),
+             label = "all", invisible = "none", labelsize = 6,pointsize = 4,
              repel = TRUE     # Avoid text overlapping
-             )
+             )+
+             scale_color_gradient2(low="white", mid="blue",
+      high="dark blue", midpoint=0.6)+
+   theme_bw()+
+  # theme(axis.text.x=element_text(angle = 0, hjust = 0.5, size= 20))+
+  # theme(axis.text.y=element_text(angle = 0, hjust = 0, size= 20))+
+  theme(axis.text.y = element_text( size = 26))+
+theme(axis.title.y = element_text(face="bold", size=24))+
+theme(axis.text.x=element_text(angle = 0, hjust=0.5,vjust=0,size = 22,face="bold"))+
+theme(axis.title.x = element_text( face="bold", size=24))+
+#if need the axes labels 
+  xlab(expression(PC1~"(72%)"))+ 
+  ylab(expression(PC2~"(17%)")) +
+  xlim(-12, 12)+
+  ylim(-4, 4)
+
+   
+ 
 ```
+Separate by groups for Antas 
+
+```{r, fig.height=6, fig.width=12}
+fviz_pca_ind(res.pca, label="none", habillage=df_sp.activeU$IncubationDays)
+df_sp.activeU
+
+# Add ellipses
+p <- fviz_pca_ind(res.pca, label="none", habillage=df_sp.activeU$IncubationDays,
+             addEllipses=TRUE, ellipse.level=0.2, alpha=0.9)+
+  scale_color_brewer(palette="Set1") +
+     theme_minimal()
+print(p)
+```
+
+
+PC contributions 
+
+```{r, fig.height=5 , fig.width=30}
+
+# Contributions of variables to PC1
+fviz_contrib(res.pca, choice = "var", axes = 1, top = 20)
+# Contributions of variables to PC2
+fviz_contrib(res.pca, choice = "var", axes = 2, top = 20)
+
+```
+
+
+
 
 ## Graph of variables. Positive correlated variables point to the same side of the plot. Negative correlated variables point to opposite sides of the graph.
 

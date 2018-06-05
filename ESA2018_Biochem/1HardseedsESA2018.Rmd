@@ -266,16 +266,25 @@ mutate (Round= factor(Round, levels=c("14", "98"),labels=c("DAY 0 ", "DAY 84")))
   geom_errorbar(aes(ymin=mean-(sd/2.4)/2,
                     ymax=mean+(sd/2.4)/2),
                 width=0.25, size=0.3,position=dodge_x)   +
-  theme_grey(base_size = 16) +
-    theme_bw()+
+  theme_bw(base_size=16)+
   facet_grid(.~Round, scales="free") +
     scale_fill_brewer(palette="Blues")+
-    labs(y= "Percentage of Hardseeds (%) ")+
-theme(axis.text.y = element_text( size = 11))+
+    labs(y= " Hardseeds (%) ")+
+theme(axis.text.y = element_text( size = 18))+
   #theme(axis.title.y = element_text(face="bold", size=14))+
-theme(axis.text.x=element_text(angle = 0, hjust=0.95,vjust=0.2,size = 12)) +
-  theme(text = element_text(size = 20))
-
+theme(axis.text.x=element_text(angle = 0, hjust=0.95,vjust=0.2,size = 28)) +
+  theme(text = element_text(size = 26))
+# theme(axis.text.y = element_text( size = 26))+
+# theme(axis.title.y = element_text(face="bold", size=22))+
+# theme(axis.text.x=element_text(angle = 0, hjust=0.5,vjust=0,size = 22,face="bold"))+
+# theme(axis.title.x = element_text( size=24))+
+#   labs(y="Measured seed weight (mg) ",x="Reported seed weight (mg) ")
+#  # geom_abline(intercept = 50, slope = 0)
+# 
+# 
+# 
+# 
+ ggsave("plot_PercentHardness.png", width=14, height=7, dpi=500)
 
 ```
 

@@ -107,19 +107,72 @@ fileSeven %>%
     #facet_grid(.~Treat) +
     ylab(expression(Burrs~per~"m"^"2")) + 
   theme_bw()+
-theme(axis.text.y = element_text( size = 14))+
-theme(axis.title.y = element_text(face="bold", size=18))+
-theme(axis.text.x=element_text(angle = 0, hjust=0.5,vjust=0,size = 11))+
-theme(axis.title.x = element_text(face="bold", size=16))
+theme(axis.text.y = element_text( size = 26))+
+theme(axis.title.y = element_text(face="bold", size=28))+
+theme(axis.text.x=element_text(angle = 0, hjust=0.5,vjust=0,size = 22,face="bold"))+
+theme(axis.title.x = element_text( size=26))
 
 
-ggsave( "plot_BursPerM2_.png", width=15, height=10, dpi=400)
+#ggsave( "plot_BursPerM2_.png", width=15, height=10, dpi=400)
 
 ```
 
+density1 <- seq(5,35,length.out=7)
+
+Build a graph with strips across ? 
+
+
+```{r, fig.height=6, fig.width=12}
+
+# define position of bar and errorbar
+dodge_x <- position_dodge(width = 0.9)
+
+density1 <- seq(5,35,length.out=7)
+
+
+fileSeven<-file %>%
+  filter(Cultivar=="Antas"|
+          Cultivar=="Denmark"|
+          Cultivar=="Coolamon"|
+            Cultivar=="MountBarker"|
+            Cultivar=="Narrikup"|
+            Cultivar=="Rosabrook"|
+            #Cultivar=="Whatawhata"|
+            Cultivar=="Woogenellup")
+#divide sd/2 and then /2 again to get the SE
+fileSeven %>%
+  group_by(Cultivar, Treat) %>%
+  summarise_all(funs(mean,sd)) %>%
+  #mutate(colPal = ifelse(Cultivar=="Antas","Brachy",ifelse(Cultivar=="Monti","Brachy","Yanny"))) %>%
+  #ggplot(aes(x=Cultivar, y=(PropBurrBuried_mean),fill=colPal)) +
+  ggplot(aes(x=Cultivar, y=(BursPerM2_mean)))+
+  geom_bar(aes(fill=Cultivar)+scale_fill_brewer(palette="OrRd"))+
+  
+   #geom_bar(stat="identity", position = dodge_x, fill= Cultivar, scale_fill_brewer(palette="OrRd")) +
+  geom_errorbar(aes(ymin=BursPerM2_mean-BursPerM2_sd/4, ymax=BursPerM2_mean+BursPerM2_sd/4),
+                width=0.25, size=0.3,position=dodge_x)   +
+  theme_grey(base_size = 16) +
+    #facet_grid(.~Treat) +
+    ylab(expression(Burrs~per~"m"^"2")) + 
+  theme_bw()+
+theme(axis.text.y = element_text( size = 26))+
+theme(axis.title.y = element_text(face="bold", size=28))+
+theme(axis.text.x=element_text(angle = 0, hjust=0.5,vjust=0,size = 22,face="bold"))+
+theme(axis.title.x = element_text( size=26))
+
+
+#ggsave( "plot_BursPerM2_.png", width=15, height=10, dpi=400)
+
+```
+
+```{r}
+
+```
+
+
+
+
 Now perform anova in file seven 
-
-
 
 
 
@@ -170,6 +223,24 @@ summary(my.anova)
 (LSD.test(my.anova, c("Cultivar"), alpha= 0.05, p.adj="none")) 
 ```
 
+then perfomr Tukeys test 
+
+This is Tukeys test for mean comparison 
+
+```{r}
+posthoc <- TukeyHSD(x=my.anova, 'Cultivar', conf.level=0.95)
+
+posthoc
+
+```
+
+and 
 
 
+```{r}
+
+fogo <-HSD.test(my.anova, 'Cultivar', group=TRUE)
+fogo
+
+```
 end of this script 

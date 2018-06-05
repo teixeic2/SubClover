@@ -223,9 +223,9 @@ and then consider cultivar within each sowing date
 #ANOVA
 
 #my.anova <- aov(PropBurrBuried ~ Cultivar + Block, data = file.subset)
-#my.anova <- aov(SeedlingPerm2 ~ Cultivar + Block, data = file.subset)
+my.anova <- aov(SeedlingPerm2 ~ Cultivar + Block, data = file.subset)
 #perform for score as well to check 
-my.anova <- aov(Score~ Cultivar + Block, data = file.subset)
+#my.anova <- aov(Score~ Cultivar + Block, data = file.subset)
 summary(my.anova)
 ```
 
@@ -235,17 +235,26 @@ summary(my.anova)
 (LSD.test(my.anova, c("Cultivar"), alpha= 0.05, p.adj="none")) 
 ```
 
-Perform anova in cultivars 
+Perform Tukeys ... 
 
+
+```{r}
+posthoc <- TukeyHSD(x=my.anova, 'Cultivar', conf.level=0.95)
+
+posthoc
+
+```
+
+then 
 
 
 ```{r}
 
+fogo <-HSD.test(my.anova, 'Cultivar', group=TRUE)
+fogo
 
-#Means separation after ANOVA
-#(LSD.test(my.anova, c("Cultivar"), alpha= 0.05, p.adj="none")) 
-#(LSD.test(my.anova, c("Treat", "Cultivar"), alpha= 0.05, p.adj="none")) 
 ```
+
 
 now do the mean table to write
 
@@ -270,8 +279,8 @@ Select month and variable to analyse
 str(file)
 df_seedANOVA2 <- filesub %>%
 filter(Month=="March")%>%
-   #dplyr::select(Cultivar,Plot,Block,Treat, SeedlingPerm2)
-  dplyr::select(Cultivar,Plot,Block,Treat, Score)
+   dplyr::select(Cultivar,Plot,Block,Treat, SeedlingPerm2)
+  #dplyr::select(Cultivar,Plot,Block,Treat, Score)
 ```
 
 
@@ -300,8 +309,8 @@ Here Analyse
 #ANOVA
 
 #my.anova <- aov(PropBurrBuried ~ Cultivar + Block, data = file.subset)
-#my.anova <- aov(SeedlingPerm2 ~ Cultivar + Block, data = file.subset2)
-my.anova <- aov(Score ~ Cultivar + Block, data = file.subset2)
+my.anova <- aov(SeedlingPerm2 ~ Cultivar + Block, data = file.subset2)
+#my.anova <- aov(Score ~ Cultivar + Block, data = file.subset2)
 summary(my.anova)
 ```
 
@@ -313,6 +322,26 @@ summary(my.anova)
 
 
 Perform anova in cultivars 
+
+Perform Tukeys ... 
+
+
+```{r}
+posthoc <- TukeyHSD(x=my.anova, 'Cultivar', conf.level=0.95)
+
+posthoc
+
+```
+
+then 
+
+
+```{r}
+
+fogo <-HSD.test(my.anova, 'Cultivar', group=TRUE)
+fogo
+
+```
 
 
 ```{r}
@@ -404,8 +433,8 @@ Run ANova
 #ANOVA
 
 #my.anova <- aov(PropBurrBuried ~ Cultivar + Block, data = file.subset)
-#my.anova <- aov(SeedlingPerm2 ~ Cultivar , data = file.subset3)
-my.anova <- aov(Score ~ Cultivar , data = file.subset3)
+my.anova <- aov(SeedlingPerm2 ~ Cultivar , data = file.subset3)
+#my.anova <- aov(Score ~ Cultivar , data = file.subset3)
 summary(my.anova)
 ```
 
@@ -417,6 +446,26 @@ summary(my.anova)
 (LSD.test(my.anova, c("Cultivar"), alpha= 0.05, p.adj="none")) 
 #(LSD.test(my.anova, c("Cultivar", "Treat"), alpha= 0.05, p.adj="none")) 
 ```
+
+
+
+```{r}
+posthoc <- TukeyHSD(x=my.anova, 'Cultivar', conf.level=0.95)
+
+posthoc
+
+```
+
+then 
+
+
+```{r}
+
+fogo <-HSD.test(my.anova, 'Cultivar', group=TRUE)
+fogo
+
+```
+
 
 
 

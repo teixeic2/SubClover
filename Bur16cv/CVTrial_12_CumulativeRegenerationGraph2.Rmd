@@ -230,7 +230,7 @@ Then calculate the max sd and graph the percentage of lost seeds due to strike
 # find single position of x y to put the bar
 
 #extraPos<- 1.10 # extra position for single error bar
-extraPos<- 1.3 # extra position for single error bar
+extraPos<- 1.15 # extra position for single error bar
 x_max<-max(df_NumberSeedsRemain$HardseedRank)
 y_max<-max(df_NumberSeedsRemain$mean)
 
@@ -254,7 +254,7 @@ df_NumberSeedsRemain%>%
                            labels=c("January", "March", "June")))%>%
  # filter(Cultivar=="Antas"|Cultivar=="Denmark"|Cultivar=="Leura")%>%
 ggplot(aes(x=HardseedRank, y=mean)) + 
-  geom_point(aes(shape=Cultivar),size=5)+
+  geom_point(aes(shape=Cultivar),size=5, stroke=2)+
  # geom_line(aes(linetype=Cultivar),alpha=0.2)+
   scale_shape_manual(values = c(0,1,2,3,4,5,6,7,8))+
   #scale_shape_manual(values = c(0,1,2,3,4))+
@@ -262,20 +262,25 @@ ggplot(aes(x=HardseedRank, y=mean)) +
   geom_errorbar(data=sd_df, aes(ymin=mean-max_sd/4,
                     ymax=mean+max_sd/4), width=1)+
   facet_wrap(~Month,ncol=3, scales = "free")+
-  theme_bw()+
-  #scale_x_continuous(breaks = c(5,10,15,20,30))+
-  #ylim(0, 80)+
+  theme_bw(base_size = 26)+
+  #scale_y_continuous(breaks = c(5,10,20,30,40,50))+
+  ylim(0, 50)+
   #xlim(0,10)+
-  labs(y="Cumulative Percentage seed loss %",x="Hardseed Rank")+ 
+  labs(y="Cumulative emergence (%) ",x="Hardseed Rank")+ 
   geom_abline(intercept = 30, slope = 0, linetype=2)+
-  theme_grey(base_size = 18) +
-  theme_bw()+
-    #geom_abline(intercept = 100, slope = 0, linetype=2)+
-   
-theme(axis.text.x=element_text(angle = 0, hjust = 0))+
-theme(text = element_text(size = 16))
+#Themes
+#theme(axis.text.y = element_text( size = 26))+
+#theme(axis.title.y = element_text(face="bold", size=18))+
+#theme(axis.text.x=element_text(angle = 0, hjust=0.5,vjust=0,size = 20,face="bold"))+
+  theme(axis.title.x = element_text( size=24)) + scale_x_continuous(breaks = c(0:6))+
+  theme(text=element_text(size=30,  family="serif"))+
+  theme(title=element_text(size=22,  family="serif",face="bold"))+
+  theme(title=element_text(size=22,  family="serif",face="bold"))
+  
+  
 
-ggsave( "plot_PercentSeedLost_.png", width=15, height=6, dpi=400)
+ggsave( "plot_CumulativeEmergence_.png", width=15, height=6, dpi=500)
+#OBS ANOVA for this dataset follows ......)
 
 ```
 
@@ -305,7 +310,7 @@ Then calculate the max sd and graph the number of seeds in seed bank
 # find single position of x y to put the bar
 
 #extraPos<- 1.10 # extra position for single error bar
-extraPos<- 1.3 # extra position for single error bar
+extraPos<- 1.05 # extra position for single error bar
 x_max<-max(df_NumberSeedsBank$HardseedRank)
 y_max<-max(df_NumberSeedsBank$mean)
 
@@ -329,7 +334,7 @@ df_NumberSeedsBank%>%
                            labels=c("January", "March", "June")))%>%
  # filter(Cultivar=="Antas"|Cultivar=="Denmark"|Cultivar=="Leura")%>%
 ggplot(aes(x=HardseedRank, y=mean)) + 
-  geom_point(aes(shape=Cultivar),size=5)+
+  geom_point(aes(shape=Cultivar),size=7, stroke=2)+
  # geom_line(aes(linetype=Cultivar),alpha=0.2)+
   scale_shape_manual(values = c(0,1,2,3,4,5,6,7,8))+
   #scale_shape_manual(values = c(0,1,2,3,4))+
@@ -337,26 +342,28 @@ ggplot(aes(x=HardseedRank, y=mean)) +
   geom_errorbar(data=sd_df, aes(ymin=mean-max_sd/4,
                     ymax=mean+max_sd/4), width=1)+
   facet_wrap(~Month,ncol=3, scales = "free")+
-  theme_bw()+
+  #theme_bw()+
   #scale_x_continuous(breaks = c(5,10,15,20,30))+
   #ylim(0, 80)+
-  ylim(3500,18000)+
-  labs(y="Number of Seeds in seed bank %",x="Hardseed Rank")+ 
+  ylim(3500,14000)+
+  labs(y="Number of seeds in seed bank",x="Hardseed Rank")+ 
   geom_abline(intercept = 10000, slope = 0, linetype=2)+
-  theme_grey(base_size = 18) +
-  theme_bw()+
+  theme_bw(base_size = 26)+
     #geom_abline(intercept = 100, slope = 0, linetype=2)+
-   
-theme(axis.text.x=element_text(angle = 0, hjust = 0))+
-theme(text = element_text(size = 16))
+#  theme(axis.text.y = element_text( size = 20))+
+# theme(axis.title.y = element_text(face="bold", size=22))+
+# theme(axis.text.x=element_text(angle = 0, hjust=0.5,vjust=0,size = 22,face="bold"))+
+# theme(axis.title.x = element_text( size=24))
 
-ggsave( "plot_NumberSeedsInSeedBank_.png", width=15, height=6, dpi=400)
+#theme(axis.title.x = element_text( size=24)) + 
+  scale_x_continuous(breaks = c(0:6))+
+  theme(text=element_text(size=26,  family="serif"))+
+  theme(title=element_text(size=20, family="serif",face="bold"))+
+  #theme(title=element_text(size=22,  family="serif",face="bold"))
+
+ggsave( "plot_NumberSeedsInSeedBank_.png", width=15, height=6, dpi=500)
 
 ```
-
-
-
-
 
 
 
@@ -516,130 +523,191 @@ p1
 ```
 
 
-Here Analyse 
+Here Analyse by Month first the cumulativepercentage of seed loss and then seeds in seedbnk 
+
+
+```{r}
+#Select variable to analys 
+
+file.subset2<- df_totalRank %>%
+  dplyr::select(Cultivar:Block, PercLostSeeds,NumberRemainSeeds)%>%
+  filter(Month!="JuneMid")
+
+
+```
+
+
+
+## Create index to filter for loop ANOVA in file.subset2
+
+```{r}
+y <- c("January","March","June")
+
+sdIndex <- unique(file.subset2$Month)
+
+sdIndex[order(match(sdIndex,y))]
+
+length(sdIndex)
+sdIndex
+```
+
+
+get mean separation when P <0.05
+
+
+## Then loop anova for each individual Month 
+```{r}
+for (i in 1:length(sdIndex)) {
+  
+ #print(i)
+ print(paste0(sdIndex[i],"--------------------------------"))
+  
+  file.subset3 <- file.subset2 %>%
+  filter(Month==sdIndex[i])
+  
+ 
+head(file.subset3, 50)
+   summary(file.subset3)
+my.anova <- aov(PercLostSeeds ~ Cultivar + Block, data = file.subset3)
+print(summary(my.anova))
+
+if ((summary(my.anova)[[1]][["Pr(>F)"]][1])<0.05) {
+  print("***Sig Cultivar***") 
+  print((LSD.test(my.anova, c("Cultivar"), alpha= 0.05, p.adj="none"))) } 
+
+
+ if ((summary(my.anova)[[1]][["Pr(>F)"]][1])>0.05) {
+   print("***Sig Cultivar***") 
+   print((LSD.test(my.anova, c("Cultivar"), alpha= 0.05, p.adj="none"))) } 
+
+# make mean separation if significant
+
+(LSD.test(my.anova, c("Cultivar"), alpha= 0.05, p.adj="none"))
+  
+}
+
+```
+
+
+do the same procedure for Number of seeds in seed bank 
 
 
 ```{r}
 
 #ANOVA
 
-#my.anova <- aov(PropBurrBuried ~ Cultivar + Block, data = file.subset)
-my.anova <- aov(SeedlingPerm2 ~ Cultivar + Block, data = file.subset2)
-summary(my.anova)
+for (i in 1:length(sdIndex)) {
+  
+ #print(i)
+ print(paste0(sdIndex[i],"--------------------------------"))
+  
+  file.subset3 <- file.subset2 %>%
+  filter(Month==sdIndex[i])
+  
+ 
+head(file.subset3, 50)
+   summary(file.subset3)
+my.anova <- aov(NumberRemainSeeds ~ Cultivar + Block, data = file.subset3)
+print(summary(my.anova))
+
+if ((summary(my.anova)[[1]][["Pr(>F)"]][1])<0.05) {
+  print("***Sig Cultivar***") 
+  print((LSD.test(my.anova, c("Cultivar"), alpha= 0.05, p.adj="none"))) } 
+
+
+ if ((summary(my.anova)[[1]][["Pr(>F)"]][1])>0.05) {
+   print("***Sig Cultivar***") 
+   print((LSD.test(my.anova, c("Cultivar"), alpha= 0.05, p.adj="none"))) } 
+
+# make mean separation if significant
+
+(LSD.test(my.anova, c("Cultivar"), alpha= 0.05, p.adj="none"))
+  
+}
+
+
 ```
 
+
+Then loop ANOVA with post hoc test as Tukeys 
+
+
+## Then loop anova for each individual Month 
 ```{r}
-#Means separation after ANOVA
-#(LSD.test(my.anova, c("Treat"), alpha= 0.05, p.adj="none")) 
-(LSD.test(my.anova, c("Cultivar"), alpha= 0.05, p.adj="none")) 
+for (i in 1:length(sdIndex)) {
+  
+ #print(i)
+ print(paste0(sdIndex[i],"--------------------------------"))
+  
+  file.subset3 <- file.subset2 %>%
+  filter(Month==sdIndex[i])
+  
+ 
+head(file.subset3, 50)
+   summary(file.subset3)
+my.anova <- aov(PercLostSeeds ~ Cultivar + Block, data = file.subset3)
+print(summary(my.anova))
+
+if ((summary(my.anova)[[1]][["Pr(>F)"]][1])<0.05) {
+  print("***Sig Cultivar***") 
+  #print((LSD.test(my.anova, c("Cultivar"), alpha= 0.05, p.adj="none"))) }
+  print(posthoc <- TukeyHSD(x=my.anova, 'Cultivar', conf.level=0.95)) }
+
+
+ # if ((summary(my.anova)[[1]][["Pr(>F)"]][1])>0.05) {
+ #   print("***Sig Cultivar***") 
+ #   print((LSD.test(my.anova, c("Cultivar"), alpha= 0.05, p.adj="none"))) } 
+
+# make mean separation if significant
+
+
+print (fogo <-HSD.test(my.anova, 'Cultivar', group=TRUE))
+
+  
+}
+
 ```
 
 
-Perform anova in cultivars 
+Now do tukeys with variable: Number of seeds in seed bank
+
+Then loop ANOVA with post hoc test as Tukeys 
 
 
+## Then loop anova for each individual Month 
 ```{r}
+for (i in 1:length(sdIndex)) {
+  
+ #print(i)
+ print(paste0(sdIndex[i],"--------------------------------"))
+  
+  file.subset3 <- file.subset2 %>%
+  filter(Month==sdIndex[i])
+  
+ 
+head(file.subset3, 50)
+   summary(file.subset3)
+my.anova <- aov(NumberRemainSeeds ~ Cultivar + Block, data = file.subset3)
+print(summary(my.anova))
+
+if ((summary(my.anova)[[1]][["Pr(>F)"]][1])<0.05) {
+  print("***Sig Cultivar***") 
+  #print((LSD.test(my.anova, c("Cultivar"), alpha= 0.05, p.adj="none"))) }
+  print(posthoc <- TukeyHSD(x=my.anova, 'Cultivar', conf.level=0.95)) }
 
 
-#Means separation after ANOVA
-#(LSD.test(my.anova, c("Cultivar"), alpha= 0.05, p.adj="none")) 
-#(LSD.test(my.anova, c("Treat", "Cultivar"), alpha= 0.05, p.adj="none")) 
-```
+ # if ((summary(my.anova)[[1]][["Pr(>F)"]][1])>0.05) {
+ #   print("***Sig Cultivar***") 
+ #   print((LSD.test(my.anova, c("Cultivar"), alpha= 0.05, p.adj="none"))) } 
+
+# make mean separation if significant
 
 
-tistics
-   MSerror Df     Mean       CV  t.value      LSD
-  57883.99 87 600.0483 40.09526 1.987608 239.1003
+print (fogo <-HSD.test(my.anova, 'Cultivar', group=TRUE))
 
-$parameters
-        test p.ajusted   name.t ntr alpha
-  Fisher-LSD      none Cultivar  15  0.05
-
-$means
-            SeedlingPerm2      std r         LCL       UCL Min  Max    Q25    Q50    Q75
-Antas             982.750 337.1578 8  813.680589 1151.8194 252 1358  884.0 1042.0 1200.0
-Campeda           370.600 234.3231 8  201.530589  539.6694   0  726  252.0  299.4  568.0
-Coolamon          429.750 151.0179 8  260.680589  598.8194 252  568  299.4  457.4  568.0
-Denmark           449.500 163.5455 8  280.430589  618.5694 252  726  370.5  410.0  568.0
-Karridale         528.500 219.4194 8  359.430589  697.5694 252  884  370.5  568.0  607.5
-Leura             177.250 156.1938 8    8.180589  346.3194   0  410    0.0  252.0  252.0
-Monti             187.125 219.6851 8   18.055589  356.1944   0  568    0.0  133.5  291.5
-MountBarker      1219.750 259.4487 8 1050.680589 1388.8194 726 1516 1160.5 1200.0 1397.5
-Napier            686.500 184.0644 8  517.430589  855.5694 410  884  568.0  647.0  884.0
-Narrikup          923.500 163.5455 8  754.430589 1092.5694 726 1200  844.5  884.0 1042.0
-Rosabrook         350.750 187.6621 8  181.680589  519.8194 252  726  252.0  252.0  331.0
-SeatonPark        587.750 320.8995 8  418.680589  756.8194 252 1042  252.0  568.0  884.0
-Trikkala          370.500 163.5455 8  201.430589  539.5694 252  568  252.0  252.0  568.0
-Whatawhata        516.750 332.9366 8  347.680589  685.8194   0 1042  252.0  568.0  726.0
-Woogenellup      1219.750 259.4487 8 1050.680589 1388.8194 884 1516 1002.5 1279.0 1397.5
-
-$comparison
-NULL
-
-$groups
-            SeedlingPerm2 groups
-MountBarker      1219.750      a
-Woogenellup      1219.750      a
-Antas             982.750     ab
-Narrikup          923.500     bc
-Napier            686.500     cd
-SeatonPark        587.750     de
-Karridale         528.500     de
-Whatawhata        516.750     de
-Denmark           449.500     de
-Coolamon          429.750      e
-Campeda           370.600     ef
-Trikkala          370.500     ef
-Rosabrook         350.750     ef
-Monti             187.125      f
-Leura             177.250      f
-
-attr(,"class")
-[1] "group"
-Show in New WindowClear OutputExpand/Collapse Output
-$statistics
-
-Now perform for June 
-
-
-```{r}
-str(file)
-df_seedANOVA3 <- filesub %>%
-filter(Month=="June")
-  #dplyr:: select_(Cultivar,Plot,Block,Treat, SeedlingPerm2)
-
-
-summary(df_seedANOVA3)
-
-#-------------------------------------------------
-# anova 
-
-file.subset3 <- df_seedANOVA3 
-
-head(file.subset3)
-summary(file.subset3)
+  
+}
 
 ```
-
-Run ANova
-
-```{r}
-#ANOVA
-
-#my.anova <- aov(PropBurrBuried ~ Cultivar + Block, data = file.subset)
-my.anova <- aov(SeedlingPerm2 ~ Cultivar , data = file.subset3)
-summary(my.anova)
-```
-
-
-
-```{r}
-#Means separation after ANOVA
-#(LSD.test(my.anova, c("Treat"), alpha= 0.05, p.adj="none")) 
-(LSD.test(my.anova, c("Cultivar"), alpha= 0.05, p.adj="none")) 
-#(LSD.test(my.anova, c("Cultivar", "Treat"), alpha= 0.05, p.adj="none")) 
-```
-
-
 
 end of this script 

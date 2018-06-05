@@ -30,37 +30,109 @@ setwd("C:\\GitHubRepos\\SubCloverPhD\\SubClover\\Spectra")
 getwd()
 
 #create file
+#This is baselined corrected only 
 #df_sp <- read.table("BreakBaseLined3cv.txt",header=TRUE)
-df_sp <- read.table("UntreatedESA.txt",header=TRUE)
 
+#df_sp <- read.table("UntreatedESA.txt",header=TRUE)
+
+#this tests the baseline and normalised dataset 
+df_sp <- read.table("UntreatedESANormalised.txt",header=TRUE)
 str(df_sp)
+
+
 ```
 
+Here take the mean of each replicate !!Analyse at the replicate level!  To get the following treatment combinations : 
+A01
+A02
+A03
+M01
+M02
+M03
+A841
+A842
+A843
+M841
+M842
+M843
+
+```{r}
+df_spRep <- df_sp%>%
+#filter(Cultivar =="A")%>%
+#filter(IncubationDays!="0")%>%
+group_by(Cultivar, IncubationDays) %>%
+summarise_all(funs(mean))
+#dplyr::select(-Seed, -RowNo)
+  
 
 
+```
+Now you have the dataframe with the mean spectra values at replicate level! Then do the selection of columns of interest ...before re labelling of row names 
 
-Select only Antas: use columns Incubation Days and spectra data
 ```{r}
 
-#here use only Antas and select columns
-
-df_spU <- df_sp%>%
+df_spU <- df_spRep%>%
 #filter(Cultivar =="A")%>%
-  filter(IncubationDays!="84")%>%
-dplyr::select(-Rep, -Hardness, -RowNo, -IncubationDays, -Seed)
+#filter(IncubationDays!="0")%>%
+dplyr::select( -Hardness, -RowNo, -IncubationDays,-Seed, -Rep)
 
 #here define the wavenumbers ;set active row numbers and column of variables
 df_sp.activeU <- df_spU[,1:25, 2:1738 ]
 
-
-
 str(df_sp.activeU[, 1:6])
 
 
-  
-  
-
 head(df_sp.activeU[, 1:6])
+
+
+```
+
+Re label row names per replicate 
+
+```{r}
+
+
+row.names (df_sp.activeU) <-c("A0_1","A84_2","M0_1","M84_2")
+# 
+head (df_sp.activeU)
+
+#Re label row names per replicate
+# row.names (df_sp.activeU) <-c("A0_1","A0_2","A0_3","A84_1","A84_2","A84_3","M0_1","M0_2", "M0_3", "M84_1","M84_2","M84_3")
+# 
+# head (df_sp.activeU)
+
+
+```
+
+
+
+Select only the incubation period 0 (untreated for both cultivars A= 1 M=2
+: use columns Incubation Days and spectra data
+
+FIXME HERE : you have to find a way to label the row names with the Cultivar and the incubation codes 
+```{r}
+
+#here use only Antas and select columns
+
+# df_spU <- df_sp%>%
+# #filter(Cultivar =="A")%>%
+#   filter(IncubationDays!="0")%>%
+# dplyr::select(-Rep, -Hardness, -RowNo, -IncubationDays, -Seed)
+# 
+# #here define the wavenumbers ;set active row numbers and column of variables
+# df_sp.activeU <- df_spU[,1:25, 2:1738 ]
+# 
+# str(df_sp.activeU[, 1:6])
+# 
+# 
+# head(df_sp.activeU[, 1:6])
+# 
+# #for untreated seeds Incub =0 row.names(df_sp.activeU) <-c("A1","A2","A3","A4","A5","A6","A7","A8","M1","M2","M3","M4","M5","M6","M7","M8","M9")
+# 
+# #for treated seeds Incub=84 
+# row.names (df_sp.activeU) <-c("A1","A2","A3","A4","A5","A6","A7","A8", "A9", "M1","M2","M3","M4","M5","M6","M7")
+# 
+# head (df_sp.activeU)
 
 ```
 
@@ -93,21 +165,48 @@ fviz_eig(res.pca)
 ```
 
 
+
+
 ##Graph of individuals. Individuals with a similar profile are grouped together.  
 
 FIX ME: how to change columns for the incubation days !!
 ```{r, fig.height=5, fig.width=10}
 
+# fviz_pca_ind(res.pca,
+#              col.ind = "cos2", # Color by the quality of representation
+#              #col.ind = "Cultivar", 
+#              gradient.cols = c("#00AFBB", "#E7B800", "#FC4E07"),
+#              #gradient.cols = c("#00AFBB", "#E7B800"),
+#              geom="point",
+#              
+#              repel = TRUE     # Avoid text overlapping
+#              )
+
+
 fviz_pca_ind(res.pca,
              col.ind = "cos2", # Color by the quality of representation
-             gradient.cols = c("#00AFBB", "#E7B800", "#FC4E07"),
-             geom="point",
-             
+             #gradient.cols = c("#00AFBB", "#E7B800", "#FC4E07"),
+             geom = c("point", "text"),
+             label = "all", invisible = "none", labelsize = 6,pointsize = 4,
              repel = TRUE     # Avoid text overlapping
-             )
+             )+
+             scale_color_gradient2(low="white", mid="blue",
+      high="dark blue", midpoint=0.6)+
+   theme_bw()+
+  # theme(axis.text.x=element_text(angle = 0, hjust = 0.5, size= 20))+
+  # theme(axis.text.y=element_text(angle = 0, hjust = 0, size= 20))+
+  theme(axis.text.y = element_text( size = 26))+
+theme(axis.title.y = element_text(face="bold", size=24))+
+theme(axis.text.x=element_text(angle = 0, hjust=0.5,vjust=0,size = 22,face="bold"))+
+theme(axis.title.x = element_text( face="bold", size=24))+
+#if need the axes labels 
+  xlab(expression(PC1~"(95%)"))+ 
+  ylab(expression(PC2~"(3%)")) +
+  xlim(-12, 12)+
+  ylim(-4, 4)
 
-
-
+   
+ 
 ```
 Separate by groups for Antas 
 
@@ -117,7 +216,9 @@ df_sp.activeU
 
 # Add ellipses
 p <- fviz_pca_ind(res.pca, label="none", habillage=df_sp.activeU$Cultivar,
-             addEllipses=TRUE, ellipse.level=0.95, alpha=0.9)
+             addEllipses=TRUE, ellipse.level=0.2, alpha=0.95)+
+  #scale_color_brewer(palette="Set1") +
+     theme_minimal()
 print(p)
 ```
 

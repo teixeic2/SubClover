@@ -17,7 +17,7 @@ library(knitr)
 library (lubridate)
 
 ```
-This script calculates the means of DAS and TTAS50Flo for Iversen to join the Reanalysis table 
+This script calculates the means of DAS and TTAS50Flo and perform the statistics 
 
 ```{r loadFile}
 
@@ -42,22 +42,100 @@ str(df_work)
 
 ```
 
-Get mean values to write chapter 
+
+Do Stats for DAS50F for Bud first 
+
+```{r}
+df_Bud <-df_work %>%
+  filter(PhenoStage=="Bud")
+
+```
+
+
+Perform anova general 
 
 ```{r}
 
-df_Narri_S7_mean <- df_work %>%
-  #use filter to check single variables -Bud, Flowering and Bur
-  #filter(Cultivar == "Narrikup") %>%
-  filter(PhenoStage=="Bud")%>%
-  #filter (SowTreat=="S8"|SowTreat=="S7")%>%
-  filter (SowTreat=="S7")%>%
-  group_by(Cultivar)%>%
-  dplyr::select(Cultivar,TT50F)%>%
-  summarise_all(funs(mean,sd))%>%
-  mutate(SE=sd/1.73)
 
-summary(df_Narri_S7_mean)
+ file <- df_Bud
+file.subs <- file 
+
+head(file.subs)
+summary(file.subs)
+
+#ANOVA
+
+my.anova <- aov(DAS50F ~ SowTreat + Block, data = file.subs)
+#my.anova <- aov(DAS50F ~ Cultivar + Block, data = file.subs)
+
+summary(my.anova)
+```
+
+```{r}
+(LSD.test(my.anova, c("SowTreat"), alpha= 0.05, p.adj="none"))
+#(LSD.test(my.anova, c("Cultivar"), alpha= 0.05, p.adj="none"))
+```
+
+
+
+## Create index to filter for loop ANOVA
+
+```{r}
+y <- c("S1","S2","S3","S4","S5","S6","S7","S8")
+
+sdIndex <- unique(df_Bud$SowTreat)
+
+sdIndex[order(match(sdIndex,y))]
+
+length(sdIndex)
+sdIndex
+```
+
+## Then loop anova for each individual sowing date 
+```{r}
+for (i in 1:length(sdIndex)) {
+  
+ #print(i)
+ print(paste0(sdIndex[i],"--------------------------------"))
+  
+  file.subset <- df_Bud %>%
+  filter(SowTreat==sdIndex[i])
+  
+ 
+head(file.subset, 50)
+   summary(file.subset)
+my.anova <- aov(DAS50F ~ Cultivar + Block, data = file.subset)
+print(summary(my.anova))
+
+if ((summary(my.anova)[[1]][["Pr(>F)"]][1])<0.05) {
+  print("***Sig Cultivar***") 
+  print((LSD.test(my.anova, c("Cultivar"), alpha= 0.05, p.adj="none"))) } 
+
+
+if ((summary(my.anova)[[1]][["Pr(>F)"]][1])>0.05) {
+  print("***Sig Cultivar***") 
+  print((LSD.test(my.anova, c("Cultivar"), alpha= 0.05, p.adj="none"))) } 
+
+# make mean separation if significant
+
+(LSD.test(my.anova, c("Cultivar"), alpha= 0.05, p.adj="none"))
+  
+}
+
+```
+
+
+
+```{r}
+
+
+
+
+
+
+
+
+
 
 
 ```

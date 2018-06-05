@@ -1,0 +1,195 @@
+---
+title: "Regeneration Analysis"
+author: "CT"
+date: "September  18, 2017"
+output: html_document
+---
+Purpose : 
+calculations of mean seed coat thickness for plots in Iv2 - cultivars antas, narrikup and monti 
+ 
+ANOVA for the variate : mean seed coat thickness (in microns )
+
+```{r, warning=FALSE}
+#Load libraries 
+library(tidyr)
+library (dplyr)
+library (ggplot2)
+library(agricolae)
+library(lubridate)
+```
+
+Read File 
+
+
+```{r}
+
+setwd("C:\\GitHubRepos\\SubCloverPhD\\SubClover\\SeedCoatThick")
+getwd()
+file <- read.table("SeecCoatThick.txt",header=TRUE)
+
+head (file)
+```
+
+
+
+
+
+Define the formats  
+
+```{r}
+
+# define factors and formats
+file <- file %>%
+  mutate(
+    #Plot = as.factor(Plot),
+    Block = as.factor(Block),
+    Cultivar = as.factor(Cultivar),
+    #ReadingDate = dmy(ReadingDate),
+    #SowingDate = dmy(SowingDate),
+    MicronsThick= as.numeric(MicronsThick)
+  )
+
+str(file)
+summary(file)
+
+```
+
+
+
+Here calculates prepare dodge positions and graph with SE directly
+
+```{r, fig.height= 5, fig.width=10 , warning=FALSE}
+
+#barplot 
+#The palette with grey:cbPalette <- c("999999"),"666666", "#56B4E9", "#009E73", "#D55E00", "#0072B2","#999999", "#E69F00", "#56B4E9", "#009E73", "#D55E00", "#0072B2","#56B4E9", "#009E73")
+
+#cbPalette <- c("#E69F00", "#56B4E9", "#009E73", "#D55E00", "#0072B2","#56B4E9")
+
+
+# define position of bar and errorbar
+dodge_x <- position_dodge(width = 0.9)
+
+# splitting and df due bug in tidyr (https://github.com/hadley/tidyr/issues/32)
+
+  df_micron <- file 
+  
+
+
+```
+
+No need to graph do a table only (few numbers )
+
+```{r, fig.height= 5, fig.width=10 , warning=FALSE}
+# df_score %>%
+#   group_by(Cultivar, SowTreat) %>%
+#   summarise_each(funs(mean,sd))%>%
+#   filter(SowTreat=="S6")%>%
+#   #mutate(colPal = ifelse(Cultivar=="Antas","Brachy",ifelse(Cultivar=="Monti","Brachy","Yanny"))) %>%
+#   #ggplot(aes(x=Cultivar, y=(PropBurrBuried_mean),fill=colPal)) +
+#   ggplot(aes(x=Cultivar, y=( PopScore_mean),fill=Cultivar))+
+#    geom_bar(stat="identity", position = dodge_x) +
+#   geom_errorbar(aes(ymin= PopScore_mean- PopScore_sd/3.46, ymax= PopScore_mean+ PopScore_sd/3.46),
+#                 width=0.25, size=0.3,position=dodge_x)   +
+#   theme_grey(base_size = 16) +
+#     facet_grid(.~SowTreat) +
+#     labs(y="Regeneration Score") +
+#   theme_bw()+
+# theme(axis.text.y = element_text( size = 10))+
+# theme(axis.title.y = element_text(face="bold", size=12))+
+# theme(axis.text.x=element_text(angle = 0, hjust=0.95,vjust=0.2,size = 14))
+# 
+# head(df_score)
+```
+
+Prepare table for anova 
+
+```{r}
+
+#-------------------------------------------------
+# ANOVA 
+file.subset <- file 
+
+head(file.subset, 50)
+summary(file.subset)
+#To get means select the factor : SowTreat or Cultivar
+my.anova <- aov(MicronsThick ~ Cultivar + Block, 
+                data = file.subset)
+
+
+
+
+```
+
+```{r}
+
+summary(my.anova)
+```
+
+
+Then mean separation 
+
+```{r}
+
+#Means separation 
+(LSD.test(my.anova, c("Cultivar"), alpha= 0.05, p.adj="none") )
+
+
+```
+
+
+
+
+then loop anova if significant 
+
+## Then loop anova for each individual sowing date 
+```{r}
+for (i in 1:length(sdIndex)) {
+  
+ #print(i)
+ print(paste0(sdIndex[i],"--------------------------------"))
+  
+  file.subset <- file %>%
+  filter(SowTreat==sdIndex[i])
+  
+ 
+head(file.subset, 50)
+   summary(file.subset)
+my.anova <- aov(PopScore ~ Cultivar + Block, data = file.subset)
+print(summary(my.anova))
+
+if ((summary(my.anova)[[1]][["Pr(>F)"]][1])<0.05) {
+  print("***Sig Cultivar***") 
+  print((LSD.test(my.anova, c("Cultivar"), alpha= 0.05, p.adj="none"))) } 
+
+
+ if ((summary(my.anova)[[1]][["Pr(>F)"]][1])>0.05) {
+   print("***Sig Cultivar***") 
+   print((LSD.test(my.anova, c("Cultivar"), alpha= 0.05, p.adj="none"))) } 
+
+# make mean separation if significant
+
+(LSD.test(my.anova, c("Cultivar"), alpha= 0.05, p.adj="none"))
+  
+}
+
+```
+
+Here graph with the SE (SE = std/ sqrt n ; n=3)
+
+```{r,fig.height= 5, fig.width=10 , warning=FALSE}
+
+
+
+
+```
+
+then do simple ANOVA
+
+
+```{r}
+
+```
+
+
+
+

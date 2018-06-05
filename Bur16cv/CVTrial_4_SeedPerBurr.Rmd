@@ -145,13 +145,13 @@ fileSeven3%>%
     #labs(y="Seeds per Burr") +
   ylab(expression(Seeds~per~"Burr")) +
   theme_bw()+
-theme(axis.text.y = element_text( size = 14))+
-theme(axis.title.y = element_text(face="bold", size=18))+
-theme(axis.text.x=element_text(angle = 0, hjust=0.5,vjust=0,size = 11))+
-theme(axis.title.x = element_text(face="bold", size=16))
+theme(axis.text.y = element_text( size = 26))+
+theme(axis.title.y = element_text(face="bold", size=28))+
+theme(axis.text.x=element_text(angle = 0, hjust=0.5,vjust=0,size = 22,face="bold"))+
+theme(axis.title.x = element_text( size=26))
 
 
-ggsave( "plot_SeedsPerBur_.png", width=15, height=10, dpi=400)
+#ggsave( "plot_SeedsPerBur_.png", width=15, height=10, dpi=400)
 
 
 
@@ -199,6 +199,7 @@ and then consider cultivar within each sowing date
 my.anova <- aov(SeedsPerBur ~ Cultivar + Block, data = file.subset)
 summary(my.anova)
 ```
+First LSD 
 
 ```{r}
 #Means separation after ANOVA
@@ -206,16 +207,29 @@ summary(my.anova)
 (LSD.test(my.anova, c("Cultivar"), alpha= 0.05, p.adj="none")) 
 ```
 
-Perform anova in cultivars 
+Perform Tukeys 
 
+
+This is Tukeys test for mean comparison 
+
+```{r}
+#posthoc <- TukeyHSD(x=my.anova, 'Cultivar', conf.level=0.95)
+posthoc <- TukeyHSD(x=my.anova, 'Cultivar', conf.level=0.25)
+
+posthoc
+
+```
+
+
+Then 
+This is the mean separation using Tukey 
 
 
 ```{r}
 
+fogo <-HSD.test(my.anova, 'Cultivar', group=TRUE)
+fogo
 
-#Means separation after ANOVA
-(LSD.test(my.anova, c("Cultivar"), alpha= 0.05, p.adj="none")) 
-#(LSD.test(my.anova, c("Treat", "Cultivar"), alpha= 0.05, p.adj="none")) 
 ```
 
 now do the mean table to write

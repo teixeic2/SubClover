@@ -18,7 +18,7 @@ library(lubridate)
 ```
 
 Read File 
-Need to bring the whole seedweight file to have the SE !!!!
+Need to bring the whole seedweight file to have the SE !!!!Look at script Cvtrial_9
 
 ```{r, echo=FALSE}
 setwd("C:\\GitHubRepos\\SubCloverPhD\\SubClover\\Bur16cv")

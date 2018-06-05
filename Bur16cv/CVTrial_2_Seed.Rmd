@@ -154,7 +154,7 @@ theme(axis.text.y = element_text( size = 10))+
 theme(axis.title.y = element_text(face="bold", size=12))+
 theme(axis.text.x=element_text(angle = 90, hjust=0.95,vjust=0.2,size = 12))
  
-ggsave( "plot_SeedNumberTotal_.png", width=10, height=5, dpi=400)
+#ggsave( "plot_SeedNumberTotal_.png", width=10, height=5, dpi=400)
 ```
 
 
@@ -193,10 +193,9 @@ summary(file.subset)
 
 ```
 
+here select the variable 
+seed per sqrt meter or seed per sqrtm
 
-Here Analyse the percentage ofseeds overall :
-consider sow Treat as a factor  (overview)
-and then consider cultivar within each sowing date 
 
 ```{r}
 
@@ -213,9 +212,41 @@ summary(my.anova)
 (LSD.test(my.anova, c("Cultivar"), alpha= 0.05, p.adj="none")) 
 ```
 
-Perform anova in cultivars 
+Perform Tukeys 
+
+This is Tukeys test for mean comparison 
+
+```{r}
+#posthoc <- TukeyHSD(x=my.anova, 'Cultivar', conf.level=0.95)
+#loop with varios confidence intervals or alphas
+
+for (i in seq(0.1, 0.95, by=0.1)) {
+  
+print(paste0("-------------------- CI is: ",i," -------------------"))  
+posthoc <- TukeyHSD(x=my.anova, 'Cultivar', conf.level=i) # check se CI aand alpha are correctly interpreted
+print(posthoc)  
+  
+hsdTest <-HSD.test(my.anova, 'Cultivar', group=TRUE,alpha = 1-i)
+print(hsdTest )
+}
 
 
+```
+
+Then 
+This is the mean separation using Tukey 
+
+
+```{r}
+
+fogo <-HSD.test(my.anova, 'Cultivar', group=TRUE)
+fogo
+
+```
+
+
+
+Perform anova in cultivars with variable Seed number per m2
 
 ```{r}
 

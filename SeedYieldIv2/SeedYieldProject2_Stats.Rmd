@@ -82,6 +82,30 @@ my.anova <- aov(Seedskg_ha ~ SowTreat + Block, data = file.subset)
 #my.anova <- aov(Seedskg_ha ~ Depth + Block, data = file.subset)
 summary(my.anova)
 ```
+```{r}
+#plot(my.anova)
+```
+
+This is Tukeys test for mean comparison 
+
+```{r}
+posthoc <- TukeyHSD(x=my.anova, 'SowTreat', conf.level=0.95)
+
+posthoc
+
+```
+
+This is the mean separation using Tukey 
+
+
+```{r}
+
+fogo <-HSD.test(my.anova, 'SowTreat', group=TRUE)
+fogo
+
+```
+
+
 
 Then use multiple comparisons of means and get the standard errors (std)
 ```{r}
@@ -90,6 +114,22 @@ Then use multiple comparisons of means and get the standard errors (std)
 (LSD.test(my.anova, c("SowTreat"), alpha= 0.05, p.adj="none"))
 #(LSD.test(my.anova, c("Depth"), alpha= 0.05, p.adj="none"))
 ```
+
+Now run the Tukeys Honest test 
+
+```{r}
+
+#Means separation after ANOVA
+#(LSD.test(my.anova, c("Cultivar"), alpha= 0.05, p.adj="none"))
+(LSD.test(my.anova, c("SowTreat"), alpha= 0.05, p.adj="none"))
+
+
+```
+
+
+
+
+
 
 
 S1

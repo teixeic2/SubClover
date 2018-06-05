@@ -165,9 +165,9 @@ file.subset <- file
 head(file.subset, 50)
 summary(file.subset)
 #my.anova <- aov(SoftGerm_perc~ Cultivar*SowTreat + Block, data = file.subset)
-#my.anova <- aov(SoftGerm~ Cultivar + Block, data = file.subset)
+my.anova <- aov(SoftGerm_perc~ Cultivar + Block, data = file.subset)
 #my.anova <- aov(SoftGerm_perc~ Depth + Block, data = file.subset)
-my.anova <- aov(SoftGerm_perc~ SowTreat + Block, data = file.subset)
+#my.anova <- aov(SoftGerm_perc~ SowTreat + Block, data = file.subset)
 ```
 
 ```{r}
@@ -181,9 +181,9 @@ Check means among sowing dates
 ```{r}
 #Means separation 
 #(LSD.test(my.anova, c("Cultivar","SowTreat"), alpha= 0.05, p.adj="none"))
-(LSD.test(my.anova, c("SowTreat"), alpha= 0.05, p.adj="none"))
+#(LSD.test(my.anova, c("SowTreat"), alpha= 0.05, p.adj="none"))
 #(LSD.test(my.anova, c("Depth"), alpha= 0.05, p.adj="none"))
-#(LSD.test(my.anova, c("Cultivar"), alpha= 0.05, p.adj="none"))
+(LSD.test(my.anova, c("Cultivar"), alpha= 0.05, p.adj="none"))
 ```
 
 The lowest percentage os normal seeds was observed in S1,S2,S3 . In S4, S6 and S7 the percentage of abnormal seeds was double. 

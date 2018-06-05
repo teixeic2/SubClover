@@ -208,7 +208,30 @@ summary(my.anova)
 #Means separation after ANOVA
 #(LSD.test(my.anova, c("Treat"), alpha= 0.05, p.adj="none")) 
 (LSD.test(my.anova, c("Cultivar"), alpha= 0.05, p.adj="none")) 
+
+
 ```
+
+This is Tukeys test for mean comparison 
+
+```{r}
+posthoc <- TukeyHSD(x=my.anova, 'Cultivar', conf.level=0.95)
+
+posthoc
+
+```
+
+Then 
+This is the mean separation using Tukey 
+
+
+```{r}
+
+fogo <-HSD.test(my.anova, 'Cultivar', group=TRUE)
+fogo
+
+```
+
 
 Correlate with the burr burial ranks by Nichols 2013
 
@@ -237,7 +260,7 @@ Plot percent buried burrs against the ranks
 
 df_merge %>%
    ggplot(aes(x=BurialRank, y=PercentBurBurial_mean)) + # do percentage here
-   geom_point(aes(shape= Cultivar), size=5)+
+   geom_point(aes(shape= Cultivar), size=6)+
   scale_shape_manual(values = c(0,1,2,3,4,5,6,7,8))+
   #scale_shape_manual(values = c(0,1,2,3,4,5,6))+
   geom_point()+
@@ -248,12 +271,15 @@ df_merge %>%
   #facet_wrap(.~Temp, ncol=6)
 
 #facet_wrap(~Month_f,ncol=3, scales = "free")+
-  theme_bw(base_size=16)+
+  #theme_bw(base_size=16)+
+  theme_bw()+
   #scale_x_continuous(breaks = c(1,200,300))+
  #ylim(0, 2000)+
   xlim(0, 8)+
-  theme(axis.text.x=element_text(angle = +0, hjust = 0.5, size= 12))+
-  theme(axis.text.y=element_text(angle = +0, hjust = 0, size= 12))+
+  theme(axis.text.x=element_text(angle = +0, hjust = 0.5, size= 18))+
+  theme(axis.text.y=element_text(angle = +0, hjust = 0.5, size= 18))+
+  theme(axis.title.x=element_text(angle = +0, hjust = 0.5, size= 20))+
+  theme(axis.title.y=element_text(angle = +90, hjust = 0.5, size= 20))+
   labs(y="Percentage of buried burrs (%) ",x="Burial Rank ")
  # geom_abline(intercept = 50, slope = 0)
 

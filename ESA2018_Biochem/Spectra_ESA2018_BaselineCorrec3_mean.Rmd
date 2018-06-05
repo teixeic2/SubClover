@@ -21,11 +21,11 @@ library(scales)
 
 
 ```{r readData}
-setwd("C:\\GitHubRepos\\SubCloverPhD\\SubClover\\Spectra")
+setwd("C:\\GitHubRepos\\SubCloverPhD\\SubClover\\ESA2018_Biochem")
 getwd()
 
 #create file
-df_sp <- read.table("BreakBaselined3cv.txt",header=TRUE)
+df_sp <- read.table("BreakBaselined3cv_2.txt",header=TRUE)
 
 
 
@@ -82,10 +82,141 @@ df_sp3%>%
   geom_abline(intercept = 0.1, slope = 0)
   
 
-write.table(df_sp3,"MeanSpectraESA2018.txt")
+#write.table(df_sp3,"MeanSpectraESA2018.txt")
 ```
 
+Create a graph with baselined corrected spectra with snaps on x axes 
+
+
+
+```{r}
+
+##select only wavenumbers between 3700-2700, then 
+df_sp33 <-df_sp2 %>%
+    filter(Cultivar!="N")%>%
+  subset(WaveNumber <3700 & WaveNumber >2700) 
+  
+  
+
+  
+
+df_sp33%>%
+   ggplot(aes(x=WaveNumber,y=Absorbance))+
+  geom_line(aes(colour=factor(IncubationDays)))+
+  theme_bw()+
+  #scale_x_continuous(breaks=seq(min(df_sp$WaveNumber),max(df_sp$WaveNumber),by =50))+
+  
+  #scale_x_continuous(breaks=round(seq(min(df_sp$WaveNumber),max(df_sp$WaveNumber),by =50)))+
+  facet_grid(Cultivar ~.) +
+  #facet_grid(IncubationDays ~.) +
+  scale_x_reverse()+
+  theme_bw()+
+  theme(axis.text.x = element_text(angle = 90, hjust = 1)) +
+  expand_limits(y=c(0,0.2)) +
+  geom_abline(intercept = 0.1, slope = 0)
+  
+write.table(df_sp33, "Baselined1.txt") #this will be used to buil the graph (portion 1 of spectra)
+
+```
+
+subset again 
+```{r}
+
+##select only wavenumbers between 3700-2700, then 
+df_sp43 <-df_sp2 %>%
+    filter(Cultivar!="N")%>%
+  #subset(WaveNumber <3700 & WaveNumber >2700  )
+subset(WaveNumber <1800 & WaveNumber >850 )
+
+  
+  write.table(df_sp43, "Baselined2.txt") #this will be used to buil the graph (portion 2 of spectra)
+
+df_sp43%>%
+   ggplot(aes(x=WaveNumber,y=Absorbance))+
+  geom_line(aes(colour=factor(IncubationDays)))+
+  theme_bw()+
+  #scale_x_continuous(breaks=seq(min(df_sp$WaveNumber),max(df_sp$WaveNumber),by =50))+
+  
+  #scale_x_continuous(breaks=round(seq(min(df_sp$WaveNumber),max(df_sp$WaveNumber),by =50)))+
+  facet_grid(Cultivar ~.) +
+  #facet_grid(IncubationDays ~.) +
+  scale_x_reverse()+
+  theme_bw()+
+  theme(axis.text.x = element_text(angle = 90, hjust = 1)) +
+  expand_limits(y=c(0,0.2)) +
+  geom_abline(intercept = 0.1, slope = 0)
+
+
+
+```
+
+Now combine the two dataframes (df_sp33 and df_43)and ring the file to build the graph
+
+
+```{r}
+
+getwd()
+
+#create file
+df_spSegment <- read.table("Spectra_ESA2018_BaselinedSegmented.txt",header=TRUE)
+
+
+```
+
+
+
+
+```{r, fig.height=5, fig.width=20}
+
+str(df_spSegment)
+
+df_spSegment2<-df_spSegment  %>%
+  mutate(Days= as.factor(IncubationDays))%>%
+  mutate (SpectraPart= factor(SpectraPart, levels=c("3700-2700", "1800-850")))%>%
+  mutate (Cultivar_f= factor(Cultivar, levels=c("A", "M"),labels=c("Antas", "Monti")))
+ 
+#force spectra order here                              
+      df_spSegment$SpectraPart_f = factor(df_spSegment$SpectraPart, levels=c('3700-2700','1800-850'))                        
+  df_spSegment2  %>%                            
+  ggplot(aes(x=WaveNumber,y=Absorbance))+
+    #geom_line(aes(), colour=IncubationDays))+
+  geom_line(aes(colour=Days))+
+  theme_bw()+
+  #scale_x_continuous(breaks=seq(min(df_sp$WaveNumber),max(df_sp$WaveNumber),by =50))+
+    #scale_x_continuous(breaks=round(seq(min(df_sp$WaveNumber),max(df_sp$WaveNumber),by =50)))+
+  facet_grid(Cultivar_f ~SpectraPart_f,scales="free") +
+  #facet_grid(IncubationDays ~.) +
+  #scale_x_reverse()+
+  #scale_x_continuous(breaks=round(seq(min(df_sp$WaveNumber),max(df_sp$WaveNumber),by =50)))+
+  
+  theme_bw()+
+  theme(strip.text.x =  element_blank())+
+  theme(axis.text.x = element_text(angle = 90, hjust = 1)) +
+  expand_limits(y=c(0,0.2)) +
+      labs(y= " Absorbance ")+
+#theme(axis.text.y = element_text( size = 24))+
+  #theme(axis.title.y = element_text(face="bold", size=14))+
+#theme(axis.text.x=element_text(angle = 0, hjust=0.95,vjust=0.2,size = 28)) +
+theme(text = element_text(size = 24))+
+theme(axis.text.y = element_text( size = 24))+ theme(axis.title.y = element_text(face="bold", size=24))+
+theme(axis.text.x=element_text(angle = 0, hjust=0.5,vjust=0,size = 24))+
+theme(axis.title.x = element_text( size=24,face="bold"))
+#   labs(y="Measured seed weight (mg) ",x="Reported seed weight (mg) ")
+#  # geom_abline(intercept = 50, slope = 0)
+ # geom_abline(intercept = 0.1, slope = 0)
+
+   #Save graph 
+ 
+ ggsave("plot_spectraESA2018_Poster.png", width=12, height=8, dpi=400)
+
+
+```
+
+
+
+
 Create a graph with baselined corrected spectra with time as panels 
+
 
 ```{r, fig.width=15, fig.height=5}
 

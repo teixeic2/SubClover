@@ -48,6 +48,8 @@ sdIndex
 Then make anova for slope type perTt (thermal time)
 get mean separation when P <0.05
 
+
+
 ```{r}
 for (i in 1:length(sdIndex)) {
   

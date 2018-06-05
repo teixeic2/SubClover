@@ -1,0 +1,330 @@
+---
+title: "Pok Vigour visuals  Analysis"
+author: "CT"
+date: "March  18, 2018"
+output: html_document
+---
+Purpose : 
+calculations of visual  scores for Poukawas plots : 
+Subclover vigour, weed Percentage and fungal damage  
+ 
+ANOVA for the variates
+
+```{r, warning=FALSE}
+#Load libraries 
+library(tidyr)
+library (dplyr)
+library (ggplot2)
+library(agricolae)
+library(lubridate)
+```
+
+Read File 
+
+
+```{r}
+
+setwd("C:\\GitHubRepos\\SubCloverPhD\\SubClover\\PokVigour")
+getwd()
+file <- read.table("PokVigour.txt",header=TRUE)
+
+head (file)
+```
+
+
+
+parei aqui 
+
+Define the formats  
+
+```{r}
+
+# define factors and formats
+file <- file %>%
+  mutate(
+    Plot = as.factor(Plot),
+    Block = as.factor(Block),
+    Cultivar = as.factor(Cultivar),
+    SowTreat = as.factor(SowTreat),
+    Date = dmy(Date),
+   SubVigour= as.numeric(SubVigour),
+   WeedPerc= as.numeric(WeedPerc)
+  )
+
+str(file)
+summary(file)
+
+```
+
+
+
+Here calculates prepare dodge positions and graph with SE directly
+
+```{r, fig.height= 5, fig.width=10 , warning=FALSE}
+
+#barplot 
+#The palette with grey:cbPalette <- c("999999"),"666666", "#56B4E9", "#009E73", "#D55E00", "#0072B2","#999999", "#E69F00", "#56B4E9", "#009E73", "#D55E00", "#0072B2","#56B4E9", "#009E73")
+
+#cbPalette <- c("#E69F00", "#56B4E9", "#009E73", "#D55E00", "#0072B2","#56B4E9")
+
+
+# define position of bar and errorbar
+dodge_x <- position_dodge(width = 0.9)
+
+# splitting and df due bug in tidyr (https://github.com/hadley/tidyr/issues/32)
+
+ 
+  
+
+
+```
+
+Graph the pop score . To get the SE use /1.73 x 2 
+
+```{r, fig.height= 5, fig.width=10 , warning=FALSE}
+file %>%
+  group_by(Cultivar, SowTreat) %>%
+  summarise_each(funs(mean,sd))%>%
+  #filter(SowTreat=="S6")%>%
+  #mutate(colPal = ifelse(Cultivar=="Antas","Brachy",ifelse(Cultivar=="Monti","Brachy","Yanny"))) %>%
+  #ggplot(aes(x=Cultivar, y=(PropBurrBuried_mean),fill=colPal)) +
+  ggplot(aes(x=Cultivar, y=( SubVigour_mean),fill=Cultivar))+
+   geom_bar(stat="identity", position = dodge_x) +
+  geom_errorbar(aes(ymin= SubVigour_mean- SubVigour_sd/3.46, ymax= SubVigour_mean+ SubVigour_sd/3.46),
+                width=0.25, size=0.3,position=dodge_x)   +
+   scale_fill_brewer(palette="Blues")+
+  theme_grey(base_size = 16) +
+    facet_grid(.~SowTreat) +
+    labs(y="Vigour") +
+  theme_bw()+
+theme(axis.text.y = element_text( size = 16))+
+theme(axis.title.y = element_text(face="bold", size=16))+
+theme(axis.text.x=element_text(angle = 90, hjust=0.95,vjust=0.2,size = 18))
+
+#head(df_file)
+```
+
+
+## Create index to filter for loop ANOVA
+
+```{r}
+y <- c("S6","S7","S8")
+
+sdIndex <- unique(file$SowTreat)
+
+sdIndex[order(match(sdIndex,y))]
+
+length(sdIndex)
+sdIndex
+```
+
+
+then loop anova if significant 
+
+## Then loop anova for each individual sowing date 
+```{r}
+for (i in 1:length(sdIndex)) {
+  
+ #print(i)
+ print(paste0(sdIndex[i],"--------------------------------"))
+  
+  file.subset <- file %>%
+  filter(SowTreat==sdIndex[i])
+  
+ 
+head(file.subset, 50)
+   summary(file.subset)
+my.anova <- aov( SubVigour ~ Cultivar + Block, data = file.subset)
+print(summary(my.anova))
+
+if ((summary(my.anova)[[1]][["Pr(>F)"]][1])<0.05) {
+  print("***Sig Cultivar***") 
+  print((LSD.test(my.anova, c("Cultivar"), alpha= 0.05, p.adj="none"))) } 
+
+
+ if ((summary(my.anova)[[1]][["Pr(>F)"]][1])>0.05) {
+   print("***Sig Cultivar***") 
+   print((LSD.test(my.anova, c("Cultivar"), alpha= 0.05, p.adj="none"))) } 
+
+# make mean separation if significant
+
+(LSD.test(my.anova, c("Cultivar"), alpha= 0.05, p.adj="none"))
+  
+}
+
+```
+
+Here analysis of variate weed percentage 
+
+
+```{r, fig.height= 5, fig.width=10 , warning=FALSE}
+file %>%
+  #dplyr::select()
+  group_by(Cultivar, SowTreat) %>%
+  summarise_each(funs(mean,sd))%>%
+  #filter(SowTreat=="S6")%>%
+  #mutate(colPal = ifelse(Cultivar=="Antas","Brachy",ifelse(Cultivar=="Monti","Brachy","Yanny"))) %>%
+  #ggplot(aes(x=Cultivar, y=(PropBurrBuried_mean),fill=colPal)) +
+  ggplot(aes(x=Cultivar, y=( WeedPerc_mean),fill=Cultivar))+
+   geom_bar(stat="identity", position = dodge_x) +
+  geom_errorbar(aes(ymin= WeedPerc_mean- WeedPerc_sd/3.46, ymax= WeedPerc_mean+ WeedPerc_sd/3.46),
+                width=0.25, size=0.3,position=dodge_x)   +
+   scale_fill_brewer(palette="Blues")+
+  theme_grey(base_size = 16) +
+    facet_grid(.~SowTreat) +
+    labs(y="Weed Percentage ") +
+  theme_bw()+
+theme(axis.text.y = element_text( size = 16))+
+theme(axis.title.y = element_text(face="bold", size=16))+
+theme(axis.text.x=element_text(angle = 90, hjust=0.95,vjust=0.2,size = 18))
+
+#head(df_file)
+```
+
+
+ANOVA for percenatge of weeds 
+
+## Create index to filter for loop ANOVA
+
+```{r}
+y <- c("S6","S7","S8")
+
+sdIndex <- unique(file$SowTreat)
+
+sdIndex[order(match(sdIndex,y))]
+
+length(sdIndex)
+sdIndex
+```
+
+
+then loop anova if significant 
+
+## Then loop anova for each individual sowing date 
+```{r}
+for (i in 1:length(sdIndex)) {
+  
+ #print(i)
+ print(paste0(sdIndex[i],"--------------------------------"))
+  
+  file.subset <- file %>%
+  filter(SowTreat==sdIndex[i])
+  
+ 
+head(file.subset, 50)
+   summary(file.subset)
+my.anova <- aov( WeedPerc ~ Cultivar + Block, data = file.subset)
+print(summary(my.anova))
+
+if ((summary(my.anova)[[1]][["Pr(>F)"]][1])<0.05) {
+  print("***Sig Cultivar***") 
+  print((LSD.test(my.anova, c("Cultivar"), alpha= 0.05, p.adj="none"))) } 
+
+
+ if ((summary(my.anova)[[1]][["Pr(>F)"]][1])>0.05) {
+   print("***Sig Cultivar***") 
+   print((LSD.test(my.anova, c("Cultivar"), alpha= 0.05, p.adj="none"))) } 
+
+# make mean separation if significant
+
+(LSD.test(my.anova, c("Cultivar"), alpha= 0.05, p.adj="none"))
+  
+}
+
+```
+
+Fungal damage 
+
+
+Here analysis of variate weed percentage 
+
+
+```{r, fig.height= 5, fig.width=10 , warning=FALSE}
+fungi <-file %>%
+  #dplyr::select()
+  group_by(Cultivar, SowTreat) %>%
+  summarise_all(funs(mean,sd))
+
+
+
+```
+
+
+```{r, fig.height=6,fig.width=12}
+
+fungi %>%
+  #filter(SowTreat=="S6")%>%
+  #mutate(colPal = ifelse(Cultivar=="Antas","Brachy",ifelse(Cultivar=="Monti","Brachy","Yanny"))) %>%
+  #ggplot(aes(x=Cultivar, y=(PropBurrBuried_mean),fill=colPal)) +
+  ggplot(aes(x=Cultivar, y=( FungiDamage_mean),fill=Cultivar))+
+   geom_bar(stat="identity", position = dodge_x) +
+  geom_errorbar(aes(ymin= FungiDamage_mean- FungiDamage_sd/3.46, ymax= FungiDamage_mean+ FungiDamage_sd/3.46),
+                width=0.25, size=0.3,position=dodge_x)   +
+   scale_fill_brewer(palette="Blues")+
+  theme_grey(base_size = 16) +
+    facet_grid(.~SowTreat) +
+    labs(y="Visual Score Foliar Fungi Damage ") +
+  theme_bw()+
+theme(axis.text.y = element_text( size = 16))+
+theme(axis.title.y = element_text(face="bold", size=16))+
+theme(axis.text.x=element_text(angle = 90, hjust=0.95,vjust=0.2,size = 18))
+
+#head(df_file)
+
+```
+
+
+
+ANOVA for percenatge of weeds 
+
+## Create index to filter for loop ANOVA
+
+```{r}
+y <- c("S6","S7","S8")
+
+sdIndex <- unique(file$SowTreat)
+
+sdIndex[order(match(sdIndex,y))]
+
+length(sdIndex)
+sdIndex
+```
+
+
+then loop anova if significant 
+
+## Then loop anova for each individual sowing date 
+```{r}
+for (i in 1:length(sdIndex)) {
+  
+ #print(i)
+ print(paste0(sdIndex[i],"--------------------------------"))
+  
+  file.subset <- file %>%
+  filter(SowTreat==sdIndex[i])
+  
+ 
+head(file.subset, 50)
+   summary(file.subset)
+my.anova <- aov( FungiDamage ~ Cultivar + Block, data = file.subset)
+print(summary(my.anova))
+
+if ((summary(my.anova)[[1]][["Pr(>F)"]][1])<0.05) {
+  print("***Sig Cultivar***") 
+  print((LSD.test(my.anova, c("Cultivar"), alpha= 0.05, p.adj="none"))) } 
+
+
+ if ((summary(my.anova)[[1]][["Pr(>F)"]][1])>0.05) {
+   print("***Sig Cultivar***") 
+   print((LSD.test(my.anova, c("Cultivar"), alpha= 0.05, p.adj="none"))) } 
+
+# make mean separation if significant
+
+(LSD.test(my.anova, c("Cultivar"), alpha= 0.05, p.adj="none"))
+  
+}
+
+```
+
+
+

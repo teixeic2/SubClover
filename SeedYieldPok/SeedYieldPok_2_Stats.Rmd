@@ -44,20 +44,77 @@ Here ANOVA according S. Saville advice : LSD test unprotected by sowing date ind
 ```{r}
 #Filter  S1, S2, S3, S6 , S7 
 summary(df_seedY)
+```
 
-df_seedYS6 <- df_seedY #%>%
+
+## Create index to filter for loop ANOVA
+
+```{r}
+y <- c("S1","S2","S3","S4","S5")
+
+sdIndex <- unique(df_seedY$SowTreat)
+
+sdIndex[order(match(sdIndex,y))]
+
+length(sdIndex)
+sdIndex
+```
+
+
+then loop anova if significant 
+
+## Then loop anova for each individual sowing date 
+```{r}
+for (i in 1:length(sdIndex)) {
+  
+ #print(i)
+ print(paste0(sdIndex[i],"--------------------------------"))
+  
+  file.subset <- df_seedY %>%
+  filter(SowTreat==sdIndex[i])
+  
+ 
+head(file.subset, 50)
+   summary(file.subset)
+my.anova <- aov(Seedskg_ha ~ Cultivar + Block, data = file.subset)
+print(summary(my.anova))
+
+if ((summary(my.anova)[[1]][["Pr(>F)"]][1])<0.05) {
+  print("***Sig Cultivar***") 
+  print((LSD.test(my.anova, c("Cultivar"), alpha= 0.05, p.adj="none"))) } 
+
+
+ if ((summary(my.anova)[[1]][["Pr(>F)"]][1])>0.05) {
+   print("***Sig Cultivar***") 
+   print((LSD.test(my.anova, c("Cultivar"), alpha= 0.05, p.adj="none"))) } 
+
+# make mean separation if significant
+
+(LSD.test(my.anova, c("Cultivar"), alpha= 0.05, p.adj="none"))
+  
+}
+
+```
+
+
+
+```{r}
+#Filter  S1, S2, S3, S6 , S7 
+summary(df_seedY)
+
+df_seedYS2 <- df_seedY %>%
   #filter(SowingD=="2015-06-24")
   #filter(SowingD=="2015-07-28")
   #filter(SowingD=="2015-09-15")
   #filter(SowingD=="2015-11-05")
   #filter(SowingD=="2016-02-17")
-  #filter(SowingD=="2016-03-15")
+  filter(SowingD=="S2")
 
 #data transformation many possibilities but logit worked well, however little difference between real and transformed numbers 
 
 #-------------------------------------------------
 # anova 
-file <- df_seedYS6
+file <- df_seedYS2
 
 
 file.subset <- file 
@@ -70,8 +127,8 @@ summary(file.subset)
 
 ```{r}
 #ANOVA
-#my.anova <- aov(Seedskg_ha ~ Cultivar + Block, data = file.subset)
-my.anova <- aov(Seedskg_ha ~ SowTreat + Block, data = file.subset)
+my.anova <- aov(Seedskg_ha ~ Cultivar + Block, data = file.subset)
+#my.anova <- aov(Seedskg_ha ~ SowTreat + Block, data = file.subset)
 
 summary(my.anova)
 ```
