@@ -38,7 +38,7 @@ df_G <- read.table("df_RateGerm.txt",header=TRUE)
 
 ```
 
-select columns of interest and Adjust formats 
+select columns of interest and Adjust formats . Added ActTemp and recalculated 
 ```{r}
 
 #change formats
@@ -46,10 +46,12 @@ df_G$Cultivar <- as.factor(df_G$Cultivar)
 df_G$Block <- as.factor(df_G$Block)
 df_G$Plot <- as.factor(df_G$Plot)
 df_G$Temp <- as.numeric(df_G$Temp)#note Temp here needs to be numeric for subseting 
+df_G$ActTemp <- as.numeric(df_G$ActTemp)#note Temp here needs to be numeric for subseting
+
 
 #select columns 
 df_G <-df_G %>%
-dplyr:: select(Plot,Block,Cultivar,Temp,Rate)
+dplyr:: select(Plot,Block,Cultivar,ActTemp,Rate)
 
 
 str(df_G)
@@ -68,7 +70,7 @@ subset(Cultivar=="Monti")
 
 #subset Temperature range 
 df_M1 <-df_M %>%
-  subset (Temp>2.0 & Temp<18)
+  subset (ActTemp>1.0 & ActTemp<18)
 
 
 #remove data if needed
@@ -76,23 +78,24 @@ df_M2 <- df_M1
 
 ```
 
-
+Convert in ActTemp
 
 ```{r}
 
 
 df_M3 <-df_M2 %>%
-  dplyr::select(Temp,Cultivar, Plot, Rate) %>%
-  group_by(Temp,Cultivar) %>%
+  dplyr::select(ActTemp,Cultivar, Plot, Rate) %>%
+  group_by(ActTemp,Cultivar) %>%
   summarise_all(funs(mean)) %>%
-  mutate(y=Rate,x=Temp) %>%
-  dplyr::select(-Temp, -Rate, -Plot)
+  mutate(y=Rate,x=ActTemp) %>%
+  dplyr::select(-ActTemp, -Rate, -Plot)
 
 str(df_M2)
 
 ```
 
 got the means here ... and graph it
+
 
 ```{r, fig.height=5, fig.width=10, echo = FALSE}
 df_M3%>%
@@ -133,11 +136,11 @@ lm_eqn = function(df){
 
 #use all datapoints 
 df <- df_M2 %>%
-  dplyr::select(Temp,Cultivar, Plot, Rate) %>%
-  group_by(Temp,Cultivar)%>%
+  dplyr::select(ActTemp,Cultivar, Plot, Rate) %>%
+  group_by(ActTemp,Cultivar)%>%
   summarise_all(funs(mean)) %>%
-  mutate(y=Rate,x=Temp) %>%
-  dplyr::select(-Temp, -Rate)
+  mutate(y=Rate,x=ActTemp) %>%
+  dplyr::select(-ActTemp, -Rate)
 
 eq <- ddply(df,.(Cultivar),lm_eqn)
 
@@ -146,7 +149,7 @@ xn<- quantile(df$x,0.25)
 
 p <- ggplot(data = df, aes(x = x, y = y)) +
   geom_smooth(method = "lm", se=FALSE, color="black", formula = y ~ x) +
-  geom_point(aes(colour = factor(Temp)), size=5) + scale_shape(solid = FALSE)+ 
+  geom_point(aes(colour = factor(ActTemp)), size=5) + scale_shape(solid = FALSE)+ 
   
   theme_bw()+
   scale_x_continuous(limits = c(0,25))+
@@ -243,14 +246,6 @@ summary(all.data)
 ```
 
 
-
-
-
-
-
-
-
-
 Now run same linear equation for linear decrease 
 
 Subset cultivars Monti between temperature >21 to max . Had excluded the 35 temp because it deviates from the linear equation! See Lonati et al 2009.  
@@ -264,7 +259,7 @@ subset(Cultivar=="Monti")
 
 #subset Temperature range (use 35 for Monti as well! )
 df_Z1 <-df_Z %>%
-  subset (Temp>23 & Temp<36)
+  subset (ActTemp>23 & ActTemp<36)
 
 
 #remove data if needed
@@ -278,11 +273,11 @@ graph it
 
 
 df_Z3 <-df_Z2 %>%
-  dplyr::select(Temp,Cultivar, Plot, Rate) %>%
-  group_by(Temp,Cultivar) %>%
+  dplyr::select(ActTemp,Cultivar, Plot, Rate) %>%
+  group_by(ActTemp,Cultivar) %>%
   summarise_all(funs(mean)) %>%
-  mutate(y=Rate,x=Temp) %>%
-  dplyr::select(-Temp, -Rate, -Plot)
+  mutate(y=Rate,x=ActTemp) %>%
+  dplyr::select(-ActTemp, -Rate, -Plot)
 
 str(df_Z2)
 
@@ -329,11 +324,11 @@ lm_eqn = function(df){
 
 #use all datapoints 
 df <- df_Z2 %>%
-  dplyr::select(Temp,Cultivar, Plot, Rate) %>%
-  group_by(Temp,Cultivar)%>%
+  dplyr::select(ActTemp,Cultivar, Plot, Rate) %>%
+  group_by(ActTemp,Cultivar)%>%
   summarise_all(funs(mean)) %>%
-  mutate(y=Rate,x=Temp) %>%
-  dplyr::select(-Temp, -Rate)
+  mutate(y=Rate,x=ActTemp) %>%
+  dplyr::select(-ActTemp, -Rate)
 
 eq <- ddply(df,.(Cultivar),lm_eqn)
 
@@ -342,7 +337,7 @@ xn<- quantile(df$x,0.25)
 
 p <- ggplot(data = df, aes(x = x, y = y)) +
   geom_smooth(method = "lm", se=FALSE, color="black", formula = y ~ x) +
-  geom_point(aes(colour = factor(Temp)), size=5) + scale_shape(solid = FALSE)+ 
+  geom_point(aes(colour = factor(ActTemp)), size=5) + scale_shape(solid = FALSE)+ 
   
   theme_bw()+
   scale_x_continuous(limits = c(0,40))+

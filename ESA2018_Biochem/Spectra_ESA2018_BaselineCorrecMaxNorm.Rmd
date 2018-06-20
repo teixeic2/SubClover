@@ -1,16 +1,16 @@
 ---
 title: "Seed Breakdown  Test base line corrected"
 author: "CT"
-date: "21 March 2017" ## revised in 15.11.2017 (ESA papaer 2018)
+date: "21 March 2017" ## revised in 15.11.2017 (ESA paper 2018)
 output: html_document
 ---
-This script reads the baselined corrected spectra for 3 cultivars (Antas, Monti and Narrikup) in 3 different incubation times (0, 42, 84) consider the data with reps generated in script 2 (Correct 2 Reps ) 
+This script reads the baselined corrected spectra for 3 cultivars (Antas, Monti and Narrikup) in 3 different incubation times (0, 42, 84) consider the data with reps generated in script 2 (Correct 2 Reps ). It normalises the spectra using the max peak method 
 
 ```{r setup, include=FALSE, loadlibraires}
 #knitr::opts_chunk$set(echo = TRUE)
 library(tidyr)
 library (dplyr)
-library (ggplot2)
+library (ggplot2) 
 library(agricolae)
 library(knitr)
 library (lubridate)
@@ -24,8 +24,9 @@ library(scales)
 setwd("C:\\GitHubRepos\\SubCloverPhD\\SubClover\\ESA2018_Biochem")
 getwd()
 
- #create file
+#create file
 df_sp <- read.table("BreakBaselined3cv_2.txt",header=TRUE)
+
 
 
 #head(df_sp)
@@ -38,19 +39,39 @@ summary(df_sp)
 df_sp1<-df_sp%>%
   dplyr::select(Cultivar:Rep, AbsValue,WaveNumber)
   
+
+str(df_sp1)
+
 ```
 
-## Get the mean value for Absorbance 
+## Normalization with Max Peak method 
 
 ```{r}
-df_sp2<-df_sp1%>%
+
+
+df_sp2 <- df_sp1%>%
+  group_by(Cultivar, IncubationDays, Rep)%>%
+  mutate(Absorbance=AbsValue/max(AbsValue))
+
+
+
+
+```
+
+
+ 
+
+## Get the mean value for Absorbance for the Normalized spectra now 
+
+```{r}
+df_sp3<-df_sp2%>%
   group_by(Cultivar,IncubationDays,WaveNumber)%>%
-  dplyr::select(AbsValue)%>%
-  summarise_all(funs(mean))%>%
-  mutate(Absorbance=AbsValue)%>%
-  dplyr::select(-AbsValue)
+  dplyr::select(Absorbance)%>%
+  summarise_all(funs(mean))
+  #mutate(Absorbance=AbsValue)%>%
+  #dplyr::select(-AbsValue)
   
-  str(df_sp2)
+  str(df_sp3)
   
 ```
 
@@ -61,11 +82,11 @@ df_sp2<-df_sp1%>%
 ```{r, fig.height=5, fig.width=15}
 
 ##select only Antas and Monti
-df_sp3 <-df_sp2 %>%
+df_sp4 <-df_sp3 %>%
     filter(Cultivar!="N")
     
 
-df_sp3%>%
+df_sp4%>%
    ggplot(aes(x=WaveNumber,y=Absorbance))+
   geom_line(aes(colour=factor(IncubationDays)))+
   theme_bw()+
@@ -77,11 +98,11 @@ df_sp3%>%
   scale_x_reverse()+
   theme_bw()+
   theme(axis.text.x = element_text(angle = 90, hjust = 1)) +
-  expand_limits(y=c(0,0.2)) +
+  #expand_limits(y=c(0,0.2)) +
   geom_abline(intercept = 0.1, slope = 0)
   
 
-#write.table(df_sp3,"MeanSpectraESA2018.txt")
+write.table(df_sp3,"MaxNorm_SpectraESA2018.txt")
 ```
 
 Create a graph with baselined corrected spectra with snaps on x axes 
@@ -91,7 +112,7 @@ Create a graph with baselined corrected spectra with snaps on x axes
 ```{r}
 
 ##select only wavenumbers between 3700-2700, then 
-df_sp33 <-df_sp2 %>%
+df_sp33 <-df_sp4 %>%
     filter(Cultivar!="N")%>%
   subset(WaveNumber <3700 & WaveNumber >2700) 
   
@@ -112,9 +133,9 @@ df_sp33%>%
   theme_bw()+
   theme(axis.text.x = element_text(angle = 90, hjust = 1)) +
   expand_limits(y=c(0,0.2)) +
-  geom_abline(intercept = 0.1, slope = 0)
+  #geom_abline(intercept = 0.1, slope = 0)
   
-write.table(df_sp33, "Baselined1.txt") #this will be used to buil the graph (portion 1 of spectra)
+write.table(df_sp33, "BaselinedMaxNorm1.txt") #this will be used to buil the graph (portion 1 of spectra)
 
 ```
 
@@ -122,13 +143,13 @@ subset again
 ```{r}
 
 ##select only wavenumbers between 3700-2700, then 
-df_sp43 <-df_sp2 %>%
+df_sp43 <-df_sp4 %>%
     filter(Cultivar!="N")%>%
   #subset(WaveNumber <3700 & WaveNumber >2700  )
 subset(WaveNumber <1800 & WaveNumber >850 )
 
   
-  write.table(df_sp43, "Baselined2.txt") #this will be used to buil the graph (portion 2 of spectra)
+  write.table(df_sp43, "BaselinedMaxNorm2.txt") #this will be used to buil the graph (portion 2 of spectra)
 
 df_sp43%>%
    ggplot(aes(x=WaveNumber,y=Absorbance))+
@@ -149,7 +170,7 @@ df_sp43%>%
 
 ```
 
-Now combine the two dataframes (df_sp33 and df_43)and ring the file to build the graph
+Now combine the two dataframes (df_sp33 and df_43)and bring the file to build the graph
 
 
 ```{r}
@@ -157,7 +178,7 @@ Now combine the two dataframes (df_sp33 and df_43)and ring the file to build the
 getwd()
 
 #create file
-df_spSegment <- read.table("Spectra_ESA2018_BaselinedSegmented.txt",header=TRUE)
+df_spSegment <- read.table("Spectra_ESA2018_BaseMaxNormSegmented.txt",header=TRUE)
 
 
 ```
@@ -222,7 +243,7 @@ theme(axis.title.x = element_text( size=24,face="bold"))
 
    #Save graph 
  
- ggsave("plot_spectraESA2018_Poster.png", width=24, height=8, dpi=400)
+ ggsave("plot_spectraMaxNorm_ESA2018_Poster.png", width=24, height=8, dpi=400)
 
 
 ```

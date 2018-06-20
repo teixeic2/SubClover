@@ -94,9 +94,9 @@ df_score %>%
     facet_grid(.~SowTreat) +
     labs(y="Regeneration Score") +
   theme_bw()+
-theme(axis.text.y = element_text( size = 10))+
+theme(axis.text.y = element_text( size = 12))+
 theme(axis.title.y = element_text(face="bold", size=12))+
-theme(axis.text.x=element_text(angle = 0, hjust=0.95,vjust=0.2,size = 14))
+theme(axis.text.x=element_text(angle = 0, hjust=0.5,vjust=0.2,size = 18))
 
 head(df_score)
 ```

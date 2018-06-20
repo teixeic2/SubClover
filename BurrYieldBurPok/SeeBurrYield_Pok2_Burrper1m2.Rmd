@@ -155,15 +155,82 @@ theme(axis.text.x=element_text(angle = 0, hjust=0.5,vjust=0.2,size = 22)) +
   
  #Save graph 
  
- ggsave("plot_NumberBursPerm2Pok.png", width=12, height=6, dpi=400)
+ #ggsave("plot_NumberBursPerm2Pok.png", width=12, height=6, dpi=400)
   
 ```
+
+Improved graph for poster 
+
+
+```{r, fig.height=5, fig.width=10}
+
+dodge_x <- position_dodge(width = 0.9)
+
+# splitting and df due bug in tidyr (https://github.com/hadley/tidyr/issues/32)
+
+  df_buraSE <- df_bura %>%
+  group_by(Cultivar, SowTreat) %>%
+  summarise_all(funs(mean,sd)) %>%
+    mutate(SE=TotalBurr_m2_sd/1.73)
+
+#then graph it 
+  
+ df_buraSE %>%
+   filter(SowTreat!="S1",SowTreat!="S5" )%>%
+    mutate (SowTreat= factor(SowTreat, levels=c("S1", "S2", "S3", "S4", "S5"),labels=c("February", "March", "May", "July", "August")))%>%
+   ungroup %>%
+   #added ....here mutate cultivar labels for poster  
+   mutate (Cultivar= factor(Cultivar, levels=c("Antas", "Denmark", "Leura", "Monti", "Narrikup", "Woogenellup"),labels=c("A", "D", "L", "M", "N","W")))%>%
+  ggplot(aes(x=Cultivar, y=(TotalBurr_m2_mean)))+
+  geom_bar(aes(fill=Cultivar), colour="black",stat="identity",position = dodge_x) +
+  #geom_bar(stat="identity", position = dodge_x) +
+  geom_errorbar(aes(ymin=TotalBurr_m2_mean-SE/2, 
+                    ymax=TotalBurr_m2_mean+SE/2),
+                width=0.25, size=0.3,position=dodge_x)   +
+  theme_grey(base_size = 18) +
+   theme_bw()+
+    facet_grid(.~SowTreat) +
+   
+   #remove grid lines 
+   theme(
+     panel.border = element_rect(colour = "black", size = 2), 
+     panel.grid.major = element_blank(),
+     panel.grid.minor = element_blank(),
+     axis.line = element_line(colour = "black"))+
+   #scale_fill_manual("legend", values = c("Antas" = "#660066", "Denmark" = "lightgrey","Leura" = "darkgrey", "Monti" = "#FF9933","Narrikup" = "blue",  "Woogenellup" = "#033333"))+
+   
+   #make sowing dates white  
+   theme(strip.background = element_rect(colour = "black", fill = "white",size=2))+
+   
+   scale_y_continuous(expand = c(0, 0), limits = c(0, 15000))+
+   
+   
+   ylab(expression(Number~of~inflorescences/m^"2")) +
+   theme(axis.text.y = element_text( vjust=0.5, size = 14))+
+   #margin y axis
+   #theme (axis.title.y = element_text( margin = margin(t=0,r=20,b=0,l=0)))+
+            
+   scale_fill_brewer(palette="Blues")+
+  #theme(axis.title.y = element_text(face="bold", size=16))+
+   theme(axis.text.x=element_text(angle = 0, hjust=0.5,vjust=0.2,size = 22)) +
+   theme(text = element_text(size = 22))+
+   theme(axis.title.y=element_text(angle = 90, hjust=0.5,vjust=0.2,size = 20))
+  
+ #Save graph 
+ 
+ ggsave("plot_NumberBursPerm2Pok.png", width=16, height=6, dpi=400)
+  
+```
+
 
 
 ```{r}
 
 
+
 #empty
+
+
 
 ```
 

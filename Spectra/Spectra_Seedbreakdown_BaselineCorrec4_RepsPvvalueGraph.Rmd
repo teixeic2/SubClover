@@ -27,7 +27,7 @@ setwd("C:\\GitHubRepos\\SubCloverPhD\\SubClover\\Spectra")
 getwd()
 
 
-data.all <- read.table("P_LSD_Break_0_84.txt",header=TRUE)
+data.all <- read.table("P_LSD_Break_0_84.txt" ,header=TRUE)
 
 str(data.all)
 

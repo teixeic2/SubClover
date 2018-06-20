@@ -38,7 +38,7 @@ df_G <- read.table("df_RateGerm.txt",header=TRUE)
 
 ```
 
-select columns of interest and Adjust formats 
+select columns of interest and Adjust formats. Add ActTemp. 
 ```{r}
 
 #change formats
@@ -46,10 +46,10 @@ df_G$Cultivar <- as.factor(df_G$Cultivar)
 df_G$Block <- as.factor(df_G$Block)
 df_G$Plot <- as.factor(df_G$Plot)
 df_G$Temp <- as.numeric(df_G$Temp)#note Temp here needs to be numeric for subseting 
-
+df_G$ActTemp <- as.numeric(df_G$ActTemp)#note Temp here needs to be numeric for subseting
 #select columns 
 df_G <-df_G %>%
-dplyr:: select(Plot,Block,Cultivar,Temp,Rate)
+dplyr:: select(Plot,Block,Cultivar,ActTemp,Rate)
 
 
 str(df_G)
@@ -68,7 +68,7 @@ subset(Cultivar=="Narrikup")
 
 #subset Temperature range 
 df_N1 <-df_N %>%
-  subset (Temp>2.0 & Temp<18)
+  subset (ActTemp>1.5 & ActTemp<18)
 
 
 #remove data if needed
@@ -82,11 +82,11 @@ work dataframe for narrikup
 
 
 df_N3 <-df_N2 %>%
-  dplyr::select(Temp,Cultivar, Plot, Rate) %>%
-  group_by(Temp,Cultivar) %>%
+  dplyr::select(ActTemp,Cultivar, Plot, Rate) %>%
+  group_by(ActTemp,Cultivar) %>%
   summarise_all(funs(mean)) %>%
-  mutate(y=Rate,x=Temp) %>%
-  dplyr::select(-Temp, -Rate, -Plot)
+  mutate(y=Rate,x=ActTemp) %>%
+  dplyr::select(-ActTemp, -Rate, -Plot)
 
 str(df_N2)
 
@@ -133,11 +133,11 @@ lm_eqn = function(df){
 
 #use all datapoints 
 df <- df_N2 %>%
-  dplyr::select(Temp,Cultivar, Plot, Rate) %>%
-  group_by(Temp,Cultivar)%>%
+  dplyr::select(ActTemp,Cultivar, Plot, Rate) %>%
+  group_by(ActTemp,Cultivar)%>%
   summarise_all(funs(mean)) %>%
-  mutate(y=Rate,x=Temp) %>%
-  dplyr::select(-Temp, -Rate)
+  mutate(y=Rate,x=ActTemp) %>%
+  dplyr::select(-ActTemp, -Rate)
 
 eq <- ddply(df,.(Cultivar),lm_eqn)
 
@@ -146,7 +146,7 @@ xn<- quantile(df$x,0.25)
 
 p <- ggplot(data = df, aes(x = x, y = y)) +
   geom_smooth(method = "lm", se=FALSE, color="black", formula = y ~ x) +
-  geom_point(aes(colour = factor(Temp)), size=5) + scale_shape(solid = FALSE)+ 
+  geom_point(aes(colour = factor(ActTemp)), size=5) + scale_shape(solid = FALSE)+ 
   
   theme_bw()+
   scale_x_continuous(limits = c(0,25))+
@@ -260,7 +260,7 @@ subset(Cultivar=="Narrikup")
 
 #subset Temperature range 
 df_Z1 <-df_Z %>%
-  subset (Temp>18 & Temp<36)
+  subset (ActTemp>18 & ActTemp<36)
 
 
 #remove data if needed
@@ -274,11 +274,11 @@ df_Z2 <- df_Z1
 
 
 df_Z3 <-df_Z2 %>%
-  dplyr::select(Temp,Cultivar, Plot, Rate) %>%
-  group_by(Temp,Cultivar) %>%
+  dplyr::select(ActTemp,Cultivar, Plot, Rate) %>%
+  group_by(ActTemp,Cultivar) %>%
   summarise_all(funs(mean)) %>%
-  mutate(y=Rate,x=Temp) %>%
-  dplyr::select(-Temp, -Rate, -Plot)
+  mutate(y=Rate,x=ActTemp) %>%
+  dplyr::select(-ActTemp, -Rate, -Plot)
 
 str(df_Z2)
 
@@ -325,11 +325,11 @@ lm_eqn = function(df){
 
 #use all datapoints 
 df <- df_Z2 %>%
-  dplyr::select(Temp,Cultivar, Plot, Rate) %>%
-  group_by(Temp,Cultivar)%>%
+  dplyr::select(ActTemp,Cultivar, Plot, Rate) %>%
+  group_by(ActTemp,Cultivar)%>%
   summarise_all(funs(mean)) %>%
-  mutate(y=Rate,x=Temp) %>%
-  dplyr::select(-Temp, -Rate)
+  mutate(y=Rate,x=ActTemp) %>%
+  dplyr::select(-ActTemp, -Rate)
 
 eq <- ddply(df,.(Cultivar),lm_eqn)
 
@@ -338,7 +338,7 @@ xn<- quantile(df$x,0.25)
 
 p <- ggplot(data = df, aes(x = x, y = y)) +
   geom_smooth(method = "lm", se=FALSE, color="black", formula = y ~ x,linetype=2) +
-  geom_point(aes(colour = factor(Temp)), size=5) + scale_shape(solid = FALSE)+ 
+  geom_point(aes(colour = factor(ActTemp)), size=5) + scale_shape(solid = FALSE)+ 
   
   theme_bw()+
   scale_x_continuous(limits = c(0,40))+
@@ -390,7 +390,7 @@ for(p in 1:length(blocks)) {
   df_sub <- dfSubSet %>% filter(Block==blocks[p])
 
 # Linear fit
-  x <- df_sub$Temp
+  x <- df_sub$ActTemp
   y <- df_sub$Rate
   
   #print(data.frame(x=x,y=y))

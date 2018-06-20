@@ -37,8 +37,6 @@ getwd()
 
 #this tests the baseline and normalised dataset 
 df_sp <- read.table("UntreatedESANormalised2018.txt",header=TRUE)
-
-
 str(df_sp)
 
 
@@ -201,8 +199,8 @@ theme(axis.title.y = element_text(face="bold", size=24))+
 theme(axis.text.x=element_text(angle = 0, hjust=0.5,vjust=0,size = 24))+
 theme(axis.title.x = element_text( face="bold", size=24))+
 #if need the axes labels 
-  #xlab(expression(PC1~"(95%)"))+ 
-  #ylab(expression(PC2~"(3%)")) +
+  xlab(expression(PC1~"(95%)"))+ 
+  ylab(expression(PC2~"(3%)")) +
   xlim(-12, 12)+
   ylim(-4, 4)
 

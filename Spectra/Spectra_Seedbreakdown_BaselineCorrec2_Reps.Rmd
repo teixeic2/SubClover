@@ -46,7 +46,7 @@ mutate(WaveNumber=as.numeric(gsub("X","",AbsFactor)), AbsFactor=factor(AbsFactor
 mutate(id=factor(paste0(Cultivar,"_",AbsFactor))) %>%
 group_by(id, AbsFactor, Cultivar, IncubationDays, Rep) %>%
 summarise_all(funs(mean)) %>%
-dplyr::select(-Seed, -RowNo)
+dplyr::select(-Seed, -RowNo) 
 
 summary(df_sp2)
 ```

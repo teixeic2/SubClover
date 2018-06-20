@@ -109,7 +109,19 @@ ggplot(aes(x=DAS, y=mean)) +
   ylim(0, 180)+
   xlim(0, 25)+
   labs(y="Mean cumulative germination %",x="Days of test")+ 
-  geom_abline(intercept = 50, slope = 0)
+  #theme(axis.title.x = element_text( size=24)) + scale_x_continuous(breaks = c(0:6))+
+  theme(text=element_text(size=18 ))+
+  theme(title=element_text(size=22, face="bold"))+
+  theme(title=element_text(size=22,  face="bold"))+
+   #remove grid lines 
+     theme(
+     #panel.border = element_rect(colour = "black"  , size = 2.0), 
+     panel.grid.major = element_blank(),
+     panel.grid.minor = element_blank(),
+     axis.line = element_line(colour = "black"))+
+  
+  
+  #geom_abline(intercept = 50, slope = 0)
 
 
 ggsave("plot_CumulativeGerm.png", width=12, height=6, dpi=400)
@@ -157,10 +169,10 @@ facet_wrap(~Cultivar,ncol=2, scales = "free")+
 
 
 ```{r}
-#Create a table with the folloing columns to use in analysis "Temp" "Cultivar" "Block" "DAS" "PercGerm_cum" "Plot"
+#Create a table with the folloing columns to use in analysis "Temp"  "Cultivar" "Block" "DAS" "PercGerm_cum" "Plot"
 
 dfgerm <-df_seed %>%
-  dplyr::select(Temp, Cultivar, Block, DAS, Plot, CumPercent )%>%
+  dplyr::select(Temp, Cultivar, Block, DAS, Plot, CumPercent, ActTemp)%>%
   mutate( PercGerm_cum = CumPercent)%>%
    dplyr::select(- CumPercent )
 

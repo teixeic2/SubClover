@@ -4,7 +4,7 @@ author: "CT"
 date: "21 March 2017" ## revised in 15.11.2017 (ESA papaer 2018)
 output: html_document
 ---
-This script reads the baselined corrected spectra for 3 cultivars (Antas, Monti and Narrikup) in 3 different incubation times (0, 42, 84) consider the data with reps generated in script 2 (Correct 2 Reps ) 
+This script reads the baselined corrected and normalised spectra (Unscrambler area method ) for 2 cultivars (Antas, Monti -2  different incubation times (0, 84) consider the data with reps generated in script 2 (Correct 2 Reps ) 
 
 ```{r setup, include=FALSE, loadlibraires}
 #knitr::opts_chunk$set(echo = TRUE)
@@ -24,20 +24,59 @@ library(scales)
 setwd("C:\\GitHubRepos\\SubCloverPhD\\SubClover\\ESA2018_Biochem")
 getwd()
 
- #create file
-df_sp <- read.table("BreakBaselined3cv_2.txt",header=TRUE)
+#create file
+#df_sp <- read.table("BreakBaselined3cv_2.txt",header=TRUE)
+df_sp <- read.table("UntreatedESANormalised2018.txt",header=TRUE)
+#UntreatedESANormalised2018
 
 
-#head(df_sp)
+head(df_sp)
 
-summary(df_sp)
+#summary(df_sp)
 ```
+
+
+use gather to transform clumns in AbsValue and WaveNumber 
+
+
+```{r}
+
+df_sp_gather <- df_sp  %>%
+  tidyr::gather("AbsFactor", "AbsValue",starts_with("X")) %>%
+  mutate(WaveNumber=as.numeric(gsub("X","",AbsFactor)), AbsFactor=factor(AbsFactor)) %>%
+  mutate(id=factor(paste0(Cultivar,"_",AbsFactor))) %>%
+  group_by(id, AbsFactor, Cultivar, IncubationDays, Rep) %>%
+  summarise_all(funs(mean)) %>%
+  dplyr::select(-Seed, -RowNo, -id, -AbsFactor)
+
+head(df_sp_gather)
+
+
+```
+
+
+
+
+
+```{r}
+#empty
+```
+
+
+
+
+-----------------------------------------------------------------------------------------
+then continue normal script from here .....similar to baselined spectra but use the normalised Unscrambler area method ....
+
 ##select columns of interest Cultivar Incubation days rep AbsValue Wavenumber
 
 ```{r}
-df_sp1<-df_sp%>%
-  dplyr::select(Cultivar:Rep, AbsValue,WaveNumber)
-  
+df_sp1<-df_sp_gather%>%
+  dplyr::select(Cultivar, IncubationDays, Rep, AbsValue,WaveNumber)
+ 
+# df_sp1A <- df_sp1%>%
+  #ungroup()
+
 ```
 
 ## Get the mean value for Absorbance 
@@ -54,15 +93,15 @@ df_sp2<-df_sp1%>%
   
 ```
 
-
+#Parei aqui...horrible graph with Normalised data !! 
 
 ## Graph it all , 
 
 ```{r, fig.height=5, fig.width=15}
 
 ##select only Antas and Monti
-df_sp3 <-df_sp2 %>%
-    filter(Cultivar!="N")
+df_sp3 <-df_sp2 
+   # filter(Cultivar!="N")
     
 
 df_sp3%>%
@@ -71,7 +110,7 @@ df_sp3%>%
   theme_bw()+
   #scale_x_continuous(breaks=seq(min(df_sp$WaveNumber),max(df_sp$WaveNumber),by =50))+
   
-  scale_x_continuous(breaks=round(seq(min(df_sp$WaveNumber),max(df_sp$WaveNumber),by =50)))+
+  #scale_x_continuous(breaks=round(seq(min(df_sp$WaveNumber),max(df_sp$WaveNumber),by =50)))+
   facet_grid(Cultivar ~.) +
   #facet_grid(IncubationDays ~.) +
   scale_x_reverse()+
@@ -162,7 +201,7 @@ df_spSegment <- read.table("Spectra_ESA2018_BaselinedSegmented.txt",header=TRUE)
 
 ```
 
-Here graph with facet grid to get the snaped wavenumber (for the poster )
+Here graph with facet grid to get the snaped wavenumber 
 
 
 ```{r, fig.height=5, fig.width=20}
@@ -181,7 +220,7 @@ df_spSegment2<-df_spSegment  %>%
      # df_spSegment$SpectraPart_f = factor(df_spSegment$SpectraPart, levels=c('3700-2700','1800-850'))%>% 
   ggplot(aes(x=WaveNumber,y=Absorbance))+
     #geom_line(aes(), colour=IncubationDays))+
-  geom_line(aes(colour=Days),size=2)+
+  geom_line(aes(colour=Days))+
   theme_bw()+
   #scale_x_continuous(breaks=seq(min(df_sp$WaveNumber),max(df_sp$WaveNumber),by =50))+
     #scale_x_continuous(breaks=round(seq(min(df_sp$WaveNumber),max(df_sp$WaveNumber),by =50)))+
@@ -199,19 +238,6 @@ df_spSegment2<-df_spSegment  %>%
 #theme(axis.text.y = element_text( size = 24))+
   #theme(axis.title.y = element_text(face="bold", size=14))+
 #theme(axis.text.x=element_text(angle = 0, hjust=0.95,vjust=0.2,size = 28)) +
-    
-    #remove grid lines 
-    
-    #remove grid lines 
-   theme(
-     panel.border = element_rect(colour = "black", size = 2), 
-     panel.grid.major = element_blank(),
-     panel.grid.minor = element_blank(),
-
-axis.line = element_line(colour = "black"))+
-     #make cultivars white  
-   theme(strip.background = element_rect(colour = "black", fill = "white",size=2))+
-    
 theme(text = element_text(size = 24))+
 theme(axis.text.y = element_text( size = 22))+ theme(axis.title.y = element_text(face="bold", size=24))+
 theme(axis.text.x=element_text(angle = 0, hjust=0.5,vjust=0,size = 24))+

@@ -284,11 +284,87 @@ theme(axis.text.x=element_text(angle = 0, hjust=0.95,vjust=0.2,size = 28)) +
 # 
 # 
 # 
+ #ggsave("plot_PercentHardness.png", width=14, height=7, dpi=500)
+
+```
+
+
+Now make the graph with border bars in black 
+
+
+
+```{r, fig.height=5, fig.width=15}
+
+df_graf2 <-df_Subset %>%
+group_by(Cultivar,Round) %>%
+  dplyr::select(HardAccum) %>%
+  summarise_all(funs(mean,sd)) 
+
+# define position of bar and errorbar
+dodge_x <- position_dodge(width = 0.9)
+
+df_graf2%>%
+  # filter(SowTreat=="S2")%>%
+  # filter(Cultivar=="Antas"| Cultivar=="Monti" )%>%
+  # filter(TtSum=="0"| TtSum=="1680" )%>%
+mutate (Round= factor(Round, levels=c("14", "98"),labels=c("DAY 0 ", "DAY 84")))%>%
+ #ggplot(aes(x=Cultivar, y=mean), fill=Cultivar) +
+  ggplot(aes(x= Cultivar, y=(mean))) +
+  geom_bar(aes(fill=Cultivar), colour="black",stat="identity",position = dodge_x) +
+  #geom_bar(stat="identity",position = dodge_x) +
+  geom_errorbar(aes(ymin=mean-(sd/2.4)/2,
+                    ymax=mean+(sd/2.4)/2),
+                width=0.25, size=0.3,position=dodge_x)   +
+  theme_bw(base_size=16)+
+  
+  facet_grid(.~Round, scales="free") +
+    scale_fill_brewer(palette="Blues")+
+   
+  #remove grid lines 
+   theme(
+     panel.border = element_rect(colour = "black", size = 2), 
+     panel.grid.major = element_blank(),
+     panel.grid.minor = element_blank(),
+     axis.line = element_line(colour = "black"))+
+   #scale_fill_manual("legend", values = c("Antas" = "#660066", "Denmark" = "lightgrey","Leura" = "darkgrey", "Monti" = "#FF9933","Narrikup" = "blue",  "Woogenellup" = "#033333"))+
+   
+   #make sowing dates white  
+   theme(strip.background = element_rect(colour = "black", fill = "white",size=2))+
+   
+   scale_y_continuous(expand = c(0, 0), limits = c(0, 100))+
+  
+  
+    labs(y= " Hardseeds (%) ")+
+theme(axis.text.y = element_text( size = 18))+
+  #theme(axis.title.y = element_text(face="bold", size=14))+
+theme(axis.text.x=element_text(angle = 0, hjust=0.95,vjust=0.2,size = 28)) +
+  theme(text = element_text(size = 26))
+# theme(axis.text.y = element_text( size = 26))+
+# theme(axis.title.y = element_text(face="bold", size=22))+
+# theme(axis.text.x=element_text(angle = 0, hjust=0.5,vjust=0,size = 22,face="bold"))+
+# theme(axis.title.x = element_text( size=24))+
+#   labs(y="Measured seed weight (mg) ",x="Reported seed weight (mg) ")
+#  # geom_abline(intercept = 50, slope = 0)
+# 
+# 
+# 
+# 
  ggsave("plot_PercentHardness.png", width=14, height=7, dpi=500)
 
 ```
 
 
+
+```{r}
+
+
+
+
+
+
+
+
+```
 
 
 

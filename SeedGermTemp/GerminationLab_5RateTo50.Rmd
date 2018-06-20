@@ -4,7 +4,7 @@ author: "CT"
 date: " September  2017"
 output: html_document
 ---
-
+This script reads the file RateGerm , graphs and analyse ANOVA (Fisher LSD) for rate of germination 
 ```{r loadLibraries}
 library(tidyr)
 library (dplyr)

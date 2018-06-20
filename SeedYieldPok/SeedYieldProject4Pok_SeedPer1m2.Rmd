@@ -347,7 +347,7 @@ S4
 #(LSD.test(my.anova, c("Cultivar","Depth"), alpha= 0.05, p.adj="none")) 
 #(LSD.test(my.anova, c( "Depth"), alpha= 0.05, p.adj="none"))
 #(LSD.test(my.anova, c( "SowTreat", "Cultivar"), alpha= 0.05, p.adj="none"))
-(LSD.test(my.anova, c("Cultivar"), alpha= 0.05, p.adj="none"))
+ (LSD.test(my.anova, c("Cultivar"), alpha= 0.05, p.adj="none"))
 ```
 
 

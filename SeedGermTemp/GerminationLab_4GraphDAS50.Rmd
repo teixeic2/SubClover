@@ -5,6 +5,8 @@ date: " September  2017"
 output: html_document
 ---
 
+This script reads 
+
 ```{r loadLibraries}
 library(tidyr)
 library (dplyr)
@@ -36,6 +38,8 @@ df_seed <- df_seed %>%
 summary(df_seed) # explore values
 str(df_seed) # check formats
 ```
+
+
 
 Need to fix here ...Replace the NA's per zero values to graphic it  
 
