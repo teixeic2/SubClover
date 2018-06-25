@@ -1,11 +1,11 @@
 ---
-title: "Seed Breakdown  Test base line corrected and normalised"
+title: "Thermal treatment experiment - dataset for the ESA Poster 2018"
 author: "CT"
-date: 16.11.2017 (ESA paper 2018)
+date: 21.06.2018 (ESA paper 2018)
 output: html_document
 ---
-This script reads the baselined corrected spectra for the 3 replicates 3 cultivars (Antas, Monti and Narrikup) in 3 different incubation times (0, 42, 84)  
-And normalise the data using the min max method 
+This script reads the baselined and mas. normalised spectra  for the 3 replicates 2 cultivars (Antas, Monti ) in 2 different incubation times (0,  84)  
+And calculates the P vlaues to identify sign. bands (compare wiht PCA - Burgi analysis )
 
 ```{r setup, include=FALSE, loadlibraires}
 #knitr::opts_chunk$set(echo = TRUE)
@@ -19,10 +19,10 @@ library(scales)
 
 ```
 
-
+Here bring the original file Break Baselin REps 
 
 ```{r readData}
-setwd("C:\\GitHubRepos\\SubCloverPhD\\SubClover\\Spectra")
+setwd("C:\\GitHubRepos\\SubCloverPhD\\SubClover\\ESA2018_Biochem")
 getwd()
 
 #create file
@@ -44,7 +44,7 @@ filter(IncubationDays!="42")%>%
 #Now gather values 
 tidyr::gather("AbsFactor", "AbsValue",starts_with("X")) %>%
 mutate(WaveNumber=as.numeric(gsub("X","",AbsFactor)), AbsFactor=factor(AbsFactor)) %>%
-mutate(id=factor(paste0(Cultivar,"_",AbsFactor))) %>%
+mutate(id=factor(paste0(Cultivar,"_",AbsFactor))) %>% # done to loop across cultivars
 group_by(id, AbsFactor, Cultivar, IncubationDays, Rep) %>%
 summarise_all(funs(mean)) %>%
 dplyr::select(-Seed, -RowNo)
@@ -52,7 +52,7 @@ dplyr::select(-Seed, -RowNo)
 summary(df_sp2)
 ```
 
-normalise the AbsValue using Max method
+normalise the AbsValue using Max method (feedback 19.06)
 
 ```{r}
 
@@ -66,7 +66,9 @@ summary(df_sp2)
 
 graph the max normalised average spectra 
 
-```{r, fig.height=5, fig.width=15}
+
+
+```{r}
 
 df_sp3 <-df_sp2 %>%
     filter(Cultivar!="N")%>%
@@ -74,7 +76,15 @@ df_sp3 <-df_sp2 %>%
   group_by(Cultivar,IncubationDays,WaveNumber)%>%
   dplyr::select(Absorbance)%>%
   summarise_all(funs(mean))
-  
+
+
+```
+
+
+```{r, fig.height=5, fig.width=15}
+
+
+  #Graph check 
     
 
 df_sp3%>%
@@ -151,65 +161,67 @@ df_sp3%>%
 ```
 
 
+Select only the cultivars Antas and Monti for ESA 2018. Prepare dataframe for Stats: select the cultivars and snap the spectra.  
 
-#That;s the chunck need for the analysis of the SegmentedBaseNormalised Spectra ESA2018. 
-
-
-
-Loop unique wavenumber 
 
 ```{r}
 
-idList <-unique(df_sp2$id) 
+#select out narrikup 
+df_sp2a <- df_sp2 %>%
+  filter(Cultivar!="N")
 
-print(paste0("Found ",length(idList)," wavelength by cultivar combinations to loop"))
 
-data.all <- data.frame()
 
-x <- 0 # for t test
-
-for (i in 1:length(idList)) {
-  
-    df <- df_sp2 %>%
-    ungroup() %>%
-    mutate(IncubationDays=factor(IncubationDays), Rep=factor(Rep)) %>%
-    subset(id == idList[i])
-  
-  my.anova <- aov(AbsValue ~ IncubationDays + Rep, data = df)
-   
-  pVals <- summary(my.anova)[[1]][["Pr(>F)"]]
- 
-    # T test when P<0.05
-  if(!is.nan(pVals[1]) & pVals[1] < 0.05) {
-  
-  x <- x + 1
-  t_test <-  LSD.test(my.anova, c("IncubationDays"), alpha= 0.05, p.adj="none")
-  lsd <- t_test$statistics[6] # getting  lsd
-  
-  this.data <- data.frame(Cultivar=df$Cultivar[1], WaveNumber = df$WaveNumber[1], PV = pVals[1], LSD = lsd, Count=x)
-  
-  data.all <- rbind(data.all, this.data)
-  
-  this.data <- NULL
-  
-  } else {
-    
-# do nothing
-   
-  }
-  
-}
 ```
 
 
-##Here using the Absorbance values which were normalised 
+##Snap the Spectra : select regions 3600-2800 and 1800-800 but use the dataframe with the Reps (df_sp2)
 
 
-Loop unique wavenumber 
 
 ```{r}
 
-idList <-unique(df_sp2$id) 
+##select only wavenumbers between 3700-2800 
+df_sp21 <-df_sp2 %>%
+    filter(Cultivar!="N")%>%
+  subset(WaveNumber <3600 & WaveNumber >2800) 
+
+
+
+##then snap again ;  
+
+##select only wavenumbers between 1800-800 
+df_sp22 <-df_sp2 %>%
+    filter(Cultivar!="N")%>%
+  subset(WaveNumber <1800 & WaveNumber >800) 
+
+
+#df_snap2b <- df_sp2a [!anywhere(df_sp2a, mIntervals[, 2801], mIntervals[, 1801], incbounds = FALSE)]
+
+
+
+```
+
+Bind the dataframe 
+
+
+```{r}
+
+df_spBind <- rbind(df_sp21, df_sp22)
+  #filter(Cultivar!="N")%>%
+  #dplyr::select(-AbsValue)
+
+#str(df_sp4Bind)
+
+
+```
+
+
+Loop unique wavenumber but using the absorbance values (normalised column)
+
+```{r}
+
+idList <-unique(df_spBind$id) 
 
 print(paste0("Found ",length(idList)," wavelength by cultivar combinations to loop"))
 
@@ -219,7 +231,7 @@ x <- 0 # for t test
 
 for (i in 1:length(idList)) {
   
-    df <- df_sp2 %>%
+    df <- df_spBind %>%
     ungroup() %>%
     mutate(IncubationDays=factor(IncubationDays), Rep=factor(Rep)) %>%
     subset(id == idList[i])
@@ -250,19 +262,99 @@ for (i in 1:length(idList)) {
 }
 ```
 
-
-
-
-
 write a table with values by cultivar 
 
 ```{r}
-#write.table(data.all, "MaxNormalised_P_LSD_Break_0_84.txt")
 
-#
+
+write.table(data.all, "MaxNormalised_P_LSD_ESA2018_0_84.txt")
 ```
 
 
 graph follows in next script (Normalised) . 
+```{r, fig.height=5, fig.width=15}
+
+setwd("C:\\GitHubRepos\\SubCloverPhD\\SubClover\\ESA2018_Biochem")
+getwd()
+
+# Here comparing  incubation Days 
 
 
+data1 <- read.table("MaxNormalised_P_LSD_ESA2018_0_84.txt",header=TRUE)
+data1 %>%
+  mutate(FlagSig=ifelse(PV>0,0,NA)) %>%
+  filter(Cultivar!="N")%>%
+  ggplot(aes(x=WaveNumber,y=PV))+
+  geom_point(aes(colour="darkgrey"))+
+    geom_point(aes(x=WaveNumber,y=FlagSig, size=1/PV,colour=Cultivar), alpha=0.1 ) +
+  theme_bw()+
+  theme(axis.text.x = element_text(angle = 90, hjust = 1))+
+  facet_grid(Cultivar~.,scales="free") +
+# scale_x_reverse(breaks=round(seq(min(data.all$WaveNumber),max(data.all$WaveNumber),by =50)))+
+  geom_abline(intercept = 0.01, slope = 0, linetype=2) 
+
+
+```
+
+Few changes in Antas : only two bands!!! 
+
+For Monti: around 10 regions changed!  
+
+--------------------------------------------------------
+
+
+## Now how to run with two factors : Incubation and cultivar ?
+
+##need to creat a new id without the cultivar or loop the wavenumber .
+
+
+```{r}
+
+idList <-unique(df_spBind$id) 
+
+print(paste0("Found ",length(idList)," wavelength by cultivar combinations to loop"))
+
+data.all <- data.frame()
+
+x <- 0 # for t test
+
+for (i in 1:length(idList)) {
+  
+    df <- df_spBind %>%
+    ungroup() %>%
+    mutate(IncubationDays=factor(IncubationDays), Rep=factor(Rep)) %>%
+    subset(id == idList[i])
+  
+  my.anova <- aov(Absorbance ~ IncubationDays + Rep, data = df)
+#error here?  my.anova <- aov(Absorbance ~ IncubationDays * Cultivar + Rep, data = df)
+  pVals <- summary(my.anova)[[1]][["Pr(>F)"]]
+ 
+    # T test when P<0.05
+  if(!is.nan(pVals[1]) & pVals[1] < 0.05) {
+  
+  x <- x + 1
+  t_test <-  LSD.test(my.anova, c("IncubationDays"), alpha= 0.05, p.adj="none")
+  lsd <- t_test$statistics[6] # getting  lsd
+  
+  this.data <- data.frame(Cultivar=df$Cultivar[1], WaveNumber = df$WaveNumber[1], PV = pVals[1], LSD = lsd, Count=x)
+  
+  data.all <- rbind(data.all, this.data)
+  
+  this.data <- NULL
+  
+  } else {
+    
+# do nothing
+   
+  }
+  
+}
+```
+
+
+
+
+
+
+
+#End of this script 

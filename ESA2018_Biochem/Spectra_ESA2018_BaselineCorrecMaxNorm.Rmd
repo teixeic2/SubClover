@@ -44,7 +44,7 @@ str(df_sp1)
 
 ```
 
-## Normalization with Max Peak method 
+## Normalization with Max Peak method (Burgi feedback 18.06!!)
 
 ```{r}
 
@@ -105,6 +105,45 @@ df_sp4%>%
 write.table(df_sp3,"MaxNorm_SpectraESA2018.txt")
 ```
 
+zoom spectra 
+
+
+
+
+```{r}
+
+##select only wavenumbers between 3700-2700, then 
+df_spzoom <-df_sp4 %>%
+    filter(Cultivar!="N")%>%
+  subset(WaveNumber <1700 & WaveNumber >1600) 
+  
+  
+
+  
+
+df_spzoom %>%
+   ggplot(aes(x=WaveNumber,y=Absorbance))+
+  geom_line(aes(colour=factor(IncubationDays)))+
+  theme_bw()+
+  #scale_x_continuous(breaks=seq(min(df_sp$WaveNumber),max(df_sp$WaveNumber),by =50))+
+  
+  #scale_x_continuous(breaks=round(seq(min(df_sp$WaveNumber),max(df_sp$WaveNumber),by =50)))+
+  facet_grid(Cultivar ~.) +
+  #facet_grid(IncubationDays ~.) +
+  scale_x_reverse()+
+  theme_bw()+
+  theme(axis.text.x = element_text(angle = 90, hjust = 1)) +
+  expand_limits(y=c(0,0.2)) 
+  #geom_abline(intercept = 0.1, slope = 0)
+  
+#write.table(df_sp33, "BaselinedMaxNorm1.txt") #this will be used to buil the graph (portion 1 of spectra)
+
+```
+
+
+
+
+
 Create a graph with baselined corrected spectra with snaps on x axes 
 
 
@@ -114,7 +153,7 @@ Create a graph with baselined corrected spectra with snaps on x axes
 ##select only wavenumbers between 3700-2700, then 
 df_sp33 <-df_sp4 %>%
     filter(Cultivar!="N")%>%
-  subset(WaveNumber <3700 & WaveNumber >2700) 
+  subset(WaveNumber <3600 & WaveNumber >2800) 
   
   
 
@@ -146,7 +185,7 @@ subset again
 df_sp43 <-df_sp4 %>%
     filter(Cultivar!="N")%>%
   #subset(WaveNumber <3700 & WaveNumber >2700  )
-subset(WaveNumber <1800 & WaveNumber >850 )
+subset(WaveNumber <1800 & WaveNumber >800 )
 
   
   write.table(df_sp43, "BaselinedMaxNorm2.txt") #this will be used to buil the graph (portion 2 of spectra)
@@ -170,7 +209,11 @@ df_sp43%>%
 
 ```
 
-Now combine the two dataframes (df_sp33 and df_43)and bring the file to build the graph
+Ok now check here why antas is doing funny in the graph!!! 
+
+
+Now combine the two dataframes (df_sp33 and df_43)and bring the file to build the graph (see Excel file SpectraMaxNormalisedChopped; 
+C:\Users\teixe\Documents\CarmenDocumentsPhD\A_Carmenfiles02.06.2018\ESAPaper2018\Biochem)
 
 
 ```{r}
@@ -186,15 +229,24 @@ df_spSegment <- read.table("Spectra_ESA2018_BaseMaxNormSegmented.txt",header=TRU
 Here graph with facet grid to get the snaped wavenumber (for the poster )
 
 
-```{r, fig.height=5, fig.width=20}
+```{r}
 
 str(df_spSegment)
 
+```
+
+
+
+
+```{r, fig.height=5, fig.width=20}
+
+
+
 df_spSegment2<-df_spSegment  %>%
   mutate(Days= as.factor(IncubationDays))%>%
-  mutate (SpectraPart= factor(SpectraPart, levels=c("3700-2700", "1800-850")))%>%
+  mutate (SpectraPart= factor(SpectraPart, levels=c("3600-2800", "1800-800")))%>%
   mutate (Cultivar_f= factor(Cultivar, levels=c("A", "M"),labels=c("Antas", "Monti")))%>%
-  mutate (SpectraPart_f = factor(SpectraPart, levels=c('3700-2700','1800-850')))
+  mutate (SpectraPart_f = factor(SpectraPart, levels=c('3600-2800','1800-800')))
  
                        
   df_spSegment2  %>%   
@@ -203,6 +255,7 @@ df_spSegment2<-df_spSegment  %>%
   ggplot(aes(x=WaveNumber,y=Absorbance))+
     #geom_line(aes(), colour=IncubationDays))+
   geom_line(aes(colour=Days),size=2)+
+    scale_color_manual(values=c("blue", "darkred"))+
   theme_bw()+
   #scale_x_continuous(breaks=seq(min(df_sp$WaveNumber),max(df_sp$WaveNumber),by =50))+
     #scale_x_continuous(breaks=round(seq(min(df_sp$WaveNumber),max(df_sp$WaveNumber),by =50)))+
@@ -214,7 +267,7 @@ df_spSegment2<-df_spSegment  %>%
   theme_bw()+
   theme(strip.text.x =  element_blank())+
   theme(axis.text.x = element_text(angle = 90, hjust = 1)) +
-  expand_limits(y=c(0,0.2)) +
+  expand_limits(y=c(0,1.2)) +
     labs(y= " Absorbance ")+
     xlab(expression(Wavenumber~"(cm"^"-1"*")"))+
 #theme(axis.text.y = element_text( size = 24))+
@@ -234,7 +287,7 @@ axis.line = element_line(colour = "black"))+
    theme(strip.background = element_rect(colour = "black", fill = "white",size=2))+
     
 theme(text = element_text(size = 24))+
-theme(axis.text.y = element_text( size = 22))+ theme(axis.title.y = element_text(face="bold", size=24))+
+theme(axis.text.y = element_text( size = 16))+ theme(axis.title.y = element_text(face="bold", size=24))+
 theme(axis.text.x=element_text(angle = 0, hjust=0.5,vjust=0,size = 24))+
 theme(axis.title.x = element_text( size=24,face="bold"))
 #   labs(y="Measured seed weight (mg) ",x="Reported seed weight (mg) ")
@@ -243,152 +296,13 @@ theme(axis.title.x = element_text( size=24,face="bold"))
 
    #Save graph 
  
- ggsave("plot_spectraMaxNorm_ESA2018_Poster.png", width=24, height=8, dpi=400)
+ ggsave("plot_spectraMaxNorm_ESA2018_Poster.png", width=16, height=10, dpi=400)
 
 
 ```
 
 
 
-
-Create a graph with baselined corrected spectra with time as panels 
-
-
-```{r, fig.width=15, fig.height=5}
-
-df_sp3%>%
-   ggplot(aes(x=WaveNumber,y=Absorbance))+
-  geom_line(aes(colour=factor(Cultivar)))+
-  theme_bw()+
-  #scale_x_continuous(breaks=seq(min(df_sp$WaveNumber),max(df_sp$WaveNumber),by =50))+
-  
-  scale_x_continuous(breaks=round(seq(min(df_sp$WaveNumber),max(df_sp$WaveNumber),by =50)))+
-  #facet_grid(Cultivar ~.) +
-  facet_grid(IncubationDays ~.) +
-  scale_x_reverse()+
-  theme_bw()+
-  theme(axis.text.x = element_text(angle = 90, hjust = 1)) +
-  expand_limits(y=c(0,0.2)) +
-  geom_abline(intercept = 0.1, slope = 0)
-
-
-```
-
-
-
-
-
-```{r,fig.height=5, fig.width=10}
-
-##select only Antas and Monti
-df_sp3 <-df_sp2 %>%
-    filter(Cultivar!="N")
-    
-str(df_sp3)
-
-df_sp3%>%
-  ungroup(Cultivar)%>%
-  mutate (Cultivar= factor(Cultivar, levels=c("A", "M"),labels=c("Antas", "Monti")))%>%
-   ggplot(aes(x=WaveNumber,y=Absorbance))+
-  geom_line(aes(colour=factor(IncubationDays)))+
-  theme_bw()+
-  #scale_x_continuous(breaks=seq(min(df_sp$WaveNumber),max(df_sp$WaveNumber),by =50))+
-   #scale_x_continuous(breaks=round(seq(min(df_sp$WaveNumber),max(df_sp$WaveNumber),by =50)))+
-  facet_grid(Cultivar ~.) +
-  scale_x_reverse(breaks=round(seq(min(df_sp$WaveNumber),max(df_sp$WaveNumber),by =100))) +
-  theme_bw()+
-  theme(axis.text.x = element_text(angle = 90, hjust = 1)) +
-  expand_limits(y=c(0,0.2)) +
-  geom_abline(intercept = 0.1, slope = 0)
-
-
-
-```
-
-
-
-
-
-##Graph the subset wavenumbers 2900-2700 
-
-
-```{r, fig.height=4, fig.width=8}
-
-##select only Antas and Monti
-df_sp4 <-df_sp3 %>%
-    subset(WaveNumber>2800 & WaveNumber<3000 )
-    
-
-
-df_sp4%>%
-   ggplot(aes(x=WaveNumber,y=Absorbance))+
-  geom_line(aes(colour=factor(IncubationDays)))+
-  theme_bw()+
-scale_x_continuous(breaks=seq(min(df_sp$WaveNumber),max(df_sp$WaveNumber),400))+
-    facet_grid(Cultivar ~.) +
-  theme_bw()+
-      scale_x_reverse()+
-  theme(axis.text.x = element_text(angle = 90, hjust = 1)) +
-  expand_limits(y=c(0,0.2)) +
-  geom_abline(intercept = 0.1, slope = 0)
-```
-
-
-```{r, fig.height=5, fig.width=10}
-
-df_sp %>%
-  
-  ggplot(aes(x=Wavelength,y=Absorbance))+
-  geom_line(aes(colour=IncubationDays))+
-  #geom_line(aes(colour= factor(IncubationDays)))+
-  scale_colour_gradient(low="red")+
-    theme_bw()+
-   #scale_x_continuous(breaks=seq(min(df_sp$Wavelength),max(df_sp$Wavelength),400))+
-  scale_x_reverse()+
- # scale_x_reverse(lim=c(650,4000))+
-  theme(axis.text.x = element_text(angle = 90, hjust = 1)) +
-  expand_limits(y=c(0,0.2)) +
-  geom_abline(intercept = 0.1, slope = 0)
-  #geom_vline(intercept = 1000, slope = 0)
-    #scale_x_date(labels = date_format("%b-%Y"))
-
-
-
-```
-
-MAke the difference between incubation days 0 and 84 ; find bands which change the most. filter out 42.Use difference absolute and %. 
-
-```{r}
-
-df1 <- df_sp  %>%         
-  mutate(IncubationDays=factor(paste0("A_",IncubationDays)))%>%
-  filter(IncubationDays!="A_42") %>%
-  tidyr::spread(IncubationDays,Absorbance)%>%
-  mutate(DiffAbsolute=A_0-A_84,DiffRelative=DiffAbsolute/A_0*100) #%>%
-#Now gather values 
-#tidyr::gather("Varname", "Varvalue",A_0:DiffRelative )
-summary(df1)
-```
-
-
-Now graph the differences 
-
-```{r}
-df2 <-df1 %>%
-  filter(Cultivar!="Narrikup")%>%
-  subset(DiffRelative>5 & DiffRelative<100)
-
-df2 %>%
-  ggplot(aes(x=Wavelength,y=DiffRelative))+
-  geom_line(aes(colour=Cultivar))+
-  theme_bw()+
- # facet_grid(.~Cultivar,scales="free") +
-  scale_x_reverse()+
-  geom_abline(intercept = 0, slope = 0)
- 
-   
-  
-```
-
+Graph completed. Snaped spectra baseNormalised contains wavenumbers from 3600-2800 and then load the dataframe on another script to compare the P values of the vibrations. 
 
 #

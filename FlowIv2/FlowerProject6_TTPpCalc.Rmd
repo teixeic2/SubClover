@@ -64,7 +64,7 @@ df_weather <- read.table("df_CumTTIv.txt",header=TRUE) %>%
 Merge and calculate the two datasets 
 
 - SumTT is value at sowing from 24 Jun 2015 
-- TT50F_run (at flowering time) sets a limit for juvenile period
+- TT50F_run (at flowering time) sets a limit for juvenile period - why? 
 
 ```{r}
 # get TTsum at sowing
@@ -74,13 +74,15 @@ df_Iv <- merge(df_tt_flow, df_weather,
                by.y=c("Date")) %>%
   ungroup()%>%
  # na.omit() %>%
-   mutate(Pp_sow = Pp) %>%
+  mutate(Pp_sow = Pp) %>%
   mutate(TtAtSowing_run = SumTTday) %>%
   dplyr::select(-SumTTday, -Pp) %>%
   mutate(TT50F_run = TT50F + TtAtSowing_run) %>% # Tt running at flowering
-  mutate(cv_block_index = as.factor(paste0(Cultivar,"_",Block))) 
+  mutate(cv_block_index = as.factor(paste0(Cultivar,"_",Block)))  %>%
+  mutate(SowingD=ymd(SowingD))
  
 str(df_Iv)
+
 ```
 
 
@@ -90,13 +92,13 @@ summary(df_Iv)
 
 # Plot Tt50 vs Pp at sowing
 
-```{r}
+```{r, fig.width=12}
 
 df_Iv %>%
   na.omit() %>%
   dplyr::select(Cultivar, SowTreat, Variable, TT50F, Pp_sow) %>%
   group_by(Cultivar, SowTreat, Variable) %>%
-  summarise_each(funs(mean,sd)) %>%
+  summarise_all(funs(mean,sd)) %>%
   ggplot(aes(x=Pp_sow_mean,y=TT50F_mean, colour=Cultivar)) +
   geom_point()+
   geom_line()+
@@ -106,13 +108,79 @@ df_Iv %>%
 
 ```
 
+
+
+```{r}
+
+str(df_Iv)
+```
+
+
+```{r, fig.height=10, fig.width= 12}
+
+
+ 
+dfGraph1 <- df_Iv%>% 
+  dplyr::select(SowingD:SowTreat,Block, TT50F, Pp_sow)%>%
+  filter(TT50F!=0)%>%
+  filter (Variable=="Flowering")%>%
+  
+  group_by(Cultivar,SowingD,SowTreat)%>%
+  #select variables to average 
+  select(Cultivar,SowingD,SowTreat, TT50F, Pp_sow)%>%
+  summarise_all(funs(mean))
+
+
+#Remember that S5 A,D,W = no flowering ...how to deal here ? 
+dfGraph1 %>%
+  #filter(Variable==Flowering) %>%
+  ggplot(aes(x=Pp_sow,y=TT50F,colour=factor(Cultivar))) +
+  geom_point(aes(shape= SowTreat), size=4)+
+  scale_shape_manual(values = c(0,1,2,3,4,5,6,7,8))+
+  geom_point() + geom_line() + facet_grid(Cultivar~.)+
+    ylim(0,3000)
+
+```
+
+```{r, fig.height=5, fig.width=15}
+
+
+dfGraph1 %>%
+   #filter(Cultivar=="Monti"| Cultivar=="Antas")%>%
+  #filter (SowTreat== "S3"| SowTreat== "S4"|SowTreat== "S5"|SowTreat== "S6")%>%
+  ggplot(aes(x=Pp_sow,y=TT50F,colour=factor(Cultivar)))   +
+  #  geom_point(aes(shape= SowTreat), size=4)+
+  geom_text(aes(label=SowTreat),hjust=0, vjust=0) +
+  scale_shape_manual(values = c(0,1,2,3,4,5,6,7,8))+
+  #geom_point(alpha=0.8) +
+  #geom_smooth(colour="red")+
+  #stat_smooth(level = 0.9, size = 1, colour="white") + 
+  theme_bw() +
+  xlab(expression(Mean~Thermal~time~Flowering~"("^"o"*"Cd)")) + 
+  xlab(" Photoperiod at Sowing  ") +
+  facet_grid(.~Cultivar, scales="free")+
+  theme(text = element_text(size=11))+
+ scale_x_continuous(limits = c(9,18))+
+  scale_y_continuous(limits = c(0,2800))
+
+
+```
+
+Now assemble the Pp targets !!! 
+
+
+
+
+##These chunks below need revision !!! why TT 50 run is added ? 
+
+
 ## calc
 
 Find running sumTT for each sowing date at sowing
 
 - only to have a small df for function below
 
-- Obs: lebel tt as "_run" when using runnibng sum of Tt across all sow dates
+- Obs: lebel tt as "_run" when using running sum of Tt across all sow dates
 
 ```{r}
 sumTTatSow <- df_Iv %>%
@@ -124,7 +192,7 @@ head(sumTTatSow)
 
 ```
 
-Create function for retrieving photoperiod as a function of TT after sowing and SD treatment
+Create function for retrieving photoperiod as a function of TT after sowing and Sowing date  treatment
 
 - finds running TT at sowiong
 - adds target to that and finds pp at that TT momrent
@@ -163,7 +231,7 @@ Pp_finder_func <- function(sowT, tt_target){
 st <- "S7"
 
 #test
-tt_target <- 3633
+tt_target <- 500 
 #TTsum estimated to reach 1st trifoliate 
 
 #test if function is working : example : 
@@ -180,7 +248,7 @@ Pp_finder_func(st, tt_target)
 
 ```{r}
 
-# FIXME: This logic is currepted as graph for target ==0 is not as above
+# FIXME: This logic is corrupted as graph for target ==0 is not as above
 
 cv_block <- (unique(df_Iv$cv_block_index))
 
@@ -221,14 +289,103 @@ summary(df_pp_all)
 
 ```
 
-## Check data
+
+
+```{r, fig.width=12}
+df_pp_all %>%
+  ggplot(aes(x=TT_target,y=Pp_target)) +
+  geom_point() + geom_line() + facet_grid(Cultivar~SowTreat)
+```
+
 
 ```{r}
 
-df_pp_all %>%
-  filter(TT_target==0) %>%
-  ggplot(aes(x=Pp_target,y=TT50F,colour=factor(Cultivar))) +
-  geom_point() + geom_line() +facet_grid(Block~.)
+str(df_pp_all)
+
+df_pp_all_mean <- df_pp_all %>%
+    dplyr::select(Cultivar,Variable,SowTreat,TT50F,TT_target,Pp_target)%>%
+    group_by(Cultivar,SowTreat, Variable)  %>%
+    filter(Variable=="Flowering") %>%
+    summarise_all(funs(mean))
+
+
+summary(df_pp_all_mean)
+
+
+df_pp_all_mean %>% filter(is.na(Pp_target))
+
+for (i in )
+
+
+
+dfGraph1 %>%
+  ggplot(aes(x=Pp_sow,y=TT50F,colour=factor(Cultivar)))   +
+  geom_text(aes(label=SowTreat),hjust=0, vjust=0) +
+  scale_shape_manual(values = c(0,1,2,3,4,5,6,7,8))+
+  theme_bw() +
+  xlab(expression(Mean~Thermal~time~Flowering~"("^"o"*"Cd)")) + 
+  xlab(" Photoperiod at Sowing  ") +
+  facet_grid(.~Cultivar, scales="free")+
+  theme(text = element_text(size=11))+
+ scale_x_continuous(limits = c(9,18))+
+  scale_y_continuous(limits = c(0,2800))
 
 ```
+
+
+
+
+
+## Check data
+
+```{r, fig.height= 10 , fig.width=15}
+
+df_pp_all %>%
+  filter(TT_target==500) %>%
+  ggplot(aes(x=Pp_target,y=TT50F,colour=factor(Cultivar),shape=factor(SowTreat),size=3 )) +
+  geom_point() + geom_line() +facet_grid(Cultivar~.)
+
+```
+
+
+## Graph again using mean values 
+
+
+```{r, fig.height= 5 , fig.width=10}
+
+str(df_pp_all)
+
+dfTTPPtargets<-df_pp_all %>%
+  dplyr::select(SowingD:SowTreat,Block, TT50F_run, TT_target, Pp_target)%>%
+  group_by(Cultivar,SowingD,SowTreat, TT_target )%>%
+  #select variables to average 
+  select(TT50F_run, TT_target, Pp_target)%>%
+  summarise_all(funs(mean))
+
+
+#now graph one considering x = Pp-target set in  TT target of 500 for example  and Y TT50F run 
+
+
+  df500 <- dfTTPPtargets %>%
+  filter(TT_target==500) 
+  
+  
+  df500 %>%
+  #filter(TT_target==500) %>%
+  ggplot(aes(x=Pp_target,y=TT50F_run,colour=factor(Cultivar))) +
+  geom_point(aes(shape= SowTreat), size=4)+
+  scale_shape_manual(values = c(0,1,2,3,4,5,6,7,8))+
+  geom_point() + geom_line() +facet_grid(Cultivar~.)+
+    ylim(0,5000)
+
+```
+
+
+## Can you use the multiple panels to plot TT against Pp targets ? 
+
+
+
+
+
+
 

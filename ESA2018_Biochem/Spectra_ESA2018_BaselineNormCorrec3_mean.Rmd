@@ -25,8 +25,8 @@ setwd("C:\\GitHubRepos\\SubCloverPhD\\SubClover\\ESA2018_Biochem")
 getwd()
 
 #create file
-#df_sp <- read.table("BreakBaselined3cv_2.txt",header=TRUE)
-df_sp <- read.table("UntreatedESANormalised2018.txt",header=TRUE)
+df_sp <- read.table("BreakBaselined3cv_2.txt",header=TRUE)
+#df_sp <- read.table("UntreatedESANormalised2018.txt",header=TRUE)
 #UntreatedESANormalised2018
 
 

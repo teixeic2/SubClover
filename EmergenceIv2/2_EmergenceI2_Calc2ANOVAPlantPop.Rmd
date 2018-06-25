@@ -10,7 +10,7 @@ output:
 
 Purpose:
 
--Analysis of plant population ANOVA
+-Analysis of plant population ANOVA for Iversen Iv2 
 
 
 
@@ -63,7 +63,94 @@ df_emerg_perc3 <- df_emerg%>%
   dplyr::select(SowTreat,Cultivar,Block,Plot,FinalPop)
 
 ```
-here overall from selected sowingdates (S2,S3,S4 and S6) and cultivar Woogenelup only
+Overall analysis consider sowing date and cultivar 
+
+
+```{r}
+##Overview   
+
+file <- df_emerg_perc3
+file$transf_no <- 1*(df_emerg_perc3$FinalPop)
+head(file)
+
+#-------------------------------------------------
+# ANOVA for sowing date 
+file.subset <- file 
+
+head(file.subset)
+summary(file.subset)
+my.anova <- aov(transf_no ~ SowTreat + Block, 
+                data = file.subset)
+
+summary(my.anova)
+
+```
+
+Check effect of cultivar 
+
+
+```{r}
+##Overview   
+
+file <- df_emerg_perc3
+file$transf_no <- 1*(df_emerg_perc3$FinalPop)
+head(file)
+
+#-------------------------------------------------
+# ANOVA for Culltivar 
+file.subset <- file 
+
+head(file.subset)
+summary(file.subset)
+my.anova <- aov(transf_no ~ Cultivar + Block, 
+                data = file.subset)
+
+summary(my.anova)
+
+```
+
+
+
+```{r}
+#then ttest 
+
+#TukeyHSD(my.anova)
+
+#Means separation 
+#(LSD.test(my.anova, c( "Block", "Sowtreat"), alpha= 0.05, p.adj="none") )
+#(LSD.test(my.anova, c( "SowTreat"), alpha= 0.05, p.adj="none"))
+(LSD.test(my.anova, c( "Cultivar"), alpha= 0.05, p.adj="none"))
+#(LSD.test(my.anova, "Block"))
+
+```
+
+
+check with the two factors 
+
+
+
+```{r}
+##Overview   
+
+file <- df_emerg_perc3
+file$transf_no <- 1*(df_emerg_perc3$FinalPop)
+head(file)
+
+#-------------------------------------------------
+# ANOVA for cultivar * sowing date 
+file.subset <- file 
+
+head(file.subset)
+summary(file.subset)
+my.anova <- aov(transf_no ~ Cultivar* SowTreat+ Block, 
+                data = file.subset)
+
+summary(my.anova)
+
+```
+
+
+Here overall from selected sowingdates (S2,S3,S4 and S6) and cultivar Woogenelup only
 
 ```{r}
 
@@ -97,6 +184,8 @@ summary(my.anova)
 
 ```
 
+
+
 ```{r}
 #then ttest 
 
@@ -110,8 +199,6 @@ summary(my.anova)
 ```
 
 
-
-
 then to run statistic tests select each sowing date individually 
 
 
@@ -120,6 +207,25 @@ df_emerg_S1 <-df_emerg_perc3 %>%
 filter(SowTreat=="S1") 
 summary (df_emerg_S1)  
   
+```
+
+Change table in chapter Emergence 
+
+```{r}
+
+#Check the SE ; select the max SE :
+sd_dfS1 <- df_emerg_S1  %>% 
+  group_by(Cultivar) %>%
+   summarise_all(funs(mean,sd))
+  
+
+sd_dfS1 <- sd_dfS1 %>%
+  mutate (SES1= FinalPop_sd/1.73)%>%
+  dplyr::select(SES1)%>%
+  summarise_all(funs(max))
+
+
+
 ```
 
 
