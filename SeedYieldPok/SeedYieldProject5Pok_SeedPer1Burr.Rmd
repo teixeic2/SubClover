@@ -205,7 +205,7 @@ dge_x <- position_dodge(width = 0.9)
   geom_errorbar(aes(ymin=SeedsPerBur_mean-SE/2,
                     ymax=SeedsPerBur_mean+SE/2),
                 width=0.25, size=0.3,position=dodge_x)   +
-  theme_grey(base_size = 16) +
+  theme_grey(base_size = 24) +
   theme_bw()+
      #remove grid lines 
    theme(
@@ -226,9 +226,9 @@ dge_x <- position_dodge(width = 0.9)
      #colour
       scale_fill_brewer(palette="Blues")+
   facet_grid(.~SowTreat, scales="free") +
-    labs(y= "Number of seeds/inflorescence")+
-theme(axis.text.x=element_text(angle = 0, hjust=0.5,vjust=0.2,size = 22)) +
-theme(text = element_text(size = 22))
+    labs(y= "Number of seeds/burr")+
+theme(axis.text.x=element_text(angle = 0, hjust=0.5,vjust=0.2,size = 24)) +
+theme(text = element_text(size = 24))
      #theme(axis.title.y=element_text(angle = 90, hjust=0.5,vjust=0.2,size = 22)) 
    
    #save

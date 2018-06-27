@@ -146,23 +146,33 @@ dfGraph1 %>%
 
 
 dfGraph1 %>%
+mutate (SowTreat= factor(SowTreat, levels=c("S1", "S2", "S3", "S4", "S5", "S6", "S7","S8"),labels=c("June", "July", "Sept.", "Nov.", "Dec.", "Feb.", "March", "May")))%>%
    #filter(Cultivar=="Monti"| Cultivar=="Antas")%>%
   #filter (SowTreat== "S3"| SowTreat== "S4"|SowTreat== "S5"|SowTreat== "S6")%>%
-  ggplot(aes(x=Pp_sow,y=TT50F,colour=factor(Cultivar)))   +
-  #  geom_point(aes(shape= SowTreat), size=4)+
-  geom_text(aes(label=SowTreat),hjust=0, vjust=0) +
-  scale_shape_manual(values = c(0,1,2,3,4,5,6,7,8))+
-  #geom_point(alpha=0.8) +
-  #geom_smooth(colour="red")+
-  #stat_smooth(level = 0.9, size = 1, colour="white") + 
-  theme_bw() +
-  xlab(expression(Mean~Thermal~time~Flowering~"("^"o"*"Cd)")) + 
-  xlab(" Photoperiod at Sowing  ") +
-  facet_grid(.~Cultivar, scales="free")+
-  theme(text = element_text(size=11))+
- scale_x_continuous(limits = c(9,18))+
-  scale_y_continuous(limits = c(0,2800))
+  #ggplot(aes(x=Pp_sow,y=TT50F,colour=factor(Cultivar)))   +
+   ggplot(aes(x=Pp_sow,y=TT50F))+
 
+  #  geom_point(aes(shape= SowTreat), size=4)+
+  
+  geom_text(aes(label=SowTreat),hjust=0, vjust=0,size=5) +
+  theme_bw()+
+  #remove grid lines 
+   theme(
+     panel.border = element_rect(colour = "black", size = 2), 
+     panel.grid.major = element_blank(),
+     panel.grid.minor = element_blank(),
+     axis.line = element_line(colour = "black"))+
+  
+  ylab(expression(Mean~Thermal~time~Flowering~"("^"o"*"Cd)")) + 
+  xlab(" Photoperiod at Sowing") +
+  facet_grid(.~Cultivar, scales="free")+
+  theme(text = element_text(size=18))+
+ scale_x_continuous(limits = c(9,20))+
+  scale_y_continuous(limits = c(0,2800))
+#theme(axis.title.y = element_text(face="bold", size=16))+
+   
+
+#ggsave("plot_PhotoperiodSowing.png", width=16, height=6, dpi=400)
 
 ```
 
@@ -171,7 +181,7 @@ Now assemble the Pp targets !!!
 
 
 
-##These chunks below need revision !!! why TT 50 run is added ? 
+##These chunks below need revision !!! why TT 50 run is added not sure if it is necessary now (26.06.2018) ? 
 
 
 ## calc
@@ -252,7 +262,12 @@ Pp_finder_func(st, tt_target)
 
 cv_block <- (unique(df_Iv$cv_block_index))
 
-df_Iv_flow <- df_Iv %>% dplyr::filter(Variable=="Flowering") %>% na.omit()
+df_Iv_flow <- df_Iv %>% 
+  dplyr::filter(Variable=="Flowering") %>%
+  subset(TT50F>0.5)
+#na.omit()
+  #Need to remove Denmark and Leura S5 ! no flowering 
+  
 
 # Loop 
 df_pp_all <- data.frame()
@@ -297,43 +312,61 @@ df_pp_all %>%
   geom_point() + geom_line() + facet_grid(Cultivar~SowTreat)
 ```
 
+Yes!! found it!!! : )
 
-```{r}
 
-str(df_pp_all)
+```{r, fig.width=15, fig.height=6}
+
+#str(df_pp_all)
 
 df_pp_all_mean <- df_pp_all %>%
+  
     dplyr::select(Cultivar,Variable,SowTreat,TT50F,TT_target,Pp_target)%>%
-    group_by(Cultivar,SowTreat, Variable)  %>%
+    group_by(Cultivar,SowTreat, Variable,TT_target)  %>%
     filter(Variable=="Flowering") %>%
     summarise_all(funs(mean))
 
 
-summary(df_pp_all_mean)
+#summary(df_pp_all_mean)
 
 
-df_pp_all_mean %>% filter(is.na(Pp_target))
+df_pp_all_mean$Cult_TtT <- paste0(df_pp_all_mean$Cultivar,"_",round(df_pp_all_mean$TT_target,0))
 
-for (i in )
+indexTT <- unique(round(df_pp_all_mean$TT_target,0))
+indexCT <- unique(df_pp_all_mean$Cult_TtT)
+indexCV <- unique(df_pp_all_mean$Cultivar)
 
-
-
-dfGraph1 %>%
-  ggplot(aes(x=Pp_sow,y=TT50F,colour=factor(Cultivar)))   +
+for (i in 1:length(indexCV)) {
+  
+  df <- df_pp_all_mean%>%subset(Cultivar==indexCV[i])
+  
+  g <- df %>%
+  ungroup() %>%
+    mutate (SowTreat= factor(SowTreat, levels=c("S1", "S2", "S3", "S4", "S5", "S6", "S7","S8"),labels=c("June", "July", "Sept.", "Nov.", "Dec.", "Feb.", "March", "May")))%>%
+  ggplot(aes(x=Pp_target,y=TT50F))   +
   geom_text(aes(label=SowTreat),hjust=0, vjust=0) +
-  scale_shape_manual(values = c(0,1,2,3,4,5,6,7,8))+
+  #scale_shape_manual(values = c(0,1,2,3,4,5,6,7,8))+
   theme_bw() +
-  xlab(expression(Mean~Thermal~time~Flowering~"("^"o"*"Cd)")) + 
+  ylab(expression(Mean~Thermal~time~Flowering~"("^"o"*"Cd)")) + 
   xlab(" Photoperiod at Sowing  ") +
-  facet_grid(.~Cultivar, scales="free")+
+ #facet_grid(.~Cultivar, scales="free")+
+  facet_wrap(~TT_target, scales="free",ncol=6)+
+  # facet_grid(TT_target~., scales="free")+
   theme(text = element_text(size=11))+
- scale_x_continuous(limits = c(9,18))+
-  scale_y_continuous(limits = c(0,2800))
+    xlim(9,18)
+  
+  
+  
+  
+  print(g)
+  
+  
+}
 
 ```
 
 
-
+get all graphs in appendix then. 
 
 
 ## Check data
