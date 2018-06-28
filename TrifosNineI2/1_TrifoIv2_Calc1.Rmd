@@ -69,7 +69,7 @@ Graph the results : DAS and number of trifoliates
   summarise_each(funs(mean)) %>%
   ggplot(aes(x=DAS, y=Trifo)) + 
   #geom_point(aes(colour=Cultivar, shape=Cultivar), size=4) +
-  geom_point(aes(shape=Cultivar), size=4) +
+  geom_point(aes(shape=Cultivar), size=5) +
   #scale_shape_manual(values = c(0,1,2, 3,4,5,6,7,8,9,10,11))+
   scale_shape_manual(values = c(1,2,0)) +
   #geom_line(aes(colour=Cultivar)) +
@@ -77,17 +77,27 @@ Graph the results : DAS and number of trifoliates
   #facet_wrap(~SowTreat,ncol=4, scales = "free") +
   facet_wrap (~SowTreat,ncol=4)+
   ylim(0,16)+
-  labs(y="Number of trifoliates",x="Days after sowing")+
-  theme_grey(base_size = 16) +
-  theme_bw()+
+  labs(y="Number of trifoliate leaves (n)",x="Days after sowing")+
+  #theme_grey(base_size = 16) +
+  theme_bw(base_size = 24)+
+  
+   #remove grid lines 
+     theme(
+     panel.border = element_rect(colour = "black", size = 2), 
+     panel.grid.major = element_blank(),
+     panel.grid.minor = element_blank(),
+     axis.line = element_line(colour = "black"))+
+  
     geom_abline(intercept = 1, slope = 0, linetype=2)+
    geom_abline(intercept = 5,  slope = 0, linetype=2)+
    geom_abline(intercept = 9,  slope = 0, linetype=2)+
 theme(axis.text.x=element_text(angle = 0, hjust = 0))+
-theme(text = element_text(size = 20))
+theme(text = element_text(size = 24))
 
 
- 
+#save
+   
+   ggsave("plot_NumberOfTrifoliateLeavesA.png", width=16, height=8, dpi=400)
 
 
 
@@ -106,7 +116,7 @@ Graph the results : DAS and number of trifoliates
   summarise_each(funs(mean)) %>%
   ggplot(aes(x=DAS, y=Trifo)) + 
   #geom_point(aes(colour=Cultivar, shape=Cultivar), size=4) +
-  geom_point(aes(shape=Cultivar), size=4) +
+  geom_point(aes(shape=Cultivar), size=5) +
   #scale_shape_manual(values = c(0,1,2, 3,4,5,6,7,8,9,10,11))+
   scale_shape_manual(values = c(4,7,8)) +
   #geom_line(aes(colour=Cultivar)) +
@@ -114,16 +124,26 @@ Graph the results : DAS and number of trifoliates
   #facet_wrap(~SowTreat,ncol=4, scales = "free") +
   facet_wrap (~SowTreat,ncol=4)+
   ylim(0,16)+
-  labs(y="Number of trifoliates",x="Days after sowing")+
-  theme_grey(base_size = 16) +
-  theme_bw()+
+  labs(y="Number of trifoliate leaves (n)",x="Days after sowing")+
+  
+  theme_bw(base_size = 24)+
+  
+   #remove grid lines 
+     theme(
+     panel.border = element_rect(colour = "black", size = 2), 
+     panel.grid.major = element_blank(),
+     panel.grid.minor = element_blank(),
+     axis.line = element_line(colour = "black"))+
+  
     geom_abline(intercept = 1, slope = 0, linetype=2)+
    geom_abline(intercept = 5,  slope = 0, linetype=2)+
    geom_abline(intercept = 9,  slope = 0, linetype=2)+
 theme(axis.text.x=element_text(angle = 0, hjust = 0))+
-theme(text = element_text(size = 20))
+theme(text = element_text(size = 24))
 
-
+#save
+   
+   ggsave("plot_NumberOfTrifoliateLeavesB.png", width=16, height=8, dpi=400)
  
 
 ```

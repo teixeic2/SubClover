@@ -238,10 +238,10 @@ Pp_finder_func <- function(sowT, tt_target){
 ## Test function
 
 ```{r}
-st <- "S7"
+st <- "S1"
 
 #test
-tt_target <- 500 
+tt_target <- 0 
 #TTsum estimated to reach 1st trifoliate 
 
 #test if function is working : example : 
@@ -258,7 +258,7 @@ Pp_finder_func(st, tt_target)
 
 ```{r}
 
-# FIXME: This logic is corrupted as graph for target ==0 is not as above
+# FIXME: This logic is corrupted as graph for target ==0 is not as above. Yes that is sure thing !!!! 
 
 cv_block <- (unique(df_Iv$cv_block_index))
 
@@ -290,7 +290,7 @@ for(p in 1:length(cv_block)) {
     df_sub_pp <- df_sub %>%
     rowwise() %>%
     mutate(TT_target = t)  %>%
-    mutate(Pp_target=Pp_finder_func(SowTreat,TtAtSowing_run + TT_target))
+    mutate(Pp_target=Pp_finder_func(SowTreat,TT_target))
     
     # Bind all results
     df_pp_all <- rbind(df_pp_all,df_sub_pp)
@@ -308,7 +308,7 @@ summary(df_pp_all)
 
 ```{r, fig.width=12}
 df_pp_all %>%
-  ggplot(aes(x=TT_target,y=Pp_target)) +
+  ggplot(aes(y=TT_target,x=Pp_target)) +
   geom_point() + geom_line() + facet_grid(Cultivar~SowTreat)
 ```
 
@@ -344,16 +344,19 @@ for (i in 1:length(indexCV)) {
   ungroup() %>%
     mutate (SowTreat= factor(SowTreat, levels=c("S1", "S2", "S3", "S4", "S5", "S6", "S7","S8"),labels=c("June", "July", "Sept.", "Nov.", "Dec.", "Feb.", "March", "May")))%>%
   ggplot(aes(x=Pp_target,y=TT50F))   +
-  geom_text(aes(label=SowTreat),hjust=0, vjust=0) +
+  geom_text(aes(label=SowTreat, colour=Cultivar),hjust=0, vjust=0,size=4) +
+    scale_colour_manual(values=c("#000000" ))+
   #scale_shape_manual(values = c(0,1,2,3,4,5,6,7,8))+
   theme_bw() +
   ylab(expression(Mean~Thermal~time~Flowering~"("^"o"*"Cd)")) + 
-  xlab(" Photoperiod at Sowing  ") +
+  #xlab(expression(Photoperiod~at~Thermal~time~Flowering~"("^"o"*"Cd)")) +
+  xlab(" Photoperiod at Target Thermal times") +
  #facet_grid(.~Cultivar, scales="free")+
   facet_wrap(~TT_target, scales="free",ncol=6)+
   # facet_grid(TT_target~., scales="free")+
-  theme(text = element_text(size=11))+
-    xlim(9,18)
+  theme(text = element_text(size=16))+
+    xlim(9,20)+
+    ylim(0,2500)
   
   
   

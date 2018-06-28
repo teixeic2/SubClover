@@ -56,7 +56,7 @@ str(df_trifo1)
 
 
 
-##Run stats for the number of days to reach 5 ttrifoliates (DAS5T) - general use Sow Treat as Factor 
+##Run stats for the number of days to reach 1 ttrifoliates (DAS1T) - general use Sow Treat as Factor 
 
 ```{r}
  
@@ -84,6 +84,27 @@ summary(my.anova)
 
 ```
 
+Check interaction sowtreat vs cultivar
+
+
+```{r}
+
+ file <- df_trifo1
+
+
+file.subs <- file 
+
+head(file.subs)
+summary(file.subs)
+
+#ANOVA
+
+#my.anova <- aov(DAS1T ~ SowTreat + Block, data = file.subs)
+my.anova <- aov(DAS1T ~ Cultivar* SowTreat + Block, data = file.subs)
+
+summary(my.anova)
+
+```
 
 
 ## Create index to filter for loop ANOVA

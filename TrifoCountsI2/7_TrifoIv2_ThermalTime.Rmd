@@ -10,6 +10,7 @@ This script does this:
 - get the dataframe with sowing dates and DAS  to 50% of plants with 5 trifoliates  
 - get the dataframe with max and min air temperature in Iversen  
 - merge the two dataframes to calculate the thermal time from sowing to 5 trifo stage  using the  Tb= 0 and standard cardinal temps.
+-The file RawWeaIv2.txt brings the air Temperature!! Follow same method as per Nori et al (air temperature)!! 
 
 
 #---------------------------------------------------------------------------------------------------------------
