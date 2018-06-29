@@ -3,9 +3,11 @@ title: "similar to ReAnalysis Table"
 author: "CT"
 date: "24.04.2017"
 output:
-  word_document: default
+  pdf_document: default
   html_document: default
-note: include Pp analysis using selected datasets from Reanalysis scripts but use Iversen 2 collected data  
+  word_document: default
+note: include Pp analysis using selected datasets from Reanalysis scripts but use
+  Iversen 2 collected data
 ---
 
 ```{r loadLibraries, echo=FALSE, include=FALSE}
@@ -17,6 +19,8 @@ library(knitr)
 library (lubridate)
 library (segmented)
 library(hydroGOF)
+library (markdown)
+library (knitr)
 
 ```
  
@@ -304,13 +308,25 @@ summary(df_pp_all)
 
 ```
 
-
+Check photoperiod direction 
 
 ```{r, fig.width=12}
 df_pp_all %>%
   ggplot(aes(y=TT_target,x=Pp_target)) +
-  geom_point() + geom_line() + facet_grid(Cultivar~SowTreat)
+  geom_point(size=3.5) + 
+  #geom_line() + 
+  facet_grid(Cultivar~SowTreat)+
+  theme_bw(base_size=18) +
+  ylab(expression(Mean~Thermal~time~target~"("^"o"*"Cd)")) + 
+  #xlab(expression(Photoperiod~at~Thermal~time~Flowering~"("^"o"*"Cd)")) +
+  xlab(" Photoperiod target (hours)") +
+  ylim(0,1000)
+  
+  
 ```
+
+
+
 
 Yes!! found it!!! : )
 
@@ -350,13 +366,15 @@ for (i in 1:length(indexCV)) {
   theme_bw() +
   ylab(expression(Mean~Thermal~time~Flowering~"("^"o"*"Cd)")) + 
   #xlab(expression(Photoperiod~at~Thermal~time~Flowering~"("^"o"*"Cd)")) +
-  xlab(" Photoperiod at Target Thermal times") +
+  xlab(" Photoperiod at Target Thermal times (hours) ") +
  #facet_grid(.~Cultivar, scales="free")+
   facet_wrap(~TT_target, scales="free",ncol=6)+
   # facet_grid(TT_target~., scales="free")+
   theme(text = element_text(size=16))+
     xlim(9,20)+
-    ylim(0,2500)
+    ylim(0,2500)+
+    geom_smooth(stat='lm', fill='blue', alpha=0.2) + geom_point(size=2,alpha=0.5)
+  
   
   
   
@@ -383,45 +401,19 @@ df_pp_all %>%
 
 ```
 
-
-## Graph again using mean values 
+##Now write a table to use to calculte the Photothermal time and continue in script 7 
 
 
 ```{r, fig.height= 5 , fig.width=10}
 
 str(df_pp_all)
 
-dfTTPPtargets<-df_pp_all %>%
-  dplyr::select(SowingD:SowTreat,Block, TT50F_run, TT_target, Pp_target)%>%
-  group_by(Cultivar,SowingD,SowTreat, TT_target )%>%
-  #select variables to average 
-  select(TT50F_run, TT_target, Pp_target)%>%
-  summarise_all(funs(mean))
-
-
-#now graph one considering x = Pp-target set in  TT target of 500 for example  and Y TT50F run 
-
-
-  df500 <- dfTTPPtargets %>%
-  filter(TT_target==500) 
+df_pp_all 
   
-  
-  df500 %>%
-  #filter(TT_target==500) %>%
-  ggplot(aes(x=Pp_target,y=TT50F_run,colour=factor(Cultivar))) +
-  geom_point(aes(shape= SowTreat), size=4)+
-  scale_shape_manual(values = c(0,1,2,3,4,5,6,7,8))+
-  geom_point() + geom_line() +facet_grid(Cultivar~.)+
-    ylim(0,5000)
+#Save as table 
+write.table(df_pp_all, "df_Pptargets_TT50F.txt")
 
 ```
 
 
-## Can you use the multiple panels to plot TT against Pp targets ? 
-
-
-
-
-
-
-
+End of this script 
