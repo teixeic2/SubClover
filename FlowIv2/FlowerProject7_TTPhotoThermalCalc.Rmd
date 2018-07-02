@@ -192,7 +192,7 @@ get graph for antas
    df_FP_all_mean  %>%
   ungroup() %>%
     mutate (SowTreat= factor(SowTreat, levels=c("S1", "S2", "S3", "S4", "S5", "S6", "S7","S8"),labels=c("June", "July", "Sept.", "Nov.", "Dec.", "Feb.", "March", "May")))%>%
-  filter (Cultivar=="Antas")%>%
+  filter (Cultivar=="Woogenellup")%>%
   ggplot(aes(x=Pp_target,y=Photo))   +
   geom_text(aes(label=SowTreat, colour=Cultivar),hjust=0, vjust=0,size=4) +
     scale_colour_manual(values=c("#000000" ))+
@@ -209,8 +209,9 @@ get graph for antas
    #facet_grid(TT_target~., scales="free")+
   theme(text = element_text(size=16))+
     xlim(9,20)+
-    ylim(0,2000)+ geom_smooth(stat='lm', fill='blue', alpha=0.2) + geom_point(size=2,alpha=0.5)
-  
+    ylim(0,2000)+
+#geom_smooth(stat='lm', fill='blue', alpha=0.2) + geom_point(size=2,alpha=0.5)
+ geom_smooth(method='lm', fill='blue', alpha=0.2) + geom_point(size=2,alpha=0.5) 
   
 
 ```
