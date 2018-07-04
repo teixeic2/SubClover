@@ -1,0 +1,179 @@
+---
+title: 'First Trifoliates Iversen '
+author: "CT"
+date: "17.02.2018"
+output:
+  word_document: default
+  html_document: default
+  pdf_document: default
+---
+
+Purpose:
+
+This script does this:
+
+- get the dataframe with DAS and TT from sowing and from emergence from script 6 (merged data frame)   
+ 
+- runs the ANOVA for  DAS and TTFirstTrifo from emergence 
+ 
+```{r loadLibraries}
+library(tidyr)
+library (dplyr)
+library (ggplot2)
+library(agricolae)
+library (lubridate)
+library(mosaic)
+library(lattice)
+library(knitr)
+```
+
+Get data from Frist Trifo folder  
+
+
+```{r}
+
+setwd("C:\\GitHubRepos\\SubCloverPhD\\SubClover\\FirstTrifo")
+getwd()
+#create file
+
+df_trif <- read.table("DaysTT1TFromEmergence.txt",header=TRUE)
+
+str(df_trif)
+```
+
+Create df_MD to workout dates to % trifoliates 
+```{r}
+#adjust formats 
+#df_trif$SowingDate <- ymd(df_trif$SowingDate )
+df_trif$Block <- as.factor(df_trif$Block)
+df_trif$Plot <- as.factor(df_trif$Plot)
+df_trif$DAS1T <- as.numeric(df_trif$DAS1T)
+  
+
+```
+
+
+Then next step is to "clean" the dataframe to run ANOVA 
+
+```{r}
+
+df <- df_trif %>%
+  dplyr::select(Plot:Block, DAS1TFromEmerg,TT1TFromEmerg)
+
+
+```
+
+
+  
+Then ready for ANOVA ! 
+
+
+
+## Create index to filter for loop ANOVA
+
+```{r}
+y <- c("S1","S2","S3","S4","S5","S6","S7","S8")
+
+sdIndex <- unique(df$SowTreat)
+
+sdIndex[order(match(sdIndex,y))]
+
+length(sdIndex)
+sdIndex
+```
+
+# Then loop anova for each individual sowing date using :DAS1TFromEmerg
+
+```{r}
+for (i in 1:length(sdIndex)) {
+  
+ #print(i)
+ print(paste0(sdIndex[i],"--------------------------------"))
+  
+  file.subset <- df %>%
+  filter(SowTreat==sdIndex[i])
+  
+ 
+head(file.subset, 50)
+   summary(file.subset)
+my.anova <- aov( DAS1TFromEmerg ~ Cultivar + Block, data = file.subset)
+print(summary(my.anova))
+
+if ((summary(my.anova)[[1]][["Pr(>F)"]][1])<0.05) {
+  print("***Sig Cultivar***") 
+  print((LSD.test(my.anova, c("Cultivar"), alpha= 0.05, p.adj="none"))) } 
+
+
+if ((summary(my.anova)[[1]][["Pr(>F)"]][1])>0.05) {
+  print("***Sig Cultivar***") 
+  print((LSD.test(my.anova, c("Cultivar"), alpha= 0.05, p.adj="none"))) } 
+
+# make mean separation if significant
+
+(LSD.test(my.anova, c("Cultivar"), alpha= 0.05, p.adj="none"))
+  
+}
+
+```
+
+## Here run ANOVA overview 
+
+
+```{r}
+
+file.subset <- df 
+  #filter(SowTreat==sdIndex[i])
+  
+ 
+head(file.subset, 50)
+   summary(file.subset)
+my.anova <- aov( DAS1TFromEmerg ~ Cultivar*SowTreat + Block, data = file.subset)
+
+summary(my.anova)
+  
+  
+  
+(LSD.test(my.anova, c("Cultivar"), alpha= 0.05, p.adj="none")) 
+(LSD.test(my.anova, c("SowTreat"), alpha= 0.05, p.adj="none"))
+$(LSD.test(my.anova, c("Cultivar","SowTreat"), alpha= 0.05, p.adj="none")) 
+```
+
+
+##Now Lopp again with the other variable  : Thermal time TT1TFromEmerg 
+
+
+
+```{r}
+for (i in 1:length(sdIndex)) {
+  
+ #print(i)
+ print(paste0(sdIndex[i],"--------------------------------"))
+  
+  file.subset <- df %>%
+  filter(SowTreat==sdIndex[i])
+  
+ 
+head(file.subset, 50)
+   summary(file.subset)
+my.anova <- aov( TT1TFromEmerg ~ Cultivar + Block, data = file.subset)
+print(summary(my.anova))
+
+if ((summary(my.anova)[[1]][["Pr(>F)"]][1])<0.05) {
+  print("***Sig Cultivar***") 
+  print((LSD.test(my.anova, c("Cultivar"), alpha= 0.05, p.adj="none"))) } 
+
+
+if ((summary(my.anova)[[1]][["Pr(>F)"]][1])>0.05) {
+  print("***Sig Cultivar***") 
+  print((LSD.test(my.anova, c("Cultivar"), alpha= 0.05, p.adj="none"))) } 
+
+# make mean separation if significant
+
+(LSD.test(my.anova, c("Cultivar"), alpha= 0.05, p.adj="none"))
+  
+}
+
+```
+
+
+End of this script . 

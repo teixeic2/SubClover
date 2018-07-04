@@ -1,15 +1,15 @@
 ---
 title: "Trifoliates Iversen "
 author: "CT"
-date: "31.10.2017"
+date: "04.07.2018" 
 output: html_document
 ---
 
 Purpose:
 
--Analysis of trifoliates expansion for Iversen
-- Calculate stat for the days to reach 5 trifoliates 
-- Run ANOVA for variable "Number of days to reach 5 Trifoliates " 
+-Analysis of trifoliates expansion for Iversen using the data from emergence event (not from sowing) 
+- Calculate stat for the days to reach 5 trifoliates from emergence 
+- Run ANOVA for variable "Number of days to reach 5 Trifoliates " and thermal time to 5 trifoliate leaves  
  
 ```{r loadLibraries}
 library(tidyr)
@@ -28,7 +28,10 @@ Read document generated in script "3" 5Trifo_rate
 setwd("C:\\GitHubRepos\\SubCloverPhD\\SubClover\\TrifoCountsI2")
 getwd()
 #create file
-df_trifo <- read.table("df_DAS_5_Trifo.txt",header=TRUE)
+
+##Path "C:/GitHubRepos/SubCloverPhD/SubClover/TrifoCountsI2/DaysTT5TFromEmergence.txt"
+
+df_trifo <- read.table("DaysTT5TFromEmergence.txt",header=TRUE)
 head(df_trifo)
 
 
@@ -44,8 +47,8 @@ df_trifo$Block <- as.factor(df_trifo$Block)
 df_trifo$Cultivar <- as.factor(df_trifo$Cultivar)
 df_trifo$SowTreat <- as.factor(df_trifo$SowTreat)
 
- df_trifo <- df_trifo %>%
-  mutate(SowingDate = ymd(SowingDate)) 
+ #df_trifo <- df_trifo %>%
+ # mutate(SowingDate = ymd(SowingDate)) 
 
 str(df_trifo)
 
@@ -56,7 +59,8 @@ str(df_trifo)
 
 
 
-##Run stats for the number of days to reach 5 ttrifoliates (DAS5T) - general use Sow Treat as Factor 
+##Run stats for the number of days to reach 5 trifoliates (DAS5T) - use DAS5TFromEmerg;
+##general use Sow Treat as Factor 
 
 ```{r}
  
@@ -70,8 +74,9 @@ summary(file.subs)
 
 #ANOVA
 
-#my.anova <- aov(DAS5T ~ SowTreat + Block, data = file.subs)
-my.anova <- aov(DAS5T ~ Cultivar + Block, data = file.subs)
+#my.anova <- aov(DAS5TFromEmerg ~ SowTreat + Block, data = file.subs)
+my.anova <- aov(DAS5TFromEmerg ~ Cultivar + Block, data = file.subs)
+#my.anova <- aov(DAS5TFromEmerg ~ Cultivar*SowTreat+ Block, data = file.subs)
 
 summary(my.anova)
 
@@ -80,7 +85,7 @@ summary(my.anova)
 
 ```{r}
 #(LSD.test(my.anova, c("SowTreat"), alpha= 0.05, p.adj="none"))
-(LSD.test(my.anova, c("Cultivar"), alpha= 0.05, p.adj="none"))
+#(LSD.test(my.anova, c("Cultivar"), alpha= 0.05, p.adj="none"))
 
 ```
 
@@ -111,7 +116,7 @@ for (i in 1:length(sdIndex)) {
  
 head(file.subset, 50)
    summary(file.subset)
-my.anova <- aov(DAS5T ~ Cultivar + Block, data = file.subset)
+my.anova <- aov(DAS5TFromEmerg ~ Cultivar + Block, data = file.subset)
 print(summary(my.anova))
 
 if ((summary(my.anova)[[1]][["Pr(>F)"]][1])<0.05) {
@@ -131,9 +136,7 @@ if ((summary(my.anova)[[1]][["Pr(>F)"]][1])>0.05) {
 
 ```
 
+Then run for TT 
 
 
 
-
-End of this script Calc 2. 
-Move to script 3 to calculate rate of leaf appearance 

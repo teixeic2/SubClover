@@ -28,6 +28,7 @@ library(knitr)
 library(lubridate)
 library(mosaic)
 library(lattice)
+
 ```
 
 
@@ -309,6 +310,92 @@ df_TT <- df_merge %>%
 
 ```
 
+
+##Insert here the dataframe with the DAS50E and TT50E 
+
+```{r}
+
+##Bring the table df_tt_50p_emerg
+
+# Get dataframe 1 with the soil Temp in another folder 
+setwd("C:\\GitHubRepos\\SubCloverPhD\\SubClover\\EmergenceIv2")
+getwd()
+
+
+df_Emergence <- read.table("df_tt_50p_emerg.txt",header=TRUE)
+
+df_Emergence<-df_Emergence%>%
+  dplyr::select(Plot, DAS50E,TT50E)
+
+
+str(df_Emergence)
+head(df_Emergence)
+
+
+
+
+
+```
+
+##Prepare dataframe 2 with DAS and TT of First trifo (df_merge). Need to select columns
+
+```{r}
+str(df_TT)
+
+
+df_mergeSelect <- df_TT %>%
+dplyr::select(SowTreat ,Cultivar,Plot,Block,DAS5T,SummTT5Trifo,Pp.x)
+
+
+```
+
+
+
+
+to merge with the dataframe with the first trifoliate values (df_mergeSelect) 
+
+```{r}
+df_mergedFiveTrifo <- merge(df_mergeSelect,df_Emergence, by="Plot") 
+  #mutate(soilTempAcc_sow = SumTTday) %>%
+  #dplyr::select(-SumTTday)
+ # filter(Cultivar=="Antas")
+
+str(df_mergedFiveTrifo)
+```
+
+
+Cool! Now subtract DASTrifo - DASE and TT50E - SummTTTrifo to get the values from emergence 
+
+
+```{r}
+
+#str(df_mergedFiveTrifo)
+
+df_mergedFiveTrifo <-df_mergedFiveTrifo%>%
+mutate(DAS5TFromEmerg=DAS5T-DAS50E,
+       TT5TFromEmerg=SummTT5Trifo-TT50E)
+
+str(df_mergedFiveTrifo)
+
+```
+
+
+write a table with this dataset!!! 
+
+
+```{r}
+
+#write.table(df_mergedFiveTrifo, "C:\\GitHubRepos\\SubCloverPhD\\SubClover\\TrifoCountsI2/DaysTT1TFromEmergence.txt")
+write.table(df_mergedFiveTrifo, "C:/GitHubRepos/SubCloverPhD/SubClover/TrifoCountsI2/DaysTT5TFromEmergence.txt")
+
+```
+
+ 
+Then move to a new script to run ANOVA with DAS and TT from emergence to 5 trifoliates. 
+And continue with the phyllocchron from here below (may need to review this later )
+
+
+
 ```{r}
 #then select sow treat and means and se
 
@@ -321,7 +408,10 @@ df_TTN <-df_TT %>%
 ```
 
 
+
 Calculate the phyllocron (oCd/leaf) consider 6 leaves (5 trifoliates + spade leaf)
+
+
 
 ```{r}
 dfPhyllo <-df_TT %>%

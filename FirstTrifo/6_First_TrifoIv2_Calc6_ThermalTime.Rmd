@@ -11,8 +11,8 @@ This script does this:
 
 - get the dataframe with sowing dates and date to 50% first trifo   
 - get the dataframe with soil temperature (tmax and t min) 
-- merge the two dataframes to calculate the Thermal time ( using the 8 X 3 formula )to  first trifo appearance for each specific cultivars using Tb=0 
-  
+- merge the two dataframes to calculate the Thermal time ( using the 8 X 3 formula )to  first trifo appearance for each specific cultivars using Tb=0
+  - calculates the DAS and TTFirstTrifo from emergence 
  
 ```{r loadLibraries}
 library(tidyr)
@@ -79,13 +79,23 @@ df_emerg6$Date <- dmy(df_emerg6$Date )
 str(df_emerg6)
 head(df_emerg6)
 
+```
+
+```{r}
+
 #tell R to write in the folder first Trifo  
 
-write.txt(df_emerg6, "C:/GitHubRepos/SubCloverPhD/SubClover/FirstTrifo/SoilTempTXTM.txt")
+#write.txt(df_emerg6, "C:/GitHubRepos/SubCloverPhD/SubClover/FirstTrifo/SoilTempTXTM.txt")
+write.table(df_emerg6, "C:/GitHubRepos/SubCloverPhD/SubClover/FirstTrifo/SoilTempTXTM.txt")
 
 # then 
 
+
+
+
 ```
+
+
 
 
 Add the accumulation of of thermal time use reference for all cultivars ! 
@@ -363,14 +373,70 @@ if ((summary(my.anova)[[1]][["Pr(>F)"]][1])>0.05) {
 }
 
 ```
-
+Now calculate DAS and TT from emergence to first trifoliate 
+Then prepare dataframe 1 
 
 ```{r}
+
+##Bring the table df_tt_50p_emerg
+
+# Get dataframe 1 with the soil Temp in another folder 
+setwd("C:\\GitHubRepos\\SubCloverPhD\\SubClover\\EmergenceIv2")
+getwd()
+
+#create file for the first trifo still using soil temperature (file SoilTempTXTM; if need air temperature use file RawweaIv in folder TrifoCounts Iv (5 Trifos) )
+df_Emergence <- read.table("df_tt_50p_emerg.txt",header=TRUE)
+
+df_Emergence<-df_Emergence%>%
+  dplyr::select(Plot, DAS50E,TT50E)
+
+
+str(df_Emergence)
+head(df_Emergence)
+
+
+
+```
+
+Prepare dataframe 2 with DAS and TT of First trifo (df_merge). Need to select columns
+
+```{r}
+str(df_merge)
+
+
+df_mergeSelect <- df_merge %>%
+dplyr::select(SowTreat ,Cultivar,Plot,Block,DAS1T,Date50FirstTrif,SummTTFirstTrifo)
+
 
 ```
 
 
 
+Cool! Now subtract DASTrifo - DASE and TT50E - SummTTTrifo to get the values from emergence 
+
+
+
+```{r}
+
+str(df_mergedFirstTrifo)
+
+df_mergedFirstTrifo <-df_mergedFirstTrifo%>%
+mutate(DAS1TFromEmerg=DAS1T-DAS50E,
+       TT1TFromEmerg=SummTTFirstTrifo-TT50E)
+
+```
+
+write a table with this dataset!!! 
+
+
+```{r}
+
+write.table(df_mergedFirstTrifo, "C:/GitHubRepos/SubCloverPhD/SubClover/FirstTrifo/DaysTT1TFromEmergence.txt")
+
+
+```
+
+
 
 End of this script . 
-Move to script 5.  and graph soil and air temperature 
+Move to script 7.  and make the stats for DAS and TT from emergence to first Trifoliate 

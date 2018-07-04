@@ -69,7 +69,7 @@ my.anova <- aov(TT50F ~ SowTreat + Block, data = file.subs)
 #my.anova <- aov(DAS50F ~ Cultivar + Block, data = file.subs)
 
 summary(my.anova)
-```
+ ```
 
 ```{r}
 (LSD.test(my.anova, c("SowTreat"), alpha= 0.05, p.adj="none"))
@@ -98,13 +98,14 @@ for (i in 1:length(sdIndex)) {
  #print(i)
  print(paste0(sdIndex[i],"--------------------------------"))
   
+  #Here filter variable 
   file.subset <- df_Bud %>%
   filter(SowTreat==sdIndex[i])
   
  
 head(file.subset, 50)
    summary(file.subset)
-my.anova <- aov(DAS50F ~ Cultivar + Block, data = file.subset)
+my.anova <- aov(TT50F ~ Cultivar + Block, data = file.subset)
 print(summary(my.anova))
 
 if ((summary(my.anova)[[1]][["Pr(>F)"]][1])<0.05) {
@@ -124,17 +125,42 @@ if ((summary(my.anova)[[1]][["Pr(>F)"]][1])>0.05) {
 
 ```
 
+Run a separate analysis for S5 (missing values for Denmark and Leura = NA )
 
+
+Perform anova general using the TT50F ; filter out S1-S4 and S6-S8; filter out Denmark and Leura 
 
 ```{r}
 
 
+ fileS5 <- df_Bud%>%
+  filter(SowTreat=="S5")%>%
+  filter(Cultivar!="Leura"& Cultivar!="Denmark")%>%
+  subset(DAS50F>0.5)
+
+file.subsS5 <-  fileS5 
+
+head(file.subsS5)
+summary(file.subsS5)
+
+#ANOVA
+
+#my.anova <- aov(TT50F ~ SowTreat + Block, data = file.subsS5)
+my.anova <- aov(TT50F ~ Cultivar + Block, data = file.subsS5)
+
+summary(my.anova)
 
 
+```
 
 
+```{r}
+
+## here only for S% cultivars which flowered 
 
 
+#(LSD.test(my.anova, c("SowTreat"), alpha= 0.05, p.adj="none"))
+(LSD.test(my.anova, c("Cultivar"), alpha= 0.05, p.adj="none"))
 
 
 

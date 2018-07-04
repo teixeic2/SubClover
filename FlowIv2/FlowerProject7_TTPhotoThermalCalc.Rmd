@@ -175,8 +175,9 @@ df_FP_all_mean <- df_FP %>%
     #filter(Variable=="Flowering") %>%
     summarise_all(funs(mean))
 
+#str(df_FP_all_mean)
 
-#summary(df_FP_all_mean)
+#summary (df_FP_all_mean)
 
 ```
 

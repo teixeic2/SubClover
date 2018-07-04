@@ -94,7 +94,84 @@ str(df_Iv)
 summary(df_Iv)
 ```
 
+
+## Graph Y = Thermal time to bud vs x= Sowing date (use panel scrip Max Germ )
+
+
+
+```{r, fig.height=5, fig.width=10}
+
+#then create the error bar position
+#Here how to create the end error bar with max Sd 
+# find size of bar per cultivar and temp
+# find single position of x y to put the bar
+
+#extraPos<- 1.10 # extra position for single error bar
+extraPos<- 1.1 # extra position for single error bar
+x_max<-max(df_Iv$SowingD )
+y_max<-max(df_Iv$ TT50F)
+
+
+sd_df <- df_Iv %>% 
+  group_by(Cultivar) %>%
+  dplyr::select(sd)%>%
+  summarise_all(funs(max))%>%
+  #summarise(max_sd = max(sd)) %>% 
+  ungroup() %>%
+  rowwise() %>%
+  mutate(Temp = x_max*extraPos, max = y_max*extraPos, max_sd=sd)
+
+summary(sd_df)
+
+
+#make a graph 
+#then graph remember sd/2 because of 4 replicates 
+
+
+df_Iv %>% 
+  
+  #select( Variable, Cultivar, Temp, mean,sd) %>%
+  ggplot(aes(x=SowingD, y=TT50F)) + 
+#  geom_point(data=sd_df,aes(x=DAS,y=NumberRun_mean)) +
+  geom_point(aes(shape=Cultivar), size=4) +
+  scale_shape_manual(values = c(1,2,0,7)) +
+  geom_errorbar(data=sd_df, aes(ymin=max-max_sd/2,
+                    ymax=max+max_sd/2), width=4)+
+  facet_wrap (~Cultivar,ncol=2)+
+  ylim(0,160 ) +
+  ylab(expression(Maximum~Germination~"(%)"))+
+  theme(text = element_text(size=18))+
+  xlab(expression(Temperature~"("^"o"*"C)"))+
+  #labs(y="Maximum ",x="Temperature")+
+  theme_grey(base_size = 16) +
+  theme_bw()+
+  # geom_abline(intercept = 1, slope = 0, linetype=2)+
+   geom_abline(intercept = 100,  slope = 0, linetype=2)+
+   #geom_abline(intercept = 9,  slope = 0, linetype=2)+
+theme(axis.text.x=element_text(angle = 0, hjust = 0))+
+  
+  #remove grid lines 
+   theme(
+     panel.border = element_rect(colour = "black", size = 2), 
+     panel.grid.major = element_blank(),
+     panel.grid.minor = element_blank(),
+     axis.line = element_line(colour = "black"))+
+   #scale_fill_manual("legend", values = c("Antas" = "#660066", "Denmark" = "lightgrey","Leura" = "darkgrey", "Monti" = "#FF9933","Narrikup" = "blue",  "Woogenellup" = "#033333"))+
+   
+   #make sowing dates white  
+   theme(strip.background = element_rect(colour = "black", fill = "white",size=1))+
+   
+  #label sizes 
+theme(text = element_text(size = 20))
+
+#ggsave("plot_MaxGerm.png", width=12, height=6, dpi=400)
+
+```
+
+
+
 # Plot Tt50 vs Pp at sowing
+
 
 ```{r, fig.width=12}
 
