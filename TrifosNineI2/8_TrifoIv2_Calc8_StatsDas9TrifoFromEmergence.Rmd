@@ -1,15 +1,15 @@
 ---
-title: "Trifoliates Iversen "
+title: "Trifoliates Iversen - nine trifoliates  "
 author: "CT"
-date: "04.07.2018" 
+date: "05.07.2018" 
 output: html_document
 ---
 
 Purpose:
 
 -Analysis of trifoliates expansion for Iversen using the data from emergence event (not from sowing) 
-- Calculate stat for the days to reach 5 trifoliates from emergence 
-- Run ANOVA for variable "Number of days to reach 5 Trifoliates " and thermal time to 5 trifoliate leaves  
+- Calculate stat for the days to reach 9 trifoliates from emergence 
+- Run ANOVA for variable "Number of days to reach 9 Trifoliates " and thermal time to 9 trifoliate leaves  
  
 ```{r loadLibraries}
 library(tidyr)
@@ -25,17 +25,21 @@ library(knitr)
 Read document generated in script "3" 5Trifo_rate
 
 ```{r}
-setwd("C:\\GitHubRepos\\SubCloverPhD\\SubClover\\TrifoCountsI2")
+setwd("C:\\GitHubRepos\\SubCloverPhD\\SubClover\\TrifosNineI2")
 getwd()
 #create file
 
 ##Path "C:/GitHubRepos/SubCloverPhD/SubClover/TrifoCountsI2/DaysTT5TFromEmergence.txt"
 
-df_trifo <- read.table("DaysTT5TFromEmergence.txt",header=TRUE)
+##file DaysTT9TFromEmergence.txt
+df_trifo <- read.table("DaysTT9TFromEmergence.txt",header=TRUE)
 head(df_trifo)
 
 
 ```
+
+
+
 Define formats and calculate the number of trifoliates considering the sub samples (S1-S10)
 
 ```{r loadFile}
@@ -56,12 +60,12 @@ str(df_trifo)
 
 ```
 
-## Check average values to see if TT5TFrom Emerg is lower than SummTT5Trifo
+## Check average values to see if TT9TFrom Emerg is lower than SummTT9Trifo
 
 ```{r}
 
-df_mean <-df_trifo %>%
-  dplyr:: select(Plot:Cultivar,DAS5T, SummTT5Trifo,DAS5TFromEmerg,TT5TFromEmerg )%>%
+df_mean9T <-df_trifo %>%
+  dplyr:: select(Plot:Cultivar,DAS9T, SummTT9Trifo,DAS9TFromEmerg,TT9TFromEmerg )%>%
 
   #group_by(Cultivar,SowTreat) %>%
   group_by(SowTreat) %>%
@@ -70,7 +74,7 @@ df_mean <-df_trifo %>%
   #   mutate(SE=sd/1.73)
   
   #summarise_at(c( "SummTT5Trifo", "TT5TFromEmerg"), mean, na.rm = TRUE)
-  summarise_at(c( "DAS5T", "DAS5TFromEmerg"), mean, na.rm = TRUE)
+  summarise_at(c( "DAS9T", "DAS9TFromEmerg"), mean, na.rm = TRUE)
 
 
 ```
@@ -92,9 +96,9 @@ summary(file.subs)
 
 #ANOVA
 
-#my.anova <- aov(DAS5TFromEmerg ~ SowTreat + Block, data = file.subs)
-my.anova <- aov(DAS5TFromEmerg ~ Cultivar + Block, data = file.subs)
-#my.anova <- aov(DAS5TFromEmerg ~ Cultivar*SowTreat+ Block, data = file.subs)
+my.anova <- aov(DAS9TFromEmerg ~ SowTreat + Block, data = file.subs)
+#my.anova <- aov(DAS9TFromEmerg ~ Cultivar + Block, data = file.subs)
+#my.anova <- aov(DAS9TFromEmerg ~ Cultivar*SowTreat+ Block, data = file.subs)
 
 summary(my.anova)
 
@@ -102,7 +106,7 @@ summary(my.anova)
 
 
 ```{r}
-#(LSD.test(my.anova, c("SowTreat"), alpha= 0.05, p.adj="none"))
+(LSD.test(my.anova, c("SowTreat"), alpha= 0.05, p.adj="none"))
 #(LSD.test(my.anova, c("Cultivar"), alpha= 0.05, p.adj="none"))
 
 ```
@@ -134,7 +138,7 @@ for (i in 1:length(sdIndex)) {
  
 head(file.subset, 50)
    summary(file.subset)
-my.anova <- aov(DAS5TFromEmerg ~ Cultivar + Block, data = file.subset)
+my.anova <- aov(DAS9TFromEmerg ~ Cultivar + Block, data = file.subset)
 print(summary(my.anova))
 
 if ((summary(my.anova)[[1]][["Pr(>F)"]][1])<0.05) {
@@ -155,7 +159,7 @@ if ((summary(my.anova)[[1]][["Pr(>F)"]][1])>0.05) {
 ```
 
 Then run for TT 
-STOPPED HERE 
+
 
 ## Create index to filter for loop ANOVA
 
@@ -182,7 +186,7 @@ for (i in 1:length(sdIndex)) {
  
 head(file.subset, 50)
    summary(file.subset)
-my.anova <- aov(TT5TFromEmerg ~ Cultivar + Block, data = file.subset)
+my.anova <- aov(TT9TFromEmerg ~ Cultivar + Block, data = file.subset)
 print(summary(my.anova))
 
 if ((summary(my.anova)[[1]][["Pr(>F)"]][1])<0.05) {

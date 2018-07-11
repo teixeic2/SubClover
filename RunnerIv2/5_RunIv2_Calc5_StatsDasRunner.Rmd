@@ -7,7 +7,7 @@ output: html_document
 
 Purpose:
 
--Analysis of runner expansion for Iversen
+-Analysis of runner initiation for Iversen
 - Calculate stat for the days to reach 50% runners  
 - Run ANOVA for variable "Number of days to reach 50% runners  " 
  
@@ -19,6 +19,7 @@ library(agricolae)
 library (lubridate)
 library(mosaic)
 library(lattice)
+library (knitr)
 ```
 
 Read document generated in script "3" 9Trifo_rate
@@ -55,7 +56,7 @@ str(df_Ru)
 
 
 
-##Run stats for the number of days to reach 5 ttrifoliates (DAS9T) - general use Sow Treat as Factor 
+##Run stats for the number of days to reach runner initiation- general use Sow Treat as Factor 
 ##Here run as balanced design 
 
 ```{r}
@@ -71,7 +72,8 @@ summary(file.subs)
 #ANOVA
 
 #my.anova <- aov(DAS ~ SowTreat + Block, data = file.subs)
-my.anova <- aov(DAS ~ Cultivar + Block, data = file.subs)
+#my.anova <- aov(DAS ~ Cultivar + Block, data = file.subs)
+my.anova <- aov(DAS ~ Cultivar*SowTreat + Block, data = file.subs)
 
 summary(my.anova)
 
@@ -79,8 +81,8 @@ summary(my.anova)
 
 
 ```{r}
-#(LSD.test(my.anova, c("SowTreat"), alpha= 0.05, p.adj="none"))
-(LSD.test(my.anova, c("Cultivar"), alpha= 0.05, p.adj="none"))
+(LSD.test(my.anova, c("SowTreat"), alpha= 0.05, p.adj="none"))
+#(LSD.test(my.anova, c("Cultivar"), alpha= 0.05, p.adj="none"))
 
 ```
 

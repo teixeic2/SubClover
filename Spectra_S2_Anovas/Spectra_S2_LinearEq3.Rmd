@@ -22,13 +22,15 @@ get file
 
 ```{r loadFile}
 # Get dataframe from previous script (written table )
-setwd("C:\\Users\\EdCarmen\\Documents\\CarmenProjects2016\\GitSubclover\\.......")
+#setwd("C:\\Users\\EdCarmen\\Documents\\CarmenProjects2016\\GitSubclover\\Spectra_S2_Anovas")
+setwd("C:\\GitHubRepos\\SubCloverPhD\\SubClover\\Spectra_S2_Anovas")
 getwd()
 
 #create file
-df_G <- read.table(".......txt",header=TRUE)
+df_G <- read.table("S2All.txt",header=TRUE)
 
 
+str(df_G)
 
 ```
 
@@ -39,31 +41,50 @@ select columns of interest and Adjust formats
 df_G$Cultivar <- as.factor(df_G$Cultivar)
 df_G$Block <- as.factor(df_G$Block)
 df_G$Plot <- as.factor(df_G$Plot)
-df_G$Location <- as.factor(df_G$Location)
+df_G$wavelength <- as.numeric(df_G$wavelength)
 
-#select columns 
+#select columns and change name wavelenght for wavenumber (easy)
 df_G <-df_G %>%
-dplyr:: select(Plot,Block,Cultivar....
+  mutate(Wavenumber = as.numeric(wavelength))%>%
+  dplyr:: select (-wavelength)
+
+  #mutate_(Wavenumber=wavelength) 
+
+
+#dplyr:: select(Plot,Block,Cultivar)
 
 
 str(df_G)
 
 # this is to "clean previous dfs : df_emerg4 <- NULL
 ```
-
-Subset 
+Then spread to make the matrix for Unscrambler - Wavenumber as column; do with average per replicate first 
 
 ```{r}
 
-#subset Cultivar
+#duplicated(df_G) 
+
+
+df_U <- df_G %>%
+  mutate(Wavenumber=factor(Wavenumber)) %>%
+ group_by(Cultivar,Block, Plot,Wavenumber) %>%
+  summarise_all(funs(mean))  %>%
+  dplyr::select(Cultivar,Block, Plot, Wavenumber,Absorbance) %>%
+  tidyr::spread(Wavenumber, Absorbance)
+
 
 
 ```
 
-
+Here make it with values per seed (as Burgi suggested) 
 
 ```{r}
-
+df_Us <- df_G %>%
+  mutate(Wavenumber=factor(Wavenumber)) %>%
+ group_by(Cultivar,Block,Plot,Wavenumber,Seed) %>%
+  summarise_all(funs(mean))  %>%
+  dplyr::select(Cultivar,Block, Plot, Wavenumber,Absorbance,Seed) %>%
+  tidyr::spread(Wavenumber, Absorbance)
 
 
 

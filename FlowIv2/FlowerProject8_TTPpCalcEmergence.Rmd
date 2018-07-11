@@ -1,7 +1,7 @@
 ---
 title: "Flowering in Iversen 2 similar to ReAnalysis Table"
 author: "CT"
-date: "24.04.2017"
+date: "11.07.2018"
 output:
   pdf_document: default
   html_document: default
@@ -43,6 +43,7 @@ df_tt_flow <- read.table("df_tt_50p_flow.txt",header=TRUE)
 
 # force date format
 df_tt_flow$SowingD <- ymd(df_tt_flow$SowingD)
+
 str(df_tt_flow)
 
 
@@ -51,6 +52,100 @@ str(df_tt_flow)
 ```{r}
 summary(df_tt_flow)
 ```
+
+
+
+
+##Here insert the dataframe with the Emergence data (DAS50E and TT50E)
+
+
+##Insert here the dataframe with the DAS50E and TT50E 
+
+```{r}
+
+##Bring the table df_tt_50p_emerg
+
+# Get dataframe 1 with the soil Temp in another folder 
+setwd("C:\\GitHubRepos\\SubCloverPhD\\SubClover\\EmergenceIv2")
+getwd()
+
+
+df_Emergence <- read.table("df_tt_50p_emerg.txt",header=TRUE)
+
+df_Emergence<-df_Emergence%>%
+  dplyr::select(Plot, DAS50E,TT50E)
+
+
+str(df_Emergence)
+head(df_Emergence)
+
+
+
+```
+
+
+
+##to merge with the dataframe with the flower values (df_tt_flow) 
+
+```{r}
+df_mergedFloEmerg <- merge(df_tt_flow,df_Emergence, by="Plot") 
+  #mutate(soilTempAcc_sow = SumTTday) %>%
+  #dplyr::select(-SumTTday)
+ # filter(Cultivar=="Antas")
+
+str(df_mergedFloEmerg)
+```
+
+
+Cool! Now subtract DASF - DASE and TT50E - SummTTTrifo to get the values from emergence 
+
+
+```{r}
+
+#str(df_mergedFiveTrifo)
+
+df_mergedFloEmerg <-df_mergedFloEmerg%>%
+mutate(DAS50FFromEmerg=DAS50F-DAS50E,
+       TT50FromEmerg= TT50F-TT50E)
+
+str(df_mergedFloEmerg)
+
+```
+
+write a table with this dataset!!! 
+
+
+```{r}
+
+#write.table(df_mergedFiveTrifo, "C:\\GitHubRepos\\SubCloverPhD\\SubClover\\TrifoCountsI2/DaysTT1TFromEmergence.txt")
+
+write.table(df_mergedFloEmerg, "C:/GitHubRepos/SubCloverPhD/SubClover/FlowIv2/DaysTTToFlowerTFromEmergence.txt")
+
+```
+
+
+Inspect values and means 
+ 
+ 
+ 
+```{r}
+
+df_meanFlo <-df_mergedFloEmerg %>%
+  dplyr:: select(Plot:Block,DAS50F,  TT50F ,DAS50FFromEmerg,TT50FromEmerg )%>%
+
+  #group_by(Cultivar,SowTreat) %>%
+  group_by(SowTreat) %>%
+  # dplyr::select(SummTT5Trifo)%>%
+  # summarise_all(funs(mean,sd))%>%
+  #   mutate(SE=sd/1.73)
+  
+  summarise_at(c( "TT50F", "TT50FromEmerg"), mean, na.rm = TRUE)
+  #summarise_at(c( "DAS50F", "DAS50FFromEmerg"), mean, na.rm = TRUE)
+
+
+```
+
+
 
 Bring weather dataset which is in df_CumTTIv.txt
 
@@ -68,12 +163,12 @@ df_weather <- read.table("df_CumTTIv.txt",header=TRUE) %>%
 Merge and calculate the two datasets 
 
 - SumTT is value at sowing from 24 Jun 2015 
-- TT50F_run (at flowering time) sets a limit for juvenile period - why? 
+- TT50F_run (at flowering time) sets a limit for juvenile period (?) 
 
 ```{r}
 # get TTsum at sowing
 # estimates Tt with running TT sum from weather file
-df_Iv <- merge(df_tt_flow, df_weather,
+df_Iv <- merge(df_mergedFloEmerg, df_weather,
                by.x=c("SowingD"), 
                by.y=c("Date")) %>%
   ungroup()%>%
@@ -89,85 +184,10 @@ str(df_Iv)
 
 ```
 
-
+## Warning : negative values refer to S5 Denmark and Leura ... need to remove that 
 ```{r}
 summary(df_Iv)
 ```
-
-
-## Graph Y = Thermal time to bud vs x= Sowing date (use panel scrip Max Germ )
-
-
-
-```{r, fig.height=5, fig.width=10}
-
-#then create the error bar position
-#Here how to create the end error bar with max Sd 
-# find size of bar per cultivar and temp
-# find single position of x y to put the bar
-
-#extraPos<- 1.10 # extra position for single error bar
-extraPos<- 1.1 # extra position for single error bar
-x_max<-max(df_Iv$SowingD )
-y_max<-max(df_Iv$ TT50F)
-
-
-sd_df <- df_Iv %>% 
-  group_by(Cultivar) %>%
-  dplyr::select(sd)%>%
-  summarise_all(funs(max))%>%
-  #summarise(max_sd = max(sd)) %>% 
-  ungroup() %>%
-  rowwise() %>%
-  mutate(Temp = x_max*extraPos, max = y_max*extraPos, max_sd=sd)
-
-summary(sd_df)
-
-
-#make a graph 
-#then graph remember sd/2 because of 4 replicates 
-
-
-df_Iv %>% 
-  
-  #select( Variable, Cultivar, Temp, mean,sd) %>%
-  ggplot(aes(x=SowingD, y=TT50F)) + 
-#  geom_point(data=sd_df,aes(x=DAS,y=NumberRun_mean)) +
-  geom_point(aes(shape=Cultivar), size=4) +
-  scale_shape_manual(values = c(1,2,0,7)) +
-  geom_errorbar(data=sd_df, aes(ymin=max-max_sd/2,
-                    ymax=max+max_sd/2), width=4)+
-  facet_wrap (~Cultivar,ncol=2)+
-  ylim(0,160 ) +
-  ylab(expression(Maximum~Germination~"(%)"))+
-  theme(text = element_text(size=18))+
-  xlab(expression(Temperature~"("^"o"*"C)"))+
-  #labs(y="Maximum ",x="Temperature")+
-  theme_grey(base_size = 16) +
-  theme_bw()+
-  # geom_abline(intercept = 1, slope = 0, linetype=2)+
-   geom_abline(intercept = 100,  slope = 0, linetype=2)+
-   #geom_abline(intercept = 9,  slope = 0, linetype=2)+
-theme(axis.text.x=element_text(angle = 0, hjust = 0))+
-  
-  #remove grid lines 
-   theme(
-     panel.border = element_rect(colour = "black", size = 2), 
-     panel.grid.major = element_blank(),
-     panel.grid.minor = element_blank(),
-     axis.line = element_line(colour = "black"))+
-   #scale_fill_manual("legend", values = c("Antas" = "#660066", "Denmark" = "lightgrey","Leura" = "darkgrey", "Monti" = "#FF9933","Narrikup" = "blue",  "Woogenellup" = "#033333"))+
-   
-   #make sowing dates white  
-   theme(strip.background = element_rect(colour = "black", fill = "white",size=1))+
-   
-  #label sizes 
-theme(text = element_text(size = 20))
-
-#ggsave("plot_MaxGerm.png", width=12, height=6, dpi=400)
-
-```
-
 
 
 # Plot Tt50 vs Pp at sowing
@@ -177,11 +197,14 @@ theme(text = element_text(size = 20))
 
 df_Iv %>%
   na.omit() %>%
-  dplyr::select(Cultivar, SowTreat, Variable, TT50F, Pp_sow) %>%
+  #remove data from S5 Denmark and Leura 
+  subset(DAS50FFromEmerg>0.05)%>%
+  dplyr::select(Cultivar, SowTreat, Variable, TT50FromEmerg, Pp_sow) %>%
   group_by(Cultivar, SowTreat, Variable) %>%
   summarise_all(funs(mean,sd)) %>%
-  ggplot(aes(x=Pp_sow_mean,y=TT50F_mean, colour=Cultivar)) +
-  geom_point()+
+  ggplot(aes(x=Pp_sow_mean,y=TT50FromEmerg_mean, colour=Cultivar)) +
+  theme_bw()+
+  geom_point(size=4)+
   geom_line()+
   facet_grid(Variable~.)
 
@@ -190,72 +213,8 @@ df_Iv %>%
 ```
 
 
+##Now include Pp function with target thermal time using the dataframe with days and TT from emergence 
 
-```{r}
-
-str(df_Iv)
-```
-
-
-```{r, fig.height=10, fig.width= 12}
-
-
- 
-dfGraph1 <- df_Iv%>% 
-  dplyr::select(SowingD:SowTreat,Block, TT50F, Pp_sow)%>%
-  filter(TT50F!=0)%>%
-  filter (Variable=="Flowering")%>%
-  
-  group_by(Cultivar,SowingD,SowTreat)%>%
-  #select variables to average 
-  select(Cultivar,SowingD,SowTreat, TT50F, Pp_sow)%>%
-  summarise_all(funs(mean))
-
-
-#Remember that S5 A,D,W = no flowering ...how to deal here ? 
-dfGraph1 %>%
-  #filter(Variable==Flowering) %>%
-  ggplot(aes(x=Pp_sow,y=TT50F,colour=factor(Cultivar))) +
-  geom_point(aes(shape= SowTreat), size=4)+
-  scale_shape_manual(values = c(0,1,2,3,4,5,6,7,8))+
-  geom_point() + geom_line() + facet_grid(Cultivar~.)+
-    ylim(0,3000)
-
-```
-
-```{r, fig.height=5, fig.width=15}
-
-
-dfGraph1 %>%
-mutate (SowTreat= factor(SowTreat, levels=c("S1", "S2", "S3", "S4", "S5", "S6", "S7","S8"),labels=c("June", "July", "Sept.", "Nov.", "Dec.", "Feb.", "March", "May")))%>%
-   #filter(Cultivar=="Monti"| Cultivar=="Antas")%>%
-  #filter (SowTreat== "S3"| SowTreat== "S4"|SowTreat== "S5"|SowTreat== "S6")%>%
-  #ggplot(aes(x=Pp_sow,y=TT50F,colour=factor(Cultivar)))   +
-   ggplot(aes(x=Pp_sow,y=TT50F))+
-
-  #  geom_point(aes(shape= SowTreat), size=4)+
-  
-  geom_text(aes(label=SowTreat),hjust=0, vjust=0,size=5) +
-  theme_bw()+
-  #remove grid lines 
-   theme(
-     panel.border = element_rect(colour = "black", size = 2), 
-     panel.grid.major = element_blank(),
-     panel.grid.minor = element_blank(),
-     axis.line = element_line(colour = "black"))+
-  
-  ylab(expression(Mean~Thermal~time~Flowering~"("^"o"*"Cd)")) + 
-  xlab(" Photoperiod at Sowing") +
-  facet_grid(.~Cultivar, scales="free")+
-  theme(text = element_text(size=18))+
- scale_x_continuous(limits = c(9,20))+
-  scale_y_continuous(limits = c(0,2800))
-#theme(axis.title.y = element_text(face="bold", size=16))+
-   
-
-#ggsave("plot_PhotoperiodSowing.png", width=16, height=6, dpi=400)
-
-```
 
 Now assemble the Pp targets !!! 
 
@@ -294,7 +253,7 @@ Pp_finder_func <- function(sowT, tt_target){
   #isolate the experiment and cultivar 
    sTT <- sumTTatSow %>% dplyr::filter(SowTreat == sowT) %>% dplyr::select(TtAtSowing_run)
    
-   # sum target to sumTT at time of sowing for this spesific sd
+   # sum target to sumTT at time of sowing for this specific sd
    tt_target_adj <- tt_target + sTT 
    
   # lookup for Pp at new tt sum in weather file
@@ -316,7 +275,7 @@ Pp_finder_func <- function(sowT, tt_target){
 ## Test function
 
 ```{r}
-st <- "S1"
+st <- "S5"
 
 #test
 tt_target <- 0 
@@ -326,13 +285,13 @@ tt_target <- 0
 Pp_finder_func(st, tt_target)
 ```
 
-# Find Pp at a given Tt sum after sowing
-
+# Find Pp at a given Tt sum after EMERGENCE ! (not sowing) Use variable : TT50FromEmerg
 - Sums ftxed Tt to sowing Tt and see what Pp is there
 - Plots this Pp against TT to flowering
 - See if there is a stronger relationship beteen Pp and Tt
 
 ## Segment df by Cv and block 
+-Note that this one is the TT target from Emergence!! 
 
 ```{r}
 
@@ -342,13 +301,13 @@ cv_block <- (unique(df_Iv$cv_block_index))
 
 df_Iv_flow <- df_Iv %>% 
   dplyr::filter(Variable=="Flowering") %>%
-  subset(TT50F>0.5)
+  subset(TT50FromEmerg>0.5)
 #na.omit()
   #Need to remove Denmark and Leura S5 ! no flowering 
   
 
 # Loop 
-df_pp_all <- data.frame()
+df_pp_allEmer <- data.frame()
 
 for(p in 1:length(cv_block)) {
   
@@ -360,8 +319,8 @@ for(p in 1:length(cv_block)) {
   
   # loop through Tt chuncks after sowing
   # t is tt from sowing to the point where Pp is retrieved
-    for(t in seq(from=0, to=min(df_sub$TT50F), by=100)){
-    
+   # for(t in seq(from=0, to=min(df_sub$TT50F), by=100)){
+     for(t in seq(from=0, to=min(df_sub$TT50FromEmerg), by=100)){
  #   TT_target <- t # tt from sowing to the point where Pp is retrieved
   
     # Calculate Pp at this Tt sum after sowing
@@ -371,12 +330,12 @@ for(p in 1:length(cv_block)) {
     mutate(Pp_target=Pp_finder_func(SowTreat,TT_target))
     
     # Bind all results
-    df_pp_all <- rbind(df_pp_all,df_sub_pp)
+    df_pp_allEmer <- rbind(df_pp_allEmer,df_sub_pp)
    
     }
 }
 
-summary(df_pp_all)
+summary(df_pp_allEmer)
 
 # FIXME: The extreme value of Tt target goes beyond current weather, need to expand it a bit
 
@@ -384,8 +343,9 @@ summary(df_pp_all)
 
 Check photoperiod direction 
 
+
 ```{r, fig.width=12}
-df_pp_all %>%
+df_pp_allEmer %>%
   ggplot(aes(y=TT_target,x=Pp_target)) +
   geom_point(size=3.5) + 
   #geom_line() + 
@@ -402,16 +362,16 @@ df_pp_all %>%
 
 
 
-Yes!! found it!!! : )
+Yes!! Now all these graphs contain the TT target refering to the TTfrom emergence (TT50FromEmerg) !!! 
 
 
 ```{r, fig.width=15, fig.height=6}
 
 #str(df_pp_all)
 
-df_pp_all_mean <- df_pp_all %>%
+df_pp_all_mean <- df_pp_allEmer %>%
   
-    dplyr::select(Cultivar,Variable,SowTreat,TT50F,TT_target,Pp_target)%>%
+    dplyr::select(Cultivar,Variable,SowTreat,TT50FromEmerg,TT_target,Pp_target)%>%
     group_by(Cultivar,SowTreat, Variable,TT_target)  %>%
     filter(Variable=="Flowering") %>%
     summarise_all(funs(mean))
@@ -433,7 +393,7 @@ for (i in 1:length(indexCV)) {
   g <- df %>%
   ungroup() %>%
     mutate (SowTreat= factor(SowTreat, levels=c("S1", "S2", "S3", "S4", "S5", "S6", "S7","S8"),labels=c("June", "July", "Sept.", "Nov.", "Dec.", "Feb.", "March", "May")))%>%
-  ggplot(aes(x=Pp_target,y=TT50F))   +
+  ggplot(aes(x=Pp_target,y=TT50FromEmerg))   +
   geom_text(aes(label=SowTreat, colour=Cultivar),hjust=0, vjust=0,size=4) +
     scale_colour_manual(values=c("#000000" ))+
   #scale_shape_manual(values = c(0,1,2,3,4,5,6,7,8))+
@@ -468,10 +428,12 @@ get all graphs in appendix then.
 
 ```{r, fig.height= 10 , fig.width=15}
 
-df_pp_all %>%
+df_pp_allEmer %>%
   filter(TT_target==500) %>%
-  ggplot(aes(x=Pp_target,y=TT50F,colour=factor(Cultivar),shape=factor(SowTreat),size=3 )) +
-  geom_point() + geom_line() +facet_grid(Cultivar~.)
+  ggplot(aes(x=Pp_target,y=TT50FromEmerg,colour=factor(Cultivar),shape=factor(SowTreat) )) +
+  theme_bw()+
+  scale_shape_manual(values = c(0,1,2,3,4,5,6,7,8))+
+  geom_point(size=6) + geom_line() +facet_grid(Cultivar~.)
 
 ```
 
@@ -480,14 +442,18 @@ df_pp_all %>%
 
 ```{r, fig.height= 5 , fig.width=10}
 
-str(df_pp_all)
+#str(df_pp_allEmer)
+#format Block as factor here already 
+df_pp_allEmer$Block <- as.factor(df_pp_allEmer$Block)
 
-df_pp_all 
+
   
+str(df_pp_allEmer)
+
 #Save as table 
-write.table(df_pp_all, "df_Pptargets_TT50F.txt")
+write.table(df_pp_allEmer, "df_Pptargets_TT50FFromEmergence.txt")
 
 ```
 
-
+Cool now proceed with the next ones 
 End of this script 

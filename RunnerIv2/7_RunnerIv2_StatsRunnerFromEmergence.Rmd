@@ -1,0 +1,312 @@
+---
+title: "Runners  Iversen   "
+author: "CT"
+date: "05.07.2018" 
+output: html_document
+---
+
+Purpose:
+-bring data from DAS and TT from emergence (from another folder )
+-merge with dataframe ThermalT_Runner 
+-calculate DAS and TT from emergence to runner phenophases 
+-Analysis of runner initiation for Iversen using the data from emergence event (not from sowing) 
+- Calculate stat for the days to reach first runner initiation from emergence 
+- Run ANOVA for variable "Number of days to reach runner " and thermal time to runner 
+ 
+```{r loadLibraries}
+library(tidyr)
+library (dplyr)
+library (ggplot2)
+library(agricolae)
+library (lubridate)
+library(mosaic)
+library(lattice)
+library(knitr)
+```
+
+Read document generated in script "3" 5Trifo_rate
+
+```{r}
+setwd("C:\\GitHubRepos\\SubCloverPhD\\SubClover\\RunnerIv2")
+getwd()
+
+##Path "C:/GitHubRepos/SubCloverPhD/SubClover/RunnerIv2/ThermalT_Runner.txt"
+
+##file ThermalT_Runner.txt
+df_R<- read.table("ThermalT_Runner.txt",header=TRUE)
+head(df_R)
+
+
+```
+
+
+
+Define formats and calculate the number of trifoliates considering the sub samples (S1-S10)
+
+```{r loadFile}
+
+
+# define factors for the ones that "look like" values
+df_R$Plot <- as.factor(df_R$Plot)
+df_R$Block <- as.factor(df_R$Block)
+df_R$Cultivar <- as.factor(df_R$Cultivar)
+df_R$SowTreat <- as.factor(df_R$SowTreat)
+
+ #df_R <- df_R %>%
+ # mutate(SowingDate = ymd(SowingDate)) 
+
+str(df_R)
+
+
+
+```
+
+## Bring dataframe with Emergence info 
+
+##Here insert the dataframe with the Emergence data (DAS50E and TT50E)
+
+
+##Insert here the dataframe with the DAS50E and TT50E 
+
+```{r}
+
+##Bring the table df_tt_50p_emerg
+
+# Get dataframe 1 with the soil Temp in another folder 
+setwd("C:\\GitHubRepos\\SubCloverPhD\\SubClover\\EmergenceIv2")
+getwd()
+
+
+df_Emergence <- read.table("df_tt_50p_emerg.txt",header=TRUE)
+
+df_Emergence<-df_Emergence%>%
+  dplyr::select(Plot, DAS50E,TT50E)
+
+
+str(df_Emergence)
+head(df_Emergence)
+
+
+
+```
+
+then
+
+##to merge with the dataframe with the five trifoliate values (df_mergeSelect) 
+
+```{r}
+df_mergedRunner <- merge(df_R,df_Emergence, by="Plot") 
+  #mutate(soilTempAcc_sow = SumTTday) %>%
+  #dplyr::select(-SumTTday)
+ # filter(Cultivar=="Antas")
+
+str(df_mergedRunner)
+``` 
+
+
+
+Cool! Now subtract DAS - DASE and SummTTRunner-TT50E to get the values from emergence 
+
+
+```{r}
+
+#str(df_mergedFiveTrifo)
+
+df_mergedRunner <-df_mergedRunner%>%
+mutate(DASRunFromEmerg=DAS-DAS50E,
+       TTRunFromEmerg=SummTTRunner-TT50E)
+
+str(df_mergedRunner)
+
+```
+
+
+
+write a table with this dataset!!! 
+
+
+```{r}
+
+#write.table(df_mergedFiveTrifo, "C:\\GitHubRepos\\SubCloverPhD\\SubClover\\TrifoCountsI2/DaysTT1TFromEmergence.txt")
+write.table(df_mergedRunner, "C:/GitHubRepos/SubCloverPhD/SubClover/RunnerIv2/DaysTTRunnerFromEmergence.txt")
+
+```
+
+
+
+
+```{r}
+
+df_meanR <-df_mergedRunner %>%
+  dplyr:: select(Plot:SowTreat,DAS, SummTTRunner,DASRunFromEmerg,TTRunFromEmerg)%>%
+
+  #group_by(Cultivar,SowTreat) %>%
+  group_by(SowTreat) %>%
+  # dplyr::select(SummTT5Trifo)%>%
+  # summarise_all(funs(mean,sd))%>%
+  #   mutate(SE=sd/1.73)
+  
+  #summarise_at(c( "SummTTRunner", "TTRunFromEmerg"), mean, na.rm = TRUE)
+  summarise_at(c( "DAS", "DASRunFromEmerg"), mean, na.rm = TRUE)
+
+
+```
+
+
+
+
+##Run stats for the number of days to reach Runner initiation - use DASRunFromEmerg;
+##general use Sow Treat as Factor 
+
+```{r}
+ 
+  file <- df_mergedRunner
+
+
+file.subs <- file 
+
+head(file.subs)
+summary(file.subs)
+
+#ANOVA
+
+#my.anova <- aov(DASRunFromEmerg ~ SowTreat + Block, data = file.subs)
+#my.anova <- aov(DASRunFromEmerg ~ Cultivar + Block, data = file.subs)
+my.anova <- aov(DASRunFromEmerg ~ Cultivar*SowTreat+ Block, data = file.subs)
+
+summary(my.anova)
+
+```
+
+
+```{r}
+#(LSD.test(my.anova, c("SowTreat"), alpha= 0.05, p.adj="none"))
+#(LSD.test(my.anova, c("Cultivar"), alpha= 0.05, p.adj="none"))
+(LSD.test(my.anova, c("SowTreat", "Cultivar"), alpha= 0.05, p.adj="none"))
+
+
+```
+
+
+
+## Create index to filter for loop ANOVA
+
+```{r}
+y <- c("S1","S2","S3","S4","S5","S6","S7","S8")
+
+sdIndex <- unique(df_mergedRunner$SowTreat)
+
+sdIndex[order(match(sdIndex,y))]
+
+length(sdIndex)
+sdIndex
+```
+## Then loop anova for each individual sowing date 
+```{r}
+for (i in 1:length(sdIndex)) {
+  
+ #print(i)
+ print(paste0(sdIndex[i],"--------------------------------"))
+  
+  file.subset <- df_mergedRunner %>%
+  filter(SowTreat==sdIndex[i])
+  
+ 
+head(file.subset, 50)
+   summary(file.subset)
+my.anova <- aov(DASRunFromEmerg ~ Cultivar + Block, data = file.subset)
+print(summary(my.anova))
+
+if ((summary(my.anova)[[1]][["Pr(>F)"]][1])<0.05) {
+  print("***Sig Cultivar***") 
+  print((LSD.test(my.anova, c("Cultivar"), alpha= 0.05, p.adj="none"))) } 
+
+
+if ((summary(my.anova)[[1]][["Pr(>F)"]][1])>0.05) {
+  print("***Sig Cultivar***") 
+  print((LSD.test(my.anova, c("Cultivar"), alpha= 0.05, p.adj="none"))) } 
+
+# make mean separation if significant
+
+(LSD.test(my.anova, c("Cultivar"), alpha= 0.05, p.adj="none"))
+  
+}
+
+```
+
+Then run for TT 
+
+
+
+
+```{r}
+ 
+  file <- df_mergedRunner
+
+
+file.subs <- file 
+
+head(file.subs)
+summary(file.subs)
+
+#ANOVA
+
+#my.anova <- aov(DASRunFromEmerg ~ SowTreat + Block, data = file.subs)
+#my.anova <- aov(DASRunFromEmerg ~ Cultivar + Block, data = file.subs)
+my.anova <- aov(TTRunFromEmerg ~ Cultivar*SowTreat+ Block, data = file.subs)
+
+summary(my.anova )
+
+```
+
+
+
+
+## Create index to filter for loop ANOVA
+
+```{r}
+y <- c("S1","S2","S3","S4","S5","S6","S7","S8")
+
+sdIndex <- unique(df_mergedRunner$SowTreat)
+
+sdIndex[order(match(sdIndex,y))]
+
+length(sdIndex)
+sdIndex
+```
+## Then loop anova for each individual sowing date 
+```{r}
+for (i in 1:length(sdIndex)) {
+  
+ #print(i)
+ print(paste0(sdIndex[i],"--------------------------------"))
+  
+  file.subset <- df_mergedRunner %>%
+  filter(SowTreat==sdIndex[i])
+  
+ 
+head(file.subset, 50)
+   summary(file.subset)
+my.anova <- aov(TTRunFromEmerg ~ Cultivar + Block, data = file.subset)
+print(summary(my.anova))
+
+if ((summary(my.anova)[[1]][["Pr(>F)"]][1])<0.05) {
+  print("***Sig Cultivar***") 
+  print((LSD.test(my.anova, c("Cultivar"), alpha= 0.05, p.adj="none"))) } 
+
+
+if ((summary(my.anova)[[1]][["Pr(>F)"]][1])>0.05) {
+  print("***Sig Cultivar***") 
+  print((LSD.test(my.anova, c("Cultivar"), alpha= 0.05, p.adj="none"))) } 
+
+# make mean separation if significant
+
+(LSD.test(my.anova, c("Cultivar"), alpha= 0.05, p.adj="none"))
+  
+}
+
+```
+
+
+
+

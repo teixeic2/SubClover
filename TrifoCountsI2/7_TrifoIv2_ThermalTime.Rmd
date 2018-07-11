@@ -223,6 +223,7 @@ TTfunc(10,24)
  
  
 - Compares with simple method to calculate Tt with base temperature of 0oC 
+
 ```{r, warning=FALSE}
 
 df_We_tt <- df_emerg6 %>%
@@ -337,7 +338,7 @@ head(df_Emergence)
 
 ```
 
-##Prepare dataframe 2 with DAS and TT of First trifo (df_merge). Need to select columns
+##Prepare dataframe 2 with DAS and TT of Five trifo (df_merge). Need to select columns
 
 ```{r}
 str(df_TT)
@@ -352,7 +353,7 @@ dplyr::select(SowTreat ,Cultivar,Plot,Block,DAS5T,SummTT5Trifo,Pp.x)
 
 
 
-to merge with the dataframe with the first trifoliate values (df_mergeSelect) 
+##to merge with the dataframe with the five trifoliate values (df_mergeSelect) 
 
 ```{r}
 df_mergedFiveTrifo <- merge(df_mergeSelect,df_Emergence, by="Plot") 

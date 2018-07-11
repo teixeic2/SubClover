@@ -1,5 +1,5 @@
 ---
-title: "Thermal time to reach therunner stage in I2"
+title: "Thermal time to reach the runner stage in I2"
 author: "CT"
 date: "28.11.2017"
 output: html_document
@@ -31,7 +31,7 @@ library(lattice)
 
 
 ```{r loadFile}
-# Get dataframe 1 with DAS5trifo info 
+# Get dataframe  info 
 setwd("C:\\GitHubRepos\\SubCloverPhD\\SubClover\\RunnerIv2")
 getwd()
 
@@ -66,7 +66,7 @@ df_MD <- D %>%
   # dplyr::filter(row_number() == 1)
 
 str(df_MD)
-#Here DAte9T is included no need to change format 
+#Here DAteRunner T is included no need to change format 
 
          
 ```
@@ -80,10 +80,13 @@ Read the temperature  data and adjust formats; here use soil temp
 setwd("C:\\GitHubRepos\\SubCloverPhD\\SubClover\\RunnerIv2")
 getwd()
 
-#create file here using the soil temperature !!!! 
+#create file here using the soil temperature !!!!
+#df_emerg6 <- read.table("SoilTempTXTM.txt",header=TRUE)
+
 #this was with air #df_emerg6 <- read.table("RawWeaIv2.txt",header=TRUE)
 
-df_emerg6 <- read.table("SoilTempTXTM.txt",header=TRUE)
+df_emerg6 <- read.table("RawWeaIv2.txt",header=TRUE)
+
 head(df_emerg6)
 
 df_emerg6$Date <- dmy(df_emerg6$Date )

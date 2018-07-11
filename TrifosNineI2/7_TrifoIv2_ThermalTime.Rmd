@@ -308,6 +308,7 @@ df_TT <- df_merge %>%
 
 ```
 
+
 ```{r}
 #then select sow treat and means and se
 
@@ -318,6 +319,120 @@ df_TTN <-df_TT %>%
     mutate(SE=sd/1.73)
   
 ```
+
+##Here insert the dataframe with the Emergence data (DAS50E and TT50E)
+
+
+##Insert here the dataframe with the DAS50E and TT50E 
+
+```{r}
+
+##Bring the table df_tt_50p_emerg
+
+# Get dataframe 1 with the soil Temp in another folder 
+setwd("C:\\GitHubRepos\\SubCloverPhD\\SubClover\\EmergenceIv2")
+getwd()
+
+
+df_Emergence <- read.table("df_tt_50p_emerg.txt",header=TRUE)
+
+df_Emergence<-df_Emergence%>%
+  dplyr::select(Plot, DAS50E,TT50E)
+
+
+str(df_Emergence)
+head(df_Emergence)
+
+
+
+```
+
+
+now 
+
+
+##Prepare dataframe 2 with DAS and TT of Nine trifo  Need to select columns
+
+```{r}
+str(df_TT)
+
+
+df_mergeSelect <- df_TT %>%
+dplyr::select(SowTreat ,Cultivar,Plot,Block,DAS9T,SummTT9Trifo,Pp.x)
+
+
+```
+
+
+
+##to merge with the dataframe with the five trifoliate values (df_mergeSelect) 
+
+```{r}
+df_mergedNineTrifo <- merge(df_mergeSelect,df_Emergence, by="Plot") 
+  #mutate(soilTempAcc_sow = SumTTday) %>%
+  #dplyr::select(-SumTTday)
+ # filter(Cultivar=="Antas")
+
+str(df_mergedNineTrifo)
+```
+
+
+
+
+Cool! Now subtract DASTrifo - DASE and TT50E - SummTTTrifo to get the values from emergence 
+
+
+```{r}
+
+#str(df_mergedFiveTrifo)
+
+df_mergedNineTrifo <-df_mergedNineTrifo%>%
+mutate(DAS9TFromEmerg=DAS9T-DAS50E,
+       TT9TFromEmerg=SummTT9Trifo-TT50E)
+
+str(df_mergedNineTrifo)
+
+```
+
+write a table with this dataset!!! 
+
+
+```{r}
+
+#write.table(df_mergedFiveTrifo, "C:\\GitHubRepos\\SubCloverPhD\\SubClover\\TrifoCountsI2/DaysTT1TFromEmergence.txt")
+write.table(df_mergedNineTrifo, "C:/GitHubRepos/SubCloverPhD/SubClover/TrifosNineI2/DaysTT9TFromEmergence.txt")
+
+```
+
+
+Inspect values and means 
+ 
+ 
+ 
+```{r}
+
+df_mean9T <-df_mergedNineTrifo %>%
+  dplyr:: select(Plot:Cultivar,DAS9T, SummTT9Trifo,DAS9TFromEmerg,TT9TFromEmerg )%>%
+
+  #group_by(Cultivar,SowTreat) %>%
+  group_by(SowTreat) %>%
+  # dplyr::select(SummTT5Trifo)%>%
+  # summarise_all(funs(mean,sd))%>%
+  #   mutate(SE=sd/1.73)
+  
+  summarise_at(c( "SummTT9Trifo", "TT9TFromEmerg"), mean, na.rm = TRUE)
+  #summarise_at(c( "DAS9T", "DAS9TFromEmerg"), mean, na.rm = TRUE)
+
+
+```
+ 
+Then move to a new script to run ANOVA with DAS and TT from emergence to 9 trifoliates (similar what was done with 5 Trifoliates )
+And continue with the phyllocchron from here below (may need to review this later )
+
+
+#--------------------------------------This section needs re thinking (phyllocron)
+
+
 
 
 Calculate the phyllocron (oCd/leaf) consider 10 leaves (9 trifoliates + spade leaf) but this is not accurate as need to calculate phyllochron from the first to the 9 trifoliates!!! 
