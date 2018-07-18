@@ -358,7 +358,7 @@ str(df_TT)
 
 
 df_mergeSelect <- df_TT %>%
-dplyr::select(SowTreat ,Cultivar,Plot,Block,DAS9T,SummTT9Trifo,Pp.x)
+dplyr::select(SowTreat , SowingDate, Cultivar,Plot,Block,DAS9T,SummTT9Trifo,Pp.x)
 
 
 ```

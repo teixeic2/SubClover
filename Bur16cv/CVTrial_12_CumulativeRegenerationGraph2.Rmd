@@ -346,7 +346,7 @@ ggplot(aes(x=HardseedRank, y=mean)) +
   #scale_x_continuous(breaks = c(5,10,15,20,30))+
   #ylim(0, 80)+
   ylim(3500,14000)+
-  labs(y="Number of seeds in seed bank",x="Hardseed Rank")+ 
+  labs(y="Potential number of seeds in seed bank",x="Hardseed Rank")+ 
   geom_abline(intercept = 10000, slope = 0, linetype=2)+
   theme_bw(base_size = 26)+
     #geom_abline(intercept = 100, slope = 0, linetype=2)+
@@ -358,7 +358,7 @@ ggplot(aes(x=HardseedRank, y=mean)) +
 #theme(axis.title.x = element_text( size=24)) + 
   scale_x_continuous(breaks = c(0:6))+
   theme(text=element_text(size=26,  family="serif"))+
-  theme(title=element_text(size=20, family="serif",face="bold"))+
+  theme(title=element_text(size=19, family="serif",face="bold"))+
   #theme(title=element_text(size=22,  family="serif",face="bold"))
 
 ggsave( "plot_NumberSeedsInSeedBank_.png", width=15, height=6, dpi=500)

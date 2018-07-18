@@ -57,7 +57,7 @@ Perform anova general
 ```{r}
 
 
- file <- df_Bud
+file <- df_Bud
 file.subs <- file 
 
 head(file.subs)
@@ -124,19 +124,37 @@ if ((summary(my.anova)[[1]][["Pr(>F)"]][1])>0.05) {
 
 ```
 
+need to run S5 separately due to missing values ! Filter and subset 
 
 
 ```{r}
 
 
+file <- df_Bud%>%
+  filter(SowTreat=="S5")%>%
+  subset(DAS50F>0.05)
+
+file.subs <- file 
+
+head(file.subs)
+summary(file.subs)
+
+#ANOVA
+
+#my.anova <- aov(DAS50F ~ SowTreat + Block, data = file.subs)
+my.anova <- aov(DAS50F ~ Cultivar + Block, data = file.subs)
+
+summary(my.anova)
 
 
 
+```
 
+getLSD report 
 
-
-
-
+```{r}
+#(LSD.test(my.anova, c("SowTreat"), alpha= 0.05, p.adj="none"))
+(LSD.test(my.anova, c("Cultivar"), alpha= 0.05, p.adj="none"))
 
 ```
 

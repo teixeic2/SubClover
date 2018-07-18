@@ -346,6 +346,7 @@ summary(file.subset)
 my.anova <- aov(Hard_perc ~ Cultivar*Depth + Block, data = file.subset)
 
 ```
+S6 
 
 ```{r}
 summary(my.anova)
