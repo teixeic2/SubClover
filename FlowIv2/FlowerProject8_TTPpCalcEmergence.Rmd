@@ -412,6 +412,8 @@ for (i in 1:length(indexCV)) {
   #  geom_smooth(alpha=0.2, fill='blue', aes(stat ='lm')) + 
     geom_point(size=2,alpha=0.5)
   
+  
+  
   print(g)
   
 }
