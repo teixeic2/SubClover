@@ -407,7 +407,7 @@ for (i in 1:length(indexCV)) {
   theme(text = element_text(size=16))+
     xlim(9,20)+
     ylim(0,2500)+
-    ##FIXME here geom smooth 
+    ##FIXME here geom smooth : method ='lm' not stat = 'lm' 
      geom_smooth(method ='lm') +
   #  geom_smooth(alpha=0.2, fill='blue', aes(stat ='lm')) + 
     geom_point(size=2,alpha=0.5)
