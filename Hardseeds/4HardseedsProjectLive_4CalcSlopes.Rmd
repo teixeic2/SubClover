@@ -181,11 +181,8 @@ ggplot(aes(x=TtSum , y=Norm, colour=Cultivar, shape=Cultivar)) +
 ```
 
 
-
-
-
-
 then loop every plot and depth to find the linear equation and print a list of the coefficients and R2. 
+
 ```{r}
 all.data<-data.frame()
 counter<-0
