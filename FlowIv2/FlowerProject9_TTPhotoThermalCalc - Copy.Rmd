@@ -1,0 +1,334 @@
+---
+title: "Photothermal time "
+author: "CT"
+date: "09.07.2018"
+output:
+  pdf_document: default
+  html_document: default
+  word_document: default
+
+note: include Pp analysis using selected datasets from Reanalysis scripts but use
+  Iversen 2 collected data; this script is a continuation of script 8 and calculates the equations from Weir et al 1984.
+  This script use the thermal time from emergence (TT50FromEmerg)
+  
+  
+  Pt=FP x Tt 0<1 
+  
+  Tt target here 
+  
+  
+  FP = (Pp -Pbase/Popt-Pbase)
+  
+  
+  
+  Set as default : Pbase = 10; Popt =16.7 (after Nori et al 2014)
+---
+
+```{r loadLibraries, echo=FALSE, include=FALSE}
+#1
+library(tidyr)
+library (dplyr)
+library (ggplot2)
+library(agricolae)
+library(knitr)
+library (lubridate)
+library (segmented)
+library(hydroGOF)
+
+
+```
+ 
+AIM:
+- Estimate photothermal time to flowering TT to 50% flowering in relation to Pp
+
+
+```{r   loadFile}
+#2
+setwd("C:\\GitHubRepos\\SubCloverPhD\\SubClover\\FlowIv2")
+
+getwd()
+
+
+```
+## Change formats 
+
+```{r}
+#3 get dataframe created similar to ReAnalysis4 which is Rea6 - use Iversen DAS50Flwoering data
+df_tt_Pp <- read.table("df_Pptargets_TT50F.txt",header=TRUE) 
+
+#df_Pptargets_TT50FFromEmergence
+df_tt_Pp <- read.table("df_Pptargets_TT50FFromEmergence.txt",header=TRUE)
+
+# force date format
+df_tt_Pp$SowingD <- ymd(df_tt_Pp$SowingD)
+str(df_tt_Pp)
+
+
+```
+
+```{r}
+#4
+
+summary(df_tt_Pp)
+```
+##Calculate the photoperiod factor, Here consists of getting the  Pp_target - 10 / (16.7-10) and calculate Photothermal time 
+
+```{r}
+
+#5
+df_FP <- df_tt_Pp %>%
+  mutate(FP = as.numeric(Pp_target-10)/6.7 ) %>%
+  mutate (Photo =FP*TT50F)
+
+##Remember that TTtarget =0 is the sowing PP!! 
+
+```
+
+##Plot the Photohermal in Y against Photoperiod target 
+
+
+```{r}
+##empty
+
+```
+
+
+```{r}
+str(df_FP)
+
+```
+
+# Plot Tt50 vs Pp at sowing overall mean selecting a TT_target of :
+## 190 (nearly the first trifoliate phase )
+## nearly 5 Trifoliate = 430
+## nearly 9 Trifoliate = 460
+## nearly Runner initiation = 600
+## nearly flowering = 
+
+## Need to filter the variable to graph : choose flowering 
+
+```{r, fig.height=6, fig.width= 12}
+str(df_FP)
+
+ dfGraph1 <- df_FP %>% 
+  dplyr::select(SowingD:Block, Photo , TT50FromEmerg, Pp_target , TT_target)%>%
+  filter(TT_target!=1900)%>%
+
+  group_by(Cultivar,SowingD,SowTreat,Variable) %>%
+  #select variables to average 
+  select(Cultivar,SowingD,SowTreat, Photo , TT50FromEmerg, Pp_target)%>%
+  summarise_all(funs(mean))
+
+
+#Remember that S5 A,D,W = no flowering 
+ 
+dfGraph1 %>%
+  filter(Variable=="Flowering") %>%
+  ggplot(aes(x=Pp_target,y=Photo,colour=factor(Cultivar))) +
+  geom_point(aes(shape= SowTreat), size=4)+
+  scale_shape_manual(values = c(0,1,2,3,4,5,6,7,8))+
+  geom_point(size=5) +
+  #geom_line() + 
+  facet_grid(.~Cultivar)+
+  theme_bw()+
+    ylim(0,1500) + geom_smooth(stat='lm', fill='blue', alpha=0.2, stat = "identity") + geom_point(size=2,alpha=0.5,stat = "identity")
+  
+
+```
+
+Just change the labels in graph to visualise the sowing date   
+
+
+```{r, fig.height=5, fig.width=15}
+
+
+dfGraph1 %>%
+  ungroup()%>%
+mutate (SowTreat= factor(SowTreat, levels=c("S1", "S2", "S3", "S4", "S5", "S6", "S7","S8"),labels=c("June", "July", "Sept.", "Nov.", "Dec.", "Feb.", "March", "May")))%>%
+   #filter(Cultivar=="Monti"| Cultivar=="Antas")%>%
+  #filter (SowTreat== "S3"| SowTreat== "S4"|SowTreat== "S5"|SowTreat== "S6")%>%
+  #ggplot(aes(x=Pp_sow,y=TT50F,colour=factor(Cultivar)))   +
+   ggplot(aes(x=Pp_target,y=Photo,colour=factor(Cultivar))) +
+
+  #  geom_point(aes(shape= SowTreat), size=4)+
+  
+  geom_text(aes(label=SowTreat),hjust=0, vjust=0,size=6) +
+  theme_bw()+
+  #remove grid lines 
+   theme(
+     panel.border = element_rect(colour = "black", size = 2), 
+     panel.grid.major = element_blank(),
+     panel.grid.minor = element_blank(),
+     axis.line = element_line(colour = "black"))+
+  
+  ylab(expression(Mean~PhotoThermal~time~Flowering~"("^"o"*"Cd)")) + 
+  xlab(" Photoperiod at First Trifoliate leaf (hours) ") +
+  facet_grid(.~Cultivar, scales="free")+
+  theme(text = element_text(size=18))+
+ scale_x_continuous(limits = c(9,20))+
+  scale_y_continuous(limits = c(0,1800)) + geom_smooth(stat='lm', fill='blue', alpha=0.2) + geom_point(size=2,alpha=0.5)
+  
+#theme(axis.title.y = element_text(face="bold", size=16))+
+   
+
+#ggsave("plot_Photoperioxxxx.png", width=16, height=6, dpi=400)
+
+```
+
+
+
+```{r}
+
+#str(df_pp_all)
+
+df_FP_all_mean <- df_FP %>%
+  
+    dplyr::select(Cultivar,Variable,SowTreat,Photo, TT50FromEmerg, TT_target,Pp_target)%>%
+    group_by(Cultivar,SowTreat, Variable,TT_target)  %>%
+    #filter(Variable=="Flowering") %>%
+    summarise_all(funs(mean))
+
+#str(df_FP_all_mean)
+
+#summary (df_FP_all_mean)
+
+```
+
+
+get graph for antas 
+
+
+```{r, fig.width=15, fig.height=6}
+
+#str(df_pp_all)
+
+  
+   df_FP_all_mean  %>%
+  ungroup() %>%
+    mutate (SowTreat= factor(SowTreat, levels=c("S1", "S2", "S3", "S4", "S5", "S6", "S7","S8"),labels=c("June", "July", "Sept.", "Nov.", "Dec.", "Feb.", "March", "May")))%>%
+  filter (Cultivar=="Woogenellup")%>%
+  ggplot(aes(x=Pp_target,y=Photo))   +
+  geom_text(aes(label=SowTreat, colour=Cultivar),hjust=0, vjust=0,size=4) +
+    scale_colour_manual(values=c("#000000" ))+
+  #scale_shape_manual(values = c(0,1,2,3,4,5,6,7,8))+
+  theme_bw() +
+  ylab(expression(Mean~PhotoThermal~time~Flowering~"("^"o"*"Cd)")) + 
+  #xlab(expression(Photoperiod~at~Thermal~time~Flowering~"("^"o"*"Cd)")) +
+  xlab(" Photoperiod at Target Thermal times") +
+ #facet_grid(.~Cultivar, scales="free")+
+  
+     
+  facet_wrap(~TT_target, scales="free",ncol=6)+
+     
+   #facet_grid(TT_target~., scales="free")+
+  theme(text = element_text(size=16))+
+    xlim(9,20)+
+    ylim(0,2000)+
+#geom_smooth(stat='lm', fill='blue', alpha=0.2) + geom_point(size=2,alpha=0.5)
+ geom_smooth(method='lm', fill='blue', alpha=0.2) + geom_point(size=2,alpha=0.5) 
+  
+
+```
+
+
+
+
+plot...but this loop is now working : ) !!!!!!!
+
+```{r, fig.width=15, fig.height=6}
+
+
+indexCV <- unique(df_FP_all_mean$Cultivar)
+
+ # 
+ for (i in 1:length(indexCV)) {
+#   
+  # df <- df_pp_all_mean%>%subset(Cultivar==indexCV[i])
+  
+ 
+   #df <- df_FP_all_mean%>%subset(Cultivar==indexCV[i])
+   df <- df_FP_all_mean%>%subset(Cultivar==indexCV[i])
+   
+  
+    g <- df %>%
+  ungroup() %>%
+    mutate (SowTreat= factor(SowTreat, levels=c("S1", "S2", "S3", "S4", "S5", "S6", "S7","S8"),labels=c("June", "July", "Sept.", "Nov.", "Dec.", "Feb.", "March", "May")))%>%
+  ggplot(aes(x=Pp_target,y=Photo))   +
+  geom_text(aes(label=SowTreat, colour=Cultivar),hjust=0, vjust=0,size=5) +
+    scale_colour_manual(values=c("#000000" ))+
+      #geom_point()+
+  #scale_shape_manual(values = c(0,1,2,3,4,5,6,7,8))+
+  theme_bw() +
+  ylab(expression(Mean~PhotoThermal~time~Flowering~"("^"o"*"Cd)")) + 
+  #xlab(expression(Photoperiod~at~Thermal~time~Flowering~"("^"o"*"Cd)")) +
+  xlab(" Photoperiod at Target Thermal times") +
+ #facet_grid(.~Cultivar, scales="free")+
+  facet_wrap(~TT_target, scales="free",ncol=4)+
+   #facet_grid(TT_target~., scales="free")+
+  theme(text = element_text(size=16))+
+    xlim(9,20)+
+    ylim(0,2000) + geom_smooth(stat='lm', fill='blue', alpha=0.2) + geom_point(size=2,alpha=0.5)
+  
+  
+  
+  print(g)
+  
+  
+}
+
+```
+
+
+get graph for antas 
+
+
+```{r, fig.width=15, fig.height=6}
+
+#str(df_pp_all)
+
+  
+   df_FP_all_mean  %>%
+  ungroup() %>%
+    mutate (SowTreat= factor(SowTreat, levels=c("S1", "S2", "S3", "S4", "S5", "S6", "S7","S8"),labels=c("June", "July", "Sept.", "Nov.", "Dec.", "Feb.", "March", "May")))%>%
+  filter (Cultivar=="Antas")%>%
+  ggplot(aes(x=Pp_target,y=Photo))   +
+  geom_text(aes(label=SowTreat, colour=Cultivar),hjust=0, vjust=0,size=4) +
+    scale_colour_manual(values=c("#000000" ))+
+  #scale_shape_manual(values = c(0,1,2,3,4,5,6,7,8))+
+  theme_bw() +
+  ylab(expression(Mean~PhotoThermal~time~Flowering~"("^"o"*"Cd)")) + 
+  #xlab(expression(Photoperiod~at~Thermal~time~Flowering~"("^"o"*"Cd)")) +
+  xlab(" Photoperiod at Target Thermal times") +
+ #facet_grid(.~Cultivar, scales="free")+
+  
+     
+  facet_wrap(~TT_target, scales="free",ncol=6)+
+     
+   #facet_grid(TT_target~., scales="free")+
+  theme(text = element_text(size=16))+
+    xlim(9,20)+
+    ylim(0,2000)
+  
+
+```
+
+
+
+## Check data
+
+```{r, fig.height= 10 , fig.width=15}
+
+Means<-df_FP_all_mean %>%
+  filter(TT_target==0) %>%
+  group_by(SowTreat,Variable)%>%
+  summarise_all(funs(mean))
+
+  ggplot(aes(x=Pp_target,y=TT50FromEmerg,colour=factor(Cultivar),shape=factor(SowTreat),size=3 )) +
+  geom_point() + geom_line() +facet_grid(Cultivar~.)+
+  theme_bw()
+
+```
+
+
+
+End of this script  (move for stats in script 10) 

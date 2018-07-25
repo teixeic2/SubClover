@@ -1,0 +1,391 @@
+---
+title: "Graphics for relationships rate of flowering, mean temperature and mean Pp  "
+author: "CT"
+date: "23.07.2018"
+output:
+  pdf_document: default
+  html_document: default
+  word_document: default
+
+note: build linear relattionships between rate flowering , Temp and Pp as per Evans 1992 and Nori 2014.
+  
+ Grab dataframe from script 12
+ Need library plot3D 
+ 
+---
+
+```{r loadLibraries, echo=FALSE, include=FALSE}
+#1
+library(tidyr)
+library (dplyr)
+library (ggplot2)
+library(agricolae)
+library(knitr)
+library (lubridate)
+library (segmented)
+library(hydroGOF)
+library(plot3D)
+
+```
+ 
+AIM:
+- Estimate build relationship between rate of  flowering (1/days)  in relation to mean temperature and mean Pp
+
+
+```{r   loadFile}
+#2
+setwd("C:\\GitHubRepos\\SubCloverPhD\\SubClover\\FlowIv2")
+
+getwd()
+
+
+```
+## Change formats 
+
+```{r}
+#3 get dataframe created similar to ReAnalysis4 which is Rea6 - use Iversen DAS50Flwoering data
+df_TempPp <- read.table("df_MeanRateFlower50F_TempsPhotoperiod_.txt",header=TRUE) 
+
+
+str(df_TempPp)
+```
+
+## Prep data frame make the basic graph first ; select Antas first 
+
+
+```{r}
+
+Antas <-df_TempPp %>%
+   group_by(Cultivar,SowTreat)%>%
+  summarise_all(funs(mean))%>%
+  filter (Cultivar=='Antas')
+ 
+
+
+
+```
+
+## Isert Plot3D code 
+##Info at  : http://www.sthda.com/english/wiki/impressive-package-for-3d-and-4d-graph-r-software-and-data-visualization
+
+```{r}
+#4
+#attribute vectors 
+
+
+##example 
+# x, y and z coordinates
+#x <- sep.l <- iris$Sepal.Length
+#y <- pet.l <- iris$Petal.Length
+#z <- sep.w <- iris$Sepal.Width
+
+
+# x, y and z coordinates
+x <- temp <- Antas$meanTempAir_50F
+z <- rate <- Antas$RateFlow 
+y <- Pp <- Antas$meanPp50F
+
+#scatter3D(x, y, z, clab = c("Sepal", "Width (cm)")
+
+#basic#  scatter3D(x, y, z, clab = c("SowTreat"),theta = 15, phi = 20)
+
+scatter3D(x, y, z, phi = 0, bty = "g",
+        pch = 20, cex = 3, ticktype = "detailed",
+        xlab = "Temperature", ylab = "Photoperiod", zlab = "Rate")
+#how to space the labels ??
+
+##FIX ME How do I manage labels ? 
+
+```
+
+## Try a different format  use text3D (#still not working )
+
+```{r}
+
+#FIX ME still working here ...not ready
+str(Antas)
+
+#text3D(x, y, z, labels, ...)
+
+# data(Antas)
+# 
+# with(Antas, text3D (meanTempAir_50F, meanPp50F, RateFlow ,
+#   labels = rownames(Antas), colvar = SowTreat,
+#   col = gg.col(100), theta = 60, phi = 20,
+#   xlab = "Temperature", ylab = "Pp", zlab = "Rate",
+#   main = "Antas Flowering", cex = 0.6,
+#   bty = "g", ticktype = "detailed", d = 2,
+#   clab = c("SowTreat"), adj = 0.5, font = 2))
+
+
+```
+
+#Run  linear model politype review coef number ??
+
+##formula Evans et al : Rate = a +b*Temp + c*Pp
+##FIX ME : is this correct?  
+
+
+```{r}
+
+str(Antas)
+
+# get empirical coefficients of equation
+  polyType <- 2 # two as we'll do quadratic
+
+polFit_df <- Antas %>%
+  #group_by() %>%
+  ##FIX ME : quadratic with 3 coefficients
+  
+  do(fittedEq = lm(RateFlow ~ poly(meanTempAir_50F *   meanPp50F, polyType ,raw = TRUE), data = .)) # note that raw is TRUE not to get orthogonal coeff
+# loop through results and get coefficients
+
+# get size of loop
+noFactors <- length(unique(Antas$Cultivar)) # how many factors?
+noCoeff <-   polyType + 2 # how many coeficients (polynomial no + 1 intercept)
+
+# loop and print each coeff
+for (f in 1:noFactors) {
+  
+  print("-----------------------------------------")
+  print(Antas$Cultivar[f])
+  
+  
+  for (c in 1:noCoeff) {
+    
+    print(paste0("Coeff_",c,": ",unname(polFit_df$fittedEq[[f]]$coefficients[c]) ))# remove coeff names
+  }
+  print(paste0("R2: ",(summary(polFit_df$fittedEq[[f]])$r.squared))) 
+  print(paste0("R2 adjusted: ",(summary(polFit_df$fittedEq[[f]])$adj.r.squared)))
+}
+
+```
+
+
+
+##formula Evans et al : Rate = a +b*Temp + c*Pp
+
+```{r}
+
+
+# NON-linear MULTIPLE regression
+
+library(nls2)
+# data for Rate 
+# 0.008
+# 0.009
+# 0.009
+# 0.011
+
+data for Temperature 
+
+
+
+
+
+
+
+
+mydf <- data.frame(flower=c(0.008, 0.009, 0.009, 0.011), PP=c(1,2,3,4,5,6), Temp= c(1,2,3,4,5,6))
+fit <- nls(flower ~ a + b*PP + c*(Temp^2), data=mydf, start = list(a=exp(9.947),b=-2.011, c=2))
+predict(newMod, newdata = data.frame(PP=c(1,2,3,4,5,6),Temp= c(1,2,3,4,5,6)))
+coefficients(fit) 
+confint(fit, level=0.95) # CIs for model parameters
+fitted(fit) # predicted values
+residuals(fit) # residuals
+vcov(fit) # covariance matrix for model parameters 
+
+
+
+
+
+```
+
+
+
+
+
+
+##Now Add the accumulation of of soil temperatures to calculate the average temperature during the desired process (here 50% plants with first runner ). 
+
+```{r}
+#cumulate air
+df_B <- df_A %>%
+  mutate(SumAir = cumsum(AirTt)) %>%
+  mutate(Date=dmy(Date))%>%
+  dplyr::select(-AirTt)
+
+#cumulate soil
+
+df_Soil1 <- df_Soil %>%
+  mutate(SumTempSo = cumsum(TempSoil10mm)) %>%
+  #mutate(Date=dmy(Date))%>%
+  dplyr::select(-TempSoil10mm)
+
+
+```
+
+check data with graph
+
+```{r}
+df_Soil1 %>%
+  ggplot(aes(x=Date,y=SumTempSo)) +
+  geom_point()
+
+df_B%>%
+  ggplot(aes(x=Date,y=SumAir)) +
+  geom_point()
+
+```
+
+
+Merge dataframes by date
+
+```{r}
+
+# first merge the soil and air temperature dataframes 
+
+
+
+
+df_Temp <- merge(df_Soil1,df_B,by="Date") 
+str(df_Temp)
+
+#Merge the two dataframes by Date
+df1 <- merge(df_Prep,df_Temp, by.x="SowingD",by.y="Date") %>%
+  mutate(soilTempAcc_sow = SumTempSo) %>% 
+  mutate(airTempAcc_sow=SumAir)%>%
+dplyr::select(-SumTempSo,-SumAir)
+
+str(df1)
+
+
+
+```
+
+Need to force a date for 50 % of plants with runners  (round) to calculate the average temperature during this phase  
+
+Save dataframe as txt file
+
+
+```{r}
+
+
+# force formats of dates
+df1$Date <- round(df1$Date50FF,0)
+df_Temp$Date <- round(df_Temp$Date,0)
+
+#then repeat same procedure done for the sowing date but use the date for Flowering 
+  df_merge <- merge(df1, df_Temp, by="Date") %>%
+  mutate(soilTempAcc_50F = SumTempSo) %>%
+  mutate(airTempAcc_50F=SumAir)%>%
+  dplyr::select(-SumTempSo, -SumAir) %>%
+ 
+    #str(df_merge )
+  
+  
+#subtract accumulate temperature das1T from sowing 
+  mutate(meanTempSoil_50F = (soilTempAcc_50F-soilTempAcc_sow)/DAS50F) %>% 
+  mutate(meanTempAir_50F = (airTempAcc_50F-airTempAcc_sow)/DAS50F)
+  
+  summary(df_merge)
+
+  ##Use this dataframe to build graph in script 4 
+write.table(df_merge, "df_MeanTempTo50Flower.txt") 
+
+
+
+```
+
+#Incorporate the mean Pp as well 
+
+
+## Read the daily Pp and  adjust formats 
+
+```{r}
+
+#create file
+df_P <- read.table("df_CumTTiv.txt",header=TRUE)
+
+#
+str(df_P)
+df_P$Date<-as.Date(df_P$Date)
+str(df_P)
+
+#adjust formats
+df_P<-df_P%>%
+ #mutate(Date=dmy(Date))%>%
+  select(Date,Pp)
+
+str(df_P)
+
+```
+
+# Now need to calculate the mean Pp
+
+#FIX ME HERE ! why Pp> 20 hs??? find a better way! 
+
+
+#Till here all good ! 
+
+Need to force a date for 50 % of plants with flowers  (round) to calculate the average Pp during this phase  
+
+Save dataframe as txt file.
+
+
+```{r}
+
+
+# force formats of dates
+df_merge$Date <- round(df_merge$Date50FF ,0)
+df_P$Date <- round(df_P $Date,0)
+
+#then repeat same procedure done for the soing date but use the dat for 1 Trifoliate
+  df_mergePp <- merge(df_merge, df_P, by="Date") 
+  
+  str(df_mergePp)
+
+
+```
+
+
+Calculate the mean photoperiod for the flowering period
+
+```{r}
+
+
+  df_Pp50FmeanTPp <-df_mergePp %>%
+    mutate(meanPp50F = (Pp+Pp_sow)/2) %>%
+  ##calculate the rate to Flowering 1/DAS50FFromEmerg
+  mutate(RateFlow= 1/DAS50FFromEmerg)
+
+str(df_Pp50FmeanTPp)
+
+```
+
+then select columns of interest and clean data frame for just 144 plots dataset  
+
+```{r}
+
+a <-df_Pp50FmeanTPp %>%
+  select(SowingD:Block,meanTempSoil_50F,meanTempAir_50F,meanPp50F,RateFlow  )%>%
+  group_by(SowTreat,Plot,Cultivar,Block)%>%
+  dplyr::select(meanPp50F, meanTempAir_50F,meanTempSoil_50F,RateFlow)%>%
+  summarise_all(funs(mean))
+  
+
+```
+
+##That's Super  store this dataframe as txt table 
+```{r}
+
+
+#Save as table 
+write.table(a, "df_MeanRateFlower50F_TempsPhotoperiod_.txt")
+
+
+```
+
+
+
+End of this script  (move for graphs  in script 13) 

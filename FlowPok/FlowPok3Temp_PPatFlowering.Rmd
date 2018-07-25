@@ -40,6 +40,7 @@ df_P2 <-df_P %>%
 
 Then bring the weather data (temp and Pp) and merge 
 
+#Not correct here need to do cum sum dailly and not in means 
 
 ```{r}
 df_Weather <- read.table("Pok_Weat.txt",header=TRUE)
@@ -47,13 +48,15 @@ str(df_Weather)
 
 d1<-df_Weather %>%
   mutate(Tmean=Tx-Tm/2)%>%
-  mutate(Date=dmy(Date))
+  mutate(Date=dmy(Date))%>%
+  mutate(Date=ymd(Date))%>%
+  mutate(SumTTday=cumsum(Tmean))
 
-
+str(d1)
 
 ```
 
-Now find the mean temp and PP for S2, S3 and S4
+Data Exploration : Now find the mean temp and PP for S2, S3 and S4
 
 
 Notes about weather Pok during 50% Flower :
@@ -79,5 +82,30 @@ df_S4 <-d1%>%
   subset(Date>"2016-09-27" & Date<"2016-10-31")%>%
   summarise_all(funs(mean))
   
+```
+
+Merge and calculate the two datasets 
+
+- SumTT is value at sowing from 19 Feb 2016 
+- TT50F_run (at flowering time) sets a limit for juvenile period - why? 
+Actually here is good for the 3D graphs!!! 
+
+```{r}
+# get TTsum at sowing
+# estimates Tt with running TT sum from weather file
+df_Po <- merge(df_P2, d1,
+               by.x=c("SowingD"), 
+               by.y=c("Date")) %>%
+  ungroup()%>%
+ # na.omit() %>%
+  mutate(Pp_sow = Pp) %>%
+  mutate(TtAtSowing_run = SumTTday) %>%
+  dplyr::select(-SumTTday, -Pp) %>%
+  mutate(TT50F_run = TT50F + TtAtSowing_run) %>% # Tt running at flowering
+  mutate(cv_block_index = as.factor(paste0(Cultivar,"_",Block)))  %>%
+  mutate(SowingD=ymd(SowingD))
+ 
+str(df_Po)
+
 ```
 

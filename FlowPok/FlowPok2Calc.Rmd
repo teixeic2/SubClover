@@ -31,11 +31,7 @@ head(df_P)
 
 
 
-
-
-
-
-Find 50 Percent of the variable bud  for cultivar and sowtreat.
+Find 50 Percent of the variable bud  for cultivar and sowtreat.This considers only average values 
 
 ```{r Calc50PercFlower}
 
@@ -157,6 +153,10 @@ summary(df_tt_50p_flow)
 
 
 ```
+
+
+Parei aqui!!! 
+
 
 
 

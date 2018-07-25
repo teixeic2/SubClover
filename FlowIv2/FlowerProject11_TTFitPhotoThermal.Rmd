@@ -1,0 +1,371 @@
+---
+title: "Fitting Photothermal time relationship - increase decrease Pp "
+author: "CT"
+date: "12.07.2018"
+output:
+  pdf_document: default
+  html_document: default
+  word_document: default
+
+note: include Pp analysis using selected datasets from Reanalysis scripts but use
+  Iversen 2 collected data; this script is a continuation of script 9 and 10 and estimate linear fits for 
+  
+  y = Photorhemal time to Varialbe == flowering .
+  x= Photoperiod target 
+  
+   (after Nori et al 2014)
+  
+  This script use the thermal time from emergence (TT50FromEmerg)
+  
+## Note this is similar to script 9 untill line 108 ...retrieve original data .... then comes novelty! 
+---
+
+```{r loadLibraries, echo=FALSE, include=FALSE}
+#1
+library(tidyr)
+library (dplyr)
+library (ggplot2)
+library(agricolae)
+library(knitr)
+library (lubridate)
+library (segmented)
+library(hydroGOF)
+
+
+```
+ 
+AIM:
+- Estimate photothermal time to flowering TT to 50% flowering in relation to Pp
+
+
+```{r   loadFile}
+#2
+setwd("C:\\GitHubRepos\\SubCloverPhD\\SubClover\\FlowIv2")
+
+getwd()
+
+
+```
+## Change formats 
+
+```{r}
+#3 get dataframe created similar to ReAnalysis4 which is Rea6 - use Iversen DAS50Flwoering data
+df_tt_Pp <- read.table("df_Pptargets_TT50F.txt",header=TRUE) 
+
+#df_Pptargets_TT50FFromEmergence
+df_tt_Pp <- read.table("df_Pptargets_TT50FFromEmergence.txt",header=TRUE)
+
+# force date format
+df_tt_Pp$SowingD <- ymd(df_tt_Pp$SowingD)
+df_tt_Pp$Block <- as.factor(df_tt_Pp$Block)
+df_tt_Pp$TT_target <- as.factor(df_tt_Pp$TT_target)
+
+str(df_tt_Pp)
+
+
+```
+
+## Yes, That's the dataframe ! ! 
+
+```{r}
+#4
+
+summary(df_tt_Pp)
+```
+##Calculate the photoperiod factor, Here consists of getting the  Pp_target - 10 / (16.7-10) and calculate Photothermal time 
+
+```{r}
+
+#5
+df_FP <- df_tt_Pp %>%
+  mutate(FP = as.numeric(Pp_target-10)/6.7 ) %>%
+  mutate (Photo =FP*TT50F)
+
+##Remember that TTtarget =0 is the sowing PP!! 
+
+```
+
+## Prepare dataframe to fit linear equations in increasing and decreasing Pp ...
+
+
+
+
+```{r}
+##empty 
+
+str(df_FP)
+
+
+
+```
+
+----------------Started Increase Pp-------------------
+##Create dataframe with increasing Pp (S1- S5)
+## Prep dataframe with only 
+
+
+```{r}
+
+df_IncPp <-df_FP %>%
+  filter(SowTreat =="S1"| SowTreat=="S2"| SowTreat =="S3" |SowTreat =="S4"|SowTreat =="S5")%>%
+select(SowingD:Block, TT_target, Photo, Pp_target)
+
+```
+
+##Remember this key values!  :
+## 190 (nearly the first trifoliate phase )
+## nearly 5 Trifoliate = 430
+## nearly 9 Trifoliate = 460
+## nearly Runner initiation = 600
+## nearly flowering = 
+
+
+##Now fit linear regressions for each ! Do it first for Photothermal time (y) and Pp target (x) Loop by plot  
+
+```{r}
+
+str(df_IncPp)
+
+```
+
+
+##This code is similar to HardseedProjectLive_4Calc
+
+```{r}
+
+df_IncPp$LoopIndex <- as.factor(paste0(df_IncPp$Cultivar,"_",df_IncPp$TT_target)) # prepare for loop below
+
+str(df_IncPp)
+
+```
+
+
+
+then loop every plot and depth to find the linear equation and print a list of the coefficients and R2. 
+```{r}
+all.data<-data.frame()
+counter<-0
+ #plots<-unique(df_IncPp$Plot)
+# depth<-unique(dfSubSet$Depth)
+
+#li<- unique(dfSubSet$LoopIndex)
+li<- unique(df_IncPp$LoopIndex)
+
+#slopeType <- c("perDay","perTt")
+ 
+slopeType <- c("perPhotoTT")
+
+#length(plots)*length(depth)
+
+#p=d=1
+for(p in 1:length(slopeType)) {
+  for(d in 1:length(li)) {
+  df_sub <- data.frame()  
+   # print(paste0(plots[p],"_",depth[d]))
+  #  counter<-counter+1
+    
+ 
+ # df_sub <- dfSubSet %>% filter(LoopIndex==li[d])
+   df_sub <- df_IncPp %>% filter(LoopIndex==li[d])
+  
+  ## Linear fit
+  
+# select type of slope calculated  
+if(slopeType[p]=="Photo") {
+  x <- df_sub$Pp_target
+} else {
+    x <- df_sub$Pp_target
+}
+  
+ # x <- df_sub$Days
+ # x <- df_sub$TtSum
+  y <- df_sub$Photo
+  
+  #print(data.frame(x=x,y=y))
+  
+  fit <- NULL
+  fit <- lm(y ~ x)
+  
+  intercept <- round(fit$coefficients[[1]],2)
+  slope <- round(fit$coefficients[[2]],3)
+  r2 <- round(summary(fit)$r.squared * 100,2)
+  # summary(fit)$adj.r.squared
+  cv <- as.character(df_sub$Cultivar[1])
+  block <- as.character(df_sub$Block[1])
+  sow <- as.character(df_sub$SowTreat[1])  
+  sd <- dmy(df_sub$SowingD[1])
+  slopeType <- factor(slopeType) 
+  plot<- as.character(df_sub$Plot[1])
+  TT<- as.character(df_sub$TT_target[1])
+  
+  
+  buf <- data.frame(slopeType=slopeType[p], sow=sow,cv=cv, block=block, plot=plot, TT=TT, int=intercept, slope=slope, r2=r2, n=nrow(df_sub))
+  
+  all.data <- rbind(buf, all.data)
+  
+ # print(buf)
+  
+  #print(nrow(df_sub))
+    
+  #subset(dfSubSet, (dfSubSet$Plot==plots[p] & Depth == depth[d]))
+    
+  }
+  
+}
+
+summary(all.data)
+
+```
+
+##Save data as table for Increase Pp
+
+
+
+```{r, fig.width=15, fig.height=6}
+
+df_FitIncPp<- all.data 
+
+write.table(df_FitIncPp, "df_FitLinear_PhotoTherm_IncreasePp.txt")
+  
+
+```
+
+----------------End of loop for Increased Pp----------
+
+##Ok Now repeat the process for the decreasing Photoperiod 
+##Select from  Feb (S6) to Jun (S1)
+
+
+
+```{r}
+
+df_DecPp <-df_FP %>%
+  filter(SowTreat =="S6"| SowTreat=="S7"| SowTreat =="S8" |SowTreat =="S1")%>%
+select(SowingD:Block, TT_target, Photo, Pp_target)
+
+```
+
+##Remember this key values!  :
+## 190 (nearly the first trifoliate phase )
+## nearly 5 Trifoliate = 430
+## nearly 9 Trifoliate = 460
+## nearly Runner initiation = 600
+## nearly flowering = 
+
+
+##Now fit linear regressions for each ! Do it first for Photothermal time (y) and Pp target (x) Loop by plot  
+
+```{r}
+
+str(df_DecPp)
+
+```
+
+
+##Prepare data frame for second loop 
+
+```{r}
+
+df_DecPp$LoopIndex <- as.factor(paste0(df_DecPp$Cultivar,"_",df_DecPp$TT_target)) # prepare for loop below
+
+str(df_DecPp)
+
+```
+
+
+
+then loop every plot and depth to find the linear equation and print a list of the coefficients and R2. 
+```{r}
+all.data<-data.frame()
+counter<-0
+ #plots<-unique(df_IncPp$Plot)
+# depth<-unique(dfSubSet$Depth)
+
+#li<- unique(dfSubSet$LoopIndex)
+li<- unique(df_DecPp$LoopIndex)
+
+#slopeType <- c("perDay","perTt")
+ 
+slopeType <- c("perPhotoTT")
+
+#length(plots)*length(depth)
+
+#p=d=1
+for(p in 1:length(slopeType)) {
+  for(d in 1:length(li)) {
+  df_sub <- data.frame()  
+   # print(paste0(plots[p],"_",depth[d]))
+  #  counter<-counter+1
+    
+ 
+ # df_sub <- dfSubSet %>% filter(LoopIndex==li[d])
+   df_sub <- df_DecPp %>% filter(LoopIndex==li[d])
+  
+  ## Linear fit
+  
+# select type of slope calculated  
+if(slopeType[p]=="Photo") {
+  x <- df_sub$Pp_target
+} else {
+    x <- df_sub$Pp_target
+}
+  
+ # x <- df_sub$Days
+ # x <- df_sub$TtSum
+  y <- df_sub$Photo
+  
+  #print(data.frame(x=x,y=y))
+  
+  fit <- NULL
+  fit <- lm(y ~ x)
+  
+  intercept <- round(fit$coefficients[[1]],2)
+  slope <- round(fit$coefficients[[2]],3)
+  r2 <- round(summary(fit)$r.squared * 100,2)
+  # summary(fit)$adj.r.squared
+  cv <- as.character(df_sub$Cultivar[1])
+  block <- as.character(df_sub$Block[1])
+  sow <- as.character(df_sub$SowTreat[1])  
+  sd <- dmy(df_sub$SowingD[1])
+  slopeType <- factor(slopeType) 
+  plot<- as.character(df_sub$Plot[1])
+  TT<- as.character(df_sub$TT_target[1])
+  
+  
+  buf <- data.frame(slopeType=slopeType[p], sow=sow,cv=cv, block=block, plot=plot, TT=TT, int=intercept, slope=slope, r2=r2, n=nrow(df_sub))
+  
+  all.data <- rbind(buf, all.data)
+  
+ # print(buf)
+  
+  #print(nrow(df_sub))
+    
+  #subset(dfSubSet, (dfSubSet$Plot==plots[p] & Depth == depth[d]))
+    
+  }
+  
+}
+
+summary(all.data)
+
+```
+
+
+
+
+
+```{r, fig.width=15, fig.height=6}
+
+df_FitDecPp<- all.data 
+
+write.table(df_FitDecPp, "df_FitLinear_PhotoTherm_DecreasePp.txt")
+  
+
+```
+
+----------------End of loop for Decrease Pp----------
+
+
+
+
+End of this script  (move for stats in script 10) 

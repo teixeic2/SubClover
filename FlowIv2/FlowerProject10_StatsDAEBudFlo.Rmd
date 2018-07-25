@@ -1,0 +1,353 @@
+---
+title: "Flowering 6CV"
+author: "CT"
+date: "12.07.2018"
+output:
+  word_document: default
+  pdf_document: default
+  html_document: default
+---
+
+```{r loadLibraries, warning=FALSE}
+library(tidyr)
+library (dplyr)
+library (ggplot2)
+library(agricolae)
+library(knitr)
+library (lubridate)
+
+```
+This script calculates the means of DAE and TTAS50FBud_Flo_BurFromEmergence and perform the statistics 
+
+```{r loadFile}
+
+setwd("C:\\GitHubRepos\\SubCloverPhD\\SubClover\\FlowIv2")
+
+getwd()
+
+#create file
+#df_raw <- read.table("df_tt_50p_flow.txt",header=TRUE)
+        ## use df_Pptargets_TT50FFromEmergence.txt
+
+df_raw <- read.table("DaysTTToFlowerTFromEmergence.txt",header=TRUE)
+
+head (df_raw)
+```
+check formats
+```{r}
+
+df_work<-df_raw %>%
+  mutate(SowingD=ymd(SowingD)) %>%
+  rename(PhenoStage=Variable)%>%
+  mutate(Plot=factor(Plot), Block=factor(Block))
+         
+str(df_work)
+
+```
+
+
+Do Stats for DAS50F for Bud first ; filter to find DAE (DAS50FFromEmerg) and TTE 9TT50FromEmerg)
+
+```{r}
+df_Bud <-df_work %>%
+  filter(PhenoStage=="Bud")
+
+##check data
+
+str(df_Bud )
+```
+
+
+Perform anova general 
+
+```{r}
+
+
+file <- df_Bud
+file.subs <- file 
+
+head(file.subs)
+summary(file.subs)
+
+#ANOVA
+
+my.anova <- aov(DAS50FFromEmerg ~ SowTreat + Block, data = file.subs)
+#my.anova <- aov(DAS50FFromEmerg ~ Cultivar + Block, data = file.subs)
+#my.anova <- aov(DAS50FFromEmerg ~ Cultivar*SowTreat + Block, data = file.subs)
+
+summary(my.anova)
+```
+
+```{r}
+(LSD.test(my.anova, c("SowTreat"), alpha= 0.05, p.adj="none"))
+#(LSD.test(my.anova, c("Cultivar"), alpha= 0.05, p.adj="none"))
+```
+
+
+
+## Create index to filter for loop ANOVA
+##Warning missing values and negative in S5 
+
+```{r}
+y <- c("S1","S2","S3","S4","S5","S6","S7","S8")
+
+sdIndex <- unique(df_Bud$SowTreat)
+
+sdIndex[order(match(sdIndex,y))]
+
+length(sdIndex)
+sdIndex
+```
+
+## Then loop anova for each individual sowing date 
+```{r}
+for (i in 1:length(sdIndex)) {
+  
+ #print(i)
+ print(paste0(sdIndex[i],"--------------------------------"))
+  
+  file.subset <- df_Bud %>%
+  filter(SowTreat==sdIndex[i])
+  
+ 
+head(file.subset, 50)
+   summary(file.subset)
+my.anova <- aov(DAS50FFromEmerg ~ Cultivar + Block, data = file.subset)
+print(summary(my.anova))
+
+if ((summary(my.anova)[[1]][["Pr(>F)"]][1])<0.05) {
+  print("***Sig Cultivar***") 
+  print((LSD.test(my.anova, c("Cultivar"), alpha= 0.05, p.adj="none"))) } 
+
+
+if ((summary(my.anova)[[1]][["Pr(>F)"]][1])>0.05) {
+  print("***Sig Cultivar***") 
+  print((LSD.test(my.anova, c("Cultivar"), alpha= 0.05, p.adj="none"))) } 
+
+# make mean separation if significant
+
+(LSD.test(my.anova, c("Cultivar"), alpha= 0.05, p.adj="none"))
+  
+}
+
+```
+
+need to run S5 separately due to missing values ! Filter and subset 
+
+
+```{r}
+
+
+file <- df_Bud%>%
+  filter(SowTreat=="S5")%>%
+  subset(DAS50F>0.05)
+
+file.subs <- file 
+
+head(file.subs)
+summary(file.subs)
+
+#ANOVA
+
+#my.anova <- aov(DAS50FFromEmerg ~ SowTreat + Block, data = file.subs)
+my.anova <- aov(DAS50FFromEmerg ~ Cultivar + Block, data = file.subs)
+
+summary(my.anova)
+
+```
+
+getLSD report 
+
+```{r}
+#(LSD.test(my.anova, c("SowTreat"), alpha= 0.05, p.adj="none"))
+(LSD.test(my.anova, c("Cultivar"), alpha= 0.05, p.adj="none"))
+
+```
+
+
+
+## -----------------------------------------------------------need review from here--------------------
+
+
+Here only graph by month of sowing for report ; split in two graphs to be able to see cultivars. 
+
+```{r, fig.height=6, fig.width=12}
+
+
+  df_work_bud_mean <- df_work %>%
+  tidyr::gather("Variable","Value",DAS50FFromEmerg:TT50F) %>%
+  mutate(Variable=factor(Variable)) %>%
+  dplyr::select(-Plot,-Block) %>%
+  mutate(SowingD=factor(SowingD)) %>%
+  group_by(Cultivar, SowTreat,SowingD,Variable,PhenoStage)%>%
+  summarise_all(funs(mean,sd)) %>%
+  ungroup() %>%
+  mutate(SowingD=ymd(as.character(SowingD))) %>%
+  rename(AvValue=mean)
+
+
+summary(df_work_bud_mean)
+  
+  
+  
+```
+
+here calculate max sd stopped here 
+
+```{r}
+
+
+df_work_bud_mean
+#then create the error bar position
+#Here how to create the end error bar with max Sd 
+# find size of bar per cultivar and temp
+# find single position of x y to put the bar
+
+#extraPos<- 1.10 # extra position for single error bar
+extraPos<- 1.1 # extra position for single error bar
+x_max<-max(df_work_bud_mean$SowingD)
+y_max<-max(df_work_bud_mean$AvValue)
+
+
+sd_df <- df_work_bud_mean %>%
+  na.omit() %>%
+  dplyr::select(PhenoStage,Variable,sd) %>%
+  group_by(PhenoStage,Variable) %>%
+  summarise(max=max(sd),y_max=max(mean)) 
+  
+
+summary(sd_df)
+
+```
+
+
+graph DAS and TT 50Bud for all cultivars and sowing dates 
+
+```{r, fig.height=6, fig.width=15}
+
+df_work_bud_mean%>%
+  
+ggplot(aes(x=SowingD,y=mean, shape=Cultivar))+
+  geom_point(aes(shape=Cultivar),size=5)+
+    scale_shape_manual(values = c(1,2,0,4,7,8)) +
+  facet_grid(Variable~PhenoStage, scales="free")+
+  
+    theme_grey(base_size = 16) +
+    theme_bw()+
+    geom_abline(intercept = 100, slope = 0, linetype=2)+
+   
+theme(axis.text.x=element_text(angle = 0, hjust = 0))+
+theme(text = element_text(size = 16))+
+ # theme(axis.text.x = element_text(angle = 0, hjust = 1.5))+
+  #scale_x_date(date_breaks = "1 month",date_labels =  "%b")+
+labs(x="Sowing Month")+
+    #limits = as.Date (c("2016"))
+ylab(expression(Tt~"("^"o"*"Cd)"~~~~~~~~~~~~~~~~~~~~~~Days))
+    
+#ggsave("plot_xxx.png", width=12, height=6, dpi=400)
+ summary(df_work_bud_mean)
+```
+
+
+here ho to calculate max se
+
+```{r}
+
+
+
+
+
+```
+
+
+
+Make the mean and SE
+`
+```{r}
+
+aMean <- a %>%
+  tidyr::gather("Variable","Value",DAS50F:TT50F) %>%
+  dplyr::select(SowingD,SowTreat, Variable, Value) %>%
+  
+  
+  summarise_all(funs(max(PercGerm_cum), sd)) 
+  summarise_all(funs)
+  ggplot(aes(x=SowingD,y=Value, shape=Cultivar))+
+    #scale_x_discrete(name="Mon")
+  geom_point(aes(shape=Cultivar),size=5)+
+    scale_shape_manual(values = c(1,2,0,4,7,8)) +
+     #scale_shape_manual(values = c(1,2,0)) +
+  #geom_line(aes(colour=Variable))+
+  facet_grid(Variable3~., scales="free")+
+  
+    theme_grey(base_size = 16) +
+    theme_bw()+
+    geom_abline(intercept = 100, slope = 0, linetype=2)+
+   
+theme(axis.text.x=element_text(angle = 0, hjust = 0))+
+theme(text = element_text(size = 16))+
+labs(x="Sowing Month")+
+ylab(expression(Tt~"("^"o"*"Cd)"~~~~~~~~~~~~~~~~~~~~~~Days))
+    
+
+
+
+```
+
+
+
+
+
+```{r}
+write.table(a, "graph.txt")
+```
+
+
+
+Analysis of sowing date and cultivars for Bud considering Date 
+
+```{r GraphBoxPlotBud}
+
+ df_50Iv <- df_f %>%
+  group_by(Cultivar,SowTreat,Variable)%>%
+  filter (Variable=="Flowering"| Variable== "Bur")%>%
+  summarise_each(funs(mean))
+
+str(df_50Iv)
+
+```
+
+```{r}
+
+
+
+df_50Iv %>%
+  #use filter to check single variables -Bud, Flowering and Bur
+  filter( Cultivar == "Monti") %>%
+  tidyr::gather("Variable3","Value",DAS50F:TT50F) %>%
+  mutate(Variable3=as.factor(Variable3))%>%
+  ggplot(aes(x=SowTreat,y=Value,colour=Variable3, shape=Variable3))+
+  geom_point()+
+  geom_line()+
+  facet_grid(Variable3~., scales="free")+
+  theme_bw()+
+ # theme(axis.text.x = element_text(angle = 0, hjust = 1.5))+
+  #scale_x_date(date_breaks = "1 month",date_labels =  "%b")+
+labs(x="SowTreat")+
+ylab(expression(Tt~"("^"o"*"Cd)"~~~~~~~~~~~~~~~~~~~~~~1/Days))
+```
+
+
+
+Save df as a table to join with Reanalysis table  
+
+```{r GraphSowingDateAndVariable,fig.width=10}
+
+write.table(df_50Iv, "df_50Iv.txt")
+
+
+```
+
+Now do the same for Poukawa in another script within Folder is FlowPok
+
+
