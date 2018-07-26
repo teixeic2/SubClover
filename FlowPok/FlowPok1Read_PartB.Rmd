@@ -45,9 +45,9 @@ arrange(Date)
   #mutate(Percent_cum = ifelse(Percent_cum>100,100,Percent_cum))
 
 str(df_flower)
-head(df_flower)
-summary(df_flower)
-tail(df_flower)
+# head(df_flower)
+# summary(df_flower)
+# tail(df_flower)
 
 
 ```
@@ -158,6 +158,9 @@ df_flowerPo2 <- merge(df_flowerPo1,df_TTSum_mod, by = "SowingD")
 
 ```
 
+#More calculations 
+
+
 ```{r}
 # change name TT to TT at measurement
 df_flowerPo3 <- df_flowerPo2 %>%
@@ -200,7 +203,7 @@ theme(axis.text.x = element_text(angle = 60, hjust = 1))
 
 ```{r}
 
-#Add photoperiod 
+#Add photoperiod at sowing 
 
 # #create file
 
@@ -231,7 +234,7 @@ head(df_flowerPo5)
 
 ```
 
-
+#Calculate the thermal time to floral bud 
 
 ```{r}
 

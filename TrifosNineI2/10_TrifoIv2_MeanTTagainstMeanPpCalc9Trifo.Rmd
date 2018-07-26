@@ -142,216 +142,7 @@ b <-df_Pp509TmeanTPp %>%
 ```
 
 
-Merge and calculate the two datasets 
 
-- SumTT is value at sowing from 24 Jun 2015 
-- TT50F_run (at flowering time) sets a limit for juvenile period - why? 
-
-```{r}
-# get TTsum at sowing
-# estimates Tt with running TT sum from weather file
-
-str( df_tt_9T)
-
-df_Iv <- merge(df_tt_9T, df_weather,
-               by.x=c("SowingDate"), 
-               by.y=c("Date")) %>%
-  ungroup()%>%
- # na.omit() %>%
-  mutate(Pp_sow = Pp) %>%
-  mutate(TtAtSowing_run = SumTTday) %>%
-  dplyr::select(-SumTTday, -Pp) %>%
-  mutate(TT50F_run = SummTT9Trifo + TtAtSowing_run) %>% # Tt running at flowering
-  mutate(cv_block_index = as.factor(paste0(Cultivar,"_",Block)))  %>%
-  mutate(SowingD=ymd(SowingDate))
- 
-str(df_Iv)
-
-```
-
-
-```{r}
-summary(df_Iv)
-```
-
-
-##now here include the Pp function
-
-
-Now assemble the Pp targets !!! 
-
-##These chunks below need revision !!! why TT 50 run is added not sure if it is necessary now (26.06.2018) ? That is fixed now (01.07)
-
-
-## calc
-
-Find running sumTT for each sowing date at sowing
-
-- only to have a small df for function below
-
-- Obs: lebel tt as "_run" when using running sum of Tt across all sow dates
-
-```{r}
-sumTTatSow <- df_Iv %>%
-  dplyr::select(SowTreat, TtAtSowing_run) %>%
-  unique() %>%
-  as.data.frame()
-
-head(sumTTatSow)
-
-```
-
-
-
-Create function for retrieving photoperiod as a function of TT after sowing and Sowing date  treatment
-
-- finds running TT at sowing
-- adds target to that and finds pp at that TT moment
-- tt_target is oCd after sowing when Pp is retrieved
-- sowT is the sowing treatment (S1...)
-
-```{r}
-
-Pp_finder_func <- function(sowT, tt_target){
-  
-  #isolate the experiment and cultivar 
-   sTT <- sumTTatSow %>% dplyr::filter(SowTreat == sowT) %>% dplyr::select(TtAtSowing_run)
-   
-   # sum target to sumTT at time of sowing for this spesific sd
-   tt_target_adj <- tt_target + sTT 
-   
-  # lookup for Pp at new tt sum in weather file
-  tryCatch(  
-  Pp_target <- approx(df_weather$SumTTday, 
-  df_weather$Pp, xout = tt_target_adj, rule = 1)$y,
-  error = function(e) 
-  {
-  Pp_target <- NA
-  }
-)
- 
-  return(Pp_target)
-  
-}
-
-```
-
-## Test function
-
-```{r}
-st <- "S1"
-
-#test
-tt_target <- 0 
-#TTsum estimated to reach 1st trifoliate 
-
-#test if function is working : example : 
-Pp_finder_func(st, tt_target)
-```
-
-
-
-
-# Find Pp at a given Tt sum after sowing
-
-- Sums ftxed Tt to sowing Tt and see what Pp is there
-- Plots this Pp against TT to flowering
-- See if there is a stronger relationship beteen Pp and Tt
-
-## Segment df by Cv and block 
-
-##Parei aqui!!! review 
-
-```{r}
-
-# FIXME: This logic is corrupted as graph for target ==0 is not as above. Yes that is sure thing !!!! 
-
-cv_block <- (unique(df_Iv$cv_block_index))
-
-df_Iv_9Trif <- df_Iv 
-  #dplyr::filter(Variable=="Flowering") %>%
-  #subset(TT50F>0.5)
-#na.omit()
-  #Need to remove Denmark and Leura S5 ! no flowering 
-  
-
-# Loop 
-df_pp_all <- data.frame()
-
-for(p in 1:length(cv_block)) {
-  
-  CBI <- cv_block[p]
-  
-  # segment plot of interesst
-  df_sub <- df_Iv_9Trif %>% 
-    dplyr::filter(cv_block_index==cv_block[p])
-  
-  # loop through Tt chuncks after sowing
-  # t is tt from sowing to the point where Pp is retrieved
-    for(t in seq(from=0, to=min(df_sub$ TT50F ), by=100)){
-    
- #   TT_target <- t # tt from sowing to the point where Pp is retrieved
-  
-    # Calculate Pp at this Tt sum after sowing
-    df_sub_pp <- df_sub %>%
-    rowwise() %>%
-    mutate(TT_target = t)  %>%
-    mutate(Pp_target=Pp_finder_func(SowTreat,TT_target))
-    
-    # Bind all results
-    df_pp_all <- rbind(df_pp_all,df_sub_pp)
-   
-    }
-}
-
-summary(df_pp_all)
-
-# FIXME: The extreme value of Tt target goes beyond current weather, need to expand it a bit
-
-```
-
-
-# Plot TT9TFromEmerg  vs Pp at sowing - data Visualisation
-
-
-```{r, fig.width=12}
-
- dfGraph1 <- df_pp_all
-
-dfGraph1 %>%
-  na.omit() %>%
-  dplyr::select(Cultivar, SowTreat, TT9TFromEmerg, Pp_sow) %>%
-  group_by(Cultivar, SowTreat) %>%
-  summarise_all(funs(mean,sd)) %>%
-  ggplot(aes(x=Pp_sow_mean,y=TT9TFromEmerg_mean, colour=Cultivar)) +
-  theme_bw()+
-  ylim(0,700)+
-  geom_point()+
-  geom_line()+
-  facet_grid(Cultivar~.)
-
-
-
-```
-
-
-
-get all graphs in appendix then. 
-
-
-## Check data with specific TT targets
-
-```{r, fig.height= 10 , fig.width=15}
-
-df_pp_all %>%
-  #dplyr::select(Cultivar, SowTreat, TT9TFromEmerg, Pp_sow) %>%
-  filter(TT_target==100) %>%
-  ggplot(aes(x=Pp_target,y=TT9TFromEmerg,colour=factor(Cultivar),shape=factor(SowTreat),size=3 )) +
-  geom_point() +
-  geom_line() +
-  facet_grid(Cultivar~.)
-
-```
 
 
 ## Data Visualisation
@@ -359,20 +150,20 @@ df_pp_all %>%
 ```{r, fig.height=5, fig.width=15}
 
 
-dfGraph2 <- dfGraph1 %>%
+dfGraph3 <- b %>%
   na.omit() %>%
-  dplyr::select(Cultivar, SowTreat, TT9TFromEmerg, Pp_sow) %>%
+  dplyr::select(Cultivar, SowTreat, TT9TFromEmerg, meanPp509T) %>%
   group_by(Cultivar, SowTreat) %>%
   summarise_all(funs(mean,sd))
 
 
-dfGraph2 %>%
+dfGraph3 %>%
 mutate (SowTreat= factor(SowTreat, levels=c("S1", "S2", "S3", "S4", "S5", "S6", "S7","S8"),labels=c("June", "July", "Sept.", "Nov.", "Dec.", "Feb.", "March", "May")))%>%
    #filter(Cultivar=="Monti"| Cultivar=="Antas")%>%
   #filter (SowTreat== "S3"| SowTreat== "S4"|SowTreat== "S5"|SowTreat== "S6")%>%
   #ggplot(aes(x=Pp_sow,y=TT50F,colour=factor(Cultivar)))   +
    #ggplot(aes(x=Pp_sow,y=TT9TFromEmerg))+
-ggplot(aes(x=Pp_sow_mean,y=TT9TFromEmerg_mean)) +
+ggplot(aes(x=meanPp509T_mean,y=TT9TFromEmerg_mean)) +
   #  geom_point(aes(shape= SowTreat), size=4)+
   
   geom_text(aes(label=SowTreat),hjust=0, vjust=0,size=5) +
@@ -383,9 +174,9 @@ ggplot(aes(x=Pp_sow_mean,y=TT9TFromEmerg_mean)) +
      panel.grid.major = element_blank(),
      panel.grid.minor = element_blank(),
      axis.line = element_line(colour = "black"))+
+    ylab(expression(Mean~Thermal~time~to~Nine~Trifoliates~"("^"o"*"Cd)")) + 
   
-  ylab(expression(Mean~Thermal~time~to~Nine~Trifoliates~"("^"o"*"Cd)")) + 
-  xlab(" Photoperiod at Sowing") +
+  xlab(" Mean Photoperiod (hours)") +
   facet_grid(.~Cultivar, scales="free")+
   theme(text = element_text(size=18))+
  scale_x_continuous(limits = c(9,20))+
@@ -396,23 +187,5 @@ ggplot(aes(x=Pp_sow_mean,y=TT9TFromEmerg_mean)) +
 #ggsave("plot_PhotoperiodSowing.png", width=16, height=6, dpi=400)
 
 ```
-
-
-
-##Now write a table to use to calculte the and Plot TT9 Trifo emergence against mean Photoperiod
-
-
-
-```{r, fig.height= 5 , fig.width=10}
-
-str(df_pp_all)
-
-df_pp_all 
-  
-#Save as table 
-write.table(df_pp_all, "df_Pptargets_TT9Trifos.txt")
-
-```
-
 
 End of this script 

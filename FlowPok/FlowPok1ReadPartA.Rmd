@@ -16,6 +16,10 @@ library (lubridate)
 
 ```
 
+This script reads the raw data;
+
+-calculates the percentage of plants with a floral bud;
+-visualize the days to floral bud in graph
 
 ```{r loadFile}
 setwd("C:\\GitHubRepos\\SubCloverPhD\\SubClover\\FlowPok")

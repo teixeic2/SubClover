@@ -11,7 +11,7 @@ library (dplyr)
 library (ggplot2)
 library(agricolae)
 library(knitr)
-library (lubridate)
+library(lubridate)
 ```
 This script calculates the 50 % Flowering - DAS and TTAS for Poukawa based on script FlowPok1
 
@@ -28,6 +28,38 @@ head(df_P)
 
 ```
 
+#Prepare dataframe 
+#Just change colum title name  and select only columns of interest 
+#Do it to get similat columns as Iversen scripts (see script FlowerProject3)
+
+
+```{r}
+
+df_P <- df_P %>%
+select(SowingD:PlotNumber,DAS, Percent,TTAS)%>%
+mutate(Plot=as.numeric(PlotNumber))%>%
+  dplyr::select(-PlotNumber)
+
+
+
+str(df_P)
+
+```
+
+#Adjust formats 
+
+```{r}
+
+df_P <- df_P%>%
+  mutate(Date=ymd(Date),SowingD=ymd(SowingD)) %>%
+mutate(Percent=as.numeric(Percent))%>%
+  mutate(DAS=as.numeric(DAS))%>%
+  mutate(SimpleCat_Perc=as.numeric(1*Percent))
+
+str(df_P)
+
+
+```
 
 
 
@@ -39,7 +71,7 @@ Find 50 Percent of the variable bud  for cultivar and sowtreat.This considers on
 #dplyr used
 
 df_50_Perc <- df_P %>%
-  group_by(Cultivar,SowTreat, Date, SowingD,DAS) %>%
+  group_by(Cultivar,SowTreat, Date, SowingD,DAS,Block,Plot) %>%
   summarise(av_Perc = mean(Percent), 
             av_TT = mean(TTAS),
             av_DAS=mean(DAS))
@@ -56,6 +88,9 @@ cv <- unique(df_50_Perc$Cultivar)
 var <- unique(df_50_Perc$Variable)
 sow <- unique(df_50_Perc$SowTreat)
 sowd <- unique(df_50_Perc$SowingD)
+#block <- unique(df_50_Perc$Block)
+#plot <- unique(df_50_Perc$Plot)
+
 
 # create empty df
 df_tt_50p_flow <- data.frame(SowingD = NULL,
@@ -63,6 +98,8 @@ df_tt_50p_flow <- data.frame(SowingD = NULL,
                              SowTreat = NULL,
                              #Variable = NULL, 
                              DAS= NULL,
+                             #Plot=NULL,
+                             #Block=NULL,
                              TT50F = NULL)
 
 #loop trough each combination of factor levels
@@ -147,7 +184,7 @@ summary(df_tt_50p_flow)
 
 
 
-write.table(df_tt_50p_flow,"df_tt_50p_flow.txt")
+write.table(df_tt_50p_flow,"df_tt_50p_fl.txt")
 
 summary(df_tt_50p_flow)
 
@@ -155,42 +192,142 @@ summary(df_tt_50p_flow)
 ```
 
 
-Parei aqui!!! 
+Create a loop with the values per plot
 
 
 
+```{r}
+
+
+plots <- unique(df_P$Plot)
+
+#loop trough each combination of factor levels
+
+for (p in 1:length(plots)) {
+#  for(j in 1:length(var)){
+ #   for(k in 1:length(sow)){
+      
+
+
+
+      
+      # clean value holders
+      DAS_50p_flow <- 0
+      tt_50p_flow <- 0
+      
+     
+      # filter for each combination
+
+df_sub <- df_P %>%
+    # subset(Cultivar == as.character(cv[i]) &
+    # Plot == as.character(var[j]) &
+    #   Block == as.character(var[b]) &
+    # SowTreat == as.character(sow[k])) %>%
+    subset(Plot == plots[p]) %>%
+    arrange(Percent)
+    #arrange(DAS)
+      
+      df_sub
+  head(df_sub)
+  # create percentage with maximum value recorded 
+  # to avoid crossing the 50% line twice
+  
+  df_sub$av_Perc_max <- 0 # create new col
+  
+  for(z in 1:nrow(df_sub)) {
+    
+    df_sub$av_Perc_max[z] <- max(df_sub$Percent[z],
+                                 df_sub$Percent[z-1])
+    
+  }
+
+  
+  df_sub
+  head(df_sub)
+  tail(df_sub)
+  
+  
+  # Interpolate 
+  y_ref <- 50 # y value where we want to find x by interpolation
+  
+  # interpolate
+  #find DAS at 50 Pecent Emergence 
+
+  tryCatch(  
+  DAS_50p_flow <- approx(df_sub$Percent, 
+  df_sub$DAS , xout = y_ref, rule = 1)$y,
+  error = function(e) 
+  {
+  DAS_50p_flow <- NA
+  }
+)
+  #find TT at 50 Pecent Flowering
+  tryCatch(  
+  tt_50p_flow <- approx(df_sub$Percent, 
+  df_sub$TTAS , xout = y_ref, rule = 1)$y,
+  error = function(e) 
+  {
+  tt_50p_flow <- NA
+  }
+)
+
+   df_temp <- NULL
+  df_temp <- data.frame(Cultivar = df_sub$Cultivar[1],
+                             Percent = df_sub$Percent[1], 
+                             SowTreat = df_sub$SowTreat[1],
+                             Plot = df_sub$Plot[1],
+                             Block = df_sub$Block[1],
+                             DAS50F = DAS_50p_flow,
+                             TT50F = tt_50p_flow)
+
+ print(p)
+  
+  if(p == 1) {
+    df_tt_50p_Flo <- df_temp
+  } else {
+   df_tt_50p_Flo <- rbind(df_tt_50p_Flo,df_temp) 
+  }                     
+  } 
+
+# end plot loop
+  
+```
+
+Check dataframe 
+
+```{r}
+
+summary (df_tt_50p_Flo) 
+  
+##Fantastic!!! continue from here! 
+
+```
+
+## Calculate Rate Flowering
 
 
 ```{r GraphResults}
 
-df_tt_50p_flow %>%
-  #use filter to check single variables
-  #filter( Variable== "Bud") %>%
-  ggplot(aes(x=SowingD,y=TT50F,colour=Cultivar))+
-  geom_point()+
-  geom_line()+
-  #facet_grid(Variable~.)+
-  theme_bw()+
-  xlab("Sowing Month")+
-  ylab("Thermal Time (degree days)")
+dfRateFloPok <-df_tt_50p_Flo %>%
+  mutate(RateFlo=1/DAS50F)
   
-
-
-
-
+str(dfRateFloPok)
 
 ```
 
+## Incorporate the mean Pp and Mean temp in the next script....
+
+##That's Super  store this dataframe as txt table 
 ```{r}
-df_tt_50p_flow %>%
-    #filter( SowTreat != "S6" & SowTreat != "S7")%>%
-  ggplot(aes(x=SowingD,y=TT50F,colour=Cultivar))+
-  geom_point()+
-  facet_grid(Cultivar~.)+
-  theme_bw()+
-  geom_line()
 
-summary(df_tt_50p_flow)
+
+#Save as table 
+write.table(dfRateFloPok, "df_TTDAS_RateFlower50F_Po.txt")
+
+
 ```
+
+
+
 
 

@@ -102,7 +102,7 @@ df_Po <- merge(df_P2, d1,
   mutate(TtAtSowing_run = SumTTday) %>%
   dplyr::select(-SumTTday, -Pp) %>%
   mutate(TT50F_run = TT50F + TtAtSowing_run) %>% # Tt running at flowering
-  mutate(cv_block_index = as.factor(paste0(Cultivar,"_",Block)))  %>%
+  #mutate(cv_block_index = as.factor(paste0(Cultivar,"_",Block)))  %>%
   mutate(SowingD=ymd(SowingD))
  
 str(df_Po)
