@@ -54,6 +54,19 @@ df_run %>% filter(Plot ==1) %>% summary()
 ```
 
 
+```{r}
+
+##change name datframe to save  
+
+df_runner_worked <- df_run
+write.table(df_runner_worked, "Number_RunnerPok.txt")
+
+
+```
+
+
+
+
 ```{r, fig.height=5, fig.width= 10 }
 
 #Graph         
