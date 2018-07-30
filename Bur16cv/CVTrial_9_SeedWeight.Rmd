@@ -344,13 +344,30 @@ df_Merged %>%
 #geom_text(aes(label=text), family="Times", fontface="italic")+
 #theme(axis.text.y = element_text( size = 26, family="Serif"))+
 #theme(axis.title.y = element_text( face="bold", size=22))+
-theme(axis.text.x=element_text(angle = 0, hjust=0.5,vjust=0,size = 22,face="bold"))+
-theme(axis.title.x = element_text( size=24))+
+theme(axis.text.x=element_text(angle = 0, hjust=0.5,vjust=0,size = 26,face="bold"))+
+theme(axis.title.x = element_text( size=26))+
+  
+  theme(axis.text.y=element_text(angle = 0, hjust=0.5,vjust=0,size = 26,face="bold"))+
+  theme(axis.title.y = element_text( size=26))+
   
   labs(y="Measured seed weight (mg) ",x="Initial seed weight (mg) ")+
-  theme(text=element_text(size=24,  family="serif"))+
-  theme(title=element_text(size=24,  family="serif"))+
-  theme(title=element_text(size=24,  family="serif"))
+  
+  
+  theme(text=element_text(size=26,  family="serif"))+
+  theme(title=element_text(size=26,  family="serif"))+
+  theme(title=element_text(size=26,  family="serif"))+
+
+
+#remove grid lines 
+   theme(
+     panel.border = element_rect(colour = "black", size = 3), 
+     panel.grid.major = element_blank(),
+     panel.grid.minor = element_blank(),
+     axis.line = element_line(colour = "black"))+
+   
+   
+   #make sowing dates white  
+   theme(strip.background = element_rect(colour = "black", fill = "white",size=2))
 
 print(df_Merged)
  # geom_abline(intercept = 50, slope = 0)

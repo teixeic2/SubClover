@@ -270,12 +270,14 @@ ggplot(aes(x=HardseedRank, y=mean)) +
   geom_abline(intercept = 30, slope = 0, linetype=2)+
 #Themes
 #theme(axis.text.y = element_text( size = 26))+
-#theme(axis.title.y = element_text(face="bold", size=18))+
+theme(axis.title.y = element_text(face="bold", size=28,angle = 90, vjust=0.5))+
 #theme(axis.text.x=element_text(angle = 0, hjust=0.5,vjust=0,size = 20,face="bold"))+
   theme(axis.title.x = element_text( size=24)) + scale_x_continuous(breaks = c(0:6))+
-  theme(text=element_text(size=30,  family="serif"))+
+  theme(text=element_text(size=30,  family="serif",face="bold"))+
   theme(title=element_text(size=22,  family="serif",face="bold"))+
-  theme(title=element_text(size=22,  family="serif",face="bold"))
+  theme(title=element_text(size=22,  family="serif",face="bold"))+
+  ## here make borders 
+  
   
   
 
@@ -350,20 +352,120 @@ ggplot(aes(x=HardseedRank, y=mean)) +
   geom_abline(intercept = 10000, slope = 0, linetype=2)+
   theme_bw(base_size = 26)+
     #geom_abline(intercept = 100, slope = 0, linetype=2)+
-#  theme(axis.text.y = element_text( size = 20))+
+ theme(axis.text.y = element_text( size = 20,face="bold"))+
 # theme(axis.title.y = element_text(face="bold", size=22))+
 # theme(axis.text.x=element_text(angle = 0, hjust=0.5,vjust=0,size = 22,face="bold"))+
 # theme(axis.title.x = element_text( size=24))
 
 #theme(axis.title.x = element_text( size=24)) + 
   scale_x_continuous(breaks = c(0:6))+
-  theme(text=element_text(size=26,  family="serif"))+
-  theme(title=element_text(size=19, family="serif",face="bold"))+
+  #theme(text=element_text(size=26,  family="serif"))+
+  #theme(title=element_text(size=19, family="serif",face="bold"))+
+  theme(text=element_text(size=30,  family="serif",face="bold"))+
+  theme(title=element_text(size=22,  family="serif",face="bold"))+
+  theme(title=element_text(size=22,  family="serif",face="bold"))+
+  #remove grid lines 
+   theme(
+     panel.border = element_rect(colour = "black", size = 3), 
+     panel.grid.major = element_blank(),
+     panel.grid.minor = element_blank(),
+     axis.line = element_line(colour = "black"))
+   
+
+
+  # and strip gridlines
+   #make sowing dates white  
+   theme(strip.background = element_rect(colour = "black", fill = "white",size=2))
   #theme(title=element_text(size=22,  family="serif",face="bold"))
 
 ggsave( "plot_NumberSeedsInSeedBank_.png", width=15, height=6, dpi=500)
 
 ```
+
+
+plot same but start form zero (broken axis y)
+
+
+
+```{r,fig.height=5, fig.width=15}
+
+
+#Here how to create the end error bar with max Sd 
+# find size of bar per month
+# find single position of x y to put the bar
+
+#extraPos<- 1.10 # extra position for single error bar
+extraPos<- 1.05 # extra position for single error bar
+x_max<-max(df_NumberSeedsBank$HardseedRank)
+y_max<-max(df_NumberSeedsBank$mean)
+
+# find largest standard error
+sd_df <- df_NumberSeedsBank %>% 
+  group_by(Month) %>%
+  dplyr::select(sd)%>%
+  summarise_all(max)%>%
+  #summarise(max_sd = max(sd)) %>% 
+  ungroup() %>%
+  rowwise() %>%
+  #rename variables
+  mutate(HardseedRank = x_max*extraPos, mean = y_max*extraPos,max_sd=sd )
+
+summary(sd_df)
+
+#divide sd/2 as number of replicates were 4 
+
+df_NumberSeedsBank%>%
+  mutate(Month= factor(Month, levels=c("January", "March", "June"),
+                           labels=c("January", "March", "June")))%>%
+ # filter(Cultivar=="Antas"|Cultivar=="Denmark"|Cultivar=="Leura")%>%
+ggplot(aes(x=HardseedRank, y=mean)) + 
+  geom_point(aes(shape=Cultivar),size=6, stroke=2)+
+ # geom_line(aes(linetype=Cultivar),alpha=0.2)+
+  scale_shape_manual(values = c(0,1,2,3,4,5,6,7,8))+
+  #scale_shape_manual(values = c(0,1,2,3,4))+
+  #scale_shape_manual(values = c(1,2,4,7,8,9))+
+  geom_errorbar(data=sd_df, aes(ymin=mean-max_sd/4,
+                    ymax=mean+max_sd/4), width=1)+
+  facet_wrap(~Month,ncol=3, scales = "free")+
+  #theme_bw()+
+  #scale_x_continuous(breaks = c(5,10,15,20,30))+
+  #xlim(0, 6)+
+  ylim(0,15000)+
+  labs(y="Potential number of seeds in seed bank",x="Hardseed Rank")+ 
+  geom_abline(intercept = 10000, slope = 0, linetype=2)+
+  theme_bw(base_size = 26)+
+    #geom_abline(intercept = 100, slope = 0, linetype=2)+
+ theme(axis.text.y = element_text( size = 20,face="bold"))+
+# theme(axis.title.y = element_text(face="bold", size=22))+
+# theme(axis.text.x=element_text(angle = 0, hjust=0.5,vjust=0,size = 22,face="bold"))+
+# theme(axis.title.x = element_text( size=24))
+
+#theme(axis.title.x = element_text( size=24)) + 
+  scale_x_continuous(breaks = c(-1:6))+
+  #scale_y_continuous(breaks= c(0, 3000,6000,12000))+
+  #theme(text=element_text(size=26,  family="serif"))+
+  #theme(title=element_text(size=19, family="serif",face="bold"))+
+  theme(text=element_text(size=30,  family="serif",face="bold"))+
+  theme(title=element_text(size=22,  family="serif",face="bold"))+
+  theme(title=element_text(size=22,  family="serif",face="bold"))+
+  #remove grid lines 
+   theme(
+     panel.border = element_rect(colour = "black", size = 3), 
+     panel.grid.major = element_blank(),
+     panel.grid.minor = element_blank(),
+     axis.line = element_line(colour = "black"))
+   
+
+
+  # and strip gridlines
+   #make sowing dates white  
+   theme(strip.background = element_rect(colour = "black", fill = "white",size=2))
+  #theme(title=element_text(size=22,  family="serif",face="bold"))
+
+ggsave( "plot_ZeroStart_ NumberSeedsInSeedBank_.png", width=12, height=6, dpi=500)
+
+```
+
 
 
 

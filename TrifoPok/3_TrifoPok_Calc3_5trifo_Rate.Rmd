@@ -260,8 +260,6 @@ write.table(df_5T,"df_DAS_5_TrifoPok.txt")
 ```
 
 
-
-
 Calculate RAte (1/days to 50%) 
 
 
