@@ -1,0 +1,297 @@
+---
+title: "Runners Poukawa "
+author: "CT"
+date: "17.08.2017"
+output: html_document
+---
+
+Purpose:
+
+-Analysis of runner elongation for Poukawa from previous script (use Runner)
+- Calculate the time to reach 50% plants with runner (5 plants as all 10 plants had produced runners )
+- Calculate rate of leaf appearance (1/Days) 
+ - variable Runner is already in percentage!!! 
+ 
+```{r loadLibraries}
+library(tidyr)
+library (dplyr)
+library (ggplot2)
+library(agricolae)
+library (lubridate)
+library(mosaic)
+library(lattice)
+```
+
+
+
+```{r}
+setwd("C:\\GitHubRepos\\SubCloverPhD\\SubClover\\RunnersPok")
+getwd()
+#create file
+#df_Runner <- read.table("Number_Runner.txt",header=TRUE)
+
+df_Runner <- read.table("Number_RunnerPok.txt",header=TRUE)
+
+str(df_Runner)
+
+
+```
+
+
+Define formats 
+
+```{r loadFile}
+
+
+# define factors for the ones that "look like" values
+
+df_run_worked <- df_Runner %>%
+  mutate(SowingDate = ymd(SowingDate), 
+         ReadingDate = ymd(ReadingDate),
+         DAS = as.numeric(DAS),
+         Plot= as.factor(Plot),
+         Block=as.factor(Block),
+         Cultivar=as.factor(Cultivar),
+         SowTreat=as.factor(SowTreat))%>%
+  dplyr::select(-s1,-s2,-s3,-s4,-s5,-s6,-s7,-s8,-s9,-s10)
+
+ 
+
+```
+
+
+```{r}
+
+str(df_run_worked)
+
+```
+
+
+
+
+
+#Try another loop
+
+
+
+
+
+Calculate 50 PercentEmergence  
+
+```{r SummariseDf}
+
+
+
+#  loop to calculate tt_50p_flow for each plot 
+
+#sowd <- unique(df_50_Perc$SowingDate)
+plots <- unique(df_run_worked$Plot)
+ 
+
+
+#loop trough each combination of factor levels
+
+for(p in 1:length(plots)) {
+#  for(j in 1:length(var)){
+ #   for(k in 1:length(sow)){
+      
+      # clean value holders
+      #DAS_50p_emerg <- 0
+      #tt_50p_emerg <- 0
+      # clean value holders
+      DAS_50_run <- 0
+     
+      # filter for each combination
+
+  df_sub <- df_run_worked %>%
+    # subset(Cultivar == as.character(cv[i]) &
+    # Plot == as.character(var[j]) &
+    #   Block == as.character(var[b]) &
+    # SowTreat == as.character(sow[k])) %>%
+    subset(Plot == plots[p]) %>%
+    arrange(Runner)
+    #arrange(DAS)
+    
+  df_sub
+  head(df_sub)
+  # create percentage with maximum value recorded 
+  # to avoid crossing the 50% line twice
+  
+  df_sub$av_Run_max <- 0 # create new col
+  
+  for(z in 1:nrow(df_sub)) {
+    
+    df_sub$av_Run_max[z] <- max(df_sub$Runner[z],
+                                 df_sub$Runner [z-1])
+    
+  }
+  
+  df_sub
+  head(df_sub)
+  tail(df_sub)
+
+  
+  # Interpolate 
+  y_ref <- 0.5 # y value where we want to find x by interpolation note that here I used 0.5 because used pure runner count number! 
+  
+  # interpolate
+  #find DAS at 50 Pecent Emergence 
+
+  tryCatch(  
+  DAS_50_run <- approx(df_sub$Runner, 
+  df_sub$DAS , xout = y_ref, rule = 1)$y,
+  error = function(e) 
+  {
+ DAS_50_run <- NA
+  }
+)
+#   #find TT at 50 Pecent Emergence
+#   tryCatch(  
+#   tt_50p_emerg <- approx(df_sub$Runner, 
+#   df_sub$TT_to_emerg , xout = y_ref, rule = 1)$y,
+#   error = function(e) 
+#   {
+#   tt_50p_emerg <- NA
+#   }
+# )
+
+  df_temp <- NULL
+  df_temp <- data.frame(Cultivar = df_sub$Cultivar[1],
+                             Runner = df_sub$Runner[1], 
+                             SowTreat = df_sub$SowTreat[1],
+                             Plot = df_sub$Plot[1],
+                             Block = df_sub$Block[1],
+                             DAS50E = DAS_50_run)
+                             
+  print(p)
+  
+  if(p == 1) {
+    df_tt_50p_emerg <- df_temp
+  } else {
+   df_tt_50p_emerg <- rbind(df_tt_50p_emerg,df_temp) 
+  }                     
+  
+#    } 
+  } # end plot loop
+
+
+```
+
+```{r}
+##rename dataframe
+
+
+df_all <- df_tt_50p_emerg 
+
+```
+
+
+
+
+
+Include dates of sowing again in dataframe  
+```{r}
+sdLookup <- data.frame (
+  SowTreat = c("S1","S2","S3","S4","S5","S6","S7","S8"),
+  SowingDate = c("19/02/2016", 
+                 "30/03/2016" ,
+                 "30/05/2016" ,
+                 "5/07/2016" ,
+                 "24/08/2016" ,
+                 "11/10/2016" ,
+                 "24/11/2016",
+                 "05/01/2017"))
+
+sdLookup$SowingDate <- dmy(sdLookup$SowingDate)
+
+df_50Run <- merge(df_all, sdLookup, by="SowTreat")
+summary(df_50Run)
+
+
+```
+
+
+
+Now correct column names after loop not to mix with other generated tables
+
+```{r}
+
+df_50R<-df_50Run%>%
+  mutate(DAS=as.numeric(DAS50E))%>%
+  dplyr::select(-DAS50E)
+
+
+str(df_50R)
+ 
+
+
+```
+
+
+
+```{r}
+
+write.table(df_50R,"df_DAS_50toRunnerPok.txt")
+```
+
+
+
+
+Calculate RAte (1/days to 50%) 
+
+
+```{r}
+
+#try 1/DAS50% = Rate
+
+df_RateRunner <- df_50R %>%
+  mutate(Rate=1/ DAS)
+
+  summary(df_RateRunner)
+  
+  write.table(df_RateRunner,"RateRunnerPok.txt")
+
+```
+
+
+
+Graph rate and SowTreat
+
+```{r}
+#Graph 
+
+  df_RateRunner %>%
+  group_by(SowingDate, Cultivar) %>%
+  dplyr::select(DAS)%>%
+  summarise_each(funs(mean,sd)) %>%
+  #Graph
+  ggplot(aes(x=SowingDate, y=mean, colour=factor(Cultivar), shape=factor(Cultivar))) +
+  geom_point() +
+  geom_line() +
+  labs(x="Sowing Date",y="1/ Days to 9 trifoliates  ") +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1))+
+  geom_errorbar(aes(ymin=mean-sd/2,
+  ymax=mean+sd/2))+
+  theme_bw()
+
+df_RateRunner %>%
+  group_by(SowingDate, Cultivar) %>%
+  dplyr::select(Rate) %>%
+  summarise_each(funs(mean,sd)) %>%
+  #Graph
+  ggplot(aes(x=SowingDate, y=mean, colour=factor(Cultivar), shape=factor(Cultivar))) +
+  geom_point() +
+  geom_line() +
+  labs(x="Sowing Date",y="1/ Days to 9 trifoliates  ") +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1))+
+  geom_errorbar(aes(ymin=mean-sd/2,
+  ymax=mean+sd/2))+
+  theme_bw()
+
+```
+
+
+
+
+End of this script Calc 2. 
+Move to script 3 to include temperatures  

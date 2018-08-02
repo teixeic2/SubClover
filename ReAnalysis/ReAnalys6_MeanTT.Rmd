@@ -100,7 +100,7 @@ mutate(TmeanSowFlow=(TMeanFlow+TMeanSow)/2)
 
 summary(df_MeanTFlo2)
 
-# write.table(df_MeanTFlo2, "df_MeanTFlo2.txt")
+ write.table(df_MeanTFlo2, "df_MeanTFlo2.txt")
 
 ```
 

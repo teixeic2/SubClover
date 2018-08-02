@@ -1,0 +1,406 @@
+---
+title: "Fitting  relationships rate of flowering, mean temperature and Pp targeted at first runner phenophase  "
+author: "CT"
+date: "30.07.2018"
+output:
+  pdf_document: default
+  html_document: default
+  word_document: default
+
+note: build linear relattionships between rate flowering , Temp and Pp at first runner  as per Evans 1992 and Nori 2014, but improved 
+  
+ Grab dataframe with TT to start 
+ This dataset is for Poukawa 
+ 
+---
+
+```{r loadLibraries, echo=FALSE, include=FALSE}
+#1
+library(tidyr)
+library (dplyr)
+library (ggplot2)
+library(agricolae)
+library(knitr)
+library (lubridate)
+library (segmented)
+library(hydroGOF)
+
+
+```
+ 
+AIM:
+- Estimate build relationship between rate of  flowering (1/days)  in relation to mean temperature and  Pp at first runner phenophase
+
+
+```{r   loadFile}
+#2
+setwd("C:\\GitHubRepos\\SubCloverPhD\\SubClover\\FlowPok")
+#use FlowPok
+
+getwd()
+
+
+```
+## Change formats 
+
+```{r}
+#3 get dataframe created similar to ReAnalysis4 which is Rea6 - use Poukawa_ DAS50Flowering data
+#df_tt_Pp <- read.table("df_Pptargets_TT50F.txt",header=TRUE) 
+
+#df_Pptargets_TT50FFromEmergence
+df_tt_Pp <- read.table("df_Pptargets_TT50FFromEmergencePok.txt",header=TRUE)
+
+#file with Poukawa data : df_Pptargets_TT50FFromEmergencePok.txt
+
+
+# force date format
+
+df_tt_Pp$SowingD <- ymd(df_tt_Pp$SowingD)
+df_tt_Pp$Block <- as.factor(df_tt_Pp$Block)
+df_tt_Pp$TT_target <- as.factor(df_tt_Pp$TT_target)
+
+str(df_tt_Pp)
+
+
+```
+
+
+## Now prepare the data frame to include the date of flowering and the rate (1/days)
+## consider DAE (after emergence) ! ! 
+
+```{r}
+#4
+#select columns of interest 
+
+df_Prep <- df_tt_Pp%>%
+  select(SowingD:Block,DAS50F, DAS50FFromEmerg,Pp_sow)%>%
+  #find the date when 50F occurred  
+  mutate(Date50FF= ymd(SowingD+DAS50F))
+
+##Note that this is a long dataframe because of the loop in previous script (that's why so many lines FIX ME ...make it only 144 lines)
+```
+
+## Read the soil Temp data and Air temp data and  adjust formats 
+
+```{r}
+
+#that is original from Iversen ___________ 
+# #create file
+# df_A <- read.table("AirTemp.txt",header=TRUE)
+# df_Soil <-read.table("SoilTemp.txt",header=TRUE)
+# 
+# #adjust formats
+# df_A %>%
+#   mutate(Date=dmy(Date))
+# 
+# str(df_A)
+# 
+# #adjust formats
+# df_Soil <- df_Soil%>%
+# mutate(Date=dmy(Date))
+
+
+#create file
+#For Air temperature
+df_A <- read.table("Pok_Weat.txt",header=TRUE)
+
+##For estimated soil temperature 
+df_Soil <-read.table("SoilTempPo.txt",header=TRUE)
+
+
+
+
+
+```
+
+##Now Add the accumulation of of soil temperatures to calculate the average temperature during the desired process (here 50% plants with first runner ). 
+
+
+```{r}
+#cumulate air; 
+df_B <- df_A %>%
+  mutate(AirTt=Tx+Tm/2)%>%
+  mutate(SumAir = cumsum(AirTt)) %>%
+  mutate(Date=dmy(Date))%>%
+  dplyr::select(-AirTt)
+str(df_B)
+
+```
+
+
+```{r}
+
+#cumulate soil
+
+df_Soil1 <- df_Soil %>%
+  mutate(SumTempSo = cumsum(TempSoil10mm)) %>%
+  mutate(Date=dmy(Date))%>%
+  dplyr::select(-TempSoil10mm)
+
+str(df_Soil1 )
+
+```
+
+check data with graph
+
+```{r}
+
+#Air
+
+df_B%>%
+  ggplot(aes(x=Date,y=SumAir)) +
+  geom_point()
+
+#Soil
+
+df_Soil1 %>%
+  ggplot(aes(x=Date,y=SumTempSo)) +
+  geom_point()
+
+
+
+```
+
+
+Merge dataframes by date
+
+```{r}
+
+# first merge the soil and air temperature dataframes 
+
+
+
+
+df_Temp <- merge(df_Soil1,df_B,by="Date") 
+str(df_Temp)
+
+#Merge the two dataframes by Date
+df1 <- merge(df_Prep,df_Temp, by.x="SowingD",by.y="Date") %>%
+  mutate(soilTempAcc_sow = SumTempSo) %>% 
+  mutate(airTempAcc_sow=SumAir)%>%
+dplyr::select(-SumTempSo,-SumAir)
+
+str(df1)
+
+
+
+```
+
+Need to force a date for 50 % of plants with runners  (round) to calculate the average temperature during this phase  
+
+Save dataframe as txt file
+
+
+```{r}
+
+
+# force formats of dates
+df1$Date <- round(df1$Date50FF,0)
+df_Temp$Date <- round(df_Temp$Date,0)
+
+#then repeat same procedure done for the sowing date but use the date for Flowering 
+  df_merge <- merge(df1, df_Temp, by="Date") %>%
+    ##calculate the rate to Flowering 1/DAS50FFromEmerg
+  mutate(RateFlow= 1/DAS50FFromEmerg)%>%
+  mutate(soilTempAcc_50F = SumTempSo) %>%
+  mutate(airTempAcc_50F=SumAir)%>%
+  dplyr::select(-SumTempSo, -SumAir) %>%
+ 
+    #str(df_merge )
+  
+  
+#subtract accumulate temperature das1T from sowing 
+  mutate(meanTempSoil_50F = (soilTempAcc_50F-soilTempAcc_sow)/DAS50F) %>% 
+  mutate(meanTempAir_50F = (airTempAcc_50F-airTempAcc_sow)/DAS50F)
+  
+  summary(df_merge)
+
+
+```
+
+##Continue from here 
+
+##----------------------------------------- 
+#Incorporate the Pp at first Runner  here  
+
+
+## Read the daily Pp and  adjust formats 
+
+```{r}
+
+#create file
+##this is Iversen data df_P <- read.table("df_CumTTiv.txt",header=TRUE)
+#bring back the df_A with the formated "Pok_Weat.txt" - they have same dataset 
+
+
+df_C <- df_A %>%
+  #mutate(AirTt=Tx+Tm/2)%>%
+ # mutate(SumAir = cumsum(AirTt)) %>%
+  mutate(Date=dmy(Date))%>%
+  dplyr::select(-Tx,-Tm,-Exp)
+
+str(df_C)
+
+#adjust formats and change dataframe name justto harmonise with following codes 
+df_P<-df_C%>%
+ #mutate(Date=dmy(Date))%>%
+  dplyr:: select(Date,Pp)
+
+str(df_P)
+
+```
+
+
+
+#Till here all good ! 
+# Now need to bring a data frame with the date of first runner to calculate the Pp at that date 
+##Hold here ......Info contained in C:\GitHubRepos\SubCloverPhD\SubClover\RunnersPok
+
+```{r}
+
+#setwd("C:\\GitHubRepos\\SubCloverPhD\\SubClover\\FirstTrifo")
+
+setwd("C:\\GitHubRepos\\SubCloverPhD\\SubClover\\RunnersPok")
+ 
+getwd()
+#create file
+df_trifo1 <- read.table("df_DAS_50toRunnerPok.txt",header=TRUE)
+head(df_trifo1)
+
+
+```
+
+## Clean dataframe 
+
+```{r}
+
+#format SowingDate
+
+df_trifo1<-df_trifo1 %>%
+  mutate(SowingDate=as.Date(SowingDate))
+
+#df_trifo1$SowingDate <- ymd(df_trifo1$SowingDate)
+
+df_trifo1 <-df_trifo1 %>%
+  dplyr::select(SowTreat: Block, SowingDate, DAS)%>%
+  #calculate the date for First trifo 
+  mutate(Date50FirstRun=DAS+SowingDate)
+  #dplyr::select(-DAS1T)
+  
+  
+  str(df_trifo1)
+
+
+```
+
+
+
+##Adjust formats
+
+
+```{r}
+
+ ## force date format df_trifo1
+df_trifo1$Date50FirstRun <- ymd(df_trifo1$Date50FirstRun)
+
+df_trifo1$DAS <- as.numeric(df_trifo1$DAS )
+
+df_trifo1$Plot <- as.integer(df_trifo1$Plot )
+
+str(df_trifo1)
+
+##Then change the column name Date50FirstTrif to "Date" to able merging 
+
+df_trifo1 <-df_trifo1 %>%
+  mutate(Date=Date50FirstRun)%>%
+  dplyr::select(-Date50FirstRun)
+
+```
+
+##Find the Pp on first trifo date : Combine the df_trifo1 with the df_P
+
+```{r}
+
+##check dfs 
+str(df_P)
+str(df_trifo1)
+
+df_merge1R_Pp <- merge(df_trifo1, df_P, by="Date") 
+
+str(df_merge1R_Pp)
+```
+
+
+##Clean dataframe to avoid repeating columns
+
+```{r}
+
+df_merge1R_Pp <-df_merge1R_Pp %>%
+  dplyr::select (Plot, Date,Pp )
+
+
+```
+
+
+Need to force a date for 50 % of plants with flowers  (round) to calculate the average Pp during this phase  
+
+Save dataframe as txt file.
+
+
+```{r}
+
+
+# force formats of dates
+df_merge$Date <- round(df_merge$Date50FF ,0)
+df_merge1R_Pp$Date <- round(df_merge1R_Pp $Date,0)
+
+#then repeat same procedure done for the soing date but use the dat for 1 Trifoliate
+  df_mergePp1Runner <- merge(df_merge, df_merge1R_Pp, by="Plot") 
+  
+  str( df_mergePp1Runner)
+
+
+```
+
+## Select only columns of interest and rename them
+```{r}
+
+df_1RunnerPpPok <-df_mergePp1Runner %>%
+  dplyr::select(Plot,SowingD:Block,meanTempSoil_50F,meanTempAir_50F,RateFlow, Pp)%>%
+  mutate(Pp1T=Pp) %>%
+  dplyr::select(-Pp)
+
+str(df_1RunnerPpPok)
+
+```
+
+
+then select columns of interest and clean data frame for just 144 plots dataset  
+
+```{r}
+
+a <-df_1RunnerPpPok %>%
+ # select(Plot:Block,meanTempSoil_50F,meanTempAir_50F,RateFlow,Pp1T )%>%
+  group_by(SowTreat,Plot,Cultivar,Block)%>%
+  dplyr::select(Pp1T , meanTempAir_50F,meanTempSoil_50F,RateFlow)%>%
+  summarise_all(funs(mean))
+  
+
+```
+
+##That's Super  store this dataframe as txt table 
+```{r}
+
+
+#Save as table 
+write.table(a, "df_MeanRateFlower50F_TempsAndPp_At1RunnerPhenophase_Pok.txt")
+
+
+```
+
+
+
+End of this script  (move for graphs  in sigma or plot3D) 
+
+
+

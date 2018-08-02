@@ -1,13 +1,13 @@
 ---
-title: "Flowering in Iversen 2 similar to ReAnalysis Table"
+title: "Flowering in Poukawa similar to ReAnalysis Table"
 author: "CT"
-date: "11.07.2018"
+date: "15.07.2018"
 output:
   pdf_document: default
   html_document: default
   word_document: default
 note: include Pp analysis using selected datasets from Reanalysis scripts but use
-  Iversen 2 collected data. This is for DAS and TT from sowing to flowering . 
+  Pokawa collected data. This is for DAS and TT from sowing to flowering . 
 ---
 
 ```{r loadLibraries, echo=FALSE, include=FALSE}
@@ -30,52 +30,85 @@ AIM:
 - Do this by looking at figuest R2 fot Tt50 x Pp
 
 ```{r   loadFile}
-setwd("C:\\GitHubRepos\\SubCloverPhD\\SubClover\\FlowIv2")
+setwd("C:\\GitHubRepos\\SubCloverPhD\\SubClover\\FlowPok")
 
 getwd()
 
 
 ```
  
+ ## Bring Dataframe from Script 2 then 
+ 
+ 
 ```{r}
-#get dataframe created similar to ReAnalysis4 which is Rea6 - use Iversen DAS50Flwoering data
-df_tt_flow <- read.table("df_tt_50p_flow.txt",header=TRUE) 
+ 
 
-# force date format
-df_tt_flow$SowingD <- ymd(df_tt_flow$SowingD)
+##That the table you need : df_TTDAS_RateFlower50F_Po.txt
+
+df_tt_flow <- read.table("df_TTDAS_RateFlower50F_Po.txt",header=TRUE)
 
 str(df_tt_flow)
 
 
+
 ```
 
 ```{r}
-summary(df_tt_flow)
+
+##Include the sowing date to merge 
+
+df_P <- read.table("df_flowerPo3.txt",header=TRUE)
+
+str(df_P)
+
+##Keep only columns: SowingD and PlotNumber and add columns Plot 
+
+df_Pa <- df_P %>%
+  dplyr::select(SowingD, PlotNumber)%>%
+  mutate(Plot=PlotNumber)
+
+
 ```
 
+Then merge dataframes 
 
+```{r}
+
+df_mergedPo <- merge(df_tt_flow,df_Pa, by="Plot") 
+
+str(df_mergedPo)
+
+## merge
+
+# force date and re-format
+
+
+  df_mergedPo$SowingD <- as.Date(df_mergedPo$SowingD)
+  
+str(df_mergedPo)
+
+```
 
 
 ##Here insert the dataframe with the Emergence data (DAS50E and TT50E)
 
 
-##Insert here the dataframe with the DAS50E and TT50E 
-
 ```{r}
 
-##Bring the table df_tt_50p_emerg
+##Bring the table df_tt_50p_emerg Pokawa
 
 # Get dataframe 1 with the soil Temp in another folder 
-setwd("C:\\GitHubRepos\\SubCloverPhD\\SubClover\\EmergenceIv2")
+
+#setwd("C:\\GitHubRepos\\SubCloverPhD\\SubClover\\EmergencePokawa")
 getwd()
 
 
-df_Emergence <- read.table("df_tt_50p_emerg.txt",header=TRUE)
+df_Emergence <- read.table("df_tt_50p_emergPo.txt",header=TRUE)
 
 df_Emergence<-df_Emergence%>%
   dplyr::select(Plot, DAS50E,TT50E)
 
-
+#Check data 
 str(df_Emergence)
 head(df_Emergence)
 
@@ -83,7 +116,12 @@ head(df_Emergence)
 
 ```
 
+##Here just change name of the dataframe so the script can run as per Iversen 
 
+```{r}
+df_tt_flow <-df_mergedPo
+
+```
 
 ##to merge with the dataframe with the flower values (df_tt_flow) 
 
@@ -119,12 +157,12 @@ write a table with this dataset!!!
 
 #write.table(df_mergedFiveTrifo, "C:\\GitHubRepos\\SubCloverPhD\\SubClover\\TrifoCountsI2/DaysTT1TFromEmergence.txt")
 
-write.table(df_mergedFloEmerg, "C:/GitHubRepos/SubCloverPhD/SubClover/FlowIv2/DaysTTToFlowerTFromEmergence.txt")
+write.table(df_mergedFloEmerg, "C:/GitHubRepos/SubCloverPhD/SubClover/FlowPok/DaysTTToFlowerTFromEmergencePok.txt")
 
 ```
 
 
-Inspect values and means 
+Inspect values and means for Poukawa
  
  
  
@@ -147,28 +185,36 @@ df_meanFlo <-df_mergedFloEmerg %>%
 
 
 
-Bring weather dataset which is in df_CumTTIv.txt
+Bring weather dataset which is in Pok_Weat.txt.txt
 
 ```{r}
 
-df_weather <- read.table("df_CumTTIv.txt",header=TRUE) %>%
-  mutate(Date=ymd(Date)) %>%
-  dplyr::select(-LocationYear,-Country) %>%
-  dplyr::select(Date, SumTTday,Pp) # FIXME: this is also run Tt - change name to SumTTday_run?
+##This belongs to Iversen df_weather <- read.table("df_CumTTIv.txt",header=TRUE) %>%
+  
+df_Weather <- read.table("Pok_Weat.txt",header=TRUE)
+str(df_Weather)
 
-  summary(df_weather)
+df_Weather <-df_Weather %>%
+  mutate(Tmean=Tx-Tm/2)%>%
+  mutate(Date=dmy(Date))%>%
+  mutate(Date=ymd(Date))%>%
+  mutate(SumTTday=cumsum(Tmean))%>%
+  dplyr::select(Date, SumTTday,Pp) 
+
+str(df_Weather)
+
 
 ```
 
 Merge and calculate the two datasets 
 
-- SumTT is value at sowing from 24 Jun 2015 
+- SumTT is value at sowing from 19 Feb 2016 
 - TT50F_run (at flowering time) sets a limit for juvenile period (?) 
 
 ```{r}
 # get TTsum at sowing
 # estimates Tt with running TT sum from weather file
-df_Iv <- merge(df_mergedFloEmerg, df_weather,
+df_Pok <- merge(df_mergedFloEmerg, df_Weather,
                by.x=c("SowingD"), 
                by.y=c("Date")) %>%
   ungroup()%>%
@@ -180,13 +226,16 @@ df_Iv <- merge(df_mergedFloEmerg, df_weather,
   mutate(cv_block_index = as.factor(paste0(Cultivar,"_",Block)))  %>%
   mutate(SowingD=ymd(SowingD))
  
-str(df_Iv)
+str(df_Pok)
 
 ```
 
-## Warning : negative values refer to S5 Denmark and Leura ... need to remove that 
+##check data 
+
 ```{r}
-summary(df_Iv)
+
+summary(df_Pok)
+
 ```
 
 
@@ -195,18 +244,18 @@ summary(df_Iv)
 
 ```{r, fig.width=12}
 
-df_Iv %>%
+df_Pok %>%
   na.omit() %>%
   #remove data from S5 Denmark and Leura 
   subset(DAS50FFromEmerg>0.05)%>%
-  dplyr::select(Cultivar, SowTreat, Variable, TT50FromEmerg, Pp_sow) %>%
-  group_by(Cultivar, SowTreat, Variable) %>%
+  dplyr::select(Cultivar, SowTreat, TT50FromEmerg, Pp_sow) %>%
+  group_by(Cultivar, SowTreat) %>%
   summarise_all(funs(mean,sd)) %>%
   ggplot(aes(x=Pp_sow_mean,y=TT50FromEmerg_mean, colour=Cultivar)) +
   theme_bw()+
   geom_point(size=4)+
-  geom_line()+
-  facet_grid(Variable~.)
+  geom_line()
+  #facet_grid(Variable~.)
 
 #FIME: Why 0 for Leura & xxxx? Should be NA? when no flowerng
 
@@ -230,7 +279,7 @@ Find running sumTT for each sowing date at sowing
 - Obs: lebel tt as "_run" when using running sum of Tt across all sow dates
 
 ```{r}
-sumTTatSow <- df_Iv %>%
+sumTTatSow <- df_Pok %>%
   dplyr::select(SowTreat, TtAtSowing_run) %>%
   unique() %>%
   as.data.frame()
@@ -241,7 +290,7 @@ head(sumTTatSow)
 
 Create function for retrieving photoperiod as a function of TT after sowing and Sowing date  treatment
 
-- finds running TT at sowiong
+- finds running TT at sowing
 - adds target to that and finds pp at that TT momrent
 - tt_target is oCd after sowing when Pp is retrieved
 - sowT is the sowing treatment (S1...)
@@ -258,8 +307,8 @@ Pp_finder_func <- function(sowT, tt_target){
    
   # lookup for Pp at new tt sum in weather file
   tryCatch(  
-  Pp_target <- approx(df_weather$SumTTday, 
-  df_weather$Pp, xout = tt_target_adj, rule = 1)$y,
+  Pp_target <- approx(df_Weather$SumTTday, 
+  df_Weather$Pp, xout = tt_target_adj, rule = 1)$y,
   error = function(e) 
   {
   Pp_target <- NA
@@ -272,10 +321,10 @@ Pp_finder_func <- function(sowT, tt_target){
 
 ```
 
-## Test function
+## Test function (Ja! wunderschoen!)
 
 ```{r}
-st <- "S5"
+st <- "S1"
 
 #test
 tt_target <- 0 
@@ -297,10 +346,10 @@ Pp_finder_func(st, tt_target)
 
 # FIXME: This logic is corrupted as graph for target ==0 is not as above. Yes that is sure thing !!!! 
 
-cv_block <- (unique(df_Iv$cv_block_index))
+cv_block <- (unique(df_Pok$cv_block_index))
 
-df_Iv_flow <- df_Iv %>% 
-  dplyr::filter(Variable=="Flowering") %>%
+df_Pok_flow <- df_Pok%>% 
+  #dplyr::filter(Variable=="Flowering") %>%
   subset(TT50FromEmerg>0.5)
 #na.omit()
   #Need to remove Denmark and Leura S5 ! no flowering 
@@ -314,7 +363,7 @@ for(p in 1:length(cv_block)) {
   CBI <- cv_block[p]
   
   # segment plot of interesst
-  df_sub <- df_Iv_flow %>% 
+  df_sub <- df_Pok_flow %>% 
     dplyr::filter(cv_block_index==cv_block[p])
   
   # loop through Tt chuncks after sowing
@@ -368,12 +417,12 @@ Yes!! Now all these graphs contain the TT target refering to the TTfrom emergenc
 ```{r, fig.width=15, fig.height=6}
 
 #str(df_pp_all)
-df_pp_all_mean<-NULL
+
 df_pp_all_mean <- df_pp_allEmer %>%
-    dplyr::select(Cultivar,Variable,SowTreat,TT50FromEmerg,TT_target,Pp_target)%>%
-    group_by(Cultivar,SowTreat, Variable,TT_target)  %>%
-    filter(Variable=="Flowering") %>%
-    summarise_all(funs(mean,sd))
+      dplyr::select(Cultivar,SowTreat,TT50FromEmerg,TT_target,Pp_target)%>%
+    group_by(Cultivar,SowTreat,TT_target)  %>%
+    #filter(Variable=="Flowering") %>%
+    summarise_all(funs(mean))
 
 
 #summary(df_pp_all_mean)
@@ -387,32 +436,15 @@ indexCV <- unique(df_pp_all_mean$Cultivar)
 
 for (i in 1:length(indexCV)) {
   
-df <- df_pp_all_mean%>%subset(Cultivar==indexCV[i])
-  
-extraPos<- 1.1 # extra position for single error bar
-x_max<-max(df$Pp_target_mean)
-y_max<-max(df$TT50FromEmerg_mean)
-  
-  
-#Positions of sds
-# sd_df <- df %>% 
-#   group_by(Cultivar) %>%
-#   dplyr::select(sd)%>%
-#   summarise_all(funs(max))%>%
-#   #summarise(max_sd = max(sd)) %>% 
-#   ungroup() %>%
-#   rowwise() %>%
-#   mutate(Temp = x_max*extraPos, max = y_max*extraPos, max_sd=sd)
-# 
-# summary(sd_df)
- sd_pos <- data.frame(x=rep(19,88),y=rep(2500,88), sd=rep(1000,88))
+  df <- df_pp_all_mean%>%subset(Cultivar==indexCV[i])
   
   g <- df %>%
   ungroup() %>%
-  mutate (SowTreat= factor(SowTreat, levels=c("S1", "S2", "S3", "S4", "S5", "S6", "S7","S8"),labels=c("June", "July", "Sept.", "Nov.", "Dec.", "Feb.", "March", "May")))%>%
-  ggplot(aes(x=Pp_target_mean,y=TT50FromEmerg_mean))   +
+    mutate (SowTreat= factor(SowTreat, levels=c("S1", "S2", "S3", "S4", "S5", "S6", "S7","S8"),labels=c("Feb", "March", "May", "June", "July", "Sept.", "Nov.", "Dec.")))%>%
+  ggplot(aes(x=Pp_target,y=TT50FromEmerg))   +
   geom_text(aes(label=SowTreat, colour=Cultivar),hjust=0, vjust=0,size=4) +
-  scale_colour_manual(values=c("#000000" )) +
+    scale_colour_manual(values=c("#000000" )) +
+  #scale_shape_manual(values = c(0,1,2,3,4,5,6,7,8))+
   theme_bw() +
   ylab(expression(Mean~Thermal~time~Flowering~"("^"o"*"Cd)")) + 
   #xlab(expression(Photoperiod~at~Thermal~time~Flowering~"("^"o"*"Cd)")) +
@@ -424,190 +456,20 @@ y_max<-max(df$TT50FromEmerg_mean)
     xlim(9,20)+
     ylim(0,2500)+
     ##FIXME here geom smooth : method ='lm' not stat = 'lm' 
-     geom_smooth(method ='lm') + 
-   # geom_errorbar(data=sd_pos,
-   #  aes(ymin=y-sd/2,
-   #  ymax=y+sd/2),
-   #  width=4)  +
-  #  geom_smooth(alpha=0.2, fill='blue', aes(stat ='lm')) + 
-    geom_point(size=2,alpha=0.5) 
-   
-  
-  print(g)
-  
-}
-
-```
-
-
-get all graphs in appendix then. (This is the same graph but removed the geom smooth )
-
-
-```{r fig.width=16, fig.height=7}
-
-
-df_pp_all_mean$Cult_TtT <- paste0(df_pp_all_mean$Cultivar,"_",round(df_pp_all_mean$TT_target,0))
-
-indexTT <- unique(round(df_pp_all_mean$TT_target,0))
-indexCT <- unique(df_pp_all_mean$Cult_TtT)
-indexCV <- unique(df_pp_all_mean$Cultivar)
-
-##to save a plot list 
-
-plot_list = list()
-for (i in 1:length(indexCV)) {
-  
-  df <- df_pp_all_mean%>%subset(Cultivar==indexCV[i])
-  
-  g <- df %>%
-  ungroup() %>%
-    mutate (SowTreat= factor(SowTreat, levels=c("S1", "S2", "S3", "S4", "S5", "S6", "S7","S8"),labels=c("June", "July", "Sept.", "Nov.", "Dec.", "Feb.", "March", "May")))%>%
-  ggplot(aes(x=Pp_target,y=TT50FromEmerg))   +
-  geom_text(aes(label=SowTreat, colour=SowTreat),hjust=0, vjust=0,size=5) +
-    #scale_colour_manual(values=c("#000000" )) +
-  #scale_shape_manual(values = c(0,1,2,3,4,5,6,7,8))+
-  theme_bw() +
-  ylab(expression(Mean~Thermal~time~Flowering~"("^"o"*"Cd)")) + 
-  #xlab(expression(Photoperiod~at~Thermal~time~Flowering~"("^"o"*"Cd)")) +
-  xlab(" Photoperiod at Target Thermal times (hours) ") +
- #facet_grid(.~Cultivar, scales="free")+
-  facet_wrap(~TT_target, scales="free",ncol=5)+
-  # facet_grid(TT_target~., scales="free")+
-  theme(text = element_text(size=16))+
-    xlim(9,20)+
-    ylim(0,2500)+
-    
-    #remove grid lines 
-   theme(
-     panel.border = element_rect(colour = "black", size = 2), 
-     panel.grid.major = element_blank(),
-     panel.grid.minor = element_blank(),
-     axis.line = element_line(colour = "black"))+
-   
-   
-   #make TT target labels  white  
-   theme(strip.background = element_rect(colour = "black", fill = "white",size=2))+
-    
-    ##FIXME here geom smooth : method ='lm' not stat = 'lm' 
-     #geom_smooth(method ='lm') +
+     geom_smooth(method ='lm') +
   #  geom_smooth(alpha=0.2, fill='blue', aes(stat ='lm')) + 
     geom_point(size=2,alpha=0.5)
   
-  ##In alphabetical order of the cultivar
+  
   
   print(g)
   
-  # plot_list[[i]] = g
-  
 }
 
-# Save plots to png. Makes a separate file for each plot.
-# for (i in 1:6) {
-#     g = paste("PlotTTFlovsPpTTtargets_", i, ".png", sep="")
-#     png(g )
-#     print(plot_list[[i]],width=14, height=7, dpi=500)
-#     dev.off()
-# }
-
-
-ggsave("plots_MeanTTFlo_PpAtTargetPp.png", width=14, height=7, dpi=500)
-
-#ggsave("plots_MeanTTFlo_PpAtTargetPp.png", width=14, height=7, dpi=500)
-
-
 ```
 
 
-##make a graph for each cultivar to include error bar in each panel 
-
-
-
-
-```{r fig.width=16, fig.height=7}
-
-
-df_pp_all_mean$Cult_TtT <- paste0(df_pp_all_mean$Cultivar,"_",round(df_pp_all_mean$TT_target,0))
-
-indexTT <- unique(round(df_pp_all_mean$TT_target,0))
-indexCT <- unique(df_pp_all_mean$Cult_TtT)
-indexCV <- unique(df_pp_all_mean$Cultivar)
-
-##to save a plot list 
-
-plot_list = list()
-for (i in 1:length(indexCV)) {
-  
-  df <- df_pp_all_mean%>%subset(Cultivar==indexCV[i])
-  
-  g <- df %>%
-  ungroup() %>%
-    mutate (SowTreat= factor(SowTreat, levels=c("S1", "S2", "S3", "S4", "S5", "S6", "S7","S8"),labels=c("June", "July", "Sept.", "Nov.", "Dec.", "Feb.", "March", "May")))%>%
-  ggplot(aes(x=Pp_target,y=TT50FromEmerg))   +
-  geom_text(aes(label=SowTreat, colour=SowTreat),hjust=0, vjust=0,size=5) +
-    #scale_colour_manual(values=c("#000000" )) +
-  #scale_shape_manual(values = c(0,1,2,3,4,5,6,7,8))+
-  theme_bw() +
-  ylab(expression(Mean~Thermal~time~Flowering~"("^"o"*"Cd)")) + 
-  #xlab(expression(Photoperiod~at~Thermal~time~Flowering~"("^"o"*"Cd)")) +
-  xlab(" Photoperiod at Target Thermal times (hours) ") +
- #facet_grid(.~Cultivar, scales="free")+
-  facet_wrap(~TT_target, scales="free",ncol=5)+
-  # facet_grid(TT_target~., scales="free")+
-  theme(text = element_text(size=16))+
-    xlim(9,20)+
-    ylim(0,2500)+
-    
-    #remove grid lines 
-   theme(
-     panel.border = element_rect(colour = "black", size = 2), 
-     panel.grid.major = element_blank(),
-     panel.grid.minor = element_blank(),
-     axis.line = element_line(colour = "black"))+
-   
-   
-   #make TT target labels  white  
-   theme(strip.background = element_rect(colour = "black", fill = "white",size=2))+
-    
-    ##FIXME here geom smooth : method ='lm' not stat = 'lm' 
-     #geom_smooth(method ='lm') +
-  #  geom_smooth(alpha=0.2, fill='blue', aes(stat ='lm')) + 
-    geom_point(size=2,alpha=0.5)
-  
-  ##In alphabetical order of the cultivar
-  
-  print(g)
-  
-  # plot_list[[i]] = g
-  
-}
-
-# Save plots to png. Makes a separate file for each plot.
-# for (i in 1:6) {
-#     g = paste("PlotTTFlovsPpTTtargets_", i, ".png", sep="")
-#     png(g )
-#     print(plot_list[[i]],width=14, height=7, dpi=500)
-#     dev.off()
-# }
-
-
-#ggsave("plots_MeanTTFlo_PpAtTargetPp.png", width=14, height=7, dpi=500)
-
-#ggsave("plots_MeanTTFlo_PpAtTargetPp.png", width=14, height=7, dpi=500)
-
-
-```
-
-
-
-
-```{r}
-
-
-#empty
-
-
-
-```
+get all graphs in appendix then. 
 
 
 ## Check data
@@ -637,7 +499,7 @@ df_pp_allEmer$Block <- as.factor(df_pp_allEmer$Block)
 str(df_pp_allEmer)
 
 #Save as table 
-write.table(df_pp_allEmer, "df_Pptargets_TT50FFromEmergence.txt")
+write.table(df_pp_allEmer, "df_Pptargets_TT50FFromEmergencePok.txt")
 
 ```
 

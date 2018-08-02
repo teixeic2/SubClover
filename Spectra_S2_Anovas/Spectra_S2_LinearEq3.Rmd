@@ -58,47 +58,73 @@ str(df_G)
 
 # this is to "clean previous dfs : df_emerg4 <- NULL
 ```
-Then spread to make the matrix for Unscrambler - Wavenumber as column; do with average per replicate first 
+
+#This chunk was included just to load Unscrambler eralier (keep it here but leave as commented out)
+##Then spread to make the matrix for Unscrambler - Wavenumber as column; do with average per replicate first 
+
 
 ```{r}
+
+#-------------here is just to produce a matrix to export to Unscrambler 
 
 #duplicated(df_G) 
 
 
-df_U <- df_G %>%
-  mutate(Wavenumber=factor(Wavenumber)) %>%
- group_by(Cultivar,Block, Plot,Wavenumber) %>%
-  summarise_all(funs(mean))  %>%
-  dplyr::select(Cultivar,Block, Plot, Wavenumber,Absorbance) %>%
-  tidyr::spread(Wavenumber, Absorbance)
-
-
+# df_U <- df_G %>%
+#   mutate(Wavenumber=factor(Wavenumber)) %>%
+#  group_by(Cultivar,Block, Plot,Wavenumber) %>%
+#   summarise_all(funs(mean))  %>%
+#   dplyr::select(Cultivar,Block, Plot, Wavenumber,Absorbance) %>%
+#   tidyr::spread(Wavenumber, Absorbance)
 
 ```
 
-Here make it with values per seed (as Burgi suggested) 
+##Here make it with values per seed (as Burgi suggested) 
 
 ```{r}
-df_Us <- df_G %>%
-  mutate(Wavenumber=factor(Wavenumber)) %>%
- group_by(Cultivar,Block,Plot,Wavenumber,Seed) %>%
-  summarise_all(funs(mean))  %>%
-  dplyr::select(Cultivar,Block, Plot, Wavenumber,Absorbance,Seed) %>%
-  tidyr::spread(Wavenumber, Absorbance)
+# df_Us <- df_G %>%
+#   mutate(Wavenumber=factor(Wavenumber)) %>%
+#  group_by(Cultivar,Block,Plot,Wavenumber,Seed) %>%
+#   summarise_all(funs(mean))  %>%
+#   dplyr::select(Cultivar,Block, Plot, Wavenumber,Absorbance,Seed) %>%
+#   tidyr::spread(Wavenumber, Absorbance)
 
 
+##------------save as table matrix for PCA 
+```
+
+##got the means here ... and graph it check script ESA ...use average per Cultivar now 
+
+
+#select columns of interest Cultivar Incubation days rep AbsValue Wavenumber
+
+```{r}
+
+str(df_G)
+
+df_sp1<-df_G%>%
+  dplyr::select(-Hardness)
+
+str(df_sp1)
 
 ```
 
-got the means here ... and graph it
+## Normalization with Max Peak method (Burgi feedback 18.06!!)
 
-```{r, fig.height=5, fig.width=10, echo = FALSE}
+```{r}
 
 
+df_sp2 <- df_sp1%>%
+  
+  group_by(Cultivar, Block)%>%
+  
+  mutate(AbsorbanceNorm=Absorbance/max(Absorbance))
 
-# 
+str(df_sp2)
 
 ```
+
+##Continue from here ##
 
 
 
