@@ -357,7 +357,7 @@ ggplot(aes(x=HardseedRank, y=mean)) +
   #scale_shape_manual(values = c(0,1,2,3,4))+
   #scale_shape_manual(values = c(1,2,4,7,8,9))+
   geom_errorbar(data=sd_df, aes(ymin=mean-max_sd/4,
-                    ymax=mean+max_sd/4), width=1)+
+                    ymax=mean+max_sd/4), width=0.4)+
   facet_wrap(~Month,ncol=3, scales = "free")+
   #theme_bw()+
   #scale_x_continuous(breaks = c(5,10,15,20,30))+

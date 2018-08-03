@@ -93,10 +93,10 @@ str(df_G)
 ##------------save as table matrix for PCA 
 ```
 
-##got the means here ... and graph it check script ESA ...use average per Cultivar now 
 
 
-#select columns of interest Cultivar Incubation days rep AbsValue Wavenumber
+
+#select columns of interest Cultivar rep AbsValue Wavenumber
 
 ```{r}
 
@@ -125,57 +125,263 @@ str(df_sp2)
 ```
 
 ##Continue from here ##
+##get the means here by cultivar , skip seed effect  ... and graph it check script ESA ...use average per Cultivar now
+
+```{r}
 
 
+df_sp3<-df_sp2%>%
+  group_by(Cultivar,Block, Wavenumber)%>%
+  dplyr::select(AbsorbanceNorm)%>%
+  summarise_all(funs(mean))
+  #mutate(Absorbance=AbsValue)%>%
+  #dplyr::select(-AbsValue)
+  
+  str(df_sp3)
 
-here get the equations for the Antas subset (min to optimum)  
+##df_sp3 will be used as dataframe for Stats (it contains the blocks)
+
+
+```
+
+
+## Graph it all , 
+
+```{r, fig.height=5, fig.width=15}
+
+##use this filter if need to select cultivars and calculate the means here to graph
+df_sp4 <-df_sp3%>%
+  group_by(Cultivar,Wavenumber)%>%
+  dplyr::select(AbsorbanceNorm)%>%
+  summarise_all(funs(mean))
+  
+    #filter(Cultivar!="N")
+    
+
+##write.table(df_sp3,"MaxNorm_SpectraESA2018.txt")
+```
+
 
 ```{r, fig.height=5,fig.width=10}
-require(ggplot2)
-require(plyr)
-require(dplyr)
 
-lm_eqn = function(df){
-  m = lm(y ~ x, df);
-  eq <- substitute(italic(y) == a + b %.% italic(x)*","~~italic(r)^2~"="~r2, 
-                   list(a = format(coef(m)[1], digits = 2), 
-                        b = format(coef(m)[2], digits = 2), 
-                        r2 = format(summary(m)$r.squared, digits = 3)))
-  as.character(as.expression(eq));                 
-}
-
-#use all datapoints 
-df <- df_A2 %>%
-  dplyr::select(SowTreat,Cultivar, Plot, meanTemp_Em, InvDAS50E, Location) %>%
-  group_by(SowTreat,Cultivar, Location) %>%
-  summarise_each(funs(mean)) %>%
-  mutate(y=InvDAS50E,x=meanTemp_Em) %>%
-  dplyr::select(-meanTemp_Em, -InvDAS50E)
-
-eq <- ddply(df,.(Cultivar),lm_eqn)
-
-yx<-quantile(df$y,0.75)
-xn<- quantile(df$x,0.25)
-
-p <- ggplot(data = df, aes(x = x, y = y)) +
-  geom_smooth(method = "lm", se=FALSE, color="black", formula = y ~ x) +
-  geom_point(aes(colour = factor(Location)), size=5) + scale_shape(solid = FALSE)+ 
-  
+df_sp4%>%
+   ggplot(aes(x=Wavenumber,y=AbsorbanceNorm))+
+  geom_line(aes(colour=factor(Cultivar)))+
   theme_bw()+
-  scale_x_continuous(limits = c(0,25))+
-  scale_y_continuous(limits = c(0,0.25))
-
-p1 <- p + geom_text(data=eq,aes(x = xn, y = yx,label=V1), parse = TRUE, inherit.aes=FALSE) + 
-  facet_grid(Cultivar~.,scales="free")
+  #scale_x_continuous(breaks=seq(min(df_sp$WaveNumber),max(df_sp$WaveNumber),by =50))+
   
-p1
+  scale_x_continuous(breaks=round(seq(min(df_sp4$Wavenumber),max(df_sp4$Wavenumber),by =50)))+
+  facet_grid(Cultivar ~.) +
+  #facet_grid(IncubationDays ~.) +
+  scale_x_reverse()+
+  theme_bw()+
+  theme(axis.text.x = element_text(angle = 90, hjust = 1)) +
+  #expand_limits(y=c(0,0.2)) +
+  geom_abline(intercept = 0.1, slope = 0)
+  
+
+##write.table(df_sp3,"MaxNorm_SpectraESA2018.txt")
+
+
+
 ```
+
+## Now need to snip the spectra (remove wavenumber interval 2800-1800)
+
+
 
 
 ```{r}
-#get statistical summary here 
-summary(lm(y ~ x, df))
+
+##select only wavenumbers between 3700-2700, then 
+df_spzoom1 <-df_sp4 %>%
+    #filter(Cultivar!="N")%>%
+  #test here subset(Wavenumber <1700 & Wavenumber >1600) 
+   subset(Wavenumber <3600 & Wavenumber >2800)
+  
+
+  
+
+df_spzoom1 %>%
+   ggplot(aes(x=Wavenumber,y=AbsorbanceNorm))+
+  geom_line(aes(colour=factor(Cultivar)))+
+  theme_bw()+
+  #scale_x_continuous(breaks=seq(min(df_sp$WaveNumber),max(df_sp$WaveNumber),by =50))+
+  
+  #scale_x_continuous(breaks=round(seq(min(df_sp$WaveNumber),max(df_sp$WaveNumber),by =50)))+
+  facet_grid(Cultivar ~.) +
+  #facet_grid(IncubationDays ~.) +
+  scale_x_reverse()+
+  theme_bw()+
+  theme(axis.text.x = element_text(angle = 90, hjust = 1)) +
+  expand_limits(y=c(0,0.2)) 
+  #geom_abline(intercept = 0.1, slope = 0)
+  
+#write.table(df_sp33, "BaselinedMaxNorm1.txt") #this will be used to buil the graph (portion 1 of spectra)
+write.table(df_spzoom1, "S 2_BaselinedMaxNorm1.txt") #this will be used to buil the graph (portion 1 of spectra)
+
 ```
+
+## snip spectra again section 2 
+
+```{r}
+
+## ##select only wavenumbers below 1900  then 
+df_spzoom2 <-df_sp4 %>%
+    #filter(Cultivar!="N")%>%
+ 
+   ##subset(Wavenumber <3600 & Wavenumber >2800)
+  
+  subset(Wavenumber <1800 & Wavenumber >850)
+
+  
+
+df_spzoom2 %>%
+   ggplot(aes(x=Wavenumber,y=AbsorbanceNorm))+
+  geom_line(aes(colour=factor(Cultivar)))+
+  theme_bw()+
+  #scale_x_continuous(breaks=seq(min(df_sp$WaveNumber),max(df_sp$WaveNumber),by =50))+
+  
+  #scale_x_continuous(breaks=round(seq(min(df_sp$WaveNumber),max(df_sp$WaveNumber),by =50)))+
+  facet_grid(Cultivar ~.) +
+  #facet_grid(IncubationDays ~.) +
+  scale_x_reverse()+
+  theme_bw()+
+  theme(axis.text.x = element_text(angle = 90, hjust = 1)) +
+  expand_limits(y=c(0,0.2)) 
+  #geom_abline(intercept = 0.1, slope = 0)
+  
+#write.table(df_sp33, "BaselinedMaxNorm1.txt") #this will be used to buil the graph (portion 1 of spectra)
+
+
+write.table(df_spzoom2, "S2_BaselinedMaxNorm2.txt") #this will be used to buil the graph (portion 1 ofspectra)
+
+
+
+```
+
+
+##combine the two sections to create a interval graph 
+
+
+
+Now combine the two dataframes (df_spzoom1 and df_spzoom2)and bring the file to build the graph (see Excel file SpectraMaxNormalisedChopped; 
+C:\Users\teixe\Documents\CarmenDocumentsPhD\A_Carmenfiles02.08.2018\PhD project\Iversen2_6CV\ANALYSYS\FTIR_S2
+file is : Spectra_S2_BaseMaxNormSegmented
+
+
+```{r}
+
+getwd()
+
+#create file
+df_spSegment <- read.table("S2_Segmented_BaselinedMaxNorm1And2.txt",header=TRUE)
+
+
+```
+
+
+## check data  
+
+
+
+```{r}
+
+str(df_spSegment)
+
+```
+
+format 
+
+
+```{r, fig.height=5, fig.width=20}
+
+
+#adjust format and follow the same original script 
+df_spSegment2<-df_spSegment  %>%
+ # mutate(Days= as.factor(IncubationDays))%>%
+  mutate (SpectraPart= factor(SpectraPart, levels=c("3600-2800", "1800-850")))%>%
+  mutate (Cultivar_f= factor(Cultivar, levels=c("Antas","Denmark", "Leura", "Monti", 'Narrikup', "Woogenellup"),labels=c("Antas","Denmark", "Leura", "Monti", 'Narrikup', "Woogenellup")))%>%
+  mutate (SpectraPart_f = factor(SpectraPart, levels=c('3600-2800','1800-850')))
+ 
+ str(df_spSegment2)
+                       
+  
+```
+
+
+
+
+```{r, fig.height=10, fig.width=20}
+
+df_spSegment2  %>%   
+    #force spectra order here                              
+     # df_spSegment$SpectraPart_f = factor(df_spSegment$SpectraPart, levels=c('3700-2700','1800-850'))%>% 
+  ggplot(aes(x=Wavenumber,y=AbsorbanceNorm))+
+    #geom_line(aes(), colour=IncubationDays))+
+  geom_line(aes(colour=Cultivar),size=2)+
+    #scale_color_manual(values=c("blue", "darkred"))+
+  theme_bw()+
+  #scale_x_continuous(breaks=seq(min(df_sp$WaveNumber),max(df_sp$WaveNumber),by =50))+
+    #scale_x_continuous(breaks=round(seq(min(df_sp$WaveNumber),max(df_sp$WaveNumber),by =50)))+
+  #facet_grid(Cultivar_f ~SpectraPart_f,scales="free") +
+  facet_grid(.~SpectraPart_f,scales="free") +
+  #facet_grid(Cultivar ~.) +
+  scale_x_reverse()+
+  #scale_x_continuous(breaks=round(seq(min(df_sp$WaveNumber),max(df_sp$WaveNumber),by =50)))+
+  
+  theme_bw(base_size=30)+
+  theme(strip.text.x =  element_blank())+
+  theme(axis.text.x = element_text(angle = 90, hjust = 1)) +
+  expand_limits(y=c(0,1.2)) +
+    labs(y= " Absorbance ")+
+    xlab(expression(Wavenumber~"(cm"^"-1"*")"))+
+#theme(axis.text.y = element_text( size = 24))+
+  #theme(axis.title.y = element_text(face="bold", size=14))+
+#theme(axis.text.x=element_text(angle = 0, hjust=0.95,vjust=0.2,size = 28)) +
+    
+    #remove grid lines 
+    
+    #remove grid lines 
+   theme(
+     panel.border = element_rect(colour = "white", size = 2), 
+     panel.grid.major = element_blank(),
+     panel.grid.minor = element_blank(),
+
+axis.line = element_line(colour = "black"))+
+     #make cultivars white  
+   theme(strip.background = element_rect(colour = "black", fill = "white",size=2))+
+    #increase font size panels
+    #theme(strip.text.x = element_text(size = 30, colour = "orange", angle = 90))+
+    
+theme(text = element_text(size = 32))+
+theme(axis.text.y = element_text( size = 32))+
+    theme(axis.title.y = element_text(face="bold", size=32))+
+     scale_y_continuous(breaks = c(seq(from = 0, to = 1.25, by = 0.5)))+
+theme(axis.text.x=element_text(angle = 0, hjust=0.5,vjust=0,size = 28))+
+theme(axis.title.x = element_text( size=32,face="bold"))+
+  theme(axis.line.x = element_line(colour = 'black', size = 3))+
+  theme(axis.line.y = element_line(colour = 'black', size = 3))
+  #axis line 
+  #y.line = element_line(colour = 'black', size = 4)
+
+
+
+   #Save graph 
+ 
+ ggsave("plot_spectraMaxNorm_S2_6Cv.png", width=20, height=10, dpi=400)
+
+
+
+
+
+
+```
+
+
+
+
+now move o next script to run p values for each wavenumber 
 
 
 
