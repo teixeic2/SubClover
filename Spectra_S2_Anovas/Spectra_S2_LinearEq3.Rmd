@@ -61,11 +61,12 @@ str(df_G)
 
 #This chunk was included just to load Unscrambler eralier (keep it here but leave as commented out)
 ##Then spread to make the matrix for Unscrambler - Wavenumber as column; do with average per replicate first 
+## This data is then used for the PCA analysis. 
 
 
 ```{r}
 
-#-------------here is just to produce a matrix to export to Unscrambler 
+#-------------here is just to produce a matrix to export to Unscrambler or PCA analysis 
 
 #duplicated(df_G) 
 
@@ -378,6 +379,105 @@ theme(axis.title.x = element_text( size=32,face="bold"))+
 
 ```
 
+##---------------------------------
+
+##Create a spectra per Block to run the PCA per block!!! Need to keep the block info and save to use in PCA script 
+
+
+```{r}
+
+
+##use this filter if need to select cultivars and calculate the means here to graph
+df_sp4B <-df_sp3%>%
+  group_by(Cultivar,Block, Wavenumber)%>%
+  dplyr::select(AbsorbanceNorm)%>%
+  summarise_all(funs(mean))
+
+
+```
+
+
+
+```{r}
+
+##select only wavenumbers between 3700-2700, then 
+df_spzoom1B <-df_sp4B %>%
+    #filter(Cultivar!="N")%>%
+  #test here subset(Wavenumber <1700 & Wavenumber >1600) 
+   subset(Wavenumber <3600 & Wavenumber >2800)
+  
+
+df_spzoom1B %>%
+   ggplot(aes(x=Wavenumber,y=AbsorbanceNorm))+
+  geom_line(aes(colour=factor(Block)))+
+  theme_bw()+
+  #scale_x_continuous(breaks=seq(min(df_sp$WaveNumber),max(df_sp$WaveNumber),by =50))+
+  
+  #scale_x_continuous(breaks=round(seq(min(df_sp$WaveNumber),max(df_sp$WaveNumber),by =50)))+
+  facet_grid(Cultivar ~.) +
+  #facet_grid(IncubationDays ~.) +
+  scale_x_reverse()+
+  theme_bw()+
+  theme(axis.text.x = element_text(angle = 90, hjust = 1)) +
+  expand_limits(y=c(0,0.2)) 
+  #geom_abline(intercept = 0.1, slope = 0)
+  
+#write.table(df_sp33, "BaselinedMaxNorm1.txt") #this will be used to buil the graph (portion 1 of spectra)
+write.table(df_spzoom1B, "S 2_BaselinedMaxNormBlock1.txt") #this will be used to buil the graph (portion 1 of spectra)
+
+```
+
+
+#then create the second segment :subset(Wavenumber <1800 & Wavenumber >850)
+
+
+```{r}
+
+##select only wavenumbers between 3700-2700, then 
+df_spzoom2B <-df_sp4B %>%
+    #filter(Cultivar!="N")%>%
+  #test here subset(Wavenumber <1700 & Wavenumber >1600) 
+   subset(Wavenumber <1800 & Wavenumber >850)
+  
+##graph if needed 
+# df_spzoom2B %>%
+#    ggplot(aes(x=Wavenumber,y=AbsorbanceNorm))+
+#   geom_line(aes(colour=factor(Block)))+
+#   theme_bw()+
+#   #scale_x_continuous(breaks=seq(min(df_sp$WaveNumber),max(df_sp$WaveNumber),by =50))+
+#   
+#   #scale_x_continuous(breaks=round(seq(min(df_sp$WaveNumber),max(df_sp$WaveNumber),by =50)))+
+#   facet_grid(Cultivar ~.) +
+#   #facet_grid(IncubationDays ~.) +
+#   scale_x_reverse()+
+#   theme_bw()+
+#   theme(axis.text.x = element_text(angle = 90, hjust = 1)) +
+#   expand_limits(y=c(0,0.2)) 
+#   #geom_abline(intercept = 0.1, slope = 0)
+  
+#write.table(df_sp33, "BaselinedMaxNorm1.txt") #this will be used to buil the graph (portion 1 of spectra)
+write.table(df_spzoom2B, "S 2_BaselinedMaxNormBlock2.txt") #this will be used to buil the graph (portion 1 of spectra)
+
+```
+
+Bind the two dataframes for analysis and bring the complete dataset 
+
+
+```{r}
+
+
+#total <- rbind(data frameA, data frameB)
+
+df_spzoom_1And2 <-rbind (df_spzoom1B,df_spzoom2B)
+
+
+#write.table(df_sp33, "BaselinedMaxNorm1.txt") #this will be used to buil the graph (portion 1 of spectra)
+write.table(df_spzoom_1And2, "S2_BaselinedMaxNormBlock1And2.txt") #this will be used to run the PCA
+
+
+
+```
+
 
 
 
@@ -386,4 +486,3 @@ now move o next script to run p values for each wavenumber
 
 
 End of this script
-next script generate equations for each cultivar separately from 5 to 15.4-5 degrees. 
