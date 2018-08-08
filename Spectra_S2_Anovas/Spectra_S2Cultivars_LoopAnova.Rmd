@@ -26,6 +26,8 @@ setwd("C:\\GitHubRepos\\SubCloverPhD\\SubClover\\Spectra_S2_Anovas")
 getwd()
 
 info <- read.table ("S2All.txt",  header = TRUE)
+##or launch the baselinedNormalised 
+
 
 summary (info)
 
@@ -52,66 +54,98 @@ write.table(info_av, "Absorb_Per_WL.txt")
 
 ```
 
-Loop throup spectra
+##Then transform spectra in Normalised spectra (used Mas. normalisation treatment on spectra )
+
+##Keep columns names like that prior loop (easy) 
 
 
 ```{r}
-# set limits
-mn<-min(info_av$wavelength)
-mx<-max(info_av$wavelength)
-wv <- unique(info_av$wavelength)
+info_av_norm <- info_av %>%
+  mutate(AbsorbanceNorm=Absorbance/max(Absorbance)) %>%
+  dplyr::select(-Hardness) %>%
+  ungroup()
+ 
+str(info_av_norm)
+
+```
+```{r}
+summary(info_av_norm)
+```
 
 
-##print(paste0("Loop from ",mn," to ", mx))
+
+Loop throup spectra
+
+Loop unique wavenumber 
+
+Compare cultivars within each wavelength
+
+```{r}
+
+info_av_norm$id<- paste0(info_av_norm$wavelength)
+idList <- unique(info_av_norm$id) 
+length(idList)
+
+print(paste0("Found ",length(idList)," wavelength by cultivar combinations to loop"))
 
 data.all <- data.frame()
 
 x <- 0 # for t test
 
-#select the inteval of the spectra to analyse 
-for(i in seq(from=1, to=length(wv), by=1)) {
+for (i in 1:length(idList)) {
   
-  #print(wv[i])
-  #print(paste0("Wavelength ",wv[i]))
+    #df <- df_sp2 %>%
+  df <- info_av_norm %>%
+    ungroup() %>%
+    mutate(Plot=factor(Plot),Cultivar=factor(Cultivar), Block=factor(Block)) %>%
+    subset(id == idList[i])
   
-  df <- info_av %>%
-  subset(wavelength == wv[i])
-  
-  my.anova <- aov(Absorbance ~ Cultivar + Block, data = df)
-  
-#  print(summary(my.anova))
-  
+  #my.anova <- aov(AbsValue ~ IncubationDays + Rep, data = df)
+  my.anova <- aov(AbsorbanceNorm ~ Cultivar + Block, data = df)
+    
+   
   pVals <- summary(my.anova)[[1]][["Pr(>F)"]]
-  
-  
-  # T test when P<0.05
+ 
+    # T test when P<0.05
   if(!is.nan(pVals[1]) & pVals[1] < 0.05) {
   
   x <- x + 1
   t_test <-  LSD.test(my.anova, c("Cultivar"), alpha= 0.05, p.adj="none")
-  lsd <- t_test$statistics[4]
+  lsd <- t_test$statistics[6] # getting  lsd
   
- # treats <- t(ttest$groups)[1,] # FIXME: in the case we need more info
- # mSep <- t(ttest$groups)[3,]
-
-  } else {
-    
-   lsd <- NA
-   
-  }
-  
-  this.data = data.frame(WL = wv[i], PV = pVals[1], LSD = lsd)
+  this.data <- data.frame(WaveNumber = df$wavelength[1], PV = pVals[1], LSD = lsd, Count=x)
   
   data.all <- rbind(data.all, this.data)
   
+  this.data <- NULL
+  
+  } else {
+    
+# do nothing
+   
+  }
+  
 }
 
-x
 
+
+```
+```{r}
+summary(data.all)
+```
+
+
+##---------------------till here is all good!
+```{r}
+
+
+#EMPTY
 ```
 
 ```{r}
-summary(data.all)
+#summary(data.all)
+
+
 ```
 
 ```{r, warning=FALSE}
