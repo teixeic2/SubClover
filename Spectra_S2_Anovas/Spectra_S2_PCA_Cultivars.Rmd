@@ -1,0 +1,479 @@
+---
+title: "Framework for PCA analysis "
+author: "CT"
+date: "05.08.2017
+output: html_document
+---
+- This script is the PCA analysis of the spectra of the S2 six cultivars from S2. 
+
+-Used guidelines from : http://www.sthda.com/english/articles/31-principal-component-methods-in-r-practical-guide/118-principal-component-analysis-in-r-prcomp-vs-princomp/
+
+
+```{r setup, include=FALSE, loadlibraires}
+#knitr::opts_chunk$set(echo = TRUE)
+library(tidyr)
+library (dplyr)
+library (ggplot2)
+library(agricolae)
+library(knitr)
+library (lubridate)
+library(scales)
+library(calibrate)
+library(factoextra)
+```
+
+# Get the segmented spectra  and continue here 
+```{r}
+
+
+setwd("C:\\GitHubRepos\\SubCloverPhD\\SubClover\\Spectra_S2_Anovas")
+getwd()
+
+#create file using the data from: "s2_Segmented_BaselinedMaxNorm1And2.txt"
+
+#this is the whole spectra :
+
+#df_G <- read.table("S2All.txt",header=TRUE)
+#this is the sniped  spectra :
+
+df_G <- read.table("S2_BaselinedMaxNormBlock1And2.txt",header=TRUE)
+
+str(df_G)
+```
+
+Here take the mean of each replicate !!Analyse at the replicate level!  To get the following treatment combinations : 
+A01
+A02
+A03
+M01
+M02
+M03
+A841
+A842
+A843
+M841
+M842
+M843
+
+
+select columns of interest and Adjust formats 
+```{r}
+
+#change formats
+df_G$Cultivar <- as.integer(df_G$Cultivar)
+df_G$Block <- as.integer(df_G$Block)
+#df_G$Wavenumber   <- as.factor(df_G$Wavenumber)
+df_G$Wavenumber  <- as.numeric(df_G$Wavenumber)
+
+#select columns and change name wavelenght for wavenumber (easy)
+# df_G <-df_G %>%
+#   mutate(Wavenumber = as.numeric(wavelength))%>%
+#   dplyr:: select (-wavelength)
+
+  #mutate_(Wavenumber=wavelength) 
+
+#dplyr:: select(Plot,Block,Cultivar)
+
+
+str(df_G)
+
+# this is to "clean previous dfs : df_emerg4 <- NULL
+```
+
+
+##Now you have the dataframe organized vertically: spread the wavenumber horizontally 
+
+
+
+```{r}
+
+#-------------here is just to produce a matrix to export to Unscrambleror PCA 
+
+#duplicated(df_G) 
+
+
+ df_U <- df_G %>%
+ mutate(Wavenumber=factor(Wavenumber)) %>%
+ group_by(Cultivar,Block, Wavenumber) %>%
+  summarise_all(funs(mean))  %>%
+   dplyr::select(Cultivar,Block, Wavenumber,AbsorbanceNorm) %>%
+   tidyr::spread(Wavenumber, AbsorbanceNorm)
+
+```
+
+
+
+## -------------here PCa starts
+
+##Prepare dataframe
+
+```{r}
+df_spRep <- df_U%>%
+#filter(Cultivar =="A")%>%
+#filter(IncubationDays!="0")%>%
+group_by(Cultivar, Block) %>%
+summarise_all(funs(mean))
+#dplyr::select(-Seed, -RowNo)
+  
+
+
+```
+Now you have the dataframe with the mean spectra values at replicate level! Then do the selection of columns of interest ...before re labelling of row names 
+
+```{r}
+
+df_spU <- df_spRep
+#filter(Cultivar =="A")%>%
+#filter(IncubationDays!="0")%>%
+#dplyr::select( -Plot, -Seed)
+
+#here define the wavenumbers ;set active row numbers and column of variables
+#df_sp.activeU <- df_spU[,1:25, 2:1738 ]
+
+df_sp.activeU <- df_spU[,1:25, 2:908 ]
+str(df_sp.activeU[, 1:6])
+
+
+head(df_sp.activeU[, 1:6])
+
+
+```
+
+##Re label row names per replicate (or Block is the same)  
+
+```{r}
+
+##attribute new labels 
+# row.names (df_sp.activeU) <-c("A0_1","A84_2","M0_1","M84_2")
+# # 
+# head (df_sp.activeU)
+
+#Re label row names per cultivar and block (replicate )
+row.names (df_sp.activeU) <-c("A_1","A_2","A_3",
+"D_1","D_2","D_3",
+"L_1","L_2","L_3",
+"M_1","M_2","M_3",
+"N_1","N_2","N_3",
+"W_1","W_2","W_3")
+
+# 
+ head (df_sp.activeU)
+
+#df_sp.activeU$row.name<-as.numeric(df_sp.activeU$row.name)
+
+```
+
+
+
+```{r readData}
+
+
+#Need to convert the cultivar names to numbers as numeric
+
+
+
+#compute PCA
+#res.pca <- prcomp (df_sp.active[,apply(df_sp.active, 2, var, na.rm=TRUE) != 0])
+
+res.pca <- prcomp(df_sp.activeU, scale = TRUE)
+#res.pca <- prcomp(df_sp.active)
+```
+
+## Visualize eigenvalues (scree plot). Show the percentage of variances explained by each principal component. 
+
+```{r, fig.height=5, fig.width=10}
+
+ 
+
+fviz_eig(res.pca)
+
+
+```
+
+
+
+
+##Graph of individuals. Individuals with a similar profile are grouped together. 
+
+## Add PC1 = 53% and PC2= 31% in axis titles 
+
+
+```{r, fig.height=5, fig.width=10}
+
+# fviz_pca_ind(res.pca,
+#              col.ind = "cos2", # Color by the quality of representation
+#              #col.ind = "Cultivar", 
+#              gradient.cols = c("#00AFBB", "#E7B800", "#FC4E07"),
+#              #gradient.cols = c("#00AFBB", "#E7B800"),
+#              geom="point",
+#              
+#              repel = TRUE     # Avoid text overlapping
+#              )
+
+
+fviz_pca_ind(res.pca,
+             col.ind = "cos2", # Color by the quality of representation
+             #gradient.cols = c("#00AFBB", "#E7B800", "#FC4E07"),
+             geom = c("point", "text"),
+             label = "all", invisible = "none", labelsize = 7,pointsize = 3,
+             repel = TRUE     # Avoid text overlapping
+             )+
+             scale_color_gradient2(low="light green", mid="green",
+      high="black", midpoint=0.6)+
+   theme_bw()+
+  # theme(axis.text.x=element_text(angle = 0, hjust = 0.5, size= 20))+
+  # theme(axis.text.y=element_text(angle = 0, hjust = 0, size= 20))+
+  theme(axis.text.y = element_text( size = 26))+
+theme(axis.title.y = element_text(face="bold", size=26))+
+theme(axis.text.x=element_text(angle = 0, hjust=0.5,vjust=0,size = 26,face="bold"))+
+theme(axis.title.x = element_text( face="bold", size=26))+
+  
+  
+  #remove grid lines 
+   theme(
+     panel.border = element_rect(colour = "black", size = 2), 
+     panel.grid.major = element_blank(),
+     panel.grid.minor = element_blank(),
+     axis.line = element_line(colour = "black"))+
+  
+#if need the axes labels 
+  xlab(expression(PC1~"(53%)"))+ 
+  ylab(expression(PC2~"(32%)")) +
+  xlim(-12, 12)+
+  ylim(-7, 7)
+
+   
+ 
+```
+
+
+##SAve the plot graph 
+
+```{r}
+
+ggsave("S2_plot_PC1andPC2.png", width=14, height=7, dpi=500)
+
+```
+
+
+
+Separate by groups for Antas 
+
+```{r, fig.height=6, fig.width=12}
+fviz_pca_ind(res.pca, label="none", habillage=df_sp.activeU$Cultivar)
+df_sp.activeU
+
+# Add ellipses
+p <- fviz_pca_ind(res.pca, label="none", habillage=df_sp.activeU$Cultivar,
+             addEllipses=TRUE, ellipse.level=0.2, alpha=0.95)+
+  #scale_color_brewer(palette="Set1") +
+     theme_minimal()
+print(p)
+```
+
+
+PC contributions 
+
+```{r, fig.height=5 , fig.width=30}
+
+# Contributions of variables to PC1
+fviz_contrib(res.pca, choice = "var", axes = 1, top = 20)
+# Contributions of variables to PC2
+fviz_contrib(res.pca, choice = "var", axes = 2, top = 20)
+
+```
+
+
+
+
+## Graph of variables. Positive correlated variables point to the same side of the plot. Negative correlated variables point to opposite sides of the graph.
+
+```{r, fig.height=5, fig.width=10}
+
+fviz_pca_var(res.pca,
+             col.var = "contrib", # Color by contributions to the PC
+             gradient.cols = c("#00AFBB", "#E7B800", "#FC4E07"),
+             repel = TRUE     # Avoid text overlapping
+             )
+
+
+
+```
+
+Biplot of individuals and variables 
+
+```{r}
+
+fviz_pca_biplot(res.pca, repel = TRUE,
+                col.var = "#2E9FDF", # Variables color
+                col.ind = "#696969"  # Individuals color
+                )
+```
+
+Access to PCA results 
+
+```{r}
+library(factoextra)
+# Eigenvalues
+eig.val <- get_eigenvalue(res.pca)
+eig.val
+  
+# Results for Variables
+res.var <- get_pca_var(res.pca)
+res.var$coord          # Coordinates
+res.var$contrib        # Contributions to the PCs
+res.var$cos2           # Quality of representation 
+# Results for individuals
+res.ind <- get_pca_ind(res.pca)
+res.ind$coord          # Coordinates
+res.ind$contrib        # Contributions to the PCs
+res.ind$cos2           # Quality of representation 
+   
+  
+```
+
+
+Predict using PCA
+In this section, we'll show how to predict the coordinates of supplementary individuals and variables using only the information provided by the previously performed PCA.
+
+Supplementary individuals
+Data: rows 24 to 27 and columns 1 to to 10 [in decathlon2 data sets]. The new data must contain columns (variables) with the same names and in the same order as the active data used to compute PCA.
+
+```{r}
+
+
+# Data for the supplementary individuals
+ind.sup <- decathlon2[24:27, 1:10]
+ind.sup[, 1:6]
+```
+
+Predict the coordinates of new individuals data. Use the R base function predict():
+
+
+```{r}
+
+ind.sup.coord <- predict(res.pca, newdata = ind.sup)
+ind.sup.coord[, 1:4]
+```
+
+
+```{r, fig.height=5, fig.width=10}
+# Plot of active individuals
+p <- fviz_pca_ind(res.pca, repel = TRUE)
+# Add supplementary individuals
+fviz_add(p, ind.sup.coord, color ="blue")
+```
+
+
+
+
+Supplementary variables
+Qualitative / categorical variables
+The data sets decathlon2 contain a supplementary qualitative variable at columns 13 corresponding to the type of competitions.
+
+Qualitative / categorical variables can be used to color individuals by groups. The grouping variable should be of same length as the number of active individuals (here 23).
+
+```{r}
+
+groups <- as.factor(decathlon2$Competition[1:23])
+fviz_pca_ind(res.pca,
+             col.ind = groups, # color by groups
+             palette = c("#00AFBB",  "#FC4E07"),
+             addEllipses = TRUE, # Concentration ellipses
+             ellipse.type = "confidence",
+             legend.title = "Groups",
+             repel = TRUE
+             )
+
+
+```
+
+
+Theory behind PCA results
+PCA results for variables
+Here we'll show how to calculate the PCA results for variables: coordinates, cos2 and contributions:
+
+var.coord = loadings * the component standard deviations
+var.cos2 = var.coord^2
+var.contrib. The contribution of a variable to a given principal component is (in percentage) : (var.cos2 * 100) / (total cos2 of the component)
+
+
+```{r}
+# Helper function 
+#::::::::::::::::::::::::::::::::::::::::
+var_coord_func <- function(loadings, comp.sdev){
+  loadings*comp.sdev
+}
+# Compute Coordinates
+#::::::::::::::::::::::::::::::::::::::::
+loadings <- res.pca$rotation
+sdev <- res.pca$sdev
+var.coord <- t(apply(loadings, 1, var_coord_func, sdev)) 
+head(var.coord[, 1:4])
+```
+
+
+```{r}
+# Compute Cos2
+#::::::::::::::::::::::::::::::::::::::::
+var.cos2 <- var.coord^2
+head(var.cos2[, 1:4])
+```
+
+
+```{r}
+# Compute contributions
+#::::::::::::::::::::::::::::::::::::::::
+comp.cos2 <- apply(var.cos2, 2, sum)
+contrib <- function(var.cos2, comp.cos2){var.cos2*100/comp.cos2}
+var.contrib <- t(apply(var.cos2,1, contrib, comp.cos2))
+head(var.contrib[, 1:4])
+```
+
+
+PCA results for individuals
+ind.coord = res.pca$x
+Cos2 of individuals. Two steps:
+Calculate the square distance between each individual and the PCA center of gravity: d2 = [(var1_ind_i - mean_var1)/sd_var1]^2 + .+ [(var10_ind_i - mean_var10)/sd_var10]^2 + .+..
+Calculate the cos2 as ind.coord^2/d2
+Contributions of individuals to the principal components: 100 * (1 / number_of_individuals)*(ind.coord^2 / comp_sdev^2). Note that the sum of all the contributions per column is 100
+
+
+```{r}
+# Coordinates of individuals
+#::::::::::::::::::::::::::::::::::
+ind.coord <- res.pca$x
+head(ind.coord[, 1:4])
+```
+
+
+```{r}
+# Cos2 of individuals
+#:::::::::::::::::::::::::::::::::
+# 1. square of the distance between an individual and the
+# PCA center of gravity
+center <- res.pca$center
+scale<- res.pca$scale
+getdistance <- function(ind_row, center, scale){
+  return(sum(((ind_row-center)/scale)^2))
+  }
+d2 <- apply(decathlon2.active,1,getdistance, center, scale)
+# 2. Compute the cos2. The sum of each row is 1
+cos2 <- function(ind.coord, d2){return(ind.coord^2/d2)}
+ind.cos2 <- apply(ind.coord, 2, cos2, d2)
+head(ind.cos2[, 1:4])
+```
+
+
+```{r}
+# Contributions of individuals
+#:::::::::::::::::::::::::::::::
+contrib <- function(ind.coord, comp.sdev, n.ind){
+  100*(1/n.ind)*ind.coord^2/comp.sdev^2
+}
+ind.contrib <- t(apply(ind.coord, 1, contrib, 
+                       res.pca$sdev, nrow(ind.coord)))
+head(ind.contrib[, 1:4])
+```
+
+

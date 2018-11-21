@@ -235,12 +235,14 @@ Now subset only the data to use in the ESA2018 paper : S2 (July) : Monti and Ant
 
 df_Subset <- df_cum_soft %>%
   filter(SowTreat=="S2")%>%
-  filter(Cultivar=="Antas"|Cultivar=="Monti" )%>%
+  filter(Cultivar=="Antas"|Cultivar=="Monti"|Cultivar=="Narrikup" )%>%
   filter (Round=="14" |Round=="98" )
   
 
 
 ```
+
+
 
 
 Then make the bar Graph . 
@@ -250,7 +252,8 @@ Calculate SE = sd/sqrt of n (n=6, )
 
 #graph with dark and ccream colours 
 df_graf2 <-df_Subset %>%
-group_by(Cultivar,Round) %>%
+#group_by(Cultivar,Round,Block) %>%
+  group_by(Cultivar,Round) %>%
   dplyr::select(HardAccum) %>%
   summarise_all(funs(mean,sd)) 
 

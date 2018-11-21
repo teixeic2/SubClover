@@ -13,6 +13,7 @@ This script calculates the Thermal time using the incubator temperatures :
 1. hourly as average of the 30minutes  measurements 
 2. simple bilinear method ;consider tb, topt and tmax estimated 
 3. use all datapoints  datapoints for each linear ascending equation (2.5-35)
+4. that is a "flexible script" need to turn comment in and out functions!!! (cultivar for example )
 
 
 
@@ -43,16 +44,16 @@ And a generic proposed funciton uses : 0 ,20 and 35
 							
 ```{r}
 #Antas
-#tt_card <- data.frame(temp=c(-2.7,22,22,36),TT=c(0,22,22,0))
+#tt_card <- data.frame(temp=c(-4.5,22,22,36),TT=c(0,22,22,0))
 
 #Denmark
-#tt_card <- data.frame(temp=c(1.7,24,24,35),TT=c(0,24,24,0))
+#tt_card <- data.frame(temp=c(1.6,24,24,35),TT=c(0,24,24,0))
 
 #Monti
-#tt_card <- data.frame(temp=c(-0.7,19,19,37),TT=c(0,19,19,0))
+#tt_card <- data.frame(temp=c(-0.8,19,19,39),TT=c(0,19,19,0))
 
 #Narrikup
-tt_card <- data.frame(temp=c(0.9,16,16,39),TT=c(0,19,19,0))
+tt_card <- data.frame(temp=c(0.7,16,16,39),TT=c(0,19,19,0))
 
 #Generic
 #tt_card <- data.frame(temp=c(0,20,20,35),TT=c(0,20,20,0))
@@ -65,7 +66,7 @@ tt_card %>%
   labs(y="Thermal Time (degree days)") +
   xlab(expression(Temperature~~"("^"o"*"C)"))+
   ylab(expression(Thermal~time~~"("^"o"*"Cd)"))+
-  xlim(-3, 40)+
+  xlim(-5, 40)+
   theme_bw()+
   #geom_smooth
   geom_line()+
@@ -100,7 +101,7 @@ theme(axis.text.y=element_text(angle = 0, hjust = 0, size= 14))
 
 #generic
 
- ggsave("plot_BilinearGeneric.png", width=12, height=6, dpi=400)
+# ggsave("plot_BilinearGeneric.png", width=12, height=6, dpi=400)
 
 ```
 
@@ -237,9 +238,12 @@ str(df_GDates)
 # select cultivars of interest , temperatures of interest and then only Plot and StartDate
 
 D<-df_GDates %>%
-  ###ATTENTION HERE - no select only cultivar ! 
   #subset(Temp>2 & Temp<17.7)%>%
+  ###ATTENTION HERE - no select only cultivar ! 
   filter(Cultivar=="Narrikup") %>%
+  #filter(Cultivar=="Monti") %>%
+  #filter(Cultivar=="Denmark") %>%
+  #filter(Cultivar=="Antas") %>%
   dplyr::select(Plot,startDate)%>%
   mutate(startDate=dmy(startDate))
   
@@ -340,12 +344,16 @@ df2 <-  merge(df1,df_H, by="Date") %>%
 str(df2)
 
 
-```
+``` 
+
+
+
 get the means for each cultivar 
 
 ```{r}
 
 dfMean_Allcv<- df2 %>%
+  group_by(Block)%>%
   #group_by(Cultivar)%>%
   dplyr::select(SumTTGerm)%>%
   summarise_all(funs(mean,sd))%>%

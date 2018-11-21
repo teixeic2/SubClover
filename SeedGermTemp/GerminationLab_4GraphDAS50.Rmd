@@ -1,5 +1,5 @@
 ---
-title: "Germination Seeds different Temperatures  4Cultivar"
+title: "Germination Seeds different Temperatures  4Cultivars"
 author: "CT"
 date: " September  2017"
 output: html_document
@@ -37,6 +37,16 @@ df_seed <- df_seed %>%
 
 summary(df_seed) # explore values
 str(df_seed) # check formats
+```
+
+
+
+```{r}
+
+
+##write.table(dMaxBlock, "df_SeedGermMaxBlock.txt")
+
+
 ```
 
 

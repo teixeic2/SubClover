@@ -1,0 +1,657 @@
+---
+title: 'Seed Germination Max_DAS50 and rate _Stats summary  '
+author: "CT"
+date: "09.10.2018"
+output
+  pdf_document: default
+  html_document: default
+  word_document: default
+---
+
+This script does this:
+
+-get dataframe produced with previous scripts (organized in excel _ AnalysisSeed GermTemps - folder PhD Analysis_DataAnalysisOrigin) for each cultivar and block
+- created file is : DataOriginCv_MaxDAS50Rate.txt
+- Calculates the SE and Ci for each.  run anova   
+
+
+
+```{r loadLibraries, warning=FALSE}
+library(tidyr)
+library(dplyr)
+library(ggplot2)
+library(agricolae)
+library(knitr)
+library(lubridate)
+library(mosaic)
+library(lattice)
+library (gridExtra)
+library (rcompanion)
+library(knitr) 
+
+```
+
+get file 
+
+```{r loadFile}
+# Get dataframe from previous script (written table )
+setwd("C:\\GitHubRepos\\SubCloverPhD\\SubClover\\SeedGermTemp")
+getwd()
+
+#create file
+#df_G <- read.table("df_RateGerm2.txt",header=TRUE)
+df_Data <- read.table("DataOriginCv_MaxDAS50Rate.txt",header=TRUE)
+
+
+str(df_Data)
+summary (df_Data)
+
+```
+
+select columns of interest and Adjust formats 
+```{r}
+
+#change formats
+df_Data$Cultivar <- as.factor(df_Data$Cultivar)
+df_Data$Block <- as.factor(df_Data$Block)
+df_Data$Origin <- as.factor(df_Data$Origin)
+df_Data$Temp <- as.numeric(df_Data$Temp)
+df_Data$Variate <- as.factor(df_Data$Variate)#note Temp here needs to be numeric for subseting 
+df_Data$Value <- as.numeric(df_Data$Value)#note Temp here needs to be numeric for subseting
+
+
+# this is to "clean previous dfs : df_emerg4 <- NULL
+```
+
+Get overall means and se 
+
+```{r}
+
+df_Allmeans<- df_Data%>%
+  group_by(Origin,Variate,Temp) %>%
+  dplyr::select( Variate, Value)%>%
+  summarise_all(funs(mean(Value),sd))%>%
+  mutate(SE=sd/2)
+
+
+
+
+```
+
+Plot Temp in x axis and variate in y axis. Create symbols per origin. 
+
+
+```{r, fig.height=7, fig.width=15}
+
+
+#Here how to create the end error bar with max Sd 
+# find size of bar per month
+# find single position of x y to put the bar
+
+str(df_Allmeans)
+
+extraPos<- 1.10 # extra position for single error bar
+ #extraPos<- 0.5 # extra position for single error bar
+  #x_max<-max(df_Allmeans$Temp)
+  #y_max<-max(df_Allmeans$mean)
+ #try min to visualise bars in graph 
+ x_min<-min(df_Allmeans$Temp)
+ y_min <-min(df_Allmeans$mean)
+
+# find largest standard error
+ sd_df2 <- df_Allmeans %>% 
+#   #group_by(Temp) # 
+   group_by(Origin,Variate) %>%
+   dplyr::select(sd) %>%
+   summarise_all(max) %>%
+#summarise(max_sd = max(sd)) %>% 
+   ungroup() %>%
+   rowwise() %>%
+#   #rename variables
+   #mutate(Temp = x_max*extraPos, mean = y_max*extraPos,max_sd=sd )
+ mutate(Temp = x_min*extraPos, mean = y_min*extraPos,max_sd=sd )
+# 
+ str(sd_df2)
+
+#divide sd/2 as number of replicates were 4 
+
+df_graphic<-df_Allmeans
+ 
+  
+df_graphic%>%
+ggplot(aes(x=Temp, y=mean)) + 
+  geom_point(aes(shape= Origin), size=5)+
+  #scale_shape_manual(values = c(0,1,2,3,4,5,6,7,8,9,10,11))+
+  geom_line(aes(width=Origin))+
+  #geom_point(aes(shape=Temp),size=4)+
+  #scale_shape_manu(al(values = c(0,1,2,3,4))+
+   #scale_shape_manual(values = c(0,1,2,3,4,5,6,7,8,9,10)) +
+  #scale_shape_manual(values = c(1,2,4,7))+
+  #geom_line()+
+  geom_errorbar(data=sd_df2, aes(ymin=mean-max_sd/4,
+                    ymax=mean+max_sd/4), size=2)+
+  
+  #geom_errorbar(data=sd_df2, aes(ymin=mean-(sd/4),
+                    #ymax=mean+(sd/4)))+
+  facet_wrap(~Variate,ncol=3, scales = "free")+
+  #facet_grid(Variate~., scales = "free")+
+   #facet_wrap(~Variate,ncol=3)+
+  theme_bw()+
+  #scale_x_continuous(breaks = c(5,10,15,20,30))+
+  #ylim(0, 145)+
+  #scale_y_continuous(breaks = c(0,25,50,75,100))+
+  #xlim(0, 23)+
+  #labs(y="Mean cumulative germination (%)")+ 
+  xlab(expression(Temperature~"("^"o"*"C)"))+
+  #theme(axis.title.x = element_text( size=24)) + scale_x_continuous(breaks = c(0:6))+
+  theme(text=element_text(size=22 ))+
+  theme(title=element_text(size=22, face="bold"))+
+  theme(title=element_text(size=22,  face="bold"))+
+   #remove grid lines 
+     theme(
+     panel.border = element_rect(colour = "black"  , size = 2.0), 
+     panel.grid.major = element_blank(),
+     panel.grid.minor = element_blank(),
+     
+     axis.line = element_line(colour = "black", size= 1))+
+
+#make Cultivars  white  
+   theme(strip.background = element_rect(colour = "black", fill = "white",size=2))+
+  
+  #label sizes 
+theme(text = element_text(size = 26))
+  
+  #geom_abline(intercept = 50, slope = 0)
+
+
+#ggsave("plot_CumulativeGermCv.png", width=12, height=10, dpi=500)
+
+
+
+
+```
+
+
+
+try as facet wrap (can not add distinct error bars )
+
+
+
+```{r, fig.height=7, fig.width=20}
+
+#  df_graphic1%>%
+#   
+#                            
+# df_graphic$ Variate <- as.factor(rep(c("A","B","C"), each = length (Temp))) 
+ 
+df_graphic%>% 
+ggplot(aes(x=Temp, y=mean)) + 
+  geom_point(aes(shape= Origin), size=8)+
+  scale_shape_manual(values = c(1,19))+
+  geom_line(aes(width=Origin))+
+   #scale_shape_manual(values = c(0,1,))+
+   #scale_shape_manual(values = c(0,1,2,3,4,5,6,7,8,9,10)) +
+  #scale_shape_manual(values = c(1,2,4,7))+
+  #geom_line()+
+  # geom_errorbar(data=sd_df2, aes(ymin=mean-max_sd/4,
+                     #ymax=mean+max_sd/4), size=2) +
+    geom_errorbar (aes(ymin=mean-SE/2,
+                     ymax=mean+SE/2), size=0.8) +
+  
+  #facet_grid(Variate~., scales = "free")+
+   #facet_wrap(~Variate,ncol=3)+
+  theme_bw()+
+  #scale_x_continuous(breaks = c(5,10,15,20,30,40))+
+  #ylim(0, 145)+
+  #scale_y_continuous(breaks = c(0,25,50,75,100))+
+  #xlim(0, 23) +
+  
+  
+  facet_wrap(~Variate,ncol=3, scales = "free_y", strip.position = "left", 
+             labeller= as_labeller(c(DAS50E="Time to T50 (days)", MaxGerm = "Maximum Germination (%)", Rate ="Rate (1/days)" ))) +
+  ylab(NULL)+
+  expand_limits (x=0,y=0)+ 
+  #scale_x_continuous(expand= c(0,0)) + scale_y_continuous(expand= c(0,0))+
+  #xlim(0, 40) +
+  
+  #labs(y="Mean cumulative germination (%)")+ 
+  xlab(expression(Temperature~"("^"o"*"C)"))+
+  #theme(axis.title.x = element_text( size=24)) + scale_x_continuous(breaks = c(0:6))+
+  theme(text=element_text(size=22 ))+
+  theme(title=element_text(size=22, face="bold"))+
+  theme(title=element_text(size=22,  face="bold"))+
+   #remove grid lines 
+     theme(
+     panel.border = element_rect(colour = "black"  , size = 2.0), 
+     panel.grid.major = element_blank(),
+     panel.grid.minor = element_blank(),
+     
+     axis.line = element_line(colour = "black", size= 1))+
+
+#make Cultivars  white  
+   theme(strip.background = element_rect(colour = "white", fill = "white",size=2), strip.placement = "outside")+
+  
+  #label sizes 
+theme(text = element_text(size = 26))
+  
+  #geom_abline(intercept = 50, slope = 0)
+
+
+ggsave("plot_Panel_Origin_DASMaxGerm_Rate.png", width=18, height=8, dpi=500)
+
+
+
+```
+
+
+Here do by individual variate (error bar inclusion issue)
+
+```{r, fig.height=7, fig.width=15}
+
+
+
+df_graphDAS <-df_Allmeans%>%
+  filter(Variate=="DAS50E")
+ 
+
+#Here how to create the end error bar with max Sd 
+# find size of bar per month
+# find single position of x y to put the bar
+
+#str(df_Allmeans)
+
+extraPos<- 1.10 # extra position for single error bar
+ #extraPos<- 0.5 # extra position for single error bar
+  x_max<-max(df_graphDAS$Temp)
+  y_max<-max(df_graphDAS$mean)
+ #try min to visualise bars in graph 
+ #x_min<-min(df_graphDAS$Temp)
+ #y_min <-min(df_graphDAS$mean)
+
+# find largest standard error
+ sd_df3 <- df_graphDAS %>% 
+#   #group_by(Temp) # 
+   group_by(Origin) %>%
+   dplyr::select(sd) %>%
+   summarise_all(max) %>%
+#summarise(max_sd = max(sd)) %>% 
+   ungroup() %>%
+   rowwise() %>%
+#   #rename variables
+   #mutate(Temp = x_max*extraPos, mean = y_max*extraPos,max_sd=sd )
+ mutate(Temp = x_max*extraPos, mean = y_max*extraPos,max_sd=sd )
+# 
+ str(sd_df3)
+
+#divide sd/2 as number of replicates were 4 to get SE then divide / 2 to split SE
+
+ ###########################
+
+df_graphDAS %>%
+ggplot(aes(x=Temp, y=mean)) + 
+  geom_point(aes(shape= Origin), size=5)+
+  #scale_shape_manual(values = c(0,1,2,3,4,5,6,7,8,9,10,11))+
+  geom_line(aes(width=Origin))+
+  #geom_point(aes(shape=Temp),size=4)+
+  #scale_shape_manu(al(values = c(0,1,2,3,4))+
+   #scale_shape_manual(values = c(0,1,2,3,4,5,6,7,8,9,10)) +
+  #scale_shape_manual(values = c(1,2,4,7))+
+  #geom_line()+
+  geom_errorbar(data=sd_df3, aes(ymin=mean-max_sd/4,
+                    ymax=mean+max_sd/4), size=2)+
+  
+  #geom_errorbar(data=sd_df2, aes(ymin=mean-(sd/4),
+                    #ymax=mean+(sd/4)))+
+  #facet_wrap(~ Origin,ncol=1, scales = "free")+
+  #facet_grid(Variate~., scales = "free")+
+   #facet_wrap(~Variate,ncol=3)+
+  theme_bw()+
+  #scale_x_continuous(breaks = c(5,10,15,20,30))+
+  #ylim(0, 145)+
+  #scale_y_continuous(breaks = c(0,25,50,75,100))+
+  #xlim(0, 23)+
+  #labs(y="Mean cumulative germination (%)")+ 
+  xlab(expression(Temperature~"("^"o"*"C)"))+
+  #theme(axis.title.x = element_text( size=24)) + scale_x_continuous(breaks = c(0:6))+
+  theme(text=element_text(size=22 ))+
+  theme(title=element_text(size=22, face="bold"))+
+  theme(title=element_text(size=22,  face="bold"))+
+   #remove grid lines 
+     theme(
+     panel.border = element_rect(colour = "black"  , size = 2.0), 
+     panel.grid.major = element_blank(),
+     panel.grid.minor = element_blank(),
+     
+     axis.line = element_line(colour = "black", size= 1))+
+
+#make Cultivars  white  
+   theme(strip.background = element_rect(colour = "black", fill = "white",size=2))+
+  
+  #label sizes 
+theme(text = element_text(size = 26))
+  
+  #geom_abline(intercept = 50, slope = 0)
+
+
+#ggsave("plot_CumulativeGermCv.png", width=12, height=10, dpi=500)
+
+
+
+
+```
+
+
+
+```{r}
+
+
+
+
+## Create a Loop ANOVA for variate 
+
+
+## Create index to filter for loop ANOVA
+
+y <- c("DAS50E","MaxGerm", "Rate")
+
+sdIndex <- unique(df_Data$Variate)
+
+sdIndex[order(match(sdIndex,y))]
+
+length(sdIndex)
+sdIndex
+
+
+```
+
+
+
+Loop Anova 
+
+
+## Then loop anova for each individual variate xplore effect of Origin  
+
+```{r}
+for (i in 1:length(sdIndex)) {
+  
+ #print(i)
+ print(paste0(sdIndex[i],"--------------------------------"))
+  
+  file.subset <- df_Data %>%
+  filter(Variate==sdIndex[i])
+  
+ 
+head(file.subset, 50)
+   summary(file.subset)
+my.anova <- aov(Value ~ Origin + Block, data = file.subset)
+print(summary(my.anova))
+
+
+
+if ((summary(my.anova)[[1]][["Pr(>F)"]][1])<0.05) {
+  print("***Sig Origin***") 
+  print((LSD.test(my.anova, c("Origin"), alpha= 0.05, p.adj="none"))) } 
+
+
+if ((summary(my.anova)[[1]][["Pr(>F)"]][1])>0.05) {
+  print("***Sig  Origin***") 
+  print((LSD.test(my.anova, c("Origin"), alpha= 0.05, p.adj="none"))) } 
+
+# make mean separation if significant
+
+(LSD.test(my.anova, c("Origin"), alpha= 0.05, p.adj="none"))
+  
+}
+
+
+```
+
+
+
+
+## Then loop anova for each individual variate xplore effect of Origin  
+
+```{r}
+for (i in 1:length(sdIndex)) {
+  
+ #print(i)
+ print(paste0(sdIndex[i],"--------------------------------"))
+  
+  file.subset <- df_Data %>%
+  filter(Variate==sdIndex[i])
+  
+ 
+head(file.subset, 50)
+   summary(file.subset)
+my.anova <- aov(Value ~ Origin*Temp + Block, data = file.subset)
+print(summary(my.anova))
+
+
+
+if ((summary(my.anova)[[1]][["Pr(>F)"]][1])<0.05) {
+  print("***Sig Origin***") 
+  print((LSD.test(my.anova, c("Origin","Temp"), alpha= 0.05, p.adj="none"))) } 
+
+
+if ((summary(my.anova)[[1]][["Pr(>F)"]][1])>0.05) {
+  print("***Sig  Origin***") 
+  print((LSD.test(my.anova, c("Origin","Temp"), alpha= 0.05, p.adj="none"))) } 
+
+# make mean separation if significant
+
+(LSD.test(my.anova, c("Origin","Temp"), alpha= 0.05, p.adj="none"))
+  
+}
+
+
+```
+
+
+then explore data of Tb  to get the Ci ; exampleplant.mod1 = lm(weight ~ group, data = plant.df). Filter the Tb first 
+
+
+
+```{r}
+df_Tb<-df_Data %>%
+  filter(Variate=="Tb")
+  
+
+#then do the lm 
+
+plant.mod1 = lm(Value ~ Cultivar, data = df_Tb)
+
+#call first summary 
+summary(plant.mod1)
+
+```
+
+Visualise  with the t.test the overall confidence interval for Tb, Tmax and Topt 
+
+```{r}
+#this gives an overview of all values 
+#t.test(df_Tb$Value,conf.level = 0.95)
+ 
+
+#here only for Tb :
+
+groupwiseMean(Value~Cultivar,
+              data=df_Tb,
+              conf= 0.95,
+              digits=3)
+
+```
+
+
+
+```{r}
+
+#t.test(df_Tb$Value,conf.level = 0.95)
+ 
+#here for Tmax
+
+groupwiseMean(Value~Cultivar,
+              data=df_Tmax,
+              conf= 0.95,
+              digits=3)
+
+```
+
+
+```{r}
+
+#t.test(df_Tb$Value,conf.level = 0.95)
+ 
+#here for Topt 
+
+groupwiseMean(Value~Cultivar,
+              data=df_Topt,
+              conf= 0.95,
+              digits=3)
+
+```
+
+
+
+Other data explorations  using confit but is outdated as R companion library was installed! 
+
+
+```{r}
+
+#anova lm 
+anova(plant.mod1)
+
+
+```
+
+
+
+```{r}
+
+confint(plant.mod1)
+
+```
+
+
+```{r}
+
+ggplot(df_Tb, aes(x = Cultivar, y = Value)) +
+  geom_boxplot(fill = "grey80", colour = "black") +
+  scale_x_discrete() +
+  #ylim(-8,10)+
+  xlab("Cultivar") +
+  ylab("Temperature")
+
+
+```
+
+
+
+
+Now do the same with the Tmax 
+
+
+```{r}
+df_Tmax<-df_Data %>%
+  filter(Variate=="Tmax")
+  
+
+#then do the lm 
+
+plant.mod2 = lm(Value ~ Cultivar, data = df_Tmax)
+
+#call first summary 
+summary(plant.mod2)
+
+```
+
+
+
+```{r}
+
+#anova lm 
+anova(plant.mod2)
+
+
+```
+
+
+
+```{r}
+
+confint(plant.mod2)
+
+```
+
+
+
+```{r}
+
+ggplot(df_Tmax, aes(x = Cultivar, y = Value)) +
+  geom_boxplot(fill = "grey80", colour = "black") +
+  scale_x_discrete() +
+  #ylim(-8,3)+
+  xlab("Cultivar") +
+  ylab("Temperature")
+
+```
+
+
+
+
+
+Now Run analysis for the Topt 
+
+
+
+
+```{r}
+df_Topt<-df_Data %>%
+  filter(Variate=="Topt")
+  
+
+#then do the lm 
+
+plant.mod3 = lm(Value ~ Cultivar, data = df_Topt)
+
+#call first summary 
+summary(plant.mod3)
+
+```
+
+
+
+```{r}
+
+#anova lm 
+anova(plant.mod3)
+
+
+```
+
+
+
+```{r}
+
+confint(plant.mod3)
+
+```
+
+
+
+```{r}
+
+ggplot(df_Tmax, aes(x = Cultivar, y = Value)) +
+  geom_boxplot(fill = "grey80", colour = "black") +
+  scale_x_discrete() +
+  #ylim(-8,3)+
+  xlab("Cultivar") +
+  ylab("Temperature")
+
+```
+
+
+
+
+
+End of this script
+next script generate equations for each cultivar separately from 5 to 15.4-5 degrees. 

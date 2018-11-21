@@ -1,0 +1,161 @@
+---
+title: "Relationship between redsocre and biomass  "
+author: "CT"
+date: "17.08.2017"
+output: html_document
+---
+
+This script does this:
+
+-get dataframe for red score and spring biomass for the 16 cv dataset 
+-need to exclude white clover and whatatwhata for teh cold paper 
+
+##path is : C:\GitHubRepos\SubCloverPhD\SubClover\RedScoreBiomass16Cv
+##file : RedBiomass
+
+```{r loadLibraries, warning=FALSE}
+library(tidyr)
+library(dplyr)
+library(ggplot2)
+library(agricolae)
+library(knitr)
+library(lubridate)
+library(mosaic)
+library(lattice)
+library (gridExtra)
+```
+
+get file 
+
+```{r loadFile}
+# Get dataframe from previous script (written table )
+setwd("C:\\GitHubRepos\\SubCloverPhD\\SubClover\\RedScoreBiomass16Cv")
+getwd()
+
+#create file
+
+#df_G <- read.table("RateEmerg_SoilTemp_IverPokComb.txt",header=TRUE)
+
+df_G <- read.table("RedBiomass.txt",header=TRUE)
+
+```
+
+select columns of interest and Adjust formats 
+```{r}
+
+#change formats
+df_G$Cultivar <- as.factor(df_G$Cultivar)
+df_G$Block <- as.factor(df_G$Block)
+df_G$Plot <- as.factor(df_G$Plot)
+#df_G$Location <- as.factor(df_G$Location)
+
+
+str(df_G)
+
+#select columns and select out whata and Nomad Wc
+df_G1 <-df_G %>%
+dplyr:: select(Block,Cultivar,Cloverkg.ha ,RedScore)%>%
+  filter(Cultivar != "Whatawhata" & Cultivar != "Nomad_Wc")
+  
+
+
+str(df_G1)
+
+
+```
+
+
+
+
+```{r}
+
+
+df_A3 <-df_G1 %>%
+  dplyr::select(Cultivar, Cloverkg.ha, RedScore , Block) %>%
+  group_by(Cultivar) %>%
+  summarise_all(funs(mean)) %>%
+  mutate(y=Cloverkg.ha,x=RedScore) 
+  #dplyr::select(-meanTemp_Em, -InvDAS50E, -Plot)
+
+str(df_A3)
+
+```
+
+got the means here ... and graph it
+
+```{r, fig.height=5, fig.width=10, echo = FALSE}
+df_A3%>%
+ggplot(aes(x=x, y=y, colour=Cultivar))  +
+  geom_point(alpha=0.8, size= 3) +
+  #geom_smooth(colour="red")+
+  #stat_smooth(level = 0.9, size = 1, colour="white") + 
+  theme_bw() +
+  #xlab(expression(Red~Score~~"("^"o"*"C)")) + 
+  xlab(expression(Red~Score~~"(%)")) +
+  ylab(" Mean clover yield (kg/ ha) ") +
+  #facet_grid(.~Cultivar, scales="free")+
+  theme(text = element_text(size=12))+
+ scale_x_continuous(limits = c(0,100))+
+  scale_y_continuous(limits = c(0,7000))
+
+
+# 
+
+```
+
+
+
+here get the equations   
+
+```{r, fig.height=5,fig.width=10}
+require(ggplot2)
+require(plyr)
+require(dplyr)
+
+lm_eqn = function(df){
+  m = lm(y ~ x, df);
+  eq <- substitute(italic(y) == a + b %.% italic(x)*","~~italic(r)^2~"="~r2, 
+                   list(a = format(coef(m)[1], digits = 2), 
+                        b = format(coef(m)[2], digits = 2), 
+                        r2 = format(summary(m)$r.squared, digits = 3)))
+  as.character(as.expression(eq));                 
+}
+
+#use all datapoints 
+df <- df_G1 %>%
+  #dplyr::select(SowTreat,Cultivar, Plot, meanTemp_Em, InvDAS50E, Location) %>%
+  dplyr::select(Cultivar, Cloverkg.ha, RedScore , Block)%>%
+  group_by(Cultivar) %>%
+  summarise_each(funs(mean)) %>%
+  mutate(y=Cloverkg.ha,x=RedScore) %>%
+  dplyr::select(-Cloverkg.ha, -RedScore)
+
+eq <- ddply(df,.(Cultivar),lm_eqn)
+
+yx<-quantile(df$y,0.75)
+xn<- quantile(df$x,0.25)
+
+p <- ggplot(data = df, aes(x = x, y = y)) +
+  geom_smooth(method = "lm", se=FALSE, color="black", formula = y ~ x) +
+  geom_point(aes(colour = factor(Cultivar)), size=5) + scale_shape(solid = FALSE)+ 
+  
+  theme_bw()+
+  scale_x_continuous(limits = c(0,100))+
+  scale_y_continuous(limits = c(0,5000))
+
+p1 <- p + geom_text(data=eq,aes(x = xn, y = yx,label=V1), parse = TRUE, inherit.aes=FALSE)
+#+ 
+ # facet_grid(Cultivar~.,scales="free")
+  
+p1
+```
+
+
+```{r}
+#get statistical summary here 
+summary(lm(y ~ x, df))
+```
+
+
+
+End of this script

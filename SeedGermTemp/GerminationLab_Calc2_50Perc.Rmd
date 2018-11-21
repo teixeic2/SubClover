@@ -131,31 +131,33 @@ df_Nar %>%
   mutate(Temp=as.factor(Temp))%>%
 ggplot(aes(x=DAS, y=mean, shape=Temp))+  # do percentage here
   #geom_point(size =4 )+
-  geom_line(aes(), linetype= 2, colour="grey")+
-  geom_point(aes(shape=Temp), size=5) +
+  geom_line(aes(), linetype= 5, colour="dark grey", size = 2)+
+  geom_point(aes(shape=Temp), size=7) +
  # scale_shape_manual(values = c(2)) +
   geom_errorbar(aes(ymin=mean-sd/4,
   ymax=mean+sd/4))+
   #facet_wrap (~Plot,ncol=2)+
   ylim(0,110 ) +
    xlim(0,20) +
-  labs(y="Cumulative germination %",x="Days")+
+  labs(y="Cumulative germination (%)",x="Days")+
   #theme_grey(base_size = 16) +
   theme_bw()+
   
-theme(axis.text.x=element_text(angle = 0, hjust = 0))+
-  
+theme(axis.text.x=element_text(angle = 0, hjust = 0,size = 26))+
+theme(axis.text.y=element_text(angle = 0, hjust = 0,size = 26))+
+theme(axis.title.x=element_text(angle = 0, hjust = 0.5,size = 26))+
+theme(axis.title.y=element_text(angle = 90, hjust = 0.5,size = 26))+
   #remove grid lines 
      theme(
-     #panel.border = element_rect(colour = "black"  , size = 2.0), 
+     panel.border = element_rect(colour = "black"  , size = 3.0), 
      panel.grid.major = element_blank(),
      panel.grid.minor = element_blank(),
      axis.line = element_line(colour = "black"))+
 
-theme(text = element_text(size = 24))
+theme(text = element_text(size = 40))
 
 
- #ggsave("plot_Example_Narrikup_DAS50Perc_Germ.png", width=14, height=6, dpi=400)
+ ggsave("plot_Example_Narrikup_DAS50Perc_Germ.png", width=14, height=6, dpi=400)
 
 
 ```
@@ -188,7 +190,7 @@ ggplot(aes(x=DAS, y=mean, shape=ActTemp))+  # do percentage here
   geom_errorbar(aes(ymin=mean-sd/4,
   ymax=mean+sd/4))+
   #facet_wrap (~Plot,ncol=2)+
-  ylim(0,110 ) +
+  ylim(0,100 ) +
    xlim(0,20) +
   labs(y="Cumulative germination %",x="Days")+
   #theme_grey(base_size = 16) +
@@ -484,14 +486,15 @@ df_Rate_MeanD %>%
   #select( Variable, Cultivar, Temp, mean,sd) %>%
   ggplot(aes(x= ActTemp, y=mean)) + 
 #  geom_point(data=sd_df,aes(x=DAS,y=NumberRun_mean)) +
-  geom_point(aes(shape=Cultivar), size=4) +
+  geom_point(aes(shape=Cultivar), size=6) +
   scale_shape_manual(values = c(1,2,0,7)) +
   geom_errorbar(data=sd_df, aes(ymin=mean-max_sd/2,
-                    ymax=mean+max_sd/2), width=4)+
+                    ymax=mean+max_sd/2), width=3, size=1.5)+
   facet_wrap (~Cultivar,ncol=2)+
   ylim(0,20 ) +
   #labs(y="Time to 50% final germination",x="Temperature")+
-  ylab(expression(Time~to~50~"%"~final~Germination~"(days)"))+
+  #ylab(expression(Time~to~T~"%"~final~Germination~"(days)"))+
+  ylab(expression(Time~to~T50~"(days)"))+
   xlab(expression(Temperature~"("^"o"*"C)"))+
   theme_grey(base_size = 22) +
   theme_bw()+
@@ -502,7 +505,7 @@ theme(axis.text.x=element_text(angle = 0, hjust = 0))+
   
   #remove grid lines 
    theme(
-     panel.border = element_rect(colour = "black", size = 2), 
+     panel.border = element_rect(colour = "black", size = 3), 
      panel.grid.major = element_blank(),
      panel.grid.minor = element_blank(),
      axis.line = element_line(colour = "black"))+
@@ -510,9 +513,9 @@ theme(axis.text.x=element_text(angle = 0, hjust = 0))+
    
    #make sowing dates white  
    theme(strip.background = element_rect(colour = "black", fill = "white",size=1))+
-   theme(text = element_text(size = 20))+
+   theme(text = element_text(size = 24))+
    
-  theme(axis.title.y = element_text(face="bold", size=16))
+  theme(axis.title.y = element_text(face="bold", size=24))
 
 
  ggsave("plot_DAS50Perc_Germ.png", width=12, height=6, dpi=400)
@@ -564,16 +567,16 @@ df_Rate_MeanR %>%
   #select( Variable, Cultivar, Temp, mean,sd) %>%
   ggplot(aes(x=ActTemp, y=mean)) + 
 #  geom_point(data=sd_df,aes(x=DAS,y=NumberRun_mean)) +
-  geom_point(aes(shape=Cultivar), size=4) +
+  geom_point(aes(shape=Cultivar), size=6) +
   scale_shape_manual(values = c(1,2,0,7)) +
   geom_errorbar(data=sd_df1, aes(ymin=mean-max_sd/2,
-                    ymax=mean+max_sd/2), width=4)+
+                    ymax=mean+max_sd/2), width=4,size=1.5)+
   facet_wrap (~Cultivar,ncol=2)+
   ylim(0,1.4) +
   ylab(expression(Germination~Rate~"(1/Days)"))+
   xlab(expression(Temperature~"("^"o"*"C)"))+
   #labs(y="Germination rate (1/days)",x="Temperature")+
-  theme_grey(base_size = 16) +
+  theme_grey(base_size = 22) +
   theme_bw()+
   # geom_abline(intercept = 1, slope = 0, linetype=2)+
    geom_abline(intercept = 5,  slope = 0, linetype=2)+
@@ -581,7 +584,7 @@ df_Rate_MeanR %>%
    theme(axis.text.x=element_text(angle = 0, hjust = 0))+
   #remove grid lines 
     theme(
-     panel.border = element_rect(colour = "black", size = 2), 
+     panel.border = element_rect(colour = "black", size = 3), 
      panel.grid.major = element_blank(),
      panel.grid.minor = element_blank(),
      axis.line = element_line(colour = "black"))+
@@ -590,10 +593,10 @@ df_Rate_MeanR %>%
    #make sowing dates white  
    theme(strip.background = element_rect(colour = "black", fill = "white",size=1))+
   
-theme(text = element_text(size = 22))
+theme(text = element_text(size = 24))
 
 
- ggsave("plot_RatePerc_Germ.png", width=12, height=6, dpi=400)
+ggsave("plot_RatePerc_Germ.png", width=12, height=6, dpi=400)
 
 
 ```

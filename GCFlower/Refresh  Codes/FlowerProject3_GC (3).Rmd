@@ -17,7 +17,7 @@ library(knitr)
 library (lubridate)
 
 ```
-This script calculates the means of TTAS50Flo and perform the statistics 
+This script calculates the means of DAS and TTAS50Flo for Iversen to join the Reanalysis table 
 
 ```{r loadFile}
 
@@ -42,218 +42,26 @@ str(df_work)
 
 ```
 
-
-Do Stats for DAS50F for Bud first 
-
-```{r}
-df_Bud <-df_work %>%
-  filter(PhenoStage=="Bud")
-
-```
-
-
-Perform anova general using the TT50F 
+Get mean values to write chapter 
 
 ```{r}
 
+df_Narri_S7_mean <- df_work %>%
+  #use filter to check single variables -Bud, Flowering and Bur
+  #filter(Cultivar == "Narrikup") %>%
+  filter(PhenoStage=="Bud")%>%
+  #filter (SowTreat=="S8"|SowTreat=="S7")%>%
+  filter (SowTreat=="S7")%>%
+  group_by(Cultivar)%>%
+  dplyr::select(Cultivar,TT50F)%>%
+  summarise_all(funs(mean,sd))%>%
+  mutate(SE=sd/1.73)
 
- file <- df_Bud
-file.subs <- file 
-
-head(file.subs)
-summary(file.subs)
-
-#ANOVA
-
-my.anova <- aov(TT50F ~ SowTreat + Block, data = file.subs)
-#my.anova <- aov(DAS50F ~ Cultivar + Block, data = file.subs)
-
-summary(my.anova)
- ```
-
-```{r}
-(LSD.test(my.anova, c("SowTreat"), alpha= 0.05, p.adj="none"))
-#(LSD.test(my.anova, c("Cultivar"), alpha= 0.05, p.adj="none"))
-```
-
-
-
-## Create index to filter for loop ANOVA
-
-```{r}
-y <- c("S1","S2","S3","S4","S5","S6","S7","S8")
-
-sdIndex <- unique(df_Bud$SowTreat)
-
-sdIndex[order(match(sdIndex,y))]
-
-length(sdIndex)
-sdIndex
-```
-
-## Then loop anova for each individual sowing date 
-```{r}
-for (i in 1:length(sdIndex)) {
-  
- #print(i)
- print(paste0(sdIndex[i],"--------------------------------"))
-  
-  #Here filter variable 
-  file.subset <- df_Bud %>%
-  filter(SowTreat==sdIndex[i])
-  
- 
-head(file.subset, 50)
-   summary(file.subset)
-my.anova <- aov(TT50F ~ Cultivar + Block, data = file.subset)
-print(summary(my.anova))
-
-if ((summary(my.anova)[[1]][["Pr(>F)"]][1])<0.05) {
-  print("***Sig Cultivar***") 
-  print((LSD.test(my.anova, c("Cultivar"), alpha= 0.05, p.adj="none"))) } 
-
-
-if ((summary(my.anova)[[1]][["Pr(>F)"]][1])>0.05) {
-  print("***Sig Cultivar***") 
-  print((LSD.test(my.anova, c("Cultivar"), alpha= 0.05, p.adj="none"))) } 
-
-# make mean separation if significant
-
-(LSD.test(my.anova, c("Cultivar"), alpha= 0.05, p.adj="none"))
-  
-}
-
-```
-
-Run a separate analysis for S5 (missing values for Denmark and Leura = NA )
-
-
-Perform anova general using the TT50F ; filter out S1-S4 and S6-S8; filter out Denmark and Leura 
-
-HERE MIGHT NEED THE UNBALANCED DESIGN TYPE OF ANALYSIS 
-
-
-
-```{r}
-
-
- fileS5 <- df_Bud%>%
-  filter(SowTreat=="S5")%>%
-  filter(Cultivar!="Leura"& Cultivar!="Denmark"& Cultivar!="Antas"& Cultivar!="Woogenellup")
-  #filter(Cultivar!="Leura"& Cultivar!="Denmark")
-  
-  #filter(Cultivar!="Leura"& Cultivar!="Denmark")%>%
-  #subset(DAS50F>0.5)
-
-file.subsS5 <-  fileS5 
-
-head(file.subsS5)
-summary(file.subsS5)
-
-#ANOVA
-
-#my.anova <- aov(TT50F ~ SowTreat + Block, data = file.subsS5)
-my.anova <- aov(TT50F ~ Cultivar + Block, data = file.subsS5)
-
-summary(my.anova)
+summary(df_Narri_S7_mean)
 
 
 ```
 
-
-```{r}
-
-## here only for S% cultivars which flowered 
-
-
-#(LSD.test(my.anova, c("SowTreat"), alpha= 0.05, p.adj="none"))
-(LSD.test(my.anova, c("Cultivar"), alpha= 0.05, p.adj="none"))
-
-
-
-```
-
-## ###################Here compared with GENSTAT analysis of unbalanced design #####################
-
-
-Antas and Woog had only one replicate which flowered so , ANOVA using unbala
-
-
-
-
-
-CV	Phase	SowTreat	Date	Block	PLOT 	DAS	TTToBud
-Antas	Bud	S5	15/12/2015	1	75	89.7	1057.4
-Monti	Bud	S5	15/12/2015	1	77	67.5	796.9
-Monti	Bud	S5	15/12/2015	2	80	68.9	813.2
-Monti	Bud	S5	15/12/2015	3	87	62.8	739.6
-Narrikup	Bud	S5	15/12/2015	1	76	82.9	977.1
-Narrikup	Bud	S5	15/12/2015	2	84	87.0	1028.4
-Narrikup	Bud	S5	15/12/2015	3	89	90.9	1074.5
-Woogenellup	Bud	S5	15/12/2015	1	73	90.8	1073.7
-							
-output Genstat 							
-							
-							
-							
-Analysis of variance							
- 							
- 							
-Source	d.f.	s.s.	m.s.	v.r.	F pr.		
-Block	2	7964	3982	1.21	0.452		
-CV	3	120906	40302	12.25	0.076		
-Residual	2	6577	3289	  	  		
-Total	7	135447	19350	  	  		
- 							
- 							
-Information summary							
- 							
-Design unbalanced, analysed by GenStat regression							
- 							
- 							
-Predictions from regression model							
- 							
-Response variate: TTToBud							
- 							
-		Prediction					
-	CV	 					
-	Antas	1057.4					
-	Monti	778.8					
-	Narrikup	1022.2					
-	Woogenellup	1073.7					
- 							
- 							
- 							
-Approximate effective standard errors							
- 							
- 							
-	CV	 					
-	Antas	57.55					
-	Monti	33.45					
-	Narrikup	33.45					
-	Woogenellup	57.55					
- 							
- 							
- 							
-Discrepancy between sed and value calculated from ese's							
- 							
- 							
-Maximum discrepancy         0.4852							
-Maximum % discrepancy         1.04							
- 							
-	Minimum standard error of difference	46.82					
-	Average standard error of difference	65.81					
-	Maximum standard error of difference	81.1					
-	Minimum least significant difference	201.5					
-	Average least significant difference	283.2					
-	Maximum least significant difference	349					
- 							
- 							
-Coefficient of variation and standard error of a single unit							
- 							
-	%cv	 se					
-	6.07	57.35					
-## ##########################################################
 
 
 Here only graph by month of sowing for report ; split in two graphs to be able to see cultivars. 

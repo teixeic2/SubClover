@@ -1,0 +1,207 @@
+---
+title: "Trifoliates Iversen "
+author: "CT"
+date: "04.07.2018" 
+output: html_document
+---
+
+Purpose:
+
+-Analysis of trifoliates expansion for Iversen using the data from emergence event (not from sowing) 
+- Calculate stat for the days to reach 5 trifoliates from emergence 
+- Run ANOVA for variable "Number of days to reach 5 Trifoliates " and thermal time to 5 trifoliate leaves  
+ 
+```{r loadLibraries}
+library(tidyr)
+library (dplyr)
+library (ggplot2)
+library(agricolae)
+library (lubridate)
+library(mosaic)
+library(lattice)
+library(knitr)
+```
+
+Read document generated in script "3" 5Trifo_rate
+
+```{r}
+setwd("C:\\GitHubRepos\\SubCloverPhD\\SubClover\\TrifoCountsI2")
+getwd()
+#create file
+
+##Path "C:/GitHubRepos/SubCloverPhD/SubClover/TrifoCountsI2/DaysTT5TFromEmergence.txt"
+
+df_trifo <- read.table("DaysTT5TFromEmergence.txt",header=TRUE)
+head(df_trifo)
+
+
+```
+Define formats and calculate the number of trifoliates considering the sub samples (S1-S10)
+
+```{r loadFile}
+
+
+# define factors for the ones that "look like" values
+df_trifo$Plot <- as.factor(df_trifo$Plot)
+df_trifo$Block <- as.factor(df_trifo$Block)
+df_trifo$Cultivar <- as.factor(df_trifo$Cultivar)
+df_trifo$SowTreat <- as.factor(df_trifo$SowTreat)
+
+ #df_trifo <- df_trifo %>%
+ # mutate(SowingDate = ymd(SowingDate)) 
+
+str(df_trifo)
+
+
+
+```
+
+## Check average values to see if TT5TFrom Emerg is lower than SummTT5Trifo
+
+```{r}
+
+df_mean <-df_trifo %>%
+  dplyr:: select(Plot:Cultivar,DAS5T, SummTT5Trifo,DAS5TFromEmerg,TT5TFromEmerg )%>%
+
+  #group_by(Cultivar,SowTreat) %>%
+  group_by(SowTreat) %>%
+  # dplyr::select(SummTT5Trifo)%>%
+  # summarise_all(funs(mean,sd))%>%
+  #   mutate(SE=sd/1.73)
+  
+  #summarise_at(c( "SummTT5Trifo", "TT5TFromEmerg"), mean, na.rm = TRUE)
+  summarise_at(c( "DAS5T", "DAS5TFromEmerg"), mean, na.rm = TRUE)
+
+
+```
+
+
+
+##Run stats for the number of days to reach 5 trifoliates (DAS5T) - use DAS5TFromEmerg;
+##general use Sow Treat as Factor 
+
+```{r}
+ 
+  file <- df_trifo
+
+
+file.subs <- file 
+
+head(file.subs)
+summary(file.subs)
+
+#ANOVA
+
+#my.anova <- aov(DAS5TFromEmerg ~ SowTreat + Block, data = file.subs)
+my.anova <- aov(DAS5TFromEmerg ~ Cultivar + Block, data = file.subs)
+#my.anova <- aov(DAS5TFromEmerg ~ Cultivar*SowTreat+ Block, data = file.subs)
+
+summary(my.anova)
+
+```
+
+
+```{r}
+#(LSD.test(my.anova, c("SowTreat"), alpha= 0.05, p.adj="none"))
+#(LSD.test(my.anova, c("Cultivar"), alpha= 0.05, p.adj="none"))
+
+```
+
+
+
+## Create index to filter for loop ANOVA
+
+```{r}
+y <- c("S1","S2","S3","S4","S5","S6","S7","S8")
+
+sdIndex <- unique(df_trifo$SowTreat)
+
+sdIndex[order(match(sdIndex,y))]
+
+length(sdIndex)
+sdIndex
+```
+## Then loop anova for each individual sowing date 
+```{r}
+for (i in 1:length(sdIndex)) {
+  
+ #print(i)
+ print(paste0(sdIndex[i],"--------------------------------"))
+  
+  file.subset <- df_trifo %>%
+  filter(SowTreat==sdIndex[i])
+  
+ 
+head(file.subset, 50)
+   summary(file.subset)
+my.anova <- aov(DAS5TFromEmerg ~ Cultivar + Block, data = file.subset)
+print(summary(my.anova))
+
+if ((summary(my.anova)[[1]][["Pr(>F)"]][1])<0.05) {
+  print("***Sig Cultivar***") 
+  print((LSD.test(my.anova, c("Cultivar"), alpha= 0.05, p.adj="none"))) } 
+
+
+if ((summary(my.anova)[[1]][["Pr(>F)"]][1])>0.05) {
+  print("***Sig Cultivar***") 
+  print((LSD.test(my.anova, c("Cultivar"), alpha= 0.05, p.adj="none"))) } 
+
+# make mean separation if significant
+
+(LSD.test(my.anova, c("Cultivar"), alpha= 0.05, p.adj="none"))
+  
+}
+
+```
+
+Then run for TT 
+STOPPED HERE 
+
+## Create index to filter for loop ANOVA
+
+```{r}
+y <- c("S1","S2","S3","S4","S5","S6","S7","S8")
+
+sdIndex <- unique(df_trifo$SowTreat)
+
+sdIndex[order(match(sdIndex,y))]
+
+length(sdIndex)
+sdIndex
+```
+## Then loop anova for each individual sowing date 
+```{r}
+for (i in 1:length(sdIndex)) {
+  
+ #print(i)
+ print(paste0(sdIndex[i],"--------------------------------"))
+  
+  file.subset <- df_trifo %>%
+  filter(SowTreat==sdIndex[i])
+  
+ 
+head(file.subset, 50)
+   summary(file.subset)
+my.anova <- aov(TT5TFromEmerg ~ Cultivar + Block, data = file.subset)
+print(summary(my.anova))
+
+if ((summary(my.anova)[[1]][["Pr(>F)"]][1])<0.05) {
+  print("***Sig Cultivar***") 
+  print((LSD.test(my.anova, c("Cultivar"), alpha= 0.05, p.adj="none"))) } 
+
+
+if ((summary(my.anova)[[1]][["Pr(>F)"]][1])>0.05) {
+  print("***Sig Cultivar***") 
+  print((LSD.test(my.anova, c("Cultivar"), alpha= 0.05, p.adj="none"))) } 
+
+# make mean separation if significant
+
+(LSD.test(my.anova, c("Cultivar"), alpha= 0.05, p.adj="none"))
+  
+}
+
+```
+
+
+
+

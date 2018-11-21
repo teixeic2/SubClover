@@ -75,12 +75,38 @@ Calculate the maximum germination in each temperature
 ```{r}
 
  dMax<- df_seed %>%
-  group_by(Temp,Cultivar,ActTemp) %>% # 
-dplyr::select(Temp,Cultivar,PercGerm_cum,ActTemp) %>%
-   
+  group_by(Temp,Cultivar,ActTemp) %>% 
+dplyr::select(Temp,Cultivar,PercGerm_cum) %>%
+  group_by(Cultivar,Temp) %>%
+  summarise_all(funs(max,sd))%>%
+  mutate(max=as.numeric(PercGerm_cum_max),
+         sd=as.numeric(PercGerm_cum_sd))
+  
+
 
 
 ```
+
+Create a dataframe with max germ also per block to add to dataframe by cultivar origin. 
+
+
+```{r}
+
+ dMaxBlock<- df_seed %>%
+  group_by(Temp,Cultivar,ActTemp) %>% 
+dplyr::select(Temp,Cultivar,PercGerm_cum, Block) %>%
+  group_by(Cultivar,Temp, Block) %>%
+  summarise_all(funs(max,sd))%>%
+  mutate(max=as.numeric(PercGerm_cum_max),
+         sd=as.numeric(PercGerm_cum_sd))
+ 
+#write table to combine cultivars by origin in new dataframe 
+
+write.table(dMaxBlock, "df_SeedGermMaxBlock.txt")
+
+
+```
+
 
 
 
@@ -89,7 +115,7 @@ This graph uses the set Temperature (Temp)!
 
 ```{r, fig.height=5, fig.width=10}
 #check format
-#str(dMax)
+str(dMax)
 
 #graph it here error bars already represent the SE (std/sqrtn = 4)
 dMax %>%
@@ -123,7 +149,7 @@ facet_wrap(~Cultivar,ncol=2, scales = "free")+
 
 ```
 
-produce the graph with the max error bar 
+produce the graph with the max error bar (this is just a draft ...the real one in the next chunck)
 
 
 ```{r, fig.height=5, fig.width=10}
@@ -159,17 +185,17 @@ dMax %>%
   #select( Variable, Cultivar, Temp, mean,sd) %>%
   ggplot(aes(x=Temp, y=max)) + 
 #  geom_point(data=sd_df,aes(x=DAS,y=NumberRun_mean)) +
-  geom_point(aes(shape=Cultivar), size=4) +
+  geom_point(aes(shape=Cultivar), size=6) +
   scale_shape_manual(values = c(1,2,0,7)) +
   geom_errorbar(data=sd_df, aes(ymin=max-max_sd/2,
-                    ymax=max+max_sd/2), width=4)+
+                    ymax=max+max_sd/2), width=5)+
   facet_wrap (~Cultivar,ncol=2)+
-  ylim(0,160 ) +
+  ylim(0,140 ) +
   ylab(expression(Maximum~Germination~"(%)"))+
-  theme(text = element_text(size=18))+
+  theme(text = element_text(size=20))+
   xlab(expression(Temperature~"("^"o"*"C)"))+
   #labs(y="Maximum ",x="Temperature")+
-  theme_grey(base_size = 16) +
+  theme_grey(base_size = 20) +
   theme_bw()+
   # geom_abline(intercept = 1, slope = 0, linetype=2)+
    geom_abline(intercept = 100,  slope = 0, linetype=2)+
@@ -178,80 +204,7 @@ theme(axis.text.x=element_text(angle = 0, hjust = 0))+
   
   #remove grid lines 
    theme(
-     panel.border = element_rect(colour = "black", size = 2), 
-     panel.grid.major = element_blank(),
-     panel.grid.minor = element_blank(),
-     axis.line = element_line(colour = "black"))+
-   #scale_fill_manual("legend", values = c("Antas" = "#660066", "Denmark" = "lightgrey","Leura" = "darkgrey", "Monti" = "#FF9933","Narrikup" = "blue",  "Woogenellup" = "#033333"))+
-   
-   #make sowing dates white  
-   theme(strip.background = element_rect(colour = "black", fill = "white",size=1))+
-   
-  #label sizes 
-theme(text = element_text(size = 20))
-
-#ggsave("plot_MaxGerm.png", width=12, height=6, dpi=400)
-
-```
-
-
-
-Make the graph using actual temperature data  (Act Temp) as well. 
-
-
-```{r, fig.height=5, fig.width=10}
-
-#then create the error bar position
-#Here how to create the end error bar with max Sd 
-# find size of bar per cultivar and temp
-# find single position of x y to put the bar
-
-#extraPos<- 1.10 # extra position for single error bar
-extraPos<- 1.1 # extra position for single error bar
-x_max<-max(dMax$ActTemp)
-y_max<-max(dMax$max)
-
-
-sd_df <- dMax %>% 
-  group_by(Cultivar) %>%
-  dplyr::select(sd)%>%
-  summarise_all(funs(max))%>%
-  #summarise(max_sd = max(sd)) %>% 
-  ungroup() %>%
-  rowwise() %>%
-  mutate(ActTemp = x_max*extraPos, max = y_max*extraPos, max_sd=sd)
-
-summary(sd_df)
-
-
-#make a graph 
-#then graph remember sd/2 because of 4 replicates 
-
-
-dMax %>% 
-  #select( Variable, Cultivar, Temp, mean,sd) %>%
-  ggplot(aes(x=ActTemp, y=max)) + 
-#  geom_point(data=sd_df,aes(x=DAS,y=NumberRun_mean)) +
-  geom_point(aes(shape=Cultivar), size=4) +
-  scale_shape_manual(values = c(1,2,0,7)) +
-  geom_errorbar(data=sd_df, aes(ymin=max-max_sd/2,
-                    ymax=max+max_sd/2), width=4)+
-  facet_wrap (~Cultivar,ncol=2)+
-  ylim(0,160 ) +
-  ylab(expression(Maximum~Germination~"(%)"))+
-  theme(text = element_text(size=18))+
-  xlab(expression(Temperature~"("^"o"*"C)"))+
-  #labs(y="Maximum ",x="Temperature")+
-  theme_grey(base_size = 16) +
-  theme_bw()+
-  # geom_abline(intercept = 1, slope = 0, linetype=2)+
-   geom_abline(intercept = 100,  slope = 0, linetype=2)+
-   #geom_abline(intercept = 9,  slope = 0, linetype=2)+
-theme(axis.text.x=element_text(angle = 0, hjust = 0))+
-  
-  #remove grid lines 
-   theme(
-     panel.border = element_rect(colour = "black", size = 2), 
+     panel.border = element_rect(colour = "black", size = 3), 
      panel.grid.major = element_blank(),
      panel.grid.minor = element_blank(),
      axis.line = element_line(colour = "black"))+
@@ -263,7 +216,86 @@ theme(axis.text.x=element_text(angle = 0, hjust = 0))+
   #label sizes 
 theme(text = element_text(size = 22))
 
-ggsave("plot_MaxGerm.png", width=12, height=6, dpi=400)
+#ggsave("plot_MaxGerm.png", width=12, height=6, dpi=400)
+
+```
+
+
+
+Make the graph using actual temperature data  (Act Temp) as well.Saved graph!  
+
+
+```{r, fig.height=5, fig.width=10}
+
+#then create the error bar position
+#Here how to create the end error bar with max Sd 
+# find size of bar per cultivar and temp
+# find single position of x y to put the bar
+
+#check name columns 
+
+str(dMax)
+
+
+
+#extraPos<- 1.10 # extra position for single error bar
+extraPos<- 1.1 # extra position for single error bar
+x_max<-max(dMax$ActTemp_max)
+y_max<-max(dMax$max)
+
+
+sd_df <- dMax %>% 
+  group_by(Cultivar) %>%
+  dplyr::select(sd)%>%
+  summarise_all(funs(max))%>%
+  #summarise(max_sd = max(sd)) %>% 
+  ungroup() %>%
+  rowwise() %>%
+  mutate(ActTemp_max = x_max*extraPos, max = y_max*extraPos, max_sd=sd)
+
+summary(sd_df)
+
+
+#make a graph 
+#then graph remember sd/2 because of 4 replicates 
+
+
+dMax %>% 
+  #select( Variable, Cultivar, Temp, mean,sd) %>%
+  ggplot(aes(x=ActTemp_max, y=max)) + 
+#  geom_point(data=sd_df,aes(x=DAS,y=NumberRun_mean)) +
+  geom_point(aes(shape=Cultivar), size=6) +
+  scale_shape_manual(values = c(1,2,0,7)) +
+  geom_errorbar(data=sd_df, aes(ymin=max-max_sd/2,
+                    ymax=max+max_sd/2), size=1)+
+  facet_wrap (~Cultivar,ncol=2)+
+  ylim(0,140 ) +
+  ylab(expression(Maximum~Germination~"(%)"))+
+  theme(text = element_text(size=20))+
+  xlab(expression(Temperature~"("^"o"*"C)"))+
+  #labs(y="Maximum ",x="Temperature")+
+  theme_grey(base_size = 20) +
+  theme_bw()+
+  # geom_abline(intercept = 1, slope = 0, linetype=2)+
+   geom_abline(intercept = 100,  slope = 0, linetype=2)+
+   #geom_abline(intercept = 9,  slope = 0, linetype=2)+
+theme(axis.text.x=element_text(angle = 0, hjust = 0))+
+  
+  #remove grid lines 
+   theme(
+     panel.border = element_rect(colour = "black", size = 3), 
+     panel.grid.major = element_blank(),
+     panel.grid.minor = element_blank(),
+     axis.line = element_line(colour = "black"))+
+   #scale_fill_manual("legend", values = c("Antas" = "#660066", "Denmark" = "lightgrey","Leura" = "darkgrey", "Monti" = "#FF9933","Narrikup" = "blue",  "Woogenellup" = "#033333"))+
+   
+   #make sowing dates white  
+   theme(strip.background = element_rect(colour = "black", fill = "white",size=2))+
+   
+  #label sizes 
+theme(text = element_text(size = 24))
+
+ggsave("plot_MaxGerm.png", width=12, height=6, dpi=500)
 
 ```
 
@@ -346,7 +378,7 @@ ggsave("plot_MaxGerm.png", width=12, height=6, dpi=400)
 
 
 Get the means/stats  for temperature and cultivar 
-Vaariable : Max Germination 
+Variable : Max Germination 
 
 ```{r}
   #Prepare data frame for ANOVA
@@ -366,6 +398,8 @@ head(file.subset)
 summary(file.subset)
 
 ```
+
+
 
 ```{r}
 
@@ -390,3 +424,51 @@ summary(my.anova)
 ```
 
 
+
+Get the means/stats  for temperature equals 2.5 (filter only this temperature ) and cultivar 
+Variable : Max Germination 
+
+```{r}
+  #Prepare data frame for ANOVA
+df_2.5<- df_seed %>%
+  filter(Temp==2.5)%>%
+  group_by(Cultivar,Block,Plot) %>% 
+dplyr::select(Temp,Cultivar,PercGerm_cum) %>%
+  summarise_all(funs(max(PercGerm_cum)))
+
+
+df_3035<- df_seed %>%
+  filter(Temp==30|Temp==35)%>%
+  group_by(Cultivar,Block,Plot) %>% 
+dplyr::select(Temp,Cultivar,PercGerm_cum) %>%
+  summarise_all(funs(max(PercGerm_cum)))
+
+
+#-------------------------------------------------
+# anova 
+#file <- df_2.5
+file <- df_3035
+
+file.subset <- file 
+
+head(file.subset)
+summary(file.subset)
+
+```
+
+
+
+```{r}
+
+#ANOVA
+my.anova <- aov(PercGerm_cum~ Cultivar + Block, data = file.subset)
+#my.anova <- aov(TSW ~ Cultivar*Depth + Block, data = file.subset)
+summary(my.anova)
+```
+
+```{r}
+
+(LSD.test(my.anova, c( "Cultivar"), alpha= 0.05, p.adj="none"))
+#(LSD.test(my.anova, c( "Temp"), alpha= 0.05, p.adj="none"))
+#(LSD.test(my.anova, c("Cultivar", "Temp"), alpha= 0.05, p.adj="none"))
+```

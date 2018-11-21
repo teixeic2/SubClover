@@ -1,0 +1,355 @@
+---
+title: "Seed Breakdown  Thermal treatment- ANOVAS specific bands "
+author: "CT"
+date: 16.09.2018
+output: html_document
+---
+This script reads the baselined_normalised_snip spectra for the 3 replicates 3 cultivars (Antas, Monti and Narrikup) in 3 different incubation times (0, 42, 84, 252). the aim is to run ANOVA in for specific bands detected from the PCA analysis Unscrambler
+
+Done so far : band 2930 and band 2850  
+
+
+
+```{r setup, include=FALSE, loadlibraires}
+#knitr::opts_chunk$set(echo = TRUE)
+library(tidyr)
+library (dplyr)
+library (ggplot2)
+library(agricolae)
+library(knitr)
+library (lubridate)
+library(scales)
+
+```
+
+
+
+```{r readData}
+setwd("C:\\GitHubRepos\\SubCloverPhD\\SubClover\\SpectraThermalTreatment")
+getwd()
+
+#create file
+#df_sp <- read.table("BreakBaseLineReps.txt",header=TRUE)
+df_sp <- read.table("NormalSnipped_RepsByCvByIncub.txt",header=TRUE)
+#head(df_sp)
+
+head(df_sp)
+```
+
+#Adjust formats 
+
+```{r}
+
+df_sp <- df_sp %>%
+  mutate(Cultivar=factor(Cultivar), Rep=factor(Rep), WaveNumber=as.numeric(WaveNumber), AbsValue=as.numeric(AbsValue),IncubationDays=factor(IncubationDays)) %>%
+    dplyr::select(Cultivar:WaveNumber, AbsValue)
+
+str (df_sp)
+
+```
+
+############################################################
+
+
+# Region 3000 - 2800
+##select band  of interest : in this case choose at 2930 cm-1 , which represents CH2 asymmetrical (lipids region) 
+
+
+
+```{r}
+
+df_sp2930 <-df_sp %>%
+  subset(WaveNumber <2931 & WaveNumber >2929)
+  
+
+```
+
+check 
+
+```{r}
+
+str(df_sp2930)
+
+
+```
+
+
+
+##- Now run anova in this band 
+ 
+```{r, warning=FALSE }
+
+
+##use dataframe = df_sp3295
+
+#-------------------------------------------------
+
+# Chosen transform log to do anova 
+file.subset <- df_sp2930 
+
+head(file.subset, 50)
+summary(file.subset)
+  my.anova <- aov(AbsValue ~ Cultivar*IncubationDays, data = file.subset)               
+
+    #-----------------------
+summary(my.anova)
+
+```
+
+
+
+## Means separation with LSD (not using for while )
+
+```{r}
+#Means separation after ANOVA
+#(LSD.test(my.anova, c("Treat"), alpha= 0.05, p.adj="none")) 
+#(LSD.test(my.anova, c("Cultivar","IncubationDays"), alpha= 0.05, p.adj="none")) 
+```
+
+
+##Using this : Tukey 
+
+```{r}
+#posthoc <- TukeyHSD(x=my.anova, 'Cultivar', conf.level=0.95)
+#posthoc <- TukeyHSD(x=my.anova, "Cultivar", conf.level=0.95)
+posthoc <- TukeyHSD(x=my.anova, c("Cultivar","IncubationDays"), conf.level=0.95, TRUE)
+posthoc
+
+
+
+```
+
+
+Then 
+This is the mean separation using Tukey 
+
+
+```{r}
+
+#fogo <-HSD.test(my.anova, c("Cultivar","IncubationDays"), group=TRUE)
+
+fogo <-HSD.test(my.anova, c("IncubationDays"), group=TRUE)
+
+#fogo <-HSD.test(my.anova, c("Cultivar"), group=TRUE)
+fogo
+
+
+
+```
+
+
+
+
+        test p.ajusted                  name.t ntr alpha
+  Fisher-LSD      none Cultivar:IncubationDays  12  0.05
+
+$means
+       AbsValue         std r       LCL       UCL       Min       Max       Q25       Q50       Q75
+A:0   0.1929835 0.012518840 6 0.1777064 0.2082606 0.1802248 0.2082188 0.1828396 0.1907167 0.2035368
+A:252 0.1809813 0.007447144 6 0.1657042 0.1962584 0.1727892 0.1897461 0.1748090 0.1804092 0.1872962
+A:42  0.1486003 0.016306234 6 0.1333233 0.1638774 0.1348166 0.1695594 0.1365034 0.1416728 0.1622434
+A:84  0.1643535 0.007377757 6 0.1490764 0.1796306 0.1549382 0.1717996 0.1583087 0.1663417 0.1698869
+M:0   0.2107571 0.021600913 6 0.1954800 0.2260342 0.1827607 0.2270566 0.1930033 0.2224604 0.2255804
+M:252 0.2717166 0.010052796 6 0.2564396 0.2869937 0.2641515 0.2847963 0.2647630 0.2662852 0.2799658
+M:42  0.1949350 0.008392382 6 0.1796579 0.2102121 0.1872336 0.2055361 0.1885925 0.1920236 0.2020141
+M:84  0.1791406 0.010245570 6 0.1638636 0.1944177 0.1673941 0.1903472 0.1705141 0.1796558 0.1876569
+N:0   0.2070253 0.047603302 6 0.1917482 0.2223023 0.1474073 0.2502799 0.1665482 0.2233777 0.2434224
+N:252 0.2430691 0.012078357 6 0.2277920 0.2583461 0.2300488 0.2571843 0.2331093 0.2420445 0.2532323
+N:42  0.1833874 0.018204293 6 0.1681103 0.1986644 0.1601075 0.1991258 0.1681579 0.1909939 0.1966664
+N:84  0.1912486 0.013447348 6 0.1759715 0.2065257 0.1733960 0.2024014 0.1804729 0.1974726 0.2008250
+
+$comparison
+NULL
+
+$groups
+       AbsValue groups
+M:252 0.2717166      a
+N:252 0.2430691      b
+M:0   0.2107571      c
+N:0   0.2070253      c
+M:42  0.1949350     cd
+A:0   0.1929835     cd
+N:84  0.1912486     cd
+N:42  0.1833874     de
+A:252 0.1809813     de
+M:84  0.1791406     de
+A:84  0.1643535     ef
+A:42  0.1486003      f
+
+attr(,"class")
+[1] "group"
+Modify Chunk OptionsRun All Chunks AboveRun Current Chunk
+Show in New WindowClear OutputExpand/Collapse Output
+  Tukey multiple comparisons of means
+    95% family-wise confidence level
+    factor levels have been ordered
+
+Fit: aov(formula = AbsValue ~ Cultivar * IncubationDays, data = file.subset)
+
+$Cultivar
+           diff          lwr        upr     p adj
+N-A 0.034452899  0.021474423 0.04743137 0.0000001
+M-A 0.042407678  0.029429202 0.05538615 0.0000000
+M-N 0.007954779 -0.005023696 0.02093325 0.3110270
+
+$IncubationDays
+              diff         lwr        upr     p adj
+84-42  0.002606676 -0.01387186 0.01908521 0.9751907
+0-42   0.027947743  0.01146921 0.04442628 0.0001948
+252-42 0.056281447  0.03980291 0.07275998 0.0000000
+0-84   0.025341067  0.00886253 0.04181960 0.0008030
+252-84 0.053674771  0.03719623 0.07015331 0.0000000
+252-0  0.028333704  0.01185517 0.04481224 0.0001571
+
+Modify Chunk OptionsRun All Chunks AboveRun Current Chunk
+Show in New WindowClear OutputExpand/Collapse Output
+$statistics
+       MSerror Df      Mean       CV        MSD
+##
+
+```{r}
+
+##Empty in purpose ANOVA for 2850 cm 
+
+```
+
+
+# Region 3000 - 2800
+##select band  of interest : in this case choose at 2850 cm-1 , which represents CH2 asymmetrical (lipids region) 
+
+
+
+```{r}
+
+df_sp2850 <-df_sp %>%
+  subset(WaveNumber <2851 & WaveNumber >2849)
+  
+
+```
+
+check 
+
+```{r}
+
+str(df_sp2850)
+
+
+```
+
+
+
+
+##- Now run anova in this band 
+ 
+```{r, warning=FALSE }
+
+
+##use dataframe = df_sp3295
+
+#-------------------------------------------------
+
+# Chosen transform log to do anova 
+file.subset <- df_sp2850 
+
+head(file.subset, 50)
+summary(file.subset)
+  my.anova <- aov(AbsValue ~ Cultivar*IncubationDays, data = file.subset)               
+
+    #-----------------------
+summary(my.anova)
+
+```
+
+
+
+##Using this : Tukey 
+
+```{r}
+#posthoc <- TukeyHSD(x=my.anova, 'Cultivar', conf.level=0.95)
+posthoc <- TukeyHSD(x=my.anova, "Cultivar", conf.level=0.95)
+#posthoc <- TukeyHSD(x=my.anova, c("Cultivar","IncubationDays"), conf.level=0.95, TRUE)
+posthoc
+
+
+
+```
+
+
+Then 
+This is the mean separation using Tukey 
+
+
+```{r}
+
+#fogo1 <-HSD.test(my.anova, c("Cultivar","IncubationDays"), group=TRUE)
+
+#fogo1 <-HSD.test(my.anova, c("IncubationDays"), group=TRUE)
+
+fogo1 <-HSD.test(my.anova, c("Cultivar"), group=TRUE)
+fogo1
+
+
+
+```
+
+
+
+
+############################Not in use yet ####################################################
+
+
+Loop unique wavenumber 
+
+```{r}
+
+idList <-unique(df_sp2$id) 
+
+print(paste0("Found ",length(idList)," wavelength by cultivar combinations to loop"))
+
+data.all <- data.frame()
+
+x <- 0 # for t test
+
+for (i in 1:length(idList)) {
+  
+    df <- df_sp2 %>%
+    ungroup() %>%
+    mutate(IncubationDays=factor(IncubationDays), Rep=factor(Rep)) %>%
+    subset(id == idList[i])
+  
+  my.anova <- aov(AbsValue ~ IncubationDays + Rep, data = df)
+   
+  pVals <- summary(my.anova)[[1]][["Pr(>F)"]]
+ 
+    # T test when P<0.05
+  if(!is.nan(pVals[1]) & pVals[1] < 0.05) {
+  
+  x <- x + 1
+  t_test <-  LSD.test(my.anova, c("IncubationDays"), alpha= 0.05, p.adj="none")
+  lsd <- t_test$statistics[6] # getting  lsd
+  
+  this.data <- data.frame(Cultivar=df$Cultivar[1], WaveNumber = df$WaveNumber[1], PV = pVals[1], LSD = lsd, Count=x)
+  
+  data.all <- rbind(data.all, this.data)
+  
+  this.data <- NULL
+  
+  } else {
+    
+# do nothing
+   
+  }
+  
+}
+```
+
+write a table with values by cultivar 
+
+```{r}
+write.table(data.all, "P_LSD_Break_0_84.txt")
+```
+
+
+graph follows in script 4. 
+
+

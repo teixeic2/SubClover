@@ -1,0 +1,280 @@
+---
+title: "Fitting  relationships rate of flowering, mean temperature and mean Pp  "
+author: "CT"
+date: "22.07.2018"
+output:
+  pdf_document: default
+  html_document: default
+  word_document: default
+
+note: build linear relattionships between rate flowering , Temp and Pp as per Evans 1992 and Nori 2014.
+  
+ Grab dataframe with TT to start 
+ Need library plot3D 
+ 
+---
+
+```{r loadLibraries, echo=FALSE, include=FALSE}
+#1
+library(tidyr)
+library (dplyr)
+library (ggplot2)
+library(agricolae)
+library(knitr)
+library (lubridate)
+library (segmented)
+library(hydroGOF)
+library(plot3D)
+
+```
+ 
+AIM:
+- Estimate build relationship between rate of  flowering (1/days)  in relation to mean temperature and mean Pp
+
+
+```{r   loadFile}
+#2
+setwd("C:\\GitHubRepos\\SubCloverPhD\\SubClover\\FlowIv2")
+
+getwd()
+
+
+```
+## Change formats 
+
+```{r}
+#3 get dataframe created similar to ReAnalysis4 which is Rea6 - use Iversen DAS50Flwoering data
+df_tt_Pp <- read.table("df_Pptargets_TT50F.txt",header=TRUE) 
+
+#df_Pptargets_TT50FFromEmergence
+df_tt_Pp <- read.table("df_Pptargets_TT50FFromEmergence.txt",header=TRUE)
+
+# force date format
+df_tt_Pp$SowingD <- ymd(df_tt_Pp$SowingD)
+df_tt_Pp$Block <- as.factor(df_tt_Pp$Block)
+df_tt_Pp$TT_target <- as.factor(df_tt_Pp$TT_target)
+
+str(df_tt_Pp)
+
+
+```
+
+
+## Now prepare the data frame to include the date of flowering and the rate (1/days)
+## consider DAE (after emergence) ! ! 
+
+```{r}
+#4
+#select columns of interest 
+
+df_Prep <- df_tt_Pp%>%
+  select(SowingD:Block,DAS50F, DAS50FFromEmerg,Pp_sow)%>%
+  #find the date when 50F occurred  
+  mutate(Date50FF= ymd(SowingD+DAS50F))
+
+##Note that this is a long dataframe because of the loop in previous script (that's why so many lines FIX ME ...make it only 144 lines)
+```
+
+## Read the soil Temp data and Air temp data and  adjust formats 
+
+```{r}
+
+#create file
+df_A <- read.table("AirTemp.txt",header=TRUE)
+df_Soil <-read.table("SoilTemp.txt",header=TRUE)
+
+#adjust formats
+df_A %>%
+  mutate(Date=dmy(Date))
+
+str(df_A)
+
+#adjust formats
+df_Soil <- df_Soil%>%
+mutate(Date=dmy(Date))
+
+
+```
+
+
+##Now Add the accumulation of of soil temperatures to calculate the average temperature during the desired process (here 50% plants with first runner ). 
+
+```{r}
+#cumulate air
+df_B <- df_A %>%
+  mutate(SumAir = cumsum(AirTt)) %>%
+  mutate(Date=dmy(Date))%>%
+  dplyr::select(-AirTt)
+
+#cumulate soil
+
+df_Soil1 <- df_Soil %>%
+  mutate(SumTempSo = cumsum(TempSoil10mm)) %>%
+  #mutate(Date=dmy(Date))%>%
+  dplyr::select(-TempSoil10mm)
+
+
+```
+
+check data with graph
+
+```{r}
+df_Soil1 %>%
+  ggplot(aes(x=Date,y=SumTempSo)) +
+  geom_point()
+
+df_B%>%
+  ggplot(aes(x=Date,y=SumAir)) +
+  geom_point()
+
+```
+
+
+Merge dataframes by date
+
+```{r}
+
+# first merge the soil and air temperature dataframes 
+
+
+
+
+df_Temp <- merge(df_Soil1,df_B,by="Date") 
+str(df_Temp)
+
+#Merge the two dataframes by Date
+df1 <- merge(df_Prep,df_Temp, by.x="SowingD",by.y="Date") %>%
+  mutate(soilTempAcc_sow = SumTempSo) %>% 
+  mutate(airTempAcc_sow=SumAir)%>%
+dplyr::select(-SumTempSo,-SumAir)
+
+str(df1)
+
+
+
+```
+
+Need to force a date for 50 % of plants with runners  (round) to calculate the average temperature during this phase  
+
+Save dataframe as txt file
+
+
+```{r}
+
+
+# force formats of dates
+df1$Date <- round(df1$Date50FF,0)
+df_Temp$Date <- round(df_Temp$Date,0)
+
+#then repeat same procedure done for the sowing date but use the date for Flowering 
+  df_merge <- merge(df1, df_Temp, by="Date") %>%
+  mutate(soilTempAcc_50F = SumTempSo) %>%
+  mutate(airTempAcc_50F=SumAir)%>%
+  dplyr::select(-SumTempSo, -SumAir) %>%
+ 
+    #str(df_merge )
+  
+  
+#subtract accumulate temperature das1T from sowing 
+  mutate(meanTempSoil_50F = (soilTempAcc_50F-soilTempAcc_sow)/DAS50F) %>% 
+  mutate(meanTempAir_50F = (airTempAcc_50F-airTempAcc_sow)/DAS50F)
+  
+  summary(df_merge)
+
+  ##Use this dataframe to build graph in script 4 
+write.table(df_merge, "df_MeanTempTo50Flower.txt") 
+
+
+
+```
+
+#Incorporate the mean Pp as well 
+
+
+## Read the daily Pp and  adjust formats 
+
+```{r}
+
+#create file
+df_P <- read.table("df_CumTTiv.txt",header=TRUE)
+
+#
+str(df_P)
+df_P$Date<-as.Date(df_P$Date)
+str(df_P)
+
+#adjust formats
+df_P<-df_P%>%
+ #mutate(Date=dmy(Date))%>%
+  select(Date,Pp)
+
+str(df_P)
+
+```
+
+# Now need to calculate the mean Pp
+
+
+#Till here all good ! 
+
+Need to force a date for 50 % of plants with flowers  (round) to calculate the average Pp during this phase  
+
+Save dataframe as txt file.
+
+
+```{r}
+
+
+# force formats of dates
+df_merge$Date <- round(df_merge$Date50FF ,0)
+df_P$Date <- round(df_P $Date,0)
+
+#then repeat same procedure done for the soing date but use the dat for 1 Trifoliate
+  df_mergePp <- merge(df_merge, df_P, by="Date") 
+  
+  str(df_mergePp)
+
+
+```
+
+
+Calculate the mean photoperiod for the flowering period
+
+```{r}
+
+
+  df_Pp50FmeanTPp <-df_mergePp %>%
+    mutate(meanPp50F = (Pp+Pp_sow)/2) %>%
+  ##calculate the rate to Flowering 1/DAS50FFromEmerg
+  mutate(RateFlow= 1/DAS50FFromEmerg)
+
+str(df_Pp50FmeanTPp)
+
+```
+
+then select columns of interest and clean data frame for just 144 plots dataset  
+
+```{r}
+
+a <-df_Pp50FmeanTPp %>%
+  select(SowingD:Block,meanTempSoil_50F,meanTempAir_50F,meanPp50F,RateFlow  )%>%
+  group_by(SowTreat,Plot,Cultivar,Block)%>%
+  dplyr::select(meanPp50F, meanTempAir_50F,meanTempSoil_50F,RateFlow)%>%
+  summarise_all(funs(mean))
+  
+
+```
+
+##That's Super  store this dataframe as txt table 
+```{r}
+
+
+#Save as table 
+write.table(a, "df_MeanRateFlower50F_TempsPhotoperiod_.txt")
+
+
+```
+
+
+
+End of this script  (move for graphs  in script 13) 

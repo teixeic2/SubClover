@@ -154,13 +154,25 @@ df_H <- df_file_Hourly %>%
     rowwise() %>%
   mutate(TThour=int_func(temp,TT,AI_TEMP)) %>%
   group_by(Date) %>%
-  summarise(TTday=mean(TThour)) %>%
-  mutate(SumTTday = cumsum(TTday))
+  summarise(TTday=mean(TThour))
 
-summary(df_H)
-str(df_H)
-write.table(df_H, "SumTTHourGC.txt")
+
+#split script here to fix 
+#%>% 
+ # mutate(SumTTday = cumsum(TTday))
+
+
+df_H2<- df_H %>%
+   mutate(SumTTday = cumsum(TTday))
+
+
+##summarise 
+summary(df_H2)
+str(df_H2)
+write.table(df_H2, "SumTTHourGC.txt")
+
 
 ```
 
+ 
 

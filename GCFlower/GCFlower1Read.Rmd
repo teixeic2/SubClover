@@ -58,7 +58,7 @@ head(df_GCF)
 ```
 
 
-```{r GraphAllVariables, fig.height=5,fig.width=8}
+```{r GraphAllVariables, fig.height=7,fig.width=14}
 
 
 df_GCF %>%
@@ -73,7 +73,7 @@ df_GCF %>%
   ggplot(aes(x=DAS, y=Percent)) + 
   #geom_bar(shape=1, stat="identity")
   geom_line(aes(colour=Cultivar)) +
-   geom_point(aes(colour=Cultivar,shape=Cultivar))+
+   geom_point(aes(colour=Cultivar,shape=Cultivar),size=4)+
   facet_grid(Variable~., scales = "free") +
   geom_abline(intercept = 50, slope = 0,linetype=2)+
 theme(axis.text.x = element_text(angle = 0, hjust = 0.5))+
@@ -81,6 +81,7 @@ theme(axis.text.x = element_text(angle = 0, hjust = 0.5))+
   labs(x="Days after sowing")+
   theme_bw()+
 scale_x_continuous(breaks=seq(min(df_GCF$DAS),max(df_GCF$DAS),20))
+
   
 ```
 
@@ -98,7 +99,7 @@ df_GCF %>%
   ggplot(aes(x=DAS, y=Percent)) + 
   #geom_bar(shape=1, stat="identity")
   geom_line(aes(colour=Cultivar)) +
-   geom_point(aes(colour=Cultivar, shape=Cultivar))+
+   geom_point(aes(colour=Cultivar, shape=Cultivar),size=4)+
   facet_grid(Variable~., scales = "free") +
   geom_abline(intercept = 50, slope = 0,linetype=2)+
 theme(axis.text.x = element_text(angle = 0, hjust = 0.5))+
@@ -237,9 +238,4 @@ write.table(df_flower, "df_GCflower.txt")
 ```
 
 
-
-```{r}
-
-```
-
-
+End of the script. 

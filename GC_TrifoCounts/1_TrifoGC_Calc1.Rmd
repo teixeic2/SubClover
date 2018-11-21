@@ -1,0 +1,132 @@
+---
+title: "Trifoliates GC"
+author: "CT"
+date: "31.08.2016"
+output: html_document
+---
+
+Purpose:
+
+-Analysis of trifoliates expansion for rowth Cabinet  with focus on first Trifoliate 
+- Graph the main dataset 
+ 
+```{r loadLibraries}
+library(tidyr)
+library (dplyr)
+library (ggplot2)
+library(agricolae)
+library (lubridate)
+library(mosaic)
+library(lattice)
+```
+
+
+
+```{r}
+setwd("C:\\GitHubRepos\\SubCloverPhD\\SubClover\\GCTrifoCounts")
+getwd()
+#create file
+df_trifo <- read.table("GCTrifoCountall.txt",header=TRUE)
+head(df_trifo)
+
+
+```
+Define formats and calculate the mean number of trifoliates considering the sub samples (S1-S10)
+
+```{r loadFile}
+
+
+# define factors for the ones that "look like" values
+df_trifo$Plot <- as.factor(df_trifo$Plot)
+df_trifo$Block <- as.factor(df_trifo$Block)
+df_trifo$Cultivar <- as.factor(df_trifo$Cultivar)
+df_trifo$SowTreat <- as.factor(df_trifo$SowTreat)
+
+ df_trifo <- df_trifo %>%
+  mutate(SowingDate = dmy(SowingDate), 
+         ReadingDate = dmy(ReadingDate),
+         Trifo = (s1+s2+s3+s4+s5+s6+s7+s8+s9+s10)/10)
+
+str(df_trifo)
+head(df_trifo)
+tail(df_trifo)
+
+
+df_trifo %>% filter(Plot ==1) %>% summary()
+
+
+
+```
+
+Graph the results : DAS and number of trifoliates 
+
+```{r, fig.height=8, fig.width=15}
+#Graph         
+  df_trifo %>%
+  mutate (SowTreat= factor(SowTreat, levels=c("S1", "S2", "S3", "S4", "S5", "S6","S7", "S8"),labels=c("June", "July", "September", "November", "December", "February","March", "May")))%>%
+  group_by(Cultivar, SowTreat, DAS) %>%
+  summarise_each(funs(mean)) %>%
+  ggplot(aes(x=DAS, y=Trifo)) + 
+  geom_point(aes(colour=Cultivar, shape=Cultivar), size=4) +
+  geom_line(aes(colour=Cultivar)) +
+  #facet_wrap(~SowTreat,ncol=4, scales = "free") +
+  facet_wrap (~SowTreat,ncol=4)+
+  ylim(0,16)+
+  labs(y="Number of trifoliates",x="Days after sowing")+
+  theme_grey(base_size = 16) +
+  theme_bw()+
+    geom_abline(intercept = 1, slope = 0, linetype=2)+
+   geom_abline(intercept = 5,  slope = 0, linetype=2)+
+   geom_abline(intercept = 10,  slope = 0, linetype=2)+
+theme(axis.text.x=element_text(angle = 0, hjust = 0))+
+theme(text = element_text(size = 20))
+
+
+```
+
+Other graphics with same dat 
+```{r, fig.height=5, fig.width=8}
+#Graph         
+  df_trifo %>%  
+  mutate (SowTreat= factor(SowTreat, levels=c("S1", "S2", "S3", "S4", "S5", "S6","S7", "S8"),labels=c("June", "July", "September", "November", "December", "February","March", "May")))%>%
+  group_by(Cultivar, SowTreat, DAS) %>%
+  summarise_each(funs(mean)) %>%
+  ggplot(aes(x=DAS, y=Trifo)) + 
+  geom_point(aes(colour=Cultivar, shape=Cultivar)) +
+  geom_line(aes(colour=Cultivar)) +
+  facet_grid (SowTreat~., scales = "free")+
+  labs(y="Number of trifoliates",x="Days after sowing")+
+    #geom_abline(intercept = 6, slope = 0)
+   geom_abline(intercept = 4:6, slope = 0)
+
+
+
+```
+
+
+get the standard  error values for the final trifoliate numbers 
+
+
+```{r}
+str(df_trifo)
+
+dfMaxTrifo <- df_trifo %>% 
+
+  group_by( Cultivar, SowTreat ) %>%
+  dplyr::select(Trifo)%>%
+  summarise_all(funs(max,sd))%>%
+  mutate(SE=sd/1.73)
+ 
+
+  
+
+
+
+```
+
+
+
+
+
+End of this script Calc 1. 
+Move to script 2 to calculate percent and rate of leaf appearance 

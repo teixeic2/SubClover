@@ -1,0 +1,218 @@
+---
+title: "Seed Breakdown  Thermal treatment"
+author: "CT"
+date: 16.11.2018
+output: html_document
+---
+This script reads the baselined corrected spectra for the 3 replicates 3 cultivars (Antas, Monti and Narrikup) in 3 different incubation times (0, 42, 84, 252)  
+
+```{r setup, include=FALSE, loadlibraires}
+#knitr::opts_chunk$set(echo = TRUE)
+library(tidyr)
+library (dplyr)
+library (ggplot2)
+library(agricolae)
+library(knitr)
+library (lubridate)
+library(scales)
+
+```
+
+
+
+```{r readData}
+setwd("C:\\GitHubRepos\\SubCloverPhD\\SubClover\\SpectraThermalTreatment")
+getwd()
+
+#create file
+#df_sp <- read.table("BreakBaseLineReps.txt",header=TRUE)
+df_sp <- read.table("NormalisedSnip_Dataframe.txt",header=TRUE)
+#head(df_sp)
+
+head(df_sp)
+```
+
+##select columns of interest and re arrange the dataframe 
+## make wavenumber as factor 
+
+
+```{r}
+df_sp2 <-df_sp %>%
+  dplyr::select(-TreatCode_Cv_Incub_Rep, -TreatCode_Cv_Incub_Rep_Seed) %>%
+  mutate(IncubationDays=factor(IncubationDays), Rep=factor(Rep),Seed=factor(Seed)) %>%
+#filter(IncubationDays!="42")%>%  
+#Now gather values 
+tidyr::gather("AbsFactor", "AbsValue",starts_with("X")) %>%
+mutate(WaveNumber=as.numeric(gsub("X","",AbsFactor)), AbsFactor=factor(AbsFactor)) %>%
+mutate(id=factor(paste0(Cultivar,"_",AbsFactor))) 
+
+
+
+```
+
+check 
+
+```{r}
+
+str(df_sp2)
+
+
+```
+
+
+
+##- Now extract the spectra means by seed or rep or treatment 
+ 
+```{r, warning=FALSE }
+
+
+
+#get average by cultivar incubation and rep combination 
+
+df_AverageRep <-df_sp2 %>%
+group_by(Cultivar, IncubationDays,WaveNumber) %>%
+summarise_all(funs(mean))
+
+
+summary(df_AverageRep)
+```
+
+Write table with all selected data  
+```{r}
+#write.table(df_sp2,"BreakBaselined3cv.txt")
+
+write.table(df_AverageRep,"NormalSnipped_CvByIncub.txt")
+
+
+```
+
+
+
+Now Spread the dataframe to feed Unscrumbler 
+
+```{r}
+
+df_spread<-df_AverageRep %>%
+  tidyr::spread("WaveNumber", "AbsValue")
+
+#then write a tabel with spread data 
+
+write.table(df_spread,"Spread_NormalSnipped_CvByIncub.txt")
+
+
+```
+
+
+Now repeat the same procedure grouping by Cv x Incub x Rep 
+
+
+
+```{r, warning=FALSE }
+
+
+
+#get average by cultivar incubation and rep combination 
+
+df_Average3Reps <-df_sp2 %>%
+group_by(Cultivar, IncubationDays, Rep, WaveNumber) %>%
+summarise_all(funs(mean))
+
+
+summary(df_Average3Reps)
+
+
+```
+
+
+
+Write table with all selected data  
+```{r}
+#write.table(df_sp2,"BreakBaselined3cv.txt")
+
+write.table(df_Average3Reps,"NormalSnipped_RepsByCvByIncub.txt")
+
+
+```
+
+
+
+Now Spread the dataframe to feed Unscrumbler 
+
+```{r}
+
+df_spread<-df_Average3Reps %>%
+  tidyr::spread("WaveNumber", "AbsValue")
+
+#then write a tabel with spread data 
+
+write.table(df_spread,"Spread_NormalSnipped_RepsByCvByIncub.txt")
+
+
+```
+
+
+
+
+
+
+
+
+
+############################Not in use yet ####################################################
+
+
+Loop unique wavenumber 
+
+```{r}
+
+idList <-unique(df_sp2$id) 
+
+print(paste0("Found ",length(idList)," wavelength by cultivar combinations to loop"))
+
+data.all <- data.frame()
+
+x <- 0 # for t test
+
+for (i in 1:length(idList)) {
+  
+    df <- df_sp2 %>%
+    ungroup() %>%
+    mutate(IncubationDays=factor(IncubationDays), Rep=factor(Rep)) %>%
+    subset(id == idList[i])
+  
+  my.anova <- aov(AbsValue ~ IncubationDays + Rep, data = df)
+   
+  pVals <- summary(my.anova)[[1]][["Pr(>F)"]]
+ 
+    # T test when P<0.05
+  if(!is.nan(pVals[1]) & pVals[1] < 0.05) {
+  
+  x <- x + 1
+  t_test <-  LSD.test(my.anova, c("IncubationDays"), alpha= 0.05, p.adj="none")
+  lsd <- t_test$statistics[6] # getting  lsd
+  
+  this.data <- data.frame(Cultivar=df$Cultivar[1], WaveNumber = df$WaveNumber[1], PV = pVals[1], LSD = lsd, Count=x)
+  
+  data.all <- rbind(data.all, this.data)
+  
+  this.data <- NULL
+  
+  } else {
+    
+# do nothing
+   
+  }
+  
+}
+```
+
+write a table with values by cultivar 
+
+```{r}
+write.table(data.all, "P_LSD_Break_0_84.txt")
+```
+
+
+graph follows in script 4. 
+
+

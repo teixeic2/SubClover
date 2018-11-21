@@ -1,0 +1,342 @@
+---
+title: 'Seed Germination TT sub and sup _Stats summary  '
+author: "CT"
+date: "09.06..2018"
+output:
+  pdf_document: default
+  html_document: default
+  word_document: default
+---
+
+This script does this:
+
+-get dataframe produced with previous scripts (organized in excel _ AnalysisSeed GermTemps - folder PhD Analysis_DataframeTTsub_TTsup) for each cultivar and block
+- Calculates the SE and Ci for each.  run anova   
+
+
+
+```{r loadLibraries, warning=FALSE}
+library(tidyr)
+library(dplyr)
+library(ggplot2)
+library(agricolae)
+library(knitr)
+library(lubridate)
+library(mosaic)
+library(lattice)
+library (gridExtra)
+library (rcompanion)
+library(knitr) 
+
+```
+
+get file 
+
+```{r loadFile}
+# Get dataframe from previous script (written table )
+setwd("C:\\GitHubRepos\\SubCloverPhD\\SubClover\\SeedGermTemp")
+getwd()
+
+#create file
+#df_G <- read.table("df_RateGerm2.txt",header=TRUE)
+df_TTSu <- read.table("TTSub_TTSupData.txt",header=TRUE)
+
+str(df_TTSu)
+```
+
+select columns of interest and Adjust formats 
+```{r}
+
+#change formats
+df_TTSu$Cultivar <- as.factor(df_TTSu$Cultivar)
+df_TTSu$Block <- as.factor(df_TTSu$Block)
+#df_TTSu$Plot <- as.factor(df_TTSu$Plot)
+df_TTSu$Variate <- as.factor(df_TTSu$Variate)#note Temp here needs to be numeric for subseting 
+df_TTSu$Value <- as.numeric(df_TTSu$Value)#note Temp here needs to be numeric for subseting
+
+
+# this is to "clean previous dfs : df_emerg4 <- NULL
+```
+
+Get overall means and se 
+
+```{r}
+
+df_Allmeans<- df_TTSu%>%
+  group_by( Variate) %>%
+  dplyr::select( Variate, Value)%>%
+  summarise_all(funs(mean(Value), sd))%>%
+  mutate(SE=sd/2)
+
+
+
+
+```
+
+
+
+Create a Loop ANOVA for variate 
+
+
+## Create index to filter for loop ANOVA
+
+```{r}
+y <- c("Ttsub","Ttsup", "Ttcardinal")
+
+sdIndex <- unique(df_TTSu$Variate)
+
+sdIndex[order(match(sdIndex,y))]
+
+length(sdIndex)
+sdIndex
+```
+
+Loop Anova 
+
+
+## Then loop anova for each individual variate  
+
+```{r}
+for (i in 1:length(sdIndex)) {
+  
+ #print(i)
+ print(paste0(sdIndex[i],"--------------------------------"))
+  
+  file.subset <- df_TTSu %>%
+  filter(Variate==sdIndex[i])
+  
+ 
+head(file.subset, 50)
+   summary(file.subset)
+my.anova <- aov(Value ~ Cultivar + Block, data = file.subset)
+print(summary(my.anova))
+
+
+
+if ((summary(my.anova)[[1]][["Pr(>F)"]][1])<0.05) {
+  print("***Sig Cultivar***") 
+  print((LSD.test(my.anova, c("Cultivar"), alpha= 0.05, p.adj="none"))) } 
+
+
+if ((summary(my.anova)[[1]][["Pr(>F)"]][1])>0.05) {
+  print("***Sig Cultivar***") 
+  print((LSD.test(my.anova, c("Cultivar"), alpha= 0.05, p.adj="none"))) } 
+
+# make mean separation if significant
+
+(LSD.test(my.anova, c("Cultivar"), alpha= 0.05, p.adj="none"))
+  
+}
+
+
+```
+
+
+then explore data of Tb  to get the Ci ; exampleplant.mod1 = lm(weight ~ group, data = plant.df). Filter the Tb first 
+
+
+
+```{r}
+df_Tb<-df_TTSu %>%
+  filter(Variate=="Tb")
+  
+
+#then do the lm 
+
+plant.mod1 = lm(Value ~ Cultivar, data = df_Tb)
+
+#call first summary 
+summary(plant.mod1)
+
+```
+
+Visualise  with the t.test the overall confidence interval for Tb, Tmax and Topt 
+
+```{r}
+#this gives an overview of all values 
+#t.test(df_Tb$Value,conf.level = 0.95)
+ 
+
+#here only for Tb :
+
+groupwiseMean(Value~Cultivar,
+              data=df_Tb,
+              conf= 0.95,
+              digits=3)
+
+```
+
+
+
+```{r}
+
+#t.test(df_Tb$Value,conf.level = 0.95)
+ 
+#here for Tmax
+
+groupwiseMean(Value~Cultivar,
+              data=df_Tmax,
+              conf= 0.95,
+              digits=3)
+
+```
+
+
+```{r}
+
+#t.test(df_Tb$Value,conf.level = 0.95)
+ 
+#here for Topt 
+
+groupwiseMean(Value~Cultivar,
+              data=df_Topt,
+              conf= 0.95,
+              digits=3)
+
+```
+
+
+
+Other data explorations  using confit but is outdated as R companion library was installed! 
+
+
+```{r}
+
+#anova lm 
+anova(plant.mod1)
+
+
+```
+
+
+
+```{r}
+
+confint(plant.mod1)
+
+```
+
+
+```{r}
+
+ggplot(df_Tb, aes(x = Cultivar, y = Value)) +
+  geom_boxplot(fill = "grey80", colour = "black") +
+  scale_x_discrete() +
+  #ylim(-8,10)+
+  xlab("Cultivar") +
+  ylab("Temperature")
+
+
+```
+
+
+
+
+Now do the same with the Tmax 
+
+
+```{r}
+df_Tmax<-df_TTSu %>%
+  filter(Variate=="Tmax")
+  
+
+#then do the lm 
+
+plant.mod2 = lm(Value ~ Cultivar, data = df_Tmax)
+
+#call first summary 
+summary(plant.mod2)
+
+```
+
+
+
+```{r}
+
+#anova lm 
+anova(plant.mod2)
+
+
+```
+
+
+
+```{r}
+
+confint(plant.mod2)
+
+```
+
+
+
+```{r}
+
+ggplot(df_Tmax, aes(x = Cultivar, y = Value)) +
+  geom_boxplot(fill = "grey80", colour = "black") +
+  scale_x_discrete() +
+  #ylim(-8,3)+
+  xlab("Cultivar") +
+  ylab("Temperature")
+
+```
+
+
+
+
+
+Now Run analysis for the Topt 
+
+
+
+
+```{r}
+df_Topt<-df_TTSu %>%
+  filter(Variate=="Topt")
+  
+
+#then do the lm 
+
+plant.mod3 = lm(Value ~ Cultivar, data = df_Topt)
+
+#call first summary 
+summary(plant.mod3)
+
+```
+
+
+
+```{r}
+
+#anova lm 
+anova(plant.mod3)
+
+
+```
+
+
+
+```{r}
+
+confint(plant.mod3)
+
+```
+
+
+
+```{r}
+
+ggplot(df_Tmax, aes(x = Cultivar, y = Value)) +
+  geom_boxplot(fill = "grey80", colour = "black") +
+  scale_x_discrete() +
+  #ylim(-8,3)+
+  xlab("Cultivar") +
+  ylab("Temperature")
+
+```
+
+
+
+
+
+End of this script
+next script generate equations for each cultivar separately from 5 to 15.4-5 degrees. 

@@ -302,6 +302,106 @@ ggsave( "plot_CumulativeEmergence_.png", width=15, height=6, dpi=500)
 ```
 
 
+Build a graph for the ppt presentation only with March data 
+
+
+```{r}
+
+#first need to filter only March form the df_NumberSeedsRemain
+
+
+March <-df_NumberSeedsRemain %>%
+ filter(Month=="March") 
+  
+
+#Here how to create the end error bar with max Sd 
+# find size of bar per month
+# find single position of x y to put the bar
+
+#extraPos<- 1.10 # extra position for single error bar
+extraPos<- 1.15 # extra position for single error bar
+x_max<-max(March$HardseedRank)
+y_max<-max(March$mean)
+
+# find largest standard error
+sd_df2 <- March %>% 
+  group_by(Month) %>%
+  dplyr::select(sd)%>%
+  filter(Month=="March") %>%
+  summarise_all(max)%>%
+  #summarise(max_sd = max(sd)) %>% 
+  ungroup() %>%
+  rowwise() %>%
+  #rename variables
+  mutate(HardseedRank = x_max*extraPos, mean = y_max*extraPos,max_sd=sd )
+
+summary(sd_df2)
+
+#divide sd/4 as number of replicates were 4 and need to divide the SE by two for graph
+
+March%>%
+  #mutate(Month= factor(Month, levels=c("January", "March", "June"),
+                           #labels=c("January", "March", "June")))%>%
+ filter(Month=="March") %>%
+#filter (|Cultivar=="Denmark"|Cultivar=="Leura")%>%
+ggplot(aes(x=HardseedRank, y=mean)) + 
+  geom_point(aes(shape=Cultivar),size=6, stroke=2)+
+ # geom_line(aes(linetype=Cultivar),alpha=0.2)+
+  scale_shape_manual(values = c(0,1,2,3,4,5,6,7,8))+
+  #scale_shape_manual(values = c(0,1,2,3,4))+
+  #scale_shape_manual(values = c(1,2,4,7,8,9))+
+  geom_errorbar(data=sd_df2, aes(ymin=mean-max_sd/4,
+                    ymax=mean+max_sd/4), width=0.4)+
+  facet_wrap(~Month,ncol=3, scales = "free")+
+  theme_bw(base_size = 26)+
+  #scale_y_continuous(breaks = c(5,10,20,30,40,50))+
+  ylim(0, 20)+
+  #xlim(0,10)+
+  labs(y="Cumulative emergence (%) ",x="Hardseed Rank")+ 
+  geom_abline(intercept = 30, slope = 0, linetype=2)+
+#Themes
+#theme(axis.text.y = element_text( size = 26))+
+theme(axis.title.y = element_text(face="bold", size=22,angle = 90, vjust=0.5))+
+#theme(axis.text.x=element_text(angle = 0, hjust=0.5,vjust=0,size = 20,face="bold"))+
+  theme(axis.title.x = element_text( size=24)) + scale_x_continuous(breaks = c(0:6))+
+  theme(text=element_text(size=30,  family="serif",face="bold"))+
+  theme(title=element_text(size=22,  family="serif",face="bold"))+
+  theme(title=element_text(size=22,  family="serif",face="bold"))+
+  
+  #remove grid lines 
+   theme(
+     panel.border = element_rect(colour = "black", size = 3), 
+     panel.grid.major = element_blank(),
+     panel.grid.minor = element_blank(),
+     axis.line = element_line(colour = "black"))
+   
+  
+  
+  
+  ## here make borders 
+  # and strip gridlines
+   #make sowing dates white  
+   theme(strip.background = element_rect(colour = "black", fill = "white",size=2))
+  #theme(title=element_text(size=22,  family="serif",face="bold"))
+
+  
+  
+
+ggsave( "plot_March_CumulativeEmergence.png", width=8, height=7, dpi=500)
+#OBS ANOVA for this dataset follows ......)
+
+
+
+
+
+
+
+
+
+```
+
+
+
 
 build a graph with the number of seeds which remained in seed bank
 

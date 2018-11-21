@@ -148,27 +148,50 @@ summary(data.all)
 
 ```
 
-```{r, warning=FALSE}
+##data visualisation 
+```{r, warning=FALSE, fig.height=6, fig.widht=12}
 data.all %>%
-  ggplot(aes(x=WL,y=PV)) +
-  geom_rect(data=NULL,aes(xmin=650,xmax=4000,ymin=0,ymax=0.05),fill="lightpink", alpha = 0.01) +
+  ggplot(aes(x=WaveNumber,y=PV)) +
+  geom_rect(data=NULL,aes(xmin=650,xmax=4000,ymin=0,ymax=0.05),fill="lightgreen", alpha = 0.01) +
   geom_line() +
-  theme_bw()+
-  geom_abline(slope=0, intercept=0.05, linetype=2)+
+  theme_bw(base_size = 22)+
+  #geom_abline(slope=0, intercept=0.05, linetype=2)+
+  geom_abline(slope=0, intercept=0.01, linetype=2)+
    scale_x_reverse(breaks = seq(650, 4000, by = 100))+
   theme(axis.text.x = element_text(angle = 90, hjust = 1)) +
   xlab(expression(Wavenumber~"(cm"^"-1"*")"))+
-  ylab(expression(P~value ~"(P)"))
+  theme(axis.text.x = element_text( size = 12,face="bold"))+
+  ylab(expression(P~value ~"(P)"))+
+  #remove grid lines 
+   theme(
+     panel.border = element_rect(colour = "black", size = 3), 
+     panel.grid.major = element_blank(),
+     panel.grid.minor = element_blank(),
+     axis.line = element_line(colour = "black"))
+  
+  
+  
 ```
 
-## Write data frame 
 
-- as table for subsequent analysis 
+save graph
+
+
+```{r}
+
+
+ggsave( "plot_S2_WavePvaluesNorm_.png", width=15, height=6, dpi=500)
+
+
+```
+
+
+## Write data frame - as table for subsequent analysis 
 
 ```{r}
 
 #write table in file 
-write.table(data.all, "WavePvalues.txt")
+write.table(data.all, "S2_WavePvaluesNorm.txt")
 getwd()
 ```
 
