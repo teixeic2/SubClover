@@ -2,8 +2,10 @@
 title: "BurrBurialAnalysis"
 author: "CT"
 date: "Friday, March 18, 2016"
-output: html_document
----
+output: 
+  word_document: default
+  pdf_document: default
+  html_document: default
 Purpose : 
 calculations of burr yield per 1m 2 and total burr yield
 Calculation for the percentage of buried burs 
@@ -16,6 +18,7 @@ library (dplyr)
 library (ggplot2)
 library(agricolae)
 library(lubridate)
+library(knitr)
 ```
 
 Read File 

@@ -2,7 +2,10 @@
 title: "Relative Humidity  Calculation Iversen 2 - Broadfields Weather data"
 author: "CT"
 date: "01 Jan 2018"
-output: html_document
+output: 
+  word_document: default
+  pdf_document: default
+  html_document: default
 ---
 
 ```{r setup, include=FALSE, loadlibraires}

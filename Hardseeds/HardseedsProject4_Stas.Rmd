@@ -5,6 +5,7 @@ date: "Thursday, FEbruary 3, 2016"
 output:
   word_document: default
   pdf_document: default
+  html_document: default
   
   This script does,
   reads the table generated in script 1 

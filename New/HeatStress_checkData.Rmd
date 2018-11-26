@@ -2,7 +2,8 @@
 title: "R Notebook"
 output:
   word_document: default
-  html_notebook: default
+  pdf_document: default
+  html_document: default
 ---
 
 Objective: Retrieve and test the data from 
@@ -12,6 +13,7 @@ library(raster)
 library(ggplot2)
 library(rgdal) 
 library(dplyr)
+library(knitr)
 ```
 
 ## Get data and sort formats

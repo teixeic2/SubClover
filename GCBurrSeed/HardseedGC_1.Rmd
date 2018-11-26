@@ -2,7 +2,10 @@
 title: "Hardseeds GC Max"
 author: "CT"
 date: " 22 November , 2016"
-output: pdf_document
+output: 
+  word_document: default
+  pdf_document: default
+  html_document: default
 ---
 
 ```{r loadLibraries}

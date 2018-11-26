@@ -2,7 +2,10 @@
 title: "Flowering 6CV - calculation 50 Percent Flowering"
 author: "CT"
 date: "30.02.2016"
-output: html_document
+output: 
+  word_document: default
+  pdf_document: default
+  html_document: default
 ---
 
 Aim: Calculate Tt at 50% Bud, flowering or Bur classes for each plot

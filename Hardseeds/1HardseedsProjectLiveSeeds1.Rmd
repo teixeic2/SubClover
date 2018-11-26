@@ -5,6 +5,7 @@ date: "22.09.2016"
 output:
   word_document: default
   pdf_document: default
+  html_document: default
 ---
 
 

@@ -24,6 +24,7 @@ library (lubridate)
 library(mosaic)
 library(lattice)
 library(reshape2)
+library(knitr)
 ```
 
 

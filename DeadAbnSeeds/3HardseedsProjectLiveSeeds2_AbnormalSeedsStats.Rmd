@@ -4,6 +4,7 @@ author: "CT"
 date: "31.10.2017"
 output:
   word_document: default
+  pdf_document: default
   html_document: default
 ---
 

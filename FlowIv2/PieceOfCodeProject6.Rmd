@@ -1,6 +1,8 @@
 ---
 title: "R Notebook"
-output: html_notebook
+output: word_document: default
+  pdf_document: default
+  html_document: default
 ---
 
 
@@ -8,6 +10,8 @@ output: html_notebook
 
 
 ```{r, warning=FALSE}
+
+library(knitr)
 
 for(i in 1:length(cvGroup)){
   

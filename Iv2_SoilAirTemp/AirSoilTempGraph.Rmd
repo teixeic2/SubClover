@@ -1,9 +1,11 @@
-
 ---
 title: "Graph Air and Soil Temperature"
 author: "CT"
 date: "Friday, January 01, 2017"
-output: html_document
+output: 
+  word_document: default
+  pdf_document: default
+  html_document: default
 ---
 
 
@@ -14,6 +16,7 @@ library (ggplot2)
 library (lubridate)
 library (scales)
 library(gridExtra)
+library(knitr)
 ```
 
 Note: this file produces the graphs for soil and Air temperatures from hobologger data Iversen 2

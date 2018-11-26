@@ -2,7 +2,10 @@
 title: "Framework for PCA analysis "
 author: "CT"
 date: "15.01.2017
-output: html_document
+output: 
+  word_document: default
+  pdf_document: default
+  html_document: default
 ---
 - This script is an attempt for the PCA analysis with the subbset for untreated seeds for the ESA paper . Compare with Unscrambler results 
 

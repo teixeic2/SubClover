@@ -4,6 +4,7 @@ author: "CT"
 date: "Thursday, December  05, 2016"
 output:
   word_document: default
+  pdf_document: default
   html_document: default
 note: include Pp analysis using selected datasets from Reanalysis4 (df_REa6)
 ---

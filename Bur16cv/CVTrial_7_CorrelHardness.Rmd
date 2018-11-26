@@ -2,7 +2,10 @@
 title: "SeedlingRegeneration_Analysis_16 cv_trial"
 author: "CT"
 date: "28.12. 2017"
-output: html_document
+output: 
+  word_document: default
+  pdf_document: default
+  html_document: default
 ---
 Purpose : 
 Correlate the hardseed rating with the estimated counts (January, march,may).
@@ -15,6 +18,7 @@ library (dplyr)
 library (ggplot2)
 library(agricolae)
 library(lubridate)
+library(knitr)
 ```
 
 Read File 

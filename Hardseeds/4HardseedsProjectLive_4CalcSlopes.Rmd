@@ -5,6 +5,7 @@ date: "Tuesday, July 19, 2016"
 output:
   word_document: default
   pdf_document: default
+  html_document: default
 ---
 Purpose: this script calculates the slopes of hardseed breakdown based on days and thermal-time sum of test
 

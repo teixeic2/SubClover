@@ -2,7 +2,10 @@
 title: "Hardseeds Live Hard Ungerm 6CV"
 author: "CT"
 date: "Thursday, 22 September , 2016"
-output: html_document
+output: 
+  word_document: default
+  pdf_document: default
+  html_document: default
 ---
 
 ```{r loadLibraries}

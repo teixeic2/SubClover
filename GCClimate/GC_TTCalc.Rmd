@@ -1,4 +1,3 @@
-
 ---
 title: 'Graph climate variables in growth chamber '
 author: "CT"

@@ -1,9 +1,11 @@
-
 ---
 title: "Graph Air and Soil Temperature"
 author: "CT"
 date: "05.07.2017"
-output: html_document
+output: 
+  word_document: default
+  pdf_document: default
+  html_document: default
 ---
 Purpose: Correlate soil and air temperature from Iversen 2 collected data 
 
@@ -13,6 +15,7 @@ library (dplyr)
 library (ggplot2)
 library (lubridate)
 library (scales)
+library(knitr)
 ```
 
 Note: this file produces the graphs for soil and Air temperatures from hobologger data Iversen 2

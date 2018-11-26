@@ -1,9 +1,11 @@
-
 ---
 title: "Graph climate variables in growth chamber "
 author: "CT"
 date: "12.12.2017"
-output: html_document
+output: 
+  word_document: default
+  pdf_document: default
+  html_document: default
 ---
 
 This script graphs the Temp and Pp during growth chamber experiment
@@ -15,6 +17,7 @@ library (ggplot2)
 library (lubridate)
 library (scales)
 library(gridExtra)
+library(knitr)
 ```
 
 Note: this file produces the graphs for recorded variables in growht cabinet. measurements are done every 18 seconds. 

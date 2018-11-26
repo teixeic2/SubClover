@@ -2,7 +2,10 @@
 title: "Hardseeds method check_rub and unrub seeds "
 author: "CT"
 date: "16 June, 2016"
-output: html_document
+output: 
+  word_document: default
+  pdf_document: default
+  html_document: default
 ---
 
 ```{r loadLibraries}

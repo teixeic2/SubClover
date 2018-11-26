@@ -2,7 +2,10 @@
 title: "Seed Breakdown  Test base line corrected"
 author: "CT"
 date: "21 March 2017" ## revised in 15.11.2017 (ESA papaer 2018)
-output: html_document
+output: 
+  word_document: default
+  pdf_document: default
+  html_document: default
 ---
 This script reads the baselined corrected spectra for 3 cultivars (Antas, Monti and Narrikup) in 3 different incubation times (0, 42, 84) consider the data with reps generated in script 2 (Correct 2 Reps ) 
 

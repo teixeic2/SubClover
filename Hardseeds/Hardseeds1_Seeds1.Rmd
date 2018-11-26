@@ -2,7 +2,10 @@
 title: "Hardseeds Total Max 6CV and rounds "
 author: "CT"
 date: "Thursday, 22 September , 2015"
-output: pdf_document
+output: 
+  word_document: default
+  pdf_document: default
+  html_document: default
 ---
 This script aims to calculate the percentage of hardseeds over time 
 ```{r loadLibraries}

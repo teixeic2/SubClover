@@ -2,7 +2,10 @@
 title: "Germination  seedlings I2"
 author: "CT"
 date: "27.07.2017"
-output: html_document
+output: 
+  word_document: default
+  pdf_document: default
+  html_document: default
 ---
 
 This script does this:

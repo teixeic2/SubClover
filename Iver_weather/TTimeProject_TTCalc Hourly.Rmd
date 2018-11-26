@@ -2,7 +2,10 @@
 title: "Thermal Time Calculation Iversen 2 Weather data using hourly data"
 author: "CT"
 date: "07.12.2017"
-output: html_document
+output: 
+  word_document: default
+  pdf_document: default
+  html_document: default
 ---
 
 ```{r setup, include=FALSE, loadlibraires}

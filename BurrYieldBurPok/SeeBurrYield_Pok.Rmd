@@ -2,7 +2,10 @@
 title: "BurrBurialAnalysis Poukawa site"
 author: "CT"
 date: "02.062017"
-output: html_document
+output: 
+  word_document: default
+  pdf_document: default
+  html_document: default
 #This script calculates burr yields from Poukawa experimental site 
 ---
 

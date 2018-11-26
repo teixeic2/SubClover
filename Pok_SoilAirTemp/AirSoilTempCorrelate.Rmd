@@ -1,18 +1,21 @@
-
 ---
 title: "Correlate Air and Estimated Soil Temperature for Poukawa"
 author: "CT"
 date: "05.08.2017"
-output: html_document
+output: 
+  word_document: default
+  pdf_document: default
+  html_document: default
 ---
 
 
 ```{r, warning=FALSE}
 library(tidyr)
-library (dplyr)
-library (ggplot2)
-library (lubridate)
-library (scales)
+library(dplyr)
+library(ggplot2)
+library(lubridate)
+library(scales)
+library(knitr)
 ```
 
 This file produces the estimated soil temperature based on  Air temperatures for Poukawa site. Air temperature was downloaded via ClifolNIWA and soil temperature estimated. 

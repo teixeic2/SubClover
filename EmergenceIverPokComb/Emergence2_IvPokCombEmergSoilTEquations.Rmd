@@ -2,7 +2,10 @@
 title: "Emergence seedlings I2 and Pok graphs with Mean Soil Temp extended range "
 author: "CT"
 date: "17.08.2017"
-output: html_document
+output:   
+  word_document: default
+  pdf_document: default
+  html_document: default
 ---
 
 This script does this:

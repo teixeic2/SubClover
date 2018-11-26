@@ -2,7 +2,10 @@
 title: "Total Number of Burrs per m2 "
 author: "CT"
 date: "Friday, March 18, 2016"
-output: html_document
+output: 
+  word_document: default
+  pdf_document: default
+  html_document: default
 ---
 
 This script calculates the number of burrs per area (1m2) and run ANOVA 
@@ -14,6 +17,7 @@ library (dplyr)
 library (ggplot2)
 library(agricolae)
 library(lubridate)
+library(knitr)
 ```
 
 Read File 

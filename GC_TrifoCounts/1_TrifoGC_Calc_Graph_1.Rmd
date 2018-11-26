@@ -1,0 +1,210 @@
+---
+title: "Trifoliates GC"
+author: "CT"
+date: "31.08.2016"
+output: 
+  word_document: default
+  pdf_document: default
+  html_document: default
+---
+
+Purpose:
+
+-Analysis of trifoliates expansion for rowth Cabinet  with focus on first Trifoliate 
+- Graph the main dataset 
+ 
+```{r loadLibraries}
+library(tidyr)
+library (dplyr)
+library (ggplot2)
+library(agricolae)
+library (lubridate)
+library(mosaic)
+library(lattice)
+```
+
+
+
+```{r}
+setwd("C:\\GitHubRepos\\SubCloverPhD\\SubClover\\GC_TrifoCounts")
+getwd()
+#create file
+df_trifo <- read.table("GCTrifoCountall.txt",header=TRUE)
+head(df_trifo)
+
+
+```
+Define formats and calculate the mean number of trifoliates considering the sub samples (S1-S10)
+
+```{r loadFile}
+
+
+# define factors for the ones that "look like" values
+df_trifo$Plot <- as.factor(df_trifo$Plot)
+df_trifo$Block <- as.factor(df_trifo$Block)
+df_trifo$Cultivar <- as.factor(df_trifo$Cultivar)
+#df_trifo$SowTreat <- as.factor(df_trifo$SowTreat)
+
+ df_trifo <- df_trifo %>%
+  mutate(SowingDate = dmy(SowingDate), 
+         ReadingDate = dmy(ReadingDate),
+         Trifo = (S1+S2)/2)
+
+str(df_trifo)
+head(df_trifo)
+tail(df_trifo)
+
+
+df_trifo %>% filter(Plot ==1) %>% summary()
+
+
+
+```
+
+Graph the results : DAS and number of trifoliates 
+
+```{r, fig.height=8, fig.width=15}
+#Graph         
+  df_trifo %>%
+  #mutate (SowTreat= factor(SowTreat, levels=c("S1", "S2", "S3", "S4", "S5", "S6","S7", "S8"),labels=c("June", "July", "September", "November", "December", "February","March", "May")))%>%
+  group_by(Cultivar, DAS) %>%
+  summarise_each(funs(mean)) %>%
+  ggplot(aes(x=DAS, y=Trifo)) + 
+  geom_point(aes(colour=Cultivar, shape=Cultivar), size=4) +
+  geom_line(aes(colour=Cultivar)) +
+  #facet_wrap(~SowTreat,ncol=4, scales = "free") +
+  #facet_wrap (~SowTreat,ncol=4)+
+  ylim(0,16)+
+  labs(y="Number of trifoliates",x="Days after sowing")+
+ # theme_grey(base_size = 16) +
+  theme_bw()+
+  geom_abline(intercept = 1, slope = 0, linetype=2)+
+   geom_abline(intercept = 5,  slope = 0, linetype=2)+
+   geom_abline(intercept = 10,  slope = 0, linetype=2)+
+theme(axis.text.x=element_text(angle = 0, hjust = 0))+
+theme(text = element_text(size = 20))
+
+
+```
+
+Other graphics with same data 
+```{r, fig.height=5, fig.width=8}
+#Graph         
+  df_trifo %>%  
+  #mutate (SowTreat= factor(SowTreat, levels=c("S1", "S2", "S3", "S4", "S5", "S6","S7", "S8"),labels=c("June", "July", "September", #"November", "December", "February","March", "May")))%>%
+  group_by(Cultivar,DAS) %>%
+  summarise_each(funs(mean)) %>%
+  ggplot(aes(x=DAS, y=Trifo)) + 
+  geom_point(aes(colour=Cultivar, shape=Cultivar)) +
+  geom_line(aes(colour=Cultivar)) +
+  #facet_grid (SowTreat~., scales = "free")+
+  labs(y="Number of trifoliates",x="Days after sowing")+
+    #geom_abline(intercept = 6, slope = 0)
+   geom_abline(intercept = 4:6, slope = 0)
+
+
+
+```
+
+
+get the standard  error values for the final trifoliate numbers 
+
+
+```{r}
+
+#Data check 
+
+str(df_trifo)
+
+#select the variable and find mean and sd
+##for this experiment there were 4 replicates therefore SE=sd/2
+dfMeanTrifo <- df_trifo %>% 
+  #filter(DAS== "27")%>% # select the last DAS when all cultivars had available data !! 
+  subset (DAS>0 & DAS<28)%>%
+group_by(Cultivar,DAS) %>%
+  dplyr::select(Trifo)%>%
+  summarise_all(funs(mean,sd)) %>%
+  mutate(SE=sd/2)
+ 
+
+```
+
+Improve graphics 
+
+
+```{r , fig.height=5, fig.width=10}
+
+ 
+#to graph with SE max
+
+#then create the error bar position
+#Here how to create the end error bar with max Sd 
+# find size of bar per cultivar and temp
+# find single position of x y to put the bar
+
+#extraPos<- 1.10 # extra position for single error bar
+extraPos<- 1.2 # extra position for single error bar
+x_max<-max(dfMeanTrifo$DAS)
+y_max<-max(dfMeanTrifo$mean)
+
+## find largest standard error
+sd_df1 <- dfMeanTrifo %>% 
+  group_by(Cultivar) %>%
+  dplyr:: select(sd)%>%
+  summarise_all(funs(max))%>%
+  ungroup() %>%
+  rowwise() %>%
+  mutate(DAS= x_max*extraPos, mean = y_max*extraPos, max_sd=sd)
+
+summary(sd_df1)
+
+#make a graph 
+#then graph and remember to divide the sd /2 because of the 4 replicates 
+
+
+dfMeanTrifo %>% 
+  #select( Variable, Cultivar, Temp, mean,sd) %>%
+  ggplot(aes(x=DAS, y=mean)) + 
+#  geom_point(data=sd_df,aes(x=DAS,y=NumberRun_mean)) +
+  geom_point(aes(shape=Cultivar), size=6) +
+  scale_shape_manual(values = c(1,2,7)) +
+  geom_errorbar(data=sd_df1, aes(ymin=mean-max_sd/2,
+                    ymax=mean+max_sd/2), width=4,size=1.5)+
+  facet_wrap (~Cultivar,ncol=3)+
+  ylim(0,20) +
+  xlim(0,40)+
+  ylab(expression(Number~of~trifoliate~leaves~"(n)"))+
+  #xlab(expression(Temperature~"("^"o"*"C)"))+
+  #xlab(expression(Days~after~sowing"()"))+
+  labs(x="Days after sowing")+
+  theme_grey(base_size = 22) +
+  theme_bw()+
+  geom_abline(intercept = 1, slope = 0, linetype=2)+
+  geom_abline(intercept = 5,  slope = 0, linetype=2)+
+  geom_abline(intercept = 9,  slope = 0, linetype=2)+
+   theme(axis.text.x=element_text(angle = 0, hjust = 0.5))+
+  #remove grid lines 
+    theme(
+     panel.border = element_rect(colour = "black", size = 3), 
+     panel.grid.major = element_blank(),
+     panel.grid.minor = element_blank(),
+     axis.line = element_line(colour = "black"))+
+   #scale_fill_manual("legend", values = c("Antas" = "#660066", "Denmark" = "lightgrey","Leura" = "darkgrey", "Monti" = "#FF9933","Narrikup" = "blue",  "Woogenellup" = "#033333"))+
+   
+   #make sowing dates white  
+   theme(strip.background = element_rect(colour = "black", fill = "white",size=1))+
+  
+theme(text = element_text(size = 24))
+
+
+ggsave("plot_GC_NumberTrifoliateLeaves.png", width=12, height=6, dpi=400)
+
+
+```
+
+
+
+
+
+End of this script Calc 1. 
+Move to script 2 to calculate percent and rate of leaf appearance 

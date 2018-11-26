@@ -2,7 +2,10 @@
 title: "End of growth cycle and Harvest time of the  6CV Iversen 2"
 author: "CT"
 date: " 07.06.2016"
-output: html_document
+output: 
+  word_document: default
+  pdf_document: default
+  html_document: default
 ---
 Purpose of this script : 
 calculate the days to 100% senescence (plots had dried off) from Iversen 2 dataset. 100 % senescence is the indicator of end of growth cycle (better than to use the harvest day because harvest date relied on practical decisions and blocks were basicaly harvested simultaneously. 

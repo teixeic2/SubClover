@@ -2,7 +2,10 @@
 title: "Spectra of S2 FTIR test"
 author: "CT"
 date: "21 March 2017"
-output: html_document
+output: 
+  word_document: default
+  pdf_document: default
+  html_document: default
 #here files have already been baselined corrected in OPUS. Raw data is on folder Bionami Maatrix 25.04; worksheet Columns to R. 
 ---
 

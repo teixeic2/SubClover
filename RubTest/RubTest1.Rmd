@@ -2,7 +2,10 @@
 title: "Seed Scarification Analysis"
 author: "CT"
 date: "June, 2, 2016"
-output: html_document
+output:
+  word_document: default
+  pdf_document: default
+  html_document: default
 ---
 This script :
 analyses rub test file
@@ -16,6 +19,7 @@ library (dplyr)
 library (ggplot2)
 library(agricolae)
 library(lubridate)
+library(knitr)
 ```
 
 Read File 

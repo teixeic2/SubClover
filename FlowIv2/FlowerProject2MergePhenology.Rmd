@@ -1,11 +1,11 @@
-
 ---
 title: "CreateMergedPhenologyStages"
 author: "CT"
 date: "Sunday, January 17, 2016"
 output:
-  html_document: default
   word_document: default
+  pdf_document: default
+  html_document: default
 ---
 
 

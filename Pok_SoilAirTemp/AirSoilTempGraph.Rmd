@@ -1,9 +1,11 @@
-
 ---
 title: "Graph Air and Estimated Soil Temperature Poukawa "
 author: "CT"
 date: "03.08.2017"
-output: html_document
+output: 
+  word_document: default
+  pdf_document: default
+  html_document: default
 ---
 Aim: graph the air and estimated soil temperature in Poukawa. Check data.
 
@@ -14,6 +16,7 @@ library (ggplot2)
 library (lubridate)
 library (scales)
 library(gridExtra)
+library(knitr)
 ```
 
 SoilTempPo was created based on Mean Air Temperature (excel file; Zheng et al 1993 and Langholz 1989 equations for sand loam soil; 50 mm depth: Cfa climate)

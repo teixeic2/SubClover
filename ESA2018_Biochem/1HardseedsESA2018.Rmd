@@ -5,10 +5,12 @@ date: "18.01.2018"
 output:
   word_document: default
   pdf_document: default
+  html_document: default
 ---
 
 
 ```{r loadLibraries}
+
 library(tidyr)
 library (dplyr)
 library (ggplot2)

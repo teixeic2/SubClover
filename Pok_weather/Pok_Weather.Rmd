@@ -2,7 +2,10 @@
 title: "Poukawa weather "
 author: "CT"
 date: "27 March 2017"
-output: html_document
+output: 
+  word_document: default
+  pdf_document: default
+  html_document: default
 ---
 
 ```{r setup, include=FALSE, loadlibraires}

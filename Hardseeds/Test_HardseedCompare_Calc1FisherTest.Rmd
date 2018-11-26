@@ -13,8 +13,6 @@ Purpose:
 -compare stats methods  
  
 
-
-
 ```{r loadLibraries}
 library(tidyr)
 library (dplyr)

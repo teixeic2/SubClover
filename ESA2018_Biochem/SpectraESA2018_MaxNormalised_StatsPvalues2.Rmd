@@ -2,7 +2,10 @@
 title: "Thermal treatment experiment - dataset for the ESA Poster 2018"
 author: "CT"
 date: 21.06.2018 (ESA paper 2018)
-output: html_document
+output: 
+  word_document: default
+  pdf_document: default
+  html_document: default
 ---
 This script reads the baselined and mas. normalised spectra  for the 3 replicates 2 cultivars (Antas, Monti ) in 2 different incubation times (0,  84)  
 And calculates the P vlaues to identify sign. bands (compare wiht PCA - Burgi analysis )

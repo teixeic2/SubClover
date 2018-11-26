@@ -2,7 +2,10 @@
 title: "MetFileAnalysis"
 author: "edmar.teixeira@me.com"
 date: "Friday, March 27, 2015"
-output: html_document
+output: 
+  word_document: default
+  pdf_document: default
+  html_document: default
 ---
 
 ## Reads met files from apsim (based on MapOutApsimFiles.R)
@@ -13,6 +16,7 @@ library(data.table)
 library(dplyr)
 library(ggplot2)
 library(gridExtra)
+library(knitr)
 ```
 
 ## The weather file

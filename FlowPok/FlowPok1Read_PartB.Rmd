@@ -2,7 +2,10 @@
 title: "Flowering 6CV Poukawa"
 author: "CT"
 date: "01/10/2016, 2016"
-output: html_document
+output: 
+  word_document: default
+  pdf_document: default
+  html_document: default
 ---
 last update: 18 Jan 2017
 

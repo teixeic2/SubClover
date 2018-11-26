@@ -3,8 +3,9 @@ title: 'Test weibull curve '
 author: "CT"
 date: "16.10.2017"
 output:
-  pdf_document: default
   word_document: default
+  pdf_document: default
+  html_document: default
 ---
 
 

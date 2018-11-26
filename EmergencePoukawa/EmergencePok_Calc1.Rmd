@@ -2,7 +2,10 @@
 title: "Emergence seedlings Poukawa"
 author: "CT"
 date: " March,  2016"
-output: html_document
+output: 
+  word_document: default
+  pdf_document: default
+  html_document: default
 ---
 
 Purpose:

@@ -4,6 +4,7 @@ author: "CT"
 date: "24.04.2017"
 output:
   word_document: default
+  pdf_document: default
   html_document: default
 note: include Pp analysis using selected datasets from Reanalysis scripts but use Iversen 2 collected data  
 ---

@@ -2,7 +2,10 @@
 title: "Flowering 3CV Growth Chamber"
 author: "CT"
 date: "Monday,29 August, 2016"
-output: html_document
+output: 
+  word_document: default
+  pdf_document: default
+  html_document: default
 notes: GCF = Growth Cabinet Flower 
 ---
 

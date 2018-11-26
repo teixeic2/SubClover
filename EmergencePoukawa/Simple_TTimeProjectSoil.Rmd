@@ -1,9 +1,11 @@
-
 ---
 title: "ThermalTime"
 author: "CT"
 date: "Friday, January 01, 2016"
-output: html_document
+output: 
+  word_document: default
+  pdf_document: default
+  html_document: default
 ---
 
 
@@ -12,6 +14,7 @@ library(tidyr)
 library (dplyr)
 library (ggplot2)
 library (lubridate)
+library(knitr)
 ```
 
 Note: the file is called HistoricMeanTemp but actually contains the hobologger data Iversen 2

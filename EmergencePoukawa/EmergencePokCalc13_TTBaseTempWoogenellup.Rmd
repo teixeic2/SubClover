@@ -1,9 +1,11 @@
-
 ---
 title: "ThermalTime calculation for Woogenellup with base temperature zero and TB emergence"
 author: "CT"
 date: "Friday, January 01, 2016"
-output: html_document
+output: 
+  word_document: default
+  pdf_document: default
+  html_document: default
 ---
 
 This script does this:

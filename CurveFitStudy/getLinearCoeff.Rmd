@@ -1,6 +1,9 @@
 ---
 title: "R Notebook"
-output: html_notebook
+output: 
+  word_document: default
+  pdf_document: default
+  html_document: default
 ---
 
 Author: Koala Bala Pires Teixeira
@@ -8,6 +11,7 @@ Co-author: Dady
 
 ```{r}
 library(dplyr)
+library(knitr)
 ```
 
 

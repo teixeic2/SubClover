@@ -3,9 +3,9 @@ title: "PCA Test with fake data "
 author: "CT"
 date: "Wednesday, Mai 23, 2018"
 output:
-  pdf_document: default
-  html_document: default
   word_document: default
+  html_document: default
+  pdf_document: default
 ---
 
 Purpose:
@@ -24,6 +24,7 @@ library(knitr)
 library (lubridate)
 library(mosaic)
 library(lattice)
+
 ```
 
 
