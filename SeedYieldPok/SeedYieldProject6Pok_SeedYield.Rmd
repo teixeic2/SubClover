@@ -1,16 +1,11 @@
 ---
-output:
-  word_document: default
-  html_document: default
----
----
 title: "kg seeds per ha in  Poukawa  "
 author: "CT"
 date: " 29.08.2017 "
 output:
   word_document: default
   pdf_document: default
-  
+  html_document: default
   #This script  reads the SeedBurrYieldPok2 and performs ANOVA on variate seedyield
 ---
 

@@ -2,7 +2,10 @@
 title: "Seed Breakdown  Thermal treatment"
 author: "CT"
 date: 16.11.2018
-output: html_document
+output: 
+  word_document: default
+  pdf_document: default
+  html_document: default
 ---
 This script reads the baselined corrected spectra for the 3 replicates 3 cultivars (Antas, Monti and Narrikup) in 3 different incubation times (0, 42, 84, 252)  
 

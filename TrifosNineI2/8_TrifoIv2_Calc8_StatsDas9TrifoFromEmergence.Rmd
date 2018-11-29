@@ -2,7 +2,10 @@
 title: "Trifoliates Iversen - nine trifoliates  "
 author: "CT"
 date: "05.07.2018" 
-output: html_document
+output:
+  word_document: default
+  pdf_document: default
+  html_document: default
 ---
 
 Purpose:

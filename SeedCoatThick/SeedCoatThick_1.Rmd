@@ -2,7 +2,10 @@
 title: "Regeneration Analysis"
 author: "CT"
 date: "September  18, 2017"
-output: html_document
+output: 
+  word_document: default
+  pdf_document: default
+  html_document: default
 ---
 Purpose : 
 calculations of mean seed coat thickness for plots in Iv2 - cultivars antas, narrikup and monti 
@@ -12,10 +15,11 @@ ANOVA for the variate : mean seed coat thickness (in microns )
 ```{r, warning=FALSE}
 #Load libraries 
 library(tidyr)
-library (dplyr)
-library (ggplot2)
+library(dplyr)
+library(ggplot2)
 library(agricolae)
 library(lubridate)
+library(knitr)
 ```
 
 Read File 

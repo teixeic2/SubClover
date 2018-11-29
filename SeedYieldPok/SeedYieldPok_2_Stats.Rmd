@@ -1,15 +1,11 @@
 ---
-output:
-  word_document: default
-  html_document: default
----
----
 title: "Seed Number and yield   "
 author: "CT"
 date: "Thursday, FEbruary 19, 2016"
 output:
   word_document: default
   pdf_document: default
+  html_document: default
   
   #This script  reads the SeedBurrYield and tests Data first anaylsed in SeedYieldProject1
 ---

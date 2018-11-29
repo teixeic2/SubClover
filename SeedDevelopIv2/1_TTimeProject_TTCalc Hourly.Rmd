@@ -2,7 +2,10 @@
 title: "Thermal Time Calculation Iversen 2 Weather data using hourly data from Novemer and December 2017"
 author: "CT"
 date: "07.01.2018"
-output: html_document
+output: 
+  word_document: default
+  pdf_document: default
+  html_document: default
 ---
 ##Thrs script calculates the TT for seed development experiment druing November and December 2017 in Iversen 2 . It uses air and soil tempertaure (Lumet data)
 

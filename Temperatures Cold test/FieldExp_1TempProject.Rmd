@@ -2,7 +2,10 @@
 title: "MinMaxTemp"
 author: "CT"
 date: "Wednesday, January 06, 2016"
-output: html_document
+output: 
+  word_document: default
+  pdf_document: default
+  html_document: default
 ---
 
 Graphing Max, Min and Average temperatures 
@@ -14,6 +17,7 @@ library (dplyr)
 library (ggplot2)
 library (lubridate)
 library (reshape2)
+library(knitr)
 ```
 
 REad table Notepad file: Temperatures Cold Test FieldExp_1

@@ -2,7 +2,9 @@
 title: "Trifoliates Iversen "
 author: "CT"
 date: "17.08.2017"
-output: html_document
+output: word_document: default
+  pdf_document: default
+  html_document: default
 ---
 
 Purpose:
@@ -17,6 +19,7 @@ library(agricolae)
 library (lubridate)
 library(mosaic)
 library(lattice)
+library(knitr)
 ```
 
 Get data from Emergence Folder, Daily Mean Air temperature and dates to combine in dataframe 

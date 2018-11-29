@@ -2,7 +2,10 @@
 title: "Seed Germination rate for Monti "
 author: "CT"
 date: "07.10..2017"
-output: html_document
+output: 
+  word_document: default
+  pdf_document: default
+  html_document: default
 ---
 
 This script does this:

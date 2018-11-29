@@ -1,4 +1,3 @@
-
 ---
 title: 'Incubator temperatures '
 author: "CT"

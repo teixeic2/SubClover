@@ -2,7 +2,10 @@
 title: "Radicle extension (mm)  different Temperatures  4CV"
 author: "CT"
 date: " September  , 2015"
-output: html_document
+output: 
+  word_document: default
+  pdf_document: default
+  html_document: default
 ---
 
 ```{r loadLibraries}

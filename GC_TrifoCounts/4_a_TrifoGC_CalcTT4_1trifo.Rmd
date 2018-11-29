@@ -319,6 +319,7 @@ str(df_trif2)
 
 ```
 
+##Determine the date for 1 Trifoliate 
 
 ```{r}
 
@@ -354,10 +355,9 @@ str(df_A)
 str (df_Date1T )
 
 dfTTEm<-df_Date1T %>%
-  select (Pot,Date50Emerg)%>%
-  mutate(Date=Date50Emerg)%>%
-  select(-Date50Emerg)
-  
+  select (-DAS_1T,-DAE_1T)
+
+
   
 #prep Sum TT dataframe
 
@@ -366,76 +366,71 @@ Te<-df_A %>%
   select (Date,SumTTday)
   
 #merge1
-merge1 
+#merge1 
 
 # first merge the emergence date  and air temperature dataframes 
 
-df_Temp1 <- merge(dfTTEm,Te,by="Date")
+#df_Temp1 <- merge(dfTTEm,Te,by="Date")
 
-#Hold valeus to merge later 
+df_Temp1 <- merge(dfTTEm,Te, by.x="Date50Emerg",by.y="Date") 
+
+#Hold values to merge later 
+
+
+
+##Need to force a date for First Trifo  (round) to calculate the average temperature during first trifo appearance 
+
+# force formats of dates
+df_Temp1$Date <- round(df_Temp1$Date50Emerg,0)
+Te$Date <- round(Te$Date,0)
+
+df_merge1 <- merge(df_Temp1, Te, by="Date")
+
+
 ```
 
-
-Do smae procedure for the date to 1 trifo from emergence 
 
 ```{r}
 
-#prep dataframe with TT at emergence 
-str (df_Date1T )
+#tidy up dataframe 
 
-dfTT_1T<-df_Date1T %>%
-  select (Pot,DateTo1TFromEmerg)%>%
-  mutate(Date=DateTo1TFromEmerg)%>%
-  select(-DateTo1TFromEmerg)
+df_merge1.2<- df_merge1 %>%
+mutate(SumTTEmerg=SumTTday.x) %>%
+select(-SumTTday.y, Date, Date50Emerg,GCCode, -SumTTday.x)
+  
+str(df_merge1.2)
 
-##Merge usitn dataframe Te 
-df_Temp2 <- merge(dfTT_1T,Te,by="Date")
+# force formats of dates
+df_merge1.2$Date <- round(df_merge1.2$DateTo1TFromEmerg,0)
+Te$Date <- round(Te$Date,0)
 
-
-
-
-```
-
-#merge temporary dataframes 
+##Now incorporate the thermal time sum on teh date for first trifo  
 
 
-```{r}
-#Now merge Temp1 and Temp 2 to claculate the TT to first Trifo 
+df_merge2 <- merge(df_merge1.2, Te, by="Date")%>%
+  mutate(SumTT1T= SumTTday)%>%
+  select(-SumTTday)
 
 
-df_Temp3 <- merge(df_Temp1,df_Temp2,by="Pot")
-
-str(df_Temp3)
-
-##subtract sumTTdays to find the TT to first trifo 
-
-df_Temp3 <- df_Temp3 %>%
-  mutate(TT_1Trifo_Emerg=SumTTday.y-SumTTday.x)
-
-##clean dataframe and prepare to re  emerge. 
-
-df_Temp4 <-df_Temp3 %>%
-  select(Pot, TT_1Trifo_Emerg)
 
 ```
 
 
-##continue from here .... re emerge dataframes with new column bring original labels and columns 
+
+## Then subtract SumTT1T - SumTTEmerg to find out the Thermal time from emergence to 1 trioliate 
 
 ```{r}
 
-# 
-df_Temp5 <- merge(df_Temp4,df_trif2,by="Pot")
-##Rename to keep track of dataframe content!!! 
+df_merge2 <- df_merge2%>%
+  mutate(TTtoFirstTrifo= SumTT1T-SumTTEmerg) 
 
-str(df_Temp5)
-
-df_TT_ToTrifo1_Emerg <-df_Temp5 %>%
-  select(Pot, TT_1Trifo_Emerg, Cultivar , Block )
+#give a meaningful name for the df!
 
 
+df_TT_ToTrifo1_Emerg <-df_merge2
 
 ```
+
 
 
 
@@ -449,7 +444,7 @@ Check : Inspect means  before ANOVA
 
  f <- df_TT_ToTrifo1_Emerg %>%
   group_by( Cultivar) %>%
-  dplyr::select(  TT_1Trifo_Emerg) %>%
+  dplyr::select(  TTtoFirstTrifo) %>%
   summarise_all(funs(mean,sd))
 
 
@@ -465,8 +460,8 @@ RUN ANOVA
 
 #compare DAE_1T  among cultivars
 
-df_emerg_perc3 <- df_TT_ToTrifo1_Emerg %>%
-  dplyr::select(Cultivar,Block,Pot,TT_1Trifo_Emerg)
+df_ANOVA <- df_TT_ToTrifo1_Emerg %>%
+  dplyr::select(Cultivar,Block,Pot,TTtoFirstTrifo)
 
 ```
 Overall analysis consider sowing date and cultivar 
@@ -475,12 +470,12 @@ Overall analysis consider sowing date and cultivar
 ```{r}
 ##Overview   
 
-file <- df_emerg_perc3
-file$transf_no <- 1*(df_emerg_perc3$TT_1Trifo_Emerg)
+file <- df_ANOVA
+file$transf_no <- 1*(df_ANOVA$TTtoFirstTrifo)
 head(file)
 
 #-------------------------------------------------
-# ANOVA for sowing date 
+# ANOVA 
 file.subset <- file 
 
 head(file.subset)
@@ -535,4 +530,4 @@ fogo
 
 
 ##End of this script. 
-##(Use similar code to calculate 5T and 9T)
+##(Use similar code to calculate TT to 5T and 9T)

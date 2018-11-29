@@ -1,8 +1,11 @@
-n---
+---
 title: "Emergence of runners I2 graphs with Mean Air Temp"
 author: "CT"
 date: "17.08.2017"
-output: html_document
+output: 
+  word_document: default
+  pdf_document: default
+  html_document: default
 ---
 
 This script does this:

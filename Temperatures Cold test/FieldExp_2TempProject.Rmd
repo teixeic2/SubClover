@@ -2,13 +2,16 @@
 title: "MinMaxTemp"
 author: "CT"
 date: "Wednesday, January 06, 2016"
-output: html_document
+output: 
+  word_document: default
+  pdf_document: default
+  html_document: default
 ---
 
 Graphing Max, Min and Average temperatures field experiment with 6 cvs.  
 
 ```{r LoadLibraries }
-
+library(knitr)
 library(tidyr)
 library (dplyr)
 library (ggplot2)

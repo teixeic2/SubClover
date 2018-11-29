@@ -2,7 +2,10 @@
 title: "Framework for PCA analysis "
 author: "CT"
 date: "05.08.2017
-output: html_document
+output: 
+  word_document: default
+  pdf_document: default
+  html_document: default
 ---
 - This script is the PCA analysis of the spectra of the S2 six cultivars from S2. 
 

@@ -193,7 +193,7 @@ summary(df_final2)
   
 ```
 
-Here graph the percentage of hardseeds based on living seeds (exclude dead! )
+Here graph the percentage of hardseeds based on living seeds (exclude dead seeds! )
 
 ```{r, fig.height= 8, fig.width=12}
 #change data frame name and Graph Breakdown live hard seeds 

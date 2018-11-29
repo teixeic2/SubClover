@@ -2,13 +2,16 @@
 title: "TempColdValid"
 author: "CT"
 date: "Friday, January 22, 2016"
-output: html_document
+output: 
+  word_document: default
+  pdf_document: default
+  html_document: default
 ---
 
 This is an R Markdown document. To construct the graph for the cold sensitivity validation. 
 
 ```{r LoadLibraries }
-
+library(knitr)
 library(tidyr)
 library (dplyr)
 library (ggplot2)

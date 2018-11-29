@@ -2,7 +2,10 @@
 title: "Runners Poukawa "
 author: "CT"
 date: "17.08.2017"
-output: html_document
+output: 
+  word_document: default
+  pdf_document: default
+  html_document: default
 ---
 
 Purpose:
@@ -19,6 +22,7 @@ library (ggplot2)
 library(agricolae)
 library (lubridate)
 library(mosaic)
+library(knitr)
 library(lattice)
 ```
 

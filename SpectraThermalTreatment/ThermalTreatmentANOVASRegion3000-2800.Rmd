@@ -2,7 +2,10 @@
 title: "Seed Breakdown  Thermal treatment- ANOVAS specific bands "
 author: "CT"
 date: 16.09.2018
-output: html_document
+output: 
+  word_document: default
+  pdf_document: default
+  html_document: default
 ---
 This script reads the baselined_normalised_snip spectra for the 3 replicates 3 cultivars (Antas, Monti and Narrikup) in 3 different incubation times (0, 42, 84, 252). the aim is to run ANOVA in for specific bands detected from the PCA analysis Unscrambler
 

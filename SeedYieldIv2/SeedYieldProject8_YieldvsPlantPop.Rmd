@@ -2,7 +2,10 @@
 title: "Seed Yield Analysis"
 author: "CT"
 date: "18.03.2016"
-output: html_document
+output: 
+  word_document: default
+  pdf_document: default
+  html_document: default
 ---
 This script :
 reads the file with burrs and seeds numbers and yields
@@ -17,6 +20,7 @@ library (dplyr)
 library (ggplot2)
 library(agricolae)
 library(lubridate)
+library(knitr)
 ```
 
 Read File 

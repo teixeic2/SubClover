@@ -2,7 +2,10 @@
 title: "Germination Seeds lab many temps 4 cultivars "
 author: "CT"
 date: "01.10.2017"
-output: html_document
+output: 
+  word_document: default
+  pdf_document: default
+  html_document: default
 ---
 
 This script does this:

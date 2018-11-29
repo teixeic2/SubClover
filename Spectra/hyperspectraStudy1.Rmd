@@ -2,13 +2,16 @@
 title: "HyperSpec Test"
 author: "CT"
 date: "12 June 2017"
-output: html_document
+output: 
+  word_document: default
+  pdf_document: default
+  html_document: default
 ---
 
 ```{r setup, include=FALSE, loadlibraires}
 #knitr::opts_chunk$set(echo = TRUE)
 library(tidyr)
-library(tidyr)
+library(knitr)
 library(dplyr)
 library(ggplot2)
 library(hyperSpec)

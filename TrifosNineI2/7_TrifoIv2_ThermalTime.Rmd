@@ -2,7 +2,9 @@
 title: "Thermal time to reach the 5 trifolite stage in I2"
 author: "CT"
 date: "28.11.2017"
-output: html_document
+output: word_document: default
+  pdf_document: default
+  html_document: default
 ---
 
 This script does this:

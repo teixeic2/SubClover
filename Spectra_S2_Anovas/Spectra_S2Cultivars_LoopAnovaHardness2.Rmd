@@ -2,7 +2,10 @@
 title: "Spectra of S2 FTIR test"
 author: "CT"
 date: "17.09.2017"
-output: html_document
+output: 
+  word_document: default
+  pdf_document: default
+  html_document: default
 #This script reads the Wavenumber and P values from previous script and get only the values that are significant (P < 0.05)   
 ---
 

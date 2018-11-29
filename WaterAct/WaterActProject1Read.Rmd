@@ -2,7 +2,10 @@
 title: "WaterAct 6CV"
 author: "CT"
 date: "Thursday, February , 2016"
-output: pdf_document
+output: 
+  word_document: default
+  pdf_document: default
+  html_document: default
 ---
 
 ```{r loadLibraries}

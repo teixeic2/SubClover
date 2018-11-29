@@ -2,7 +2,10 @@
 title: "analysis of the Different cultivar spectra of S2  "
 author: "CT"
 date: "19.09.2017_ last reivew in 11.09.2018"
-output: html_document
+output: 
+  word_document: default
+  pdf_document: default
+  html_document: default
 ---
 
 

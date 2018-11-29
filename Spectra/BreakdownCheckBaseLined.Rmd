@@ -2,7 +2,10 @@
 title: "Seeds S2 "
 author: "CT"
 date: "21 March 2017"
-output: html_document
+output: 
+  word_document: default
+  pdf_document: default
+  html_document: default
 #this script only reads the single spectra txt files and combine them in a dataframe. This is for S2 seeds. 
 ---
 
@@ -15,7 +18,6 @@ library(agricolae)
 library(knitr)
 library (lubridate)
 library(scales)
-
 ```
 
 

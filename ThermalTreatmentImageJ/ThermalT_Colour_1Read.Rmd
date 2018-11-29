@@ -1,7 +1,7 @@
  ---
 title: "ImageJ DataSet Data Exploration "
 author: "CT"
-date: "Monday, 26 November, 2018"
+date: "Monday, 28 November, 2018"
 output:
   word_document: default
   pdf_document: default
@@ -13,9 +13,14 @@ Purpose :
 
 -Initial data visualisation : quantify potential colour changes due to degradation of cell wall components (most sensitive = hemicellulose ; relate to suberin and cutin components (?) )
 
+ -Notes: 
+ -Values for each of the R, G and B components.
+ -That value can be anything between 0 and 255.This is a light level. The higher the RGB values, the lighter the color, the lower the RGB's, the darker the color. Set RGB to 0,0,0 and the result is  black.
+
 - ANOVA -  for the variates : 
 Red		Green		Blue		RGBdiv3		0.3R_0.6G_0.1B
 
+## Load Libraries 
 
 ```{r, warning=FALSE}
 #Load libraries 
@@ -29,18 +34,24 @@ library(knitr)
 
 
 
-
 ## Read File 
 
 ```{r, echo=FALSE}
 
 ##Include the file path 
+##path in LeNovo_Yoga: C:\GitHubRepos\SubCloverPhD\SubClover\ThermalTreatmentImageJ
 
-#setwd("C:\\GitHubRepos\\SubCloverPhD\\SubClover\\Bur16cv")
+setwd("C:\\GitHubRepos\\SubCloverPhD\\SubClover\\ThermalTreatmentImageJ")
+
 getwd()
 
 ##Include file name "XX.txt" and create a data frame 
-file <- read.table("XX.txt",header=TRUE)
+##file name : XX
+
+##FIX ME :need to correct the  number of reps in the original file ! 
+
+
+file <- read.table("RawData_ThermalT_Colour2.txt",header=TRUE)
 
 head(file)
 summary(file)
@@ -48,152 +59,219 @@ summary(file)
 
 ```
 
-####### Need to adjust scripts from here ##### 
 
-Define the formats  
+##Define the formats  
 
 ```{r}
 
-# define factors and formats
+# Define factors and formats
 file <- file %>%
   mutate(
-    Plot = as.factor(Plot),
-    Block = as.factor(Block),
+    Rep = as.factor(Rep),
     Cultivar = as.factor(Cultivar),
-    Treat=as.factor(Treat)
+    Incubation=as.factor(Incubation),
+    Seed =as.factor(Seed),
+    Variable=as.character(Variable),
+    Area = as.numeric(Area),
+    Mean = as.numeric(Mean),
+    Min = as.numeric(Min),
+    Max = as.numeric(Max)
    
   )
 
+```
+
+#Data check 
+
+
+```{r}
+
+
+##Inspect data structure 
+
 str(file)
+
+```
+
+  
+
+```{r}
+
+##Inspect data summary 
+
 summary(file)
 
 ```
 
+##Data visualisation 
+
+```{r}
+
+##Select variable and columns of interest : reduce the ammount of data to analyse 
+
+file_select <- file %>%
+    filter(Variable == "Red")%>%
+  select(Cultivar, Incubation, Rep, Variable, Mean)
+  
+#Check headings 
+head(file_select)
 
 
-Graph the SeedPerm2  average of both years!
+```
+
+#check summary  
+```{r}
+
+
+summary(file_select)
+```
+
+## This step:  calculate the mean and sd for each cultivar and incubation 
+## good source for data transformation : https://ugoproto.github.io/ugo_r_doc/dplyr.pdf
+
+
+```{r}
+
+
+Mean_sd <-file_select %>%
+  group_by(Cultivar, Incubation) %>%
+  #select within Variable "Red" the column you want to get the mean and standard deviation 
+ select (Mean)%>%
+  summarise_all(funs(mean,sd))
+
+#check
+head(Mean_sd)
+```
+
+##Graph 
+##simple version
+
+```{r}
+## define position of bar and errorbar
+dodge_x <- position_dodge(width = 0.9)
+
+#use selected dataframe 
+
+Mean_sd %>%
+  filter(Incubation=="0")%>%
+  ggplot(aes(x=Cultivar, y=(mean)))+
+   geom_bar(stat="identity", position = dodge_x) +
+  geom_errorbar(aes(ymin=mean-sd/2, ymax=mean+sd/2),
+                width=0.25, size=0.3,position=dodge_x) +  
+        theme_bw() +
+
+
+```
+
+
+
+
+## good source for graphics in ggplot2 : https://www.rstudio.com/wp-content/uploads/2015/03/ggplot2-cheatsheet.pdf
 
 ```{r, fig.height= 5, fig.width=10 , warning=FALSE}
 
-# define position of bar and errorbar
+## define position of bar and errorbar
 dodge_x <- position_dodge(width = 0.9)
 
-file %>%
-  group_by(Cultivar, Treat) %>%
-  summarise_each(funs(mean,sd)) %>%
-  #mutate(colPal = ifelse(Cultivar=="Antas","Brachy",ifelse(Cultivar=="Monti","Brachy","Yanny"))) %>%
-  #ggplot(aes(x=Cultivar, y=(PropBurrBuried_mean),fill=colPal)) +
-  ggplot(aes(x=Cultivar, y=(SeedsPerM2_mean),fill=Cultivar))+
+#use select dataframe 
+Mean_sd %>%
+  ggplot(aes(x=Cultivar, y=(mean),fill=Cultivar))+
    geom_bar(stat="identity", position = dodge_x) +
-  geom_errorbar(aes(ymin=SeedsPerM2_mean-SeedsPerM2_sd/2, ymax=SeedsPerM2_mean+SeedsPerM2_sd/2),
+  geom_errorbar(aes(ymin=mean-sd/2, ymax=mean+sd/2),
                 width=0.25, size=0.3,position=dodge_x)   +
-  theme_grey(base_size = 16) +
-    facet_grid(.~Treat) +
-    labs(y="Seeds per m2") +
+  
+  theme_grey(base_size = 5) +
+  #facet grid or facet wrap generate panels 
+    facet_grid(.~Incubation) +
+    labs(y="Red level from RGB ", x="Cultivar") +
+  
   theme_bw()+
-theme(axis.text.y = element_text( size = 10))+
-theme(axis.title.y = element_text(face="bold", size=12))+
-theme(axis.text.x=element_text(angle = 90, hjust=0.95,vjust=0.2,size = 12))
+theme(axis.text.y = element_text( size = 24))+
+theme(axis.title.y = element_text(face="bold", size=24))+
+theme(axis.text.x=element_text(angle = 0, hjust=0.95,vjust=0.2,size = 24))
 
 
 ```
 
-Here graph with the SE (SE = std/ sqrt n ; n=3)
+#######STOP HERE !  Need to adjust scripts from here on ##### 
+
+
+## Here graph with the SE (SE = sd/ sqrt n ; in this case n=4 ; SE= sd/2)
 
 ```{r,fig.height= 5, fig.width=10 , warning=FALSE}
 
-#calculate the SE in this case for 4 reps ! sqrt of 4 = 2 
-df_burSE<-file %>%
-  group_by(Cultivar, Treat) %>%
-  summarise_each(funs(mean,sd)) %>%
-  mutate(SE=SeedsPerM2_sd/2)
+#try create similar graph with SE 
+
   
   
-  df_burSE %>%
-  #mutate(colPal = ifelse(Cultivar=="Antas","Brachy",ifelse(Cultivar=="Monti","Brachy","Yanny"))) %>%
-  #ggplot(aes(x=Cultivar, y=(SeedsPerM2_mean),fill=colPal)) +
-  ggplot(aes(x=Cultivar, y=(SeedsPerM2_mean),fill=Cultivar))+
-  geom_bar(stat="identity", position = dodge_x) +
-  geom_errorbar(aes(ymin=SeedsPerM2_mean-SE/2, ymax=SeedsPerM2_mean+SE/2),
-                width=0.25, size=0.3,position=dodge_x)   +
-  theme_grey(base_size = 16) +
-    facet_grid(.~Treat) +
-    labs(y="Seeds per m2") +
-  theme_bw()+
-theme(axis.text.y = element_text( size = 10))+
-theme(axis.title.y = element_text(face="bold", size=12))+
-theme(axis.text.x=element_text(angle = 90, hjust=0.95,vjust=0.2,size = 12))
-
-
-
 
 
 
 ```
 
 
-Do graph only with the 7 cultivars 
-
-
+## 
 
 ```{r, fig.height=5, fig.width=10}
 
 # define position of bar and errorbar
-dodge_x <- position_dodge(width = 0.9)
-
-df_burSubset<-file %>%
-  filter(Year !="2017")%>%
-  filter(Treat=="Cut")%>%
-  filter(Cultivar=="Antas"| 
-         Cultivar=="Denmark"|
-         Cultivar=="Coolamon"|
-           Cultivar=="MountBarker"|
-           Cultivar=="Narrikup"|
-           Cultivar=="Rosabrook"|
-           Cultivar=="Woogenellup")%>%
-  group_by(Cultivar) %>% 
-  dplyr::select(SeedsPerM2)%>%
-  summarise_each(funs(mean,sd)) %>%
-  mutate(SE=sd/2)
-
-  #Then graph it 
-df_burSubset %>%
-  #mutate(colPal = ifelse(Cultivar=="Antas","Brachy",ifelse(Cultivar=="Monti","Brachy","Yanny"))) %>%
-  #ggplot(aes(x=Cultivar, y=(SeedsPerM2_mean),fill=colPal)) +
-  #ggplot(aes(x=Cultivar, y=(mean),fill=Cultivar))+
-  ggplot(aes(x=Cultivar, y=(mean)))+
-  geom_bar(stat="identity", position = dodge_x) +
-  geom_errorbar(aes(ymin=mean-SE/2, ymax=mean+SE/2),
-                width=0.25, size=0.3,position=dodge_x)   +
-  theme_grey(base_size = 16) +
-    #facet_grid(.~Treat) +
-    labs(y="Seeds per m2") +
-  theme_bw()+
-theme(axis.text.y = element_text( size = 10))+
-theme(axis.title.y = element_text(face="bold", size=12))+
-theme(axis.text.x=element_text(angle = 90, hjust=0.95,vjust=0.2,size = 12))
+# dodge_x <- position_dodge(width = 0.9)
+# 
+# df_burSubset<-file %>%
+#   filter(Year !="2017")%>%
+#   filter(Treat=="Cut")%>%
+#   filter(Cultivar=="Antas"| 
+#          Cultivar=="Denmark"|
+#          Cultivar=="Coolamon"|
+#            Cultivar=="MountBarker"|
+#            Cultivar=="Narrikup"|
+#            Cultivar=="Rosabrook"|
+#            Cultivar=="Woogenellup")%>%
+#   group_by(Cultivar) %>% 
+#   dplyr::select(SeedsPerM2)%>%
+#   summarise_each(funs(mean,sd)) %>%
+#   mutate(SE=sd/2)
+# 
+#   #Then graph it 
+# df_burSubset %>%
+#   #mutate(colPal = ifelse(Cultivar=="Antas","Brachy",ifelse(Cultivar=="Monti","Brachy","Yanny"))) %>%
+#   #ggplot(aes(x=Cultivar, y=(SeedsPerM2_mean),fill=colPal)) +
+#   #ggplot(aes(x=Cultivar, y=(mean),fill=Cultivar))+
+#   ggplot(aes(x=Cultivar, y=(mean)))+
+#   geom_bar(stat="identity", position = dodge_x) +
+#   geom_errorbar(aes(ymin=mean-SE/2, ymax=mean+SE/2),
+#                 width=0.25, size=0.3,position=dodge_x)   +
+#   theme_grey(base_size = 16) +
+#     #facet_grid(.~Treat) +
+#     labs(y="Seeds per m2") +
+#   theme_bw()+
+# theme(axis.text.y = element_text( size = 10))+
+# theme(axis.title.y = element_text(face="bold", size=12))+
+# theme(axis.text.x=element_text(angle = 90, hjust=0.95,vjust=0.2,size = 12))
  
-#ggsave( "plot_SeedNumberTotal_.png", width=10, height=5, dpi=400)
+##To save graph as image  
+#ggsave( "plot_NameGraph_.png", width=10, height=5, dpi=500)
 ```
 
 
-Statistical Analisis 
-Do ANOVA simple as per D. Saville :each seson and variate separately
+###########  Basic Stats ########## 
+##Perform  ANOVA simple as per D. Saville (LSD)
 Select year and variable to analyse
 
 ```{r}
 df_seedANOVA <- file %>%
 #use filters to select  data 
-  filter(Year=="2016")%>%
-  filter(Treat=="Cut")%>%
-  filter(Cultivar=="Antas"| 
-         Cultivar=="Denmark"|
-         Cultivar=="Coolamon"|
-           Cultivar=="MountBarker"|
-           Cultivar=="Narrikup"|
-           Cultivar=="Rosabrook"|
-           Cultivar=="Woogenellup")%>%
-  dplyr:: select(Cultivar:SeedYieldKgHa)
+  # filter(Year=="2016")%>%
+  # filter(Treat=="Cut")%>%
+  # filter(Cultivar=="Antas"| 
+  #        Cultivar=="Denmark"|
+  #        Cultivar=="Coolamon"|
+  #          Cultivar=="MountBarker"|
+  #          Cultivar=="Narrikup"|
+  #          Cultivar=="Rosabrook"|
+  #          Cultivar=="Woogenellup")%>%
+  # dplyr:: select(Cultivar:SeedYieldKgHa)
+
 ```
 
 subset for anova
@@ -220,7 +298,7 @@ seed per sqrt meter or seed per sqrtm
 
 #ANOVA
 
-my.anova <- aov(SeedYieldKgHa ~ Cultivar + Block, data = file.subset)
+#my.anova <- aov(SeedYieldKgHa ~ Cultivar + Block, data = file.subset)
 #my.anova <- aov(SeedsPerM2 ~ Cultivar + Block, data = file.subset)
 summary(my.anova)
 ```
