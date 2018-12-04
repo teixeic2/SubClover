@@ -415,8 +415,8 @@ summary(my.anova)
 ```{r}
 
 #(LSD.test(my.anova, c( "Cultivar"), alpha= 0.05, p.adj="none"))
-#(LSD.test(my.anova, c( "Temp"), alpha= 0.05, p.adj="none"))
-(LSD.test(my.anova, c("Cultivar", "Temp"), alpha= 0.05, p.adj="none"))
+(LSD.test(my.anova, c( "Temp"), alpha= 0.05, p.adj="none"))
+#(LSD.test(my.anova, c("Cultivar", "Temp"), alpha= 0.05, p.adj="none"))
 ```
 
 

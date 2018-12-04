@@ -127,7 +127,8 @@ summary(my.anova)
 
 #(LSD.test(my.anova, c( "Cultivar"), alpha= 0.05, p.adj="none"))
 
-(LSD.test(my.anova, c("Cultivar", "Temp"), alpha= 0.05, p.adj="none"))
+(LSD.test(my.anova, c("Temp"), alpha= 0.05, p.adj="none"))
+##(LSD.test(my.anova, c("Cultivar", "Temp"), alpha= 0.05, p.adj="none"))
 #Note LSD interaction from Genstat was calculated as 0.7029 
 
 
