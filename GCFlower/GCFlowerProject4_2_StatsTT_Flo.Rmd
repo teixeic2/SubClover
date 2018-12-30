@@ -1,0 +1,214 @@
+---
+title: "Flowering 3CV_growth chamber experiment "
+author: "CT"
+date: "30.01.2016"
+output:
+  word_document: default
+  pdf_document: default
+  html_document: default
+---
+
+```{r loadLibraries, warning=FALSE}
+library(tidyr)
+library (dplyr)
+library (ggplot2)
+library(agricolae)
+library(knitr)
+library (lubridate)
+
+```
+This script calculates the means of DAS and TTAS50Flo and Thermal time from emergence and perform the statistics 
+
+```{r loadFile}
+
+setwd("C:\\GitHubRepos\\SubCloverPhD\\SubClover\\GCFlower")
+
+getwd()
+
+#create file
+df_raw <- read.table("GCdf_tt_50p_flow.txt",header=TRUE)
+
+head (df_raw)
+```
+check formats
+```{r}
+
+df_work<-df_raw %>%
+  mutate(SowingD=ymd(SowingD)) %>%
+  rename(PhenoStage=Variable)%>%
+  mutate(Plot=factor(Plot), Block=factor(Block))
+         
+str(df_work)
+
+```
+
+## Add the columns refering to days from emergence
+## Bring data form runner fold which contains the thermal time values at emergence: file  GC_ThermalTime_Emergence
+
+
+
+```{r}
+#setwd("C:\\GitHubRepos\\SubCloverPhD\\SubClover\\GCFlower")
+getwd()
+#create file
+#df_trif2 <- read.table("GC_DASToEmergence.txt",header=TRUE)
+df_Em <- read.table("GC_ThermalTime_Emergence.txt",header=TRUE)
+
+str(df_Em)
+
+
+```
+
+ 
+Define formats  (df_Em)
+
+```{r loadFile}
+
+
+# define factors for the ones that "look like" values and dates 
+
+df_Em<- df_Em %>%
+  mutate(SowingDate = ymd(SowingDate), 
+         Date50Emerg = ymd(Date50Emerg),
+         DateRun_Em = ymd(DateRun_Em),
+         Date = ymd(Date))
+          
+
+
+df_Em$Pot <- as.factor(df_Em$Pot)
+
+# df_trif2$Block <- as.factor(df_trif2$Block)
+# df_trif2$Cultivar <- as.factor(df_trif2$Cultivar)
+#df_trif$SowTreat <- as.factor(df_trif$SowTreat)
+
+##Reminder !!! Exclude the info ot 1_T ...that comes automatically from excel but not essential here 
+ 
+## select only columns of interest
+
+df_Em <- df_Em %>%
+  select (Plot, SumTTEmerg)
+
+
+str(df_Em)
+
+
+```
+
+
+##Merge the dataframes to subtract thermal time at phenophases and emergence 
+
+```{r}
+
+df_TempA1 <- merge(df_Em,df_work,by="Plot")
+
+str(df_TempA1)
+
+```
+
+#
+# ################## Quantify TT from emergence to flowering phenophases (TT50F - TT Emergence ) ############
+
+```{r}
+
+ 
+df_TempA2 <- df_TempA1%>%
+  mutate(TT50FEm= TT50F-SumTTEmerg)
+
+str (df_TempA2)
+
+
+```
+
+## Now dataframe contains TT50F  and TT50FEm for specific phenophases 
+
+
+## Create index to filter for loop ANOVA
+
+
+```{r}
+y <- c("Bud","Bur","Flowering")
+
+sdIndex <- unique(df_TempA2$PhenoStage)
+
+sdIndex[order(match(sdIndex,y))]
+
+length(sdIndex)
+sdIndex
+```
+
+
+## Then loop anova for each individual cultivar and variable first with days to flower from sowing (TT50F)
+
+```{r}
+for (i in 1:length(sdIndex)) {
+  
+ #print(i)
+ print(paste0(sdIndex[i],"--------------------------------"))
+  
+  file.subset <- df_TempA2 %>%
+  filter(PhenoStage==sdIndex[i])
+  
+ 
+head(file.subset, 50)
+   summary(file.subset)
+my.anova <- aov(TT50F ~ Cultivar + Block, data = file.subset)
+print(summary(my.anova))
+
+if ((summary(my.anova)[[1]][["Pr(>F)"]][1])<0.05) {
+  print("***Sig Cultivar***") 
+  print((LSD.test(my.anova, c("Cultivar"), alpha= 0.05, p.adj="none"))) } 
+
+
+if ((summary(my.anova)[[1]][["Pr(>F)"]][1])>0.05) {
+  print("***Sig Cultivar***") 
+  print((LSD.test(my.anova, c("Cultivar"), alpha= 0.05, p.adj="none"))) } 
+
+# make mean separation if significant
+
+(LSD.test(my.anova, c("Cultivar"), alpha= 0.05, p.adj="none"))
+  
+}
+
+```
+
+
+
+## Repeat the process - Do Stats for TT50FEm (from emergence) 
+
+
+```{r}
+for (i in 1:length(sdIndex)) {
+  
+ #print(i)
+ print(paste0(sdIndex[i],"--------------------------------"))
+  
+  file.subset <- df_TempA2 %>%
+  filter(PhenoStage==sdIndex[i])
+  
+ 
+head(file.subset, 50)
+   summary(file.subset)
+my.anova <- aov(TT50FEm ~ Cultivar + Block, data = file.subset)
+print(summary(my.anova))
+
+if ((summary(my.anova)[[1]][["Pr(>F)"]][1])<0.05) {
+  print("***Sig Cultivar***") 
+  print((LSD.test(my.anova, c("Cultivar"), alpha= 0.05, p.adj="none"))) } 
+
+
+if ((summary(my.anova)[[1]][["Pr(>F)"]][1])>0.05) {
+  print("***Sig Cultivar***") 
+  print((LSD.test(my.anova, c("Cultivar"), alpha= 0.05, p.adj="none"))) } 
+
+# make mean separation if significant
+
+(LSD.test(my.anova, c("Cultivar"), alpha= 0.05, p.adj="none"))
+  
+}
+
+```
+
+
+###Graphs not needed at htis stage ####################
+
+

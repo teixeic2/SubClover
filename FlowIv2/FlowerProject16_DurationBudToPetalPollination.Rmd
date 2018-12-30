@@ -1,0 +1,239 @@
+---
+title: "Flowering 6CV"
+author: "CT"
+date: "06.07.2017"
+output:
+  word_document: default
+  pdf_document: default
+  html_document: default
+---
+
+```{r loadLibraries, warning=FALSE}
+library(tidyr)
+library (dplyr)
+library (ggplot2)
+library(agricolae)
+library(knitr)
+library (lubridate)
+
+```
+This script calculates the time from visible bud to petal (Reproductive 7) 
+
+file is :TimeToPollination_BurMaturity (worked dataframe)
+
+```{r loadFile}
+
+setwd("C:\\GitHubRepos\\SubCloverPhD\\SubClover\\FlowIv2")
+
+getwd()
+
+#create file
+df_raw <- read.table("TimeToPollination_BurMaturity.txt",header=TRUE)
+
+head (df_raw)
+```
+check formats
+```{r}
+
+df_work<-df_raw %>%
+  mutate(SowingD=ymd(SowingD)) %>%
+  #rename(PhenoStage=Variable)%>%
+  mutate(Plot=factor(Plot), Block=factor(Block),Cultivar=factor(Cultivar))
+         
+str(df_work)
+
+```
+
+##Runa anova calendar Thermal time from visible bud to Petal (pollination)  
+
+##DiffTT_BudToPetal that is the TT accumulated from Bud to Petal 
+
+
+
+```{r}
+ 
+  file <- df_work
+
+
+file.subs <- file 
+
+head(file.subs)
+summary(file.subs)
+
+#ANOVA
+
+my.anova <- aov(DiffTT_BudToPetal  ~ SowTreat*Cultivar + Block, data = file.subs)
+#my.anova <- aov(TT_fromPetalToBur  ~ SowTreat*Cultivar + Block, data = file.subs)
+#my.anova <- aov(DAS9T ~ Cultivar + Block, data = file.subs)
+
+summary(my.anova)
+
+```
+
+
+```{r}
+#(LSD.test(my.anova, c("SowTreat", "Cultivar"), alpha= 0.05, p.adj="none"))
+#(LSD.test(my.anova, c("Cultivar"), alpha= 0.05, p.adj="none"))
+
+(LSD.test(my.anova, c("SowTreat"), alpha= 0.05, p.adj="none"))
+```
+
+
+
+## Create index to filter for loop ANOVA
+
+```{r}
+y <- c("S1","S2","S3","S4","S5","S6","S7","S8")
+
+sdIndex <- unique(df_work$SowTreat)
+
+sdIndex[order(match(sdIndex,y))]
+
+length(sdIndex)
+sdIndex
+```
+
+
+## Then loop anova for each individual sowing date 
+```{r}
+for (i in 1:length(sdIndex)) {
+  
+ #print(i)
+ print(paste0(sdIndex[i],"--------------------------------"))
+  
+  file.subset <- df_work %>%
+  filter(SowTreat==sdIndex[i])
+  
+ 
+head(file.subset, 50)
+   summary(file.subset)
+my.anova <- aov(DiffTT_BudToPetal ~ Cultivar + Block, data = file.subset)
+print(summary(my.anova))
+
+if ((summary(my.anova)[[1]][["Pr(>F)"]][1])<0.05) {
+  print("***Sig Cultivar***") 
+  print((LSD.test(my.anova, c("Cultivar"), alpha= 0.05, p.adj="none"))) } 
+
+
+if ((summary(my.anova)[[1]][["Pr(>F)"]][1])>0.05) {
+  print("***Sig Cultivar***") 
+  print((LSD.test(my.anova, c("Cultivar"), alpha= 0.05, p.adj="none"))) } 
+
+# make mean separation if significant
+
+(LSD.test(my.anova, c("Cultivar"), alpha= 0.05, p.adj="none"))
+  
+}
+
+```
+
+##ANOVA : the calendar days from bud to pollinated flower to bur PAREI AQUI
+
+
+
+```{r}
+str(df_work)
+
+
+ file <- df_work
+
+
+file.subs <- file 
+
+head(file.subs)
+summary(file.subs)
+
+#ANOVA
+
+#my.anova <- aov(DiffTT_BudToPetal  ~ SowTreat*Cultivar + Block, data = file.subs)
+my.anova <- aov(TT_fromPetalToBur  ~ SowTreat*Cultivar + Block, data = file.subs)
+#my.anova <- aov(DAS9T ~ Cultivar + Block, data = file.subs)
+
+summary(my.anova)
+
+
+
+```
+
+
+
+```{r}
+#(LSD.test(my.anova, c("SowTreat", "Cultivar"), alpha= 0.05, p.adj="none"))
+#(LSD.test(my.anova, c("Cultivar"), alpha= 0.05, p.adj="none"))
+
+(LSD.test(my.anova, c("SowTreat"), alpha= 0.05, p.adj="none"))
+```
+
+
+
+
+## Then loop anova for each individual sowing date 
+```{r}
+for (i in 1:length(sdIndex)) {
+  
+ #print(i)
+ print(paste0(sdIndex[i],"--------------------------------"))
+  
+  file.subset <- df_work %>%
+  filter(SowTreat==sdIndex[i])
+  
+ 
+head(file.subset, 50)
+   summary(file.subset)
+my.anova <- aov(TT_fromPetalToBur ~ Cultivar + Block, data = file.subset)
+print(summary(my.anova))
+
+if ((summary(my.anova)[[1]][["Pr(>F)"]][1])<0.05) {
+  print("***Sig Cultivar***") 
+  print((LSD.test(my.anova, c("Cultivar"), alpha= 0.05, p.adj="none"))) } 
+
+
+if ((summary(my.anova)[[1]][["Pr(>F)"]][1])>0.05) {
+  print("***Sig Cultivar***") 
+  print((LSD.test(my.anova, c("Cultivar"), alpha= 0.05, p.adj="none"))) } 
+
+# make mean separation if significant
+
+(LSD.test(my.anova, c("Cultivar"), alpha= 0.05, p.adj="none"))
+  
+}
+
+```
+
+
+
+
+```{r}
+ 
+  file <- df_work
+
+
+file.subs <- file 
+
+head(file.subs)
+summary(file.subs)
+
+#ANOVA
+##variable Days_fromPetalToBur
+my.anova <- aov(Days_fromPetalToBur  ~ SowTreat*Cultivar + Block, data = file.subs)
+#my.anova <- aov(TT_fromPetalToBur  ~ SowTreat*Cultivar + Block, data = file.subs)
+#my.anova <- aov(DAS9T ~ Cultivar + Block, data = file.subs)
+
+summary(my.anova)
+
+```
+
+
+
+
+
+```{r}
+#(LSD.test(my.anova, c("SowTreat", "Cultivar"), alpha= 0.05, p.adj="none"))
+#(LSD.test(my.anova, c("Cultivar"), alpha= 0.05, p.adj="none"))
+
+(LSD.test(my.anova, c("SowTreat"), alpha= 0.05, p.adj="none"))
+
+
+
+```
+

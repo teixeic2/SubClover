@@ -66,16 +66,23 @@ summary(file.subs)
 #ANOVA
 
 my.anova <- aov(TT50F ~ SowTreat + Block, data = file.subs)
+my.anova <- aov(TT50F ~ SowTreat*Cultivar + Block, data = file.subs)
 #my.anova <- aov(DAS50F ~ Cultivar + Block, data = file.subs)
 
 summary(my.anova)
- ```
 
-```{r}
-(LSD.test(my.anova, c("SowTreat"), alpha= 0.05, p.adj="none"))
-#(LSD.test(my.anova, c("Cultivar"), alpha= 0.05, p.adj="none"))
+
+
 ```
 
+```{r}
+
+#(LSD.test(my.anova, c("SowTreat"), alpha= 0.05, p.adj="none"))
+(LSD.test(my.anova, c("Cultivar"), alpha= 0.05, p.adj="none"))
+
+
+
+```
 
 
 ## Create index to filter for loop ANOVA

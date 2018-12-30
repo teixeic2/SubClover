@@ -63,7 +63,7 @@ group_by(Plot)%>%
   dplyr::select(PercGerm_cum)%>%
   summarise_all(funs(max))%>%
   mutate(MaxGermPerc=PercGerm_cum)%>%
-  select(-PercGerm_cum)
+  dplyr::select(-PercGerm_cum)
   
 
 
@@ -145,11 +145,12 @@ ggplot(aes(x=DAS, y=mean, shape=Temp))+  # do percentage here
   labs(y="Cumulative germination (%)",x="Days")+
   #theme_grey(base_size = 16) +
   theme_bw()+
+  theme(axis.ticks.length=unit(.3, "cm"))+
   
-theme(axis.text.x=element_text(angle = 0, hjust = 0,size = 26))+
-theme(axis.text.y=element_text(angle = 0, hjust = 0,size = 26))+
-theme(axis.title.x=element_text(angle = 0, hjust = 0.5,size = 26))+
-theme(axis.title.y=element_text(angle = 90, hjust = 0.5,size = 26))+
+theme(axis.text.x=element_text(angle = 0, hjust = 0.5,size = 24))+
+theme(axis.text.y=element_text(angle = 0, hjust = 0.5,size = 24))+
+theme(axis.title.x=element_text(angle = 0, hjust = 0.5,size = 24))+
+theme(axis.title.y=element_text(angle = 90, hjust = 0.5,size = 24))+
   #remove grid lines 
      theme(
      panel.border = element_rect(colour = "black"  , size = 3.0), 
@@ -157,10 +158,10 @@ theme(axis.title.y=element_text(angle = 90, hjust = 0.5,size = 26))+
      panel.grid.minor = element_blank(),
      axis.line = element_line(colour = "black"))+
 
-theme(text = element_text(size = 40))
+theme(text = element_text(size = 38))
 
 
- ggsave("plot_Example_Narrikup_DAS50Perc_Germ.png", width=14, height=6, dpi=400)
+ ggsave("plot_Example_Narrikup_DAS50Perc_Germ.tiff", width=12, height=5, dpi=600)
 
 
 ```
@@ -227,7 +228,7 @@ df_50_Perc <- df_3b %>%
   #change name variable
   mutate(av_Perc=PercentRelative)%>%
 mutate(av_DAS=DAS)%>%
-  select(-PercGerm_cum, -MaxGermPerc)
+  dplyr::select(-PercGerm_cum, -MaxGermPerc)
 
 str(df_50_Perc)
 
@@ -504,7 +505,7 @@ df_Rate_MeanD %>%
   # geom_abline(intercept = 1, slope = 0, linetype=2)+
    geom_abline(intercept = 5,  slope = 0, linetype=2)+
    #geom_abline(intercept = 9,  slope = 0, linetype=2)+
-theme(axis.text.x=element_text(angle = 0, hjust = 0))+
+theme(axis.text.x=element_text(angle = 0, hjust = 0.5))+
   
   #remove grid lines 
    theme(
@@ -514,14 +515,16 @@ theme(axis.text.x=element_text(angle = 0, hjust = 0))+
      axis.line = element_line(colour = "black"))+
    #scale_fill_manual("legend", values = c("Antas" = "#660066", "Denmark" = "lightgrey","Leura" = "darkgrey", "Monti" = "#FF9933","Narrikup" = "blue",  "Woogenellup" = "#033333"))+
    
-   #make sowing dates white  
+   #make cultivars  white  
    theme(strip.background = element_rect(colour = "black", fill = "white",size=1))+
-   theme(text = element_text(size = 24))+
+   theme(text = element_text(size = 24, hjust = 0.5))+
+  ##ticks length
+  theme(axis.ticks.length=unit(.3, "cm"))+
    
   theme(axis.title.y = element_text(face="bold", size=24))
 
 
- ggsave("plot_DAS50Perc_Germ.png", width=12, height=6, dpi=400)
+ ggsave("plot_T50Perc_Germ.tiff", width=12, height=6, dpi=600)
 
 
 ```
@@ -584,7 +587,7 @@ df_Rate_MeanR %>%
   # geom_abline(intercept = 1, slope = 0, linetype=2)+
    geom_abline(intercept = 5,  slope = 0, linetype=2)+
    #geom_abline(intercept = 9,  slope = 0, linetype=2)+
-   theme(axis.text.x=element_text(angle = 0, hjust = 0))+
+   theme(axis.text.x=element_text(angle = 0, hjust = 0.5))+
   #remove grid lines 
     theme(
      panel.border = element_rect(colour = "black", size = 3), 
@@ -595,11 +598,14 @@ df_Rate_MeanR %>%
    
    #make sowing dates white  
    theme(strip.background = element_rect(colour = "black", fill = "white",size=1))+
+ 
+   ##ticks length
+  theme(axis.ticks.length=unit(.3, "cm"))+
   
 theme(text = element_text(size = 24))
 
 
-ggsave("plot_RatePerc_Germ.png", width=12, height=6, dpi=400)
+ggsave("plot_RatePerc_Germ.tiff", width=12, height=6, dpi=600)
 
 
 ```

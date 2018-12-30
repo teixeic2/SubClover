@@ -102,10 +102,9 @@ str(df_FP)
  dfGraph1 <- df_FP%>% 
   dplyr::select(SowingD:SowTreat,Block, Photo ,  TT50F, Pp_target , TT_target)%>%
   filter(TT_target!=300)%>%
-
   group_by(Cultivar,SowingD,SowTreat) %>%
   #select variables to average 
-  select(Cultivar,SowingD,SowTreat, Photo ,  TT50F, Pp_target)%>%
+  dplyr::select(Cultivar,SowingD,SowTreat, Photo ,  TT50F, Pp_target)%>%
   summarise_all(funs(mean))
 
 

@@ -1,7 +1,7 @@
 ---
-title: "CreateMergedPhenologyStages"
+title: "CreateMergedPhenologyStages for Growth Chamber experiment "
 author: "CT"
-date: "Sunday, January 17, 2016"
+date: " January 20, 2017"
 output:
   word_document: default
   pdf_document: default
@@ -21,7 +21,7 @@ library (lubridate)
 
 Read and check formats and file 
 ```{r loadFile, include=FALSE}
-setwd("C:\\GitHubRepos\\SubCloverPhD\\SubClover\\FlowIv2")
+setwd("C:\\GitHubRepos\\SubCloverPhD\\SubClover\\GCFlower")
 getwd()
 
 #create file
@@ -39,6 +39,10 @@ df_flower <- read.table("df_flower.txt",header=TRUE)
 check structure 
 ```{r}
 str(df_flower)
+
+## change name to standardise columns (Plot and Pot are the same )
+df_flower <- df_flower %>%
+  mutate (Plot=Pot)
 ```
 Create a category that is flowering which contains early bud and petal. 
 
@@ -46,6 +50,7 @@ Create a category that is flowering which contains early bud and petal.
 
 # create df with flowering stages only (merged)
 df_flower_simple <- df_flower %>%
+  #mutate(Plot=Pot)%>%
 filter(Variable == "Early" | 
          Variable == "Open" | 
          Variable == "Petal") %>%
@@ -57,33 +62,7 @@ group_by(Date, Plot) %>%
 ```
 
 
-
-#Merge phenological stages into "bud, flower and burr". No need to use these script here as the data is already calculated in script 1. 
-
-```{r joinEarlyOpenFlower, warning=FALSE}
-
-# create df with flowering stages only (merged)
-# df_flower_simple <- df_flower %>%
-# filter(Variable == "Early" | 
-#          Variable == "Open" | 
-#          Variable == "Petal") %>%
-# group_by(Date, Plot) %>%
-#   mutate(Variable = "Flowering", 
-#          S1=max(S1), 
-#          S2=max(S2),
-#          S3=max(S3), 
-#          S4=max(S4),
-#          S5=max(S5),
-#          Percent=((S1+S2+S3+S4+S5)/5)*100)
-
-# merge both dfs
-#df_flower_simple <- rbind(df_flower, df_flower_simple)
-
-
-
-
-```
-check data 
+##check data 
 
 ```{r}
 # check
@@ -113,8 +92,7 @@ Then create a class that is bud only
 df_bud_simple <- df_flower %>%
   filter(Variable == "Bud")
   
-write.table(df_bud_simple, "df_bud_only_simple.txt")  
-
+  
 ```
 
 Combine all three dataframes 
@@ -141,12 +119,8 @@ df_bud_flow_bur_simple <-
 summary(df_bud_flow_bur_simple)
 
 #Save as table 
-write.table(df_bud_flow_bur_simple, "df_bud_flow_bur_simple.txt")
+write.table(df_bud_flow_bur_simple, "GCdf_bud_flow_bur_simple.txt")
 ```
-
-get data 
-
-
 
 
 #Graph of merged 
@@ -160,7 +134,7 @@ df_bud_flow_bur_simple %>%
   mutate(Variable = 
   factor(Variable,levels = c("Bud","Flowering",
                              "Bur"))) %>%
-  group_by(DAS,Cultivar,SowTreat,Variable) %>%
+  group_by(DAS,Cultivar,Variable) %>%
   summarise_each(funs(mean)) %>%
   #select(Variable,Percent, Cultivar,DAS,SowTreat, TTAS) %>%
   #filter(SowTreat == "S1" | SowTreat == "S2" | SowTreat == "S3" | SowTreat == "S4" ) %>%
@@ -170,7 +144,7 @@ df_bud_flow_bur_simple %>%
   ggplot(aes(x=TTAS, y=Percent)) + 
   geom_line(aes(colour=Cultivar)) +
   geom_point(aes(shape=Cultivar,colour=Cultivar))+
-  facet_grid(Cultivar~SowTreat, scales = "free") +
+  facet_grid(Cultivar~., scales = "free") +
   #facet_grid(SowTreat~Cultivar, scales = "free") +
   geom_abline(intercept = 50, slope = 0) +
   ylab("Percent of plants with floral Bud (%)") +
@@ -190,13 +164,13 @@ df_bud_flow_bur_simple %>%
   mutate(Variable = 
   factor(Variable,levels = c("Bud","Flowering",
                              "Bur"))) %>%
-  group_by(DAS,Cultivar,SowTreat,Variable) %>%
+  group_by(DAS,Cultivar,Variable) %>%
   summarise_each(funs(mean)) %>%
   #select(Variable,Percent, Cultivar,DAS,SowTreat, TTAS) %>%
   #filter(SowTreat == "S1" | SowTreat == "S2" | SowTreat == "S3" | SowTreat == "S4" ) %>%
   #filter(Cultivar == "Monti" | Cultivar == "Leura") %>%
-   filter(Cultivar == "Monti" ) %>%
-  filter (SowTreat == "S1") %>%
+   #filter(Cultivar == "Monti" ) %>%
+ # filter (SowTreat == "S1") %>%
   filter(Variable == "Flowering" | Variable == "Bur")%>%
  #ggplot(aes(x=DAS, y=Percent)) + 
   ggplot(aes(x=TTAS, y=Percent)) + 
@@ -212,4 +186,6 @@ df_bud_flow_bur_simple %>%
 theme(axis.text.x = element_text(angle = 60, hjust = 1))
 
 ```
+
+
 

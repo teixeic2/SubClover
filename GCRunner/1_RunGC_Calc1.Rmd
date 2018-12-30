@@ -1,0 +1,234 @@
+---
+title: "Runners Growth Chamber "
+author: "CT"
+date: "19.08.2017"
+output: 
+  word_document: default
+  pdf_document: default
+  html_document: default
+---
+
+Purpose:
+
+-This script reads the rawdata of number of plants with runners (0 = no runner; 1=runner visible) from the growth chamber experiment  . 
+- Graph the main dataset for 3 cultivars 
+ 
+```{r loadLibraries}
+library(tidyr)
+library (dplyr)
+library (ggplot2)
+library(agricolae)
+library (lubridate)
+library(mosaic)
+library(lattice)
+library(knitr)
+```
+
+
+
+```{r}
+setwd("C:\\GitHubRepos\\SubCloverPhD\\SubClover\\GCRunner")
+getwd()
+#create file
+df_runner_raw <- read.table("A_GCRunnerRawD.txt",header=TRUE)
+head(df_runner_raw)
+
+
+```
+Define formats and calculate the mean number of trifoliates considering the sub samples (S1-S10)
+
+```{r loadFile}
+
+
+# define factors for the ones that "look like" values
+ df_runner_worked <- df_runner_raw %>%
+  mutate(SowingDate = dmy(SowingDate), 
+         ReadingDate = dmy(ReadingDate),
+         Plot=factor(Plot),
+         Block=factor(Block),
+         Cultivar=factor(Cultivar))
+
+        
+         
+
+summary(df_runner_worked)
+
+
+```
+
+```{r}
+str(df_runner_worked)
+
+```
+
+Calculations to get the percentage of plants with a runner  
+
+
+
+```{r}
+df_runner_worked <- df_runner_worked %>%
+  mutate(Runner = ((S1+S2)/2)*100)
+
+write.table(df_runner_worked, "GCNumber_Runner.txt")
+
+```
+
+
+
+```{r,fig.height=5, fig.width= 15 }
+
+
+#Graph   complete here       
+  df_runner_worked %>%  group_by(Cultivar, DAS) %>%
+  #filter(Cultivar=="Antas")%>%
+  summarise_each(funs(mean)) %>%
+  ggplot(aes(x=DAS, y=Runner)) + 
+  geom_point(aes(colour=Cultivar)) +
+  geom_line(aes(colour=Cultivar)) +
+  facet_grid (Cultivar~., scales = "free")+
+  #facet_wrap (~SowMonth,ncol=4, scales = "free")+
+  theme_bw()+
+  labs(y="Proportion of Runners",x="Days after sowing")+
+    geom_abline(intercept = 50, slope = 0)
+```
+
+
+
+Graph in black and white 
+
+
+```{r}
+
+df_Runer1 <-df_runner_worked%>%
+  group_by(Cultivar,DAS)%>%
+  dplyr::select(Runner) %>%
+  summarise_all(funs(mean,sd))
+
+
+
+```
+
+
+
+```{r, fig.width=15, fig.height=8}
+
+#Here how to create the end error bar with max Sd 
+# find size of bar per month
+# find single position of x y to put the bar
+
+#extraPos<- 1.10 # extra position for single error bar
+extraPos<- 1.1 # extra position for single error bar
+x_max<-max(df_Runer1$DAS)
+y_max<-max(df_Runer1$mean)
+
+# find largest standard error
+sd_df <- df_Runer1 %>% 
+  group_by(Cultivar) %>%
+  dplyr::select(sd)%>%
+  summarise_all(max)%>%
+  #summarise(max_sd = max(sd)) %>% 
+  ungroup() %>%
+  rowwise() %>%
+  #rename variables
+  mutate(DAS = x_max*extraPos, mean = y_max*extraPos,max_sd=sd )
+
+summary(sd_df)
+
+#divide sd/2 as number of replicates were 4 
+
+df_Runer1%>%
+  #filter(Cultivar=="Antas"|Cultivar=="Denmark"|Cultivar=="Leura")%>%
+ggplot(aes(x=DAS, y=mean)) + 
+  geom_point(aes(shape=Cultivar),size=4)+
+  geom_line(aes(linetype=Cultivar),alpha=0.2)+
+  scale_shape_manual(values = c(1,2,8)) +
+  #scale_shape_manual(values = c(0,1,2,3,4))+
+  #scale_shape_manual(values = c(1,2,4,7,8,9))+
+  geom_errorbar(data=sd_df, aes(ymin=mean-max_sd/2,
+                    ymax=mean+max_sd/2), width=4)+
+  facet_wrap(~Cultivar,ncol=4, scales = "free")+
+  theme_bw()+
+  #scale_x_continuous(breaks = c(5,10,15,20,30))+
+  ylim(0, 150)+
+  xlim(0, 80)+
+  labs(y="Peercentage Plants with Runner %",x="Days of test")+ 
+  geom_abline(intercept = 50, slope = 0, linetype=2)+
+  theme_grey(base_size = 16) +
+  theme_bw()+
+    geom_abline(intercept = 100, slope = 0, linetype=2)+
+   
+theme(axis.text.x=element_text(angle = 0, hjust = 0))+
+theme(text = element_text(size = 16))
+
+#ggsave("plot_CumulativeRunnerA_D_L.png", width=12, height=6, dpi=400)
+
+```
+
+
+
+
+
+
+
+```{r, fig.height=8, fig.width=15, include = FALSE}
+#Graph 2        
+ 
+#Here how to create the end error bar with max Sd 
+# find size of bar per month
+# find single position of x y to put the bar
+
+# #extraPos<- 1.10 # extra position for single error bar
+# extraPos<- 1.1 # extra position for single error bar
+# x_max<-max(df_Runer1$DAS)
+# y_max<-max(df_Runer1$mean)
+# 
+# # find largest standard error
+# sd_df <- df_Runer1 %>% 
+#   group_by(SowMonth) %>%
+#   dplyr::select(sd)%>%
+#   summarise_all(max)%>%
+#   #summarise(max_sd = max(sd)) %>% 
+#   ungroup() %>%
+#   rowwise() %>%
+#   #rename variables
+#   mutate(DAS = x_max*extraPos, mean = y_max*extraPos,max_sd=sd )
+# 
+# summary(sd_df)
+# 
+# 
+#  
+# df_Runer1%>%
+#   filter(Cultivar=="Monti"|Cultivar=="Narrikup"|Cultivar=="Woogenellup")%>%
+# ggplot(aes(x=DAS, y=mean)) + 
+#   geom_point(aes(shape=Cultivar),size=4)+
+#   geom_line(aes(linetype=Cultivar),alpha=0.2)+
+#   #scale_shape_manual(values = c(1,2,0)) +
+#   #scale_shape_manual(values = c(0,1,2,3,4))+
+#   scale_shape_manual(values = c(4,7,8)) +
+#   geom_errorbar(data=sd_df, aes(ymin=mean-max_sd/2,
+#                     ymax=mean+max_sd/2), width=4)+
+#   facet_wrap(~SowMonth,ncol=4, scales = "free")+
+#   theme_bw()+
+#   #scale_x_continuous(breaks = c(5,10,15,20,30))+
+#   ylim(0, 170)+
+#   xlim(0, 180)+
+#   labs(y="Peercentage Plants with Runner %",x="Days of test")+ 
+#   geom_abline(intercept = 50, slope = 0, linetype=2)+
+#   theme_grey(base_size = 16) +
+#   theme_bw()+
+#     geom_abline(intercept = 100, slope = 0, linetype=2)+
+#    
+# theme(axis.text.x=element_text(angle = 0, hjust = 0))+
+# theme(text = element_text(size = 16))
+
+
+#ggsave("plot_CumulativeRunnerM_N_W.png", width=12, height=6, dpi=400)
+```
+
+
+
+
+End of this script Calc 1. 
+Move to script 2 to calculate percent and rate of runner appearance 
+
+

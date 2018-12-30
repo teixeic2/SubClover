@@ -231,6 +231,9 @@ ggplot(aes(x=Temp, y=mean)) +
 #make Cultivars  white  
    theme(strip.background = element_rect(colour = "white", fill = "white",size=3), strip.placement = "outside")+
   
+   ##ticks length
+  theme(axis.ticks.length=unit(.3, "cm"))+
+  
   #label sizes 
 theme(text = element_text(size = 40))
   
@@ -239,7 +242,7 @@ theme(text = element_text(size = 40))
 
 #ggsave("plot_Panel_Origin_DASMaxGerm_Rate.png", width=18, height=8, dpi=500)
 
-ggsave("plot_Panel_Origin_DASMaxGerm_Rate.tiff", width=18, height=8, dpi=500)
+ggsave("plot_Panel_Origin_DASMaxGerm_Rate.tiff", width=18, height=8, dpi=600)
 
 ```
 

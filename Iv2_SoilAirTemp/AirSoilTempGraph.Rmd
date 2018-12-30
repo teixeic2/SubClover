@@ -76,6 +76,80 @@ df_gather%>%
 ```
 
 
+do for soil temp 
+
+```{r,  height=5, fig.width=15}
+
+  str(df_file)
+
+df_file%>%
+  mutate(Date=dmy(Date))%>%
+  #mutate(Variable=factor(Variable,levels=c("Tm","MeanTt","Tx","Pp"),labels = c("Tmin","Tmean","Tmax","Photoperiod")))%>%
+ ggplot(aes(x=Date, y= TempSoil10mm)) +
+  theme_bw()+
+  #geom_point(aes(colour=Variable,shape=Variable), alpha=0.8, size=3)+
+  geom_point(aes(),size=4)+
+  scale_color_manual(values = c("gray20" ))+
+  scale_shape_manual(values = c(15))+
+  #geom_line(aes(colour=Variable))+
+  #geom_smooth(aes(colour=Variable))+
+  xlab(expression(Date~"(Month/Year)"))+
+  
+  ylab(expression(Soil~Temperature~"("^"o"*"C)"))+
+  scale_x_date(date_breaks = "6 month", 
+                 date_labels = "%B%Y",
+                 limits = as.Date(c('2015-06-01','2017-07-07')))+
+  theme(axis.text.y = element_text(size=18))+
+  theme(axis.title.y = element_text(size=18))+
+  theme(legend.text = element_text(size=18))+
+  theme(axis.title.x = element_text(size=))+
+  theme(axis.text.x = element_text(size=18))+
+  ylim(0,25)
+    
+ ggsave("plot_SoilTempPpIversen.png", width=12, height=6, dpi=400)
+
+```
+
+
+```
+
+
+
+
+
+```{r,fig.height=5, fig.width=15}
+
+df_gather<-df_Air %>%
+  select(Date,Tx,Tm,MeanTt,Pp)%>%
+gather(key= "Variable" , value = "TempHour", Tx,Tm,MeanTt,Pp)%>%
+  mutate(Date=dmy(Date))
+  
+
+df_gather%>%
+  mutate(Variable=factor(Variable,levels=c("Tm","MeanTt","Tx","Pp"),labels = c("Tmin","Tmean","Tmax","Photoperiod")))%>%
+ ggplot(aes(x=Date, y= TempHour)) +
+  theme_bw()+
+  geom_point(aes(colour=Variable,shape=Variable), alpha=0.8, size=3)+
+  #geom_point()+
+  scale_color_manual(values = c("steelblue3","orange","red", "gray20" ))+
+  scale_shape_manual(values = c(15,16,17,18))+
+  #geom_line(aes(colour=Variable))+
+  #geom_smooth(aes(colour=Variable))+
+  xlab(expression(Date~"(Month/Year)"))+
+  
+  ylab(expression(Air~Temperature~Photoperiod~"("^"o"*"C/hours)"))+
+  scale_x_date(date_breaks = "3 month", 
+                 date_labels = "%B%Y",
+                 limits = as.Date(c('2015-06-01','2017-07-07')))+
+  theme(axis.text.y = element_text(size=14))+
+  theme(axis.title.y = element_text(size=14))+
+  theme(legend.text = element_text(size=14))+
+  theme(axis.title.x = element_text(size=14))+
+  ylim(0,35)
+    
+ #ggsave("plot_TempPpIversen.png", width=12, height=6, dpi=400)
+
+```
 
 
 subset S5 data (check with G Chamber data)

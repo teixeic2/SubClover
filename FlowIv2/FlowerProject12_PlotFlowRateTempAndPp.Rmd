@@ -68,7 +68,7 @@ str(df_tt_Pp)
 #select columns of interest 
 
 df_Prep <- df_tt_Pp%>%
-  select(SowingD:Block,DAS50F, DAS50FFromEmerg,Pp_sow)%>%
+ dplyr:: select(SowingD:Block,DAS50F, DAS50FFromEmerg,Pp_sow)%>%
   #find the date when 50F occurred  
   mutate(Date50FF= ymd(SowingD+DAS50F))
 
@@ -187,6 +187,19 @@ write.table(df_merge, "df_MeanTempTo50Flower.txt")
 
 
 ```
+
+
+##inspect means air temp in each sowing date 
+```{r}
+MeanAirTemp<- df_merge %>%
+  group_by(SowTreat)%>%
+ dplyr::select(meanTempAir_50F)%>%
+  summarise_all(funs(mean))
+
+
+```
+
+
 
 #Incorporate the mean Pp as well 
 

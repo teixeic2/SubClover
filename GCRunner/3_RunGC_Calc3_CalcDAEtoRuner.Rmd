@@ -1,0 +1,293 @@
+---
+title: "Runner DA50% and rate to 50% Growth Chamber  "
+author: "CT"
+date: "17.08.2017"
+output: 
+  word_document: default
+  pdf_document: default
+  html_document: default
+---
+
+Purpose:
+
+-Combine the rate of runner appearance of 50% plants with one runner  and  Mean Air Temp during runner  appearance  GC experiment  
+ 
+```{r loadLibraries}
+library(tidyr)
+library (dplyr)
+library (ggplot2)
+library(agricolae)
+library (lubridate)
+library(mosaic)
+library(lattice)
+library(knitr)
+```
+
+Get data from Emergence Folder and dates to combine into a dataframe 
+
+
+```{r}
+
+setwd("C:\\GitHubRepos\\SubCloverPhD\\SubClover\\GCRunner")
+getwd()
+#create file
+
+df_RunnerRate <- read.table("GC_RateRunner.txt",header=TRUE)
+
+
+
+#adjust formats 
+df_RunnerRate$SowingDate <- ymd(df_RunnerRate$SowingDate )
+df_RunnerRate$Block <- as.factor(df_RunnerRate$Block)
+##rename Plot as Pot to harmonise with other scripts 
+df_RunnerRate$Pot <- as.factor(df_RunnerRate$Plot)
+df_RunnerRate$DAS50Run <- as.numeric(df_RunnerRate$DAS)
+
+```
+
+Create df_MD to workout dates to % runner 
+```{r}
+
+  df_MD <- df_RunnerRate %>%
+  mutate(DateRunner=SowingDate+DAS) %>%
+  group_by(Plot, DAS) %>% 
+  dplyr::filter(row_number() == 1)
+
+#str(df_MD)
+
+H <-df_MD %>%
+ dplyr:: select (Plot, DateRunner)
+
+#save and store table 
+#write.table(H, "GC_DateTo50Runner.txt")
+
+```
+
+
+
+##Add the number of days for 50% emergence to calculate the days to runner  after emergence (DAE)
+
+##File ready at : GC_DASToEmergence.txt (already calculated the days after emergence)
+
+ 
+
+```{r}
+#setwd("C:\\GitHubRepos\\SubCloverPhD\\SubClover\\GCRunner")
+getwd()
+#create file
+df_trif2 <- read.table("GC_DASToEmergence.txt",header=TRUE)
+
+
+str(df_trif2)
+
+
+```
+
+Define formats 
+
+```{r loadFile}
+
+
+# define factors for the ones that "look like" values
+
+df_trif2 <- df_trif2 %>%
+  mutate(SowingDate = ymd(SowingDate), 
+         Date50Emerg = ymd(Date50Emerg),
+         DAS_ToEmerg = as.numeric(DAS_ToEmerg))
+
+
+df_trif2$Pot <- as.factor(df_trif2$Pot)
+df_trif2$Block <- as.factor(df_trif2$Block)
+df_trif2$Cultivar <- as.factor(df_trif2$Cultivar)
+#df_trif$SowTreat <- as.factor(df_trif$SowTreat)
+
+##Reminder !!! Exclude the info ot 1_T ...that comes automatically from excel but not essential here 
+ 
+         
+
+str(df_trif2)
+
+
+```
+
+##Remove extra columns 
+
+
+
+```{r}
+
+##Estimate date for runner appearance after after emergence 
+##Here select only columns related to emergence  !! 
+
+df_DatetoEmerg <-df_trif2 %>%
+  select(Cultivar:Block,DAS_ToEmerg)
+  
+  
+ ## mutate(DateTo5TFromEmerg=Date50Emerg+ DAE_1T)
+  
+
+```
+
+
+
+
+# ################## Quantify Days  from emergence to runner ############
+
+```{r}
+
+#prep dataframe with TT at emergence 
+
+
+str (df_MD )
+##bring data frame above with the runner info: df_MD
+#select columns needed : 
+
+df_Runner_select <-df_MD%>%
+  select(Cultivar, SowingDate, Block,DAS50Run, Pot)
+
+
+##bring data frame above : df_trif2
+
+df_trif2Select <-df_trif2%>%
+  select(Date50Emerg, Pot,DAS_ToEmerg)
+
+  
+df_TempA1 <- merge(df_Runner_select,df_trif2Select,by="Pot")
+
+##inspect  new data frame
+
+ 
+
+
+```
+
+##Now calculate the DAE to Run  
+
+
+```{r}
+
+
+##calculate number of days from emergence to runner 
+df_TempA1 <- df_TempA1%>%
+  mutate(DAEToRun_Em=DAS50Run-DAS_ToEmerg)
+
+str(df_TempA1, warning=FALSE)
+
+```
+
+
+## continue from here to clean dataframe and perform anova 
+
+
+```{r}
+df_DAEToRunner_Emerg<-df_TempA1 %>%
+dplyr::select(Pot, Cultivar, Block,DAEToRun_Em)
+
+
+```
+
+
+Check : Inspect means  before ANOVA
+
+```{r}
+#Graph 
+
+
+ # a <- df_RateTrifo %>%
+
+ f <- df_DAEToRunner_Emerg %>%
+  group_by( Cultivar) %>%
+  dplyr::select(  DAEToRun_Em ) %>%
+  summarise_all(funs(mean,sd))
+
+
+
+```
+
+
+
+## ######################### RUN ANOVA ##########################
+
+
+
+```{r ANOVAMaxPlantPop}
+
+#compare DAE_1T  among cultivars
+
+df_ANOVA <- df_DAEToRunner_Emerg %>%
+  dplyr::select(Cultivar,Block,Pot,DAEToRun_Em)
+
+```
+Overall analysis consider sowing date and cultivar 
+
+
+```{r}
+##Overview   
+
+file <- df_ANOVA 
+
+str(file)
+# -----------------------------------------------
+#here if transformation is needed 
+file$transf_no <- 1*(df_ANOVA$DAEToRun_Em)
+
+head(file)
+
+#-------------------------------------------------
+# ANOVA 
+file.subset <- file 
+
+head(file.subset)
+summary(file.subset)
+my.anova <- aov(transf_no ~ Cultivar + Block, 
+                data = file.subset)
+
+summary(my.anova)
+
+```
+
+
+
+First LSD  Fisher's
+
+```{r}
+#Means separation after ANOVA
+#(LSD.test(my.anova, c("Treat"), alpha= 0.05, p.adj="none")) 
+(LSD.test(my.anova, c("Cultivar"), alpha= 0.05, p.adj="none")) 
+
+#(LSD.test(my.anova, c("Block"), alpha= 0.05, p.adj="none")) 
+
+```
+
+
+Perform Tukeys 
+
+
+This is Tukeys test for mean comparison 
+
+
+
+
+```{r}
+posthoc <- TukeyHSD(x=my.anova, 'Cultivar', conf.level=0.95)
+#posthoc <- TukeyHSD(x=my.anova, 'Cultivar', conf.level=0.25)
+
+posthoc
+
+```
+
+Then 
+This is the mean separation using Tukey 
+
+
+```{r}
+
+fogo<-HSD.test(my.anova, 'Cultivar', group=TRUE)
+fogo
+
+```
+
+##End of this script. 
+
+
+

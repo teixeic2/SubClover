@@ -1,0 +1,291 @@
+---
+title: "Flowering 3CV_growth chamber experiment "
+author: "CT"
+date: "30.01.2016"
+output:
+  word_document: default
+  pdf_document: default
+  html_document: default
+---
+
+```{r loadLibraries, warning=FALSE}
+library(tidyr)
+library (dplyr)
+library (ggplot2)
+library(agricolae)
+library(knitr)
+library (lubridate)
+
+```
+This script calculates the means of DAS and TTAS50Flo and perform the statistics 
+
+```{r loadFile}
+
+setwd("C:\\GitHubRepos\\SubCloverPhD\\SubClover\\GCFlower")
+
+getwd()
+
+#create file
+df_raw <- read.table("GCdf_tt_50p_flow.txt",header=TRUE)
+
+head (df_raw)
+```
+check formats
+```{r}
+
+df_work<-df_raw %>%
+  mutate(SowingD=ymd(SowingD)) %>%
+  rename(PhenoStage=Variable)%>%
+  mutate(Plot=factor(Plot), Block=factor(Block))
+         
+str(df_work)
+
+```
+
+## Add the columns refering to days from emergence
+
+
+
+
+##Add the number of days for 50% emergence to calculate the days to runner  after emergence (DAE)
+
+##File ready at : GC_DASToEmergence.txt (already calculated the days after emergence)
+
+ 
+
+```{r}
+#setwd("C:\\GitHubRepos\\SubCloverPhD\\SubClover\\GCFlower")
+getwd()
+#create file
+df_trif2 <- read.table("GC_DASToEmergence.txt",header=TRUE)
+
+
+str(df_trif2)
+
+
+```
+
+Define formats 
+
+```{r loadFile}
+
+
+# define factors for the ones that "look like" values
+
+df_trif2 <- df_trif2 %>%
+  mutate(SowingDate = ymd(SowingDate), 
+         Date50Emerg = ymd(Date50Emerg),
+         DAS_ToEmerg = as.numeric(DAS_ToEmerg))
+
+
+df_trif2$Pot <- as.factor(df_trif2$Pot)
+df_trif2$Block <- as.factor(df_trif2$Block)
+df_trif2$Cultivar <- as.factor(df_trif2$Cultivar)
+#df_trif$SowTreat <- as.factor(df_trif$SowTreat)
+
+##Reminder !!! Exclude the info ot 1_T ...that comes automatically from excel but not essential here 
+ 
+         
+
+str(df_trif2)
+
+
+```
+
+##Remove extra columns 
+
+
+
+```{r}
+
+##Estimate date for runner appearance after after emergence 
+##Here select only columns related to emergence  !! 
+
+df_DatetoEmerg <-df_trif2 %>%
+select(Cultivar:Block,DAS_ToEmerg)%>%
+  mutate(Plot=Pot)
+  
+
+
+```
+
+# ################## Quantify Days  from emergence to flowering phenophases  ############
+
+```{r}
+
+#prep dataframe with TT at emergence 
+
+
+str (df_DatetoEmerg)
+
+## merge the dataframes by Plot 
+  
+df_TempA1 <- merge(df_DatetoEmerg,df_work,by="Plot")
+
+##inspect  new data frame
+ str(df_TempA1 )
+ 
+##clean dataframe _remove duplicated and extras 
+ 
+df_TempA2 <- df_TempA1%>%
+  select(-Block.y, -Cultivar.y)%>%
+  mutate(Cultivar=Cultivar.x, Block=Block.x)%>%
+  mutate(DAE50F=DAS50F-DAS_ToEmerg)
+  
+```
+
+## Now dataframe contains DAS and DAE for specific phenophases 
+
+
+
+## Create index to filter for loop ANOVA
+
+
+```{r}
+y <- c("Bud","Bur","Flowering")
+
+sdIndex <- unique(df_TempA2$PhenoStage)
+
+sdIndex[order(match(sdIndex,y))]
+
+length(sdIndex)
+sdIndex
+```
+
+
+## Then loop anova for each individual cultivar and variable first with days to flower from sowing (DAs50F)
+
+```{r}
+for (i in 1:length(sdIndex)) {
+  
+ #print(i)
+ print(paste0(sdIndex[i],"--------------------------------"))
+  
+  file.subset <- df_TempA2 %>%
+  filter(PhenoStage==sdIndex[i])
+  
+ 
+head(file.subset, 50)
+   summary(file.subset)
+my.anova <- aov(DAS50F ~ Cultivar + Block, data = file.subset)
+print(summary(my.anova))
+
+if ((summary(my.anova)[[1]][["Pr(>F)"]][1])<0.05) {
+  print("***Sig Cultivar***") 
+  print((LSD.test(my.anova, c("Cultivar"), alpha= 0.05, p.adj="none"))) } 
+
+
+if ((summary(my.anova)[[1]][["Pr(>F)"]][1])>0.05) {
+  print("***Sig Cultivar***") 
+  print((LSD.test(my.anova, c("Cultivar"), alpha= 0.05, p.adj="none"))) } 
+
+# make mean separation if significant
+
+(LSD.test(my.anova, c("Cultivar"), alpha= 0.05, p.adj="none"))
+  
+}
+
+```
+
+
+
+## Repeat the process - Do Stats for DAE50F then 
+
+
+```{r}
+for (i in 1:length(sdIndex)) {
+  
+ #print(i)
+ print(paste0(sdIndex[i],"--------------------------------"))
+  
+  file.subset <- df_TempA2 %>%
+  filter(PhenoStage==sdIndex[i])
+  
+ 
+head(file.subset, 50)
+   summary(file.subset)
+my.anova <- aov(DAE50F ~ Cultivar + Block, data = file.subset)
+print(summary(my.anova))
+
+if ((summary(my.anova)[[1]][["Pr(>F)"]][1])<0.05) {
+  print("***Sig Cultivar***") 
+  print((LSD.test(my.anova, c("Cultivar"), alpha= 0.05, p.adj="none"))) } 
+
+
+if ((summary(my.anova)[[1]][["Pr(>F)"]][1])>0.05) {
+  print("***Sig Cultivar***") 
+  print((LSD.test(my.anova, c("Cultivar"), alpha= 0.05, p.adj="none"))) } 
+
+# make mean separation if significant
+
+(LSD.test(my.anova, c("Cultivar"), alpha= 0.05, p.adj="none"))
+  
+}
+
+```
+
+
+###Graphs not needed at htis stage ####################
+
+
+graph DAS and TT 50Bud for all cultivars and sowing dates 
+
+```{r, fig.height=6, fig.width=15}
+
+# df_work_bud_mean%>%
+#   
+# ggplot(aes(x=SowingD,y=mean, shape=Cultivar))+
+#   geom_point(aes(shape=Cultivar),size=5)+
+#     scale_shape_manual(values = c(1,2,0)) +
+#   facet_grid(Variable~PhenoStage, scales="free")+
+#   
+#     theme_grey(base_size = 16) +
+#     theme_bw()+
+#     geom_abline(intercept = 100, slope = 0, linetype=2)+
+#    
+# theme(axis.text.x=element_text(angle = 0, hjust = 0))+
+# theme(text = element_text(size = 16)) +
+#  # theme(axis.text.x = element_text(angle = 0, hjust = 1.5))+
+#   #scale_x_date(date_breaks = "1 month",date_labels =  "%b")+
+# labs(x="Sowing Month")+
+#     #limits = as.Date (c("2016"))
+# ylab(expression(Tt~"("^"o"*"Cd)"~~~~~~~~~~~~~~~~~~~~~~Days))
+#     
+# #ggsave("plot_xxx.png", width=12, height=6, dpi=400)
+#  summary(df_work_bud_mean)
+```
+
+Make the mean and SE
+`
+```{r}
+
+# aMean <- a %>%
+#   tidyr::gather("Variable","Value",DAS50F:TT50F) %>%
+#   dplyr::select(SowingD,SowTreat, Variable, Value) %>%
+#   
+#   
+#   summarise_all(funs(max(PercGerm_cum), sd)) 
+#   summarise_all(funs)
+#   ggplot(aes(x=SowingD,y=Value, shape=Cultivar))+
+#     #scale_x_discrete(name="Mon")
+#   geom_point(aes(shape=Cultivar),size=5)+
+#     scale_shape_manual(values = c(1,2,0,4,7,8)) +
+#      #scale_shape_manual(values = c(1,2,0)) +
+#   #geom_line(aes(colour=Variable))+
+#   facet_grid(Variable3~., scales="free")+
+#   
+#     theme_grey(base_size = 16) +
+#     theme_bw()+
+#     geom_abline(intercept = 100, slope = 0, linetype=2)+
+#    
+# theme(axis.text.x=element_text(angle = 0, hjust = 0))+
+# theme(text = element_text(size = 16))+
+# labs(x="Sowing Month")+
+# ylab(expression(Tt~"("^"o"*"Cd)"~~~~~~~~~~~~~~~~~~~~~~Days))
+#     
+
+
+
+```
+
+

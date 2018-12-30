@@ -1,0 +1,222 @@
+ ---
+title: "Flowering 6CV - calculation Bud production period - duration"
+author: "CT"
+date: "30.02.2016"
+output: 
+  word_document: default
+  pdf_document: default
+  html_document: default
+---
+
+Aim: Calculate Tt and Days for bud duration ...for how long subclovers keep producing buds? 
+
+```{r loadLibraries}
+library(tidyr)
+library (dplyr)
+library (ggplot2)
+library(agricolae)
+library(knitr)
+library (lubridate)
+```
+
+
+```{r loadFile}
+setwd("C:\\GitHubRepos\\SubCloverPhD\\SubClover\\FlowIv2")
+getwd()
+
+#create file: this file was generated in the previous script FlowerProject2
+```
+
+- Here theaim is to calculate the period of bud production
+- Read the dataframe created : df_Bud_Duration.txt
+- analyse ANOVA 
+
+```{r}
+df_bud_duration <- read.table("df_Bud_Duration.txt",header=TRUE)
+
+
+str(df_bud_duration)
+
+# change formats
+df_bud_duration <- df_bud_duration %>%
+mutate(SowingD=dmy(SowingD)) %>%
+mutate(DaysBudDuration=as.numeric(DaysBudDuration))
+
+```
+
+Run ANOVA for DAysBud Duration 
+
+
+##stats for the number of days for bud duration 
+##general use Sow Treat as Factor 
+
+```{r}
+ 
+str(df_bud_duration)
+
+file <- df_bud_duration
+
+file.subs <- file 
+
+head(file.subs)
+summary(file.subs)
+
+#ANOVA
+
+my.anova <- aov(DaysBudDuration ~ Cultivar*SowTreat+ Block, data = file.subs)
+summary(my.anova)
+
+```
+
+
+There was an interaction between Cultivar and sowing date (P<0.001).
+
+
+```{r}
+#(LSD.test(my.anova, c("SowTreat"), alpha= 0.05, p.adj="none"))
+(LSD.test(my.anova, c("SowTreat", "Cultivar"), alpha= 0.05, p.adj="none"))
+#(LSD.test(my.anova, c("Cultivar"), alpha= 0.05, p.adj="none"))
+
+```
+
+In S6 and S7 Monti and Narrikup had the longest period of blossom (mean of 106 days). 
+The shortest bud duration occurred in S1,S2, S4 and S5 (mean of 33).
+Among the cultivars Narrikup had the longest period of bud production (60) in contrast to Denmark and antas which had 43.5 days.  
+
+
+
+## Create index to filter for loop ANOVA
+
+```{r}
+y <- c("S1","S2","S3","S4","S5","S6","S7","S8")
+
+sdIndex <- unique(df_bud_duration$SowTreat)
+
+sdIndex[order(match(sdIndex,y))]
+
+length(sdIndex)
+sdIndex
+```
+
+## Then loop anova for each individual sowing date 
+```{r}
+for (i in 1:length(sdIndex)) {
+  
+ #print(i)
+ print(paste0(sdIndex[i],"--------------------------------"))
+  
+  file.subset <- df_bud_duration %>%
+  filter(SowTreat==sdIndex[i])
+  
+ 
+head(file.subset, 50)
+   summary(file.subset)
+my.anova <- aov(DaysBudDuration ~ Cultivar + Block, data = file.subset)
+print(summary(my.anova))
+
+if ((summary(my.anova)[[1]][["Pr(>F)"]][1])<0.05) {
+  print("***Sig Cultivar***") 
+  print((LSD.test(my.anova, c("Cultivar"), alpha= 0.05, p.adj="none"))) } 
+
+
+if ((summary(my.anova)[[1]][["Pr(>F)"]][1])>0.05) {
+  print("***Sig Cultivar***") 
+  print((LSD.test(my.anova, c("Cultivar"), alpha= 0.05, p.adj="none"))) } 
+
+# make mean separation if significant
+
+(LSD.test(my.anova, c("Cultivar"), alpha= 0.05, p.adj="none"))
+  
+}
+
+```
+
+Cultivar differed only in S1, S3 and S6. 
+
+##Perform ANOVA TT duration 
+
+
+```{r}
+ 
+str(df_bud_duration)
+
+file <- df_bud_duration
+
+file.subs <- file 
+
+head(file.subs)
+summary(file.subs)
+
+#ANOVA
+
+my.anova <- aov(TTBudDuration  ~ Cultivar*SowTreat+ Block, data = file.subs)
+summary(my.anova)
+
+```
+
+
+
+```{r}
+y <- c("S1","S2","S3","S4","S5","S6","S7","S8")
+
+sdIndex <- unique(df_bud_duration$SowTreat)
+
+sdIndex[order(match(sdIndex,y))]
+
+length(sdIndex)
+sdIndex
+```
+
+## Then loop anova for each individual sowing date 
+```{r}
+for (i in 1:length(sdIndex)) {
+  
+ #print(i)
+ print(paste0(sdIndex[i],"--------------------------------"))
+  
+  file.subset <- df_bud_duration %>%
+  filter(SowTreat==sdIndex[i])
+  
+ 
+head(file.subset, 50)
+   summary(file.subset)
+my.anova <- aov(TTBudDuration ~ Cultivar + Block, data = file.subset)
+print(summary(my.anova))
+
+if ((summary(my.anova)[[1]][["Pr(>F)"]][1])<0.05) {
+  print("***Sig Cultivar***") 
+  print((LSD.test(my.anova, c("Cultivar"), alpha= 0.05, p.adj="none"))) } 
+
+
+if ((summary(my.anova)[[1]][["Pr(>F)"]][1])>0.05) {
+  print("***Sig Cultivar***") 
+  print((LSD.test(my.anova, c("Cultivar"), alpha= 0.05, p.adj="none"))) } 
+
+# make mean separation if significant
+
+(LSD.test(my.anova, c("Cultivar"), alpha= 0.05, p.adj="none"))
+  
+}
+
+```
+
+
+
+
+
+```{r}
+
+
+
+
+```
+
+
+
+
+
+- Main graphs are produced in next script (3_1 Graphs )
+- End of this script. Script 4 continues with graphics using df_tt_50p_flow.txt.
+
+
+

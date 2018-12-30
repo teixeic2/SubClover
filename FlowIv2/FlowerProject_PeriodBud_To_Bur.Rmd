@@ -662,14 +662,19 @@ dfCumFloral %>%
   factor(Variable,levels = c("Bud","Early","Open",
           "Petal","Bur1","Bur2","Bur3","Bur4" ))) %>%
   #filter(Cultivar=="Narrikup"|Cultivar=="Woogenellup"|Cultivar=="Leura")%>%
-  filter(Cultivar=="Antas")%>%
+  #filter(Cultivar=="Antas")%>%
+ #filter(Cultivar=="Denmark")%>%
+  #filter(Cultivar=="Leura")%>%
+  #filter(Cultivar=="Monti")%>%
+  #filter(Cultivar=="Narrikup")%>%
+  filter(Cultivar=="Woogenellup")%>%
   group_by(Block, TTAS,Cultivar,SowTreat,Variable,DAS) %>%
   summarise_all(funs(mean)) %>%
   #select(Variable,Percent, Cultivar,TTAS,SowTreat,SowingD,DAS) %>%
   #filter(Variable == "Bur3"| Variable == "Bur4" ) %>%
-  filter(Variable == "Bud"| Variable == "Petal" |Variable == "Bur3") %>%
+  filter(Variable == "Bud"| Variable == "Petal" |Variable == "Petal") %>%
   #filter(Variable == "Bur3" ) %>%
-  filter(SowTreat=="S1")%>%
+  filter(SowTreat=="S8")%>%
   ggplot(aes(x=DAS, y=Perc_cum)) + 
   geom_line(aes(colour=Variable)) +
   geom_smooth()+
@@ -678,7 +683,7 @@ dfCumFloral %>%
    theme_bw()+
   ylim(0,200)+
   #xlim(1000,320)+
-  scale_x_continuous(breaks=seq(min(50),max(1000),20))+
+  scale_x_continuous(breaks=seq(min(130),max(280),10))+
 theme(axis.text.x = element_text(angle = 60, hjust = 1, size=14))+
 labs(y="Percent of Plants with Floral bud ")+
 xlab(expression(Days~after~sowing~"("*"days"*")"))

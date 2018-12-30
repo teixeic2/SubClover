@@ -101,7 +101,7 @@ facet_wrap(~Cultivar,ncol=2, scales = "free")+
   #labs(y="Maximum germination Percent (%)",x="Temperature") 
   #geom_abline(intercept = 100, slope = 0)
 
-   ggsave("plot_Days50Germ.png", width=12, height=6, dpi=400)
+   #ggsave("plot_Days50Germ.png", width=12, height=6, dpi=400)
 
 ```
 

@@ -80,3 +80,53 @@ dftemp1 %>%
   theme(axis.title.y=element_text(angle = 90, hjust = 0.5, size= 14))
 ```
 
+
+
+
+```{r, fig.width=12}
+theme_set(theme_gray(base_size = 20))
+dftemp1 %>%
+  mutate (sow= factor(sow, levels=c("S1", "S2", "S3", "S4", "S6","S7"),
+                      labels=c("June", "July", "September", "November", "February","March")))%>%
+  mutate(Cluster = factor(clusterNo,levels=c(3,2,1),labels=c("Hard","Medium", "Soft")))  %>%
+  ggplot(aes(x=reorder(cv, mean),y=mean)) +
+ # geom_errorbar(aes(ymin=mean-sd/2.45,ymax=mean+sd/2.45,colour=Cluster),alpha=0.8, width=0.5, linetype=2)+
+ # geom_point(aes(shape=Cluster , colour=sow), size =5) +
+
+  geom_boxplot(alpha=0.2) +
+  #geom_point(aes( colour=sow), size =5) +
+  geom_point(aes(shape= sow), size=5)+
+  scale_shape_manual(values = c(0,1,2,3,4,5,6,7,8))+
+  theme_bw()+
+  ylab("Hardseedbreakdown (%/Tt)") +
+  xlab("Cultivar")+
+  theme(axis.text.x=element_text(angle = 0, hjust = 0.5, size= 18))+
+  theme(axis.title.x=element_text(angle = 0, hjust = 0.5, size= 18))+
+  theme(axis.text.y=element_text(angle = 0, hjust = 0, size= 18))+
+  theme(axis.title.y=element_text(angle = 90, hjust = 0.5, size= 18))+
+
+#remove grid lines 
+   theme(
+     panel.border = element_rect(colour = "black", size = 3), 
+     panel.grid.major = element_blank(),
+     panel.grid.minor = element_blank(),
+     axis.line = element_line(colour = "black"))
+
+ ##thicks in axis
+  theme(axis.ticks.length=unit(.3, "cm"))+
+   #scale_fill_manual("legend", values = c("Antas" = "#660066", "Denmark" = "lightgrey","Leura" = "darkgrey", "Monti" = "#FF9933","Narrikup" = "blue",  "Woogenellup" = "#033333"))+
+   
+   #make sowing dates white  
+   theme(strip.background = element_rect(colour = "black", fill = "white",size=2))+
+   
+  #label sizes 
+theme(text = element_text(size = 24))
+
+
+
+ggsave("plot_ClusterHardseedBreakdown.tiff", width=12, height=6, dpi=5)
+
+
+```
+
+

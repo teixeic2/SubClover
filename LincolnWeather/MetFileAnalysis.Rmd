@@ -224,21 +224,25 @@ metfilegather%>%
   #group_by(day) %>%
  #summarise_all(funs(mean)) %>%
   ggplot(aes(x=day, y=Degrees))  +
-  geom_point(aes(colour= Temperature), alpha=0.2) +
-  geom_smooth(aes(colour=Temperature))+ 
+  #geom_point(aes(colour= Temperature,shape=Temperature), alpha=0.2, size =5 ) +
+  geom_point(aes(colour= Temperature,shape=Temperature), alpha=0.2, size =5 ) +
+  scale_fill_manual(name="Temperature",
+        values=c(maxt="#008B00", mint="salmon4"))+
+  #geom_smooth(aes(colour=Temperature))+ 
+  #geom_smooth()+ 
+  
   theme_bw() +
  xlab("Day of the year (1-365)") + 
     ylab(expression(Mean~Daily~Temperature~"("^"o"*"C)"))+
-  theme(text = element_text(size=14))+
-  theme(axis.text.x=element_text(angle = +0, hjust = 0, size= 12))+
-  theme(axis.text.y=element_text(angle = +0, hjust = 0, size= 12))
+  theme(text = element_text(size=18))+
+  theme(axis.text.x=element_text(angle = +0, hjust = 0, size= 14))+
+  theme(axis.text.y=element_text(angle = +0, hjust = 0, size= 14))
  
  
 
-ggsave("plot_MinMaxTemp_Historic.png", width=10, height=5, dpi=400)
+#ggsave("plot_MinMaxTemp_Historic.png", width=10, height=5, dpi=400)
 
 ```
-
 
 
 ```{r PotEvap_graph}

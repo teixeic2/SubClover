@@ -282,7 +282,7 @@ dMax %>%
   # geom_abline(intercept = 1, slope = 0, linetype=2)+
    geom_abline(intercept = 100,  slope = 0, linetype=2)+
    #geom_abline(intercept = 9,  slope = 0, linetype=2)+
-theme(axis.text.x=element_text(angle = 0, hjust = 0))+
+theme(axis.text.x=element_text(angle = 0, hjust = 0.5))+
   
   #remove grid lines 
    theme(
@@ -290,6 +290,9 @@ theme(axis.text.x=element_text(angle = 0, hjust = 0))+
      panel.grid.major = element_blank(),
      panel.grid.minor = element_blank(),
      axis.line = element_line(colour = "black"))+
+  
+  ##thicks in axis
+  theme(axis.ticks.length=unit(.3, "cm"))+
    #scale_fill_manual("legend", values = c("Antas" = "#660066", "Denmark" = "lightgrey","Leura" = "darkgrey", "Monti" = "#FF9933","Narrikup" = "blue",  "Woogenellup" = "#033333"))+
    
    #make sowing dates white  
@@ -298,7 +301,7 @@ theme(axis.text.x=element_text(angle = 0, hjust = 0))+
   #label sizes 
 theme(text = element_text(size = 24))
 
-ggsave("plot_MaxGerm.png", width=12, height=6, dpi=500)
+ggsave("plot_MaxGerm.tiff", width=12, height=6, dpi=600)
 
 ```
 

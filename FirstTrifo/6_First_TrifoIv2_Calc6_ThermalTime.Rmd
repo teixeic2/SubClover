@@ -285,7 +285,7 @@ str(df1)
 
 
 
-Need to force a date for First Trifo  (round) to calculate the average temperature during first rifo appearance 
+Need to force a date for First Trifo  (round) to calculate the average temperature during first trifo appearance 
 Save dataframe as txt file 
 
 ```{r}

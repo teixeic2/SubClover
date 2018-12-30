@@ -140,6 +140,88 @@ Because the graph above was classified as "Yak" try to do panels per cultivar...
 # find size of bar per month
 # find single position of x y to put the bar
 
+# str(df_seed1)
+# 
+# #extraPos<- 1.10 # extra position for single error bar
+# extraPos<- 1.1 # extra position for single error bar
+# x_max<-max(df_seed1$DAS)
+# y_max<-max(df_seed1$mean)
+# 
+# # find largest standard error
+# sd_df2 <- df_seed1 %>% 
+#   #group_by(Temp) %>%
+#   group_by(Cultivar) %>%
+#   dplyr::select(sd)%>%
+#   summarise_all(max)%>%
+#   #summarise(max_sd = max(sd)) %>% 
+#   ungroup() %>%
+#   rowwise() %>%
+#   #rename variables
+#   mutate(DAS = x_max*extraPos, mean = y_max*extraPos,max_sd=sd )
+# 
+# summary(sd_df2)
+# 
+# #divide sd/2 as number of replicates were 4 
+# 
+# df_seed1%>%
+# ggplot(aes(x=DAS, y=mean)) + 
+#   geom_point(aes(shape= Temp), size=5)+
+#   scale_shape_manual(values = c(0,1,2,3,4,5,6,7,8,9,10,11))+
+#   geom_line(aes(width=Temp))+
+#   #geom_point(aes(shape=Temp),size=4)+
+#   #scale_shape_manu(al(values = c(0,1,2,3,4))+
+#    #scale_shape_manual(values = c(0,1,2,3,4,5,6,7,8,9,10)) +
+#   #scale_shape_manual(values = c(1,2,4,7))+
+#   #geom_line()+
+#   geom_errorbar(data=sd_df2, aes(ymin=mean-max_sd/2,
+#                     ymax=mean+max_sd/2), size=2)+
+#   #facet_wrap(~Cultivar,ncol=2, scales = "free")+
+#    facet_wrap(~Cultivar,ncol=2)+
+#   theme_bw()+
+#   #scale_x_continuous(breaks = c(5,10,15,20,30))+
+#   #ylim(0, 145)+
+#   scale_y_continuous(breaks = c(0,25,50,75,100))+
+#   xlim(0, 23)+
+#   labs(y="Mean cumulative germination (%)",x="Days")+ 
+#   #theme(axis.title.x = element_text( size=24)) + scale_x_continuous(breaks = c(0:6))+
+#   #theme(text=element_text(size=22 ))+
+#   #theme(axis.title.x=element_text(angle = 0, hjust = 0.5,size = 22,face="bold"))+
+#   #theme(axis.title.y=element_text(angle = 90, hjust = 0.5,size = 22,face="bold"))+
+#   theme(title=element_text(size=22, face="bold"))+
+#   theme(title=element_text(size=22,  face="bold"))+
+#    #remove grid lines 
+#      theme(
+#      panel.border = element_rect(colour = "black"  , size = 2.0), 
+#      panel.grid.major = element_blank(),
+#      panel.grid.minor = element_blank(),
+#      
+#      axis.line = element_line(colour = "black", size= 1))+
+#    ##thicks in axis
+#   theme(axis.ticks.length=unit(.3, "cm"))+
+# 
+# #make Cultivars  white  
+#    theme(strip.background = element_rect(colour = "black", fill = "white",size=2))+
+#   
+#   #label sizes 
+# theme(text = element_text(size = 26))
+  
+  #geom_abline(intercept = 50, slope = 0)
+
+
+##not using this one # ggsave("plot_CumulativeGermCv.png", width=12, height=10, dpi=500)
+
+```
+
+
+
+Repeated graph with improvements 
+
+
+```{r, fig.height=7, fig.width=15}
+#Here how to create the end error bar with max Sd 
+# find size of bar per month
+# find single position of x y to put the bar
+
 str(df_seed1)
 
 #extraPos<- 1.10 # extra position for single error bar
@@ -184,9 +266,11 @@ ggplot(aes(x=DAS, y=mean)) +
   xlim(0, 23)+
   labs(y="Mean cumulative germination (%)",x="Days")+ 
   #theme(axis.title.x = element_text( size=24)) + scale_x_continuous(breaks = c(0:6))+
-  theme(text=element_text(size=22 ))+
-  theme(title=element_text(size=22, face="bold"))+
-  theme(title=element_text(size=22,  face="bold"))+
+  #theme(text=element_text(size=22 ))+
+  theme(axis.title.x=element_text(angle = 0, hjust = 0.5,size = 22,face="bold"))+
+  theme(axis.title.y=element_text(angle = 90, hjust = 0.5,size = 22,face="bold"))+
+  #theme(title=element_text(size=22, face="bold"))+
+  #theme(title=element_text(size=22,  face="bold"))+
    #remove grid lines 
      theme(
      panel.border = element_rect(colour = "black"  , size = 2.0), 
@@ -194,6 +278,8 @@ ggplot(aes(x=DAS, y=mean)) +
      panel.grid.minor = element_blank(),
      
      axis.line = element_line(colour = "black", size= 1))+
+   ##thicks in axis
+  theme(axis.ticks.length=unit(.3, "cm"))+
 
 #make Cultivars  white  
    theme(strip.background = element_rect(colour = "black", fill = "white",size=2))+
@@ -204,7 +290,7 @@ theme(text = element_text(size = 26))
   #geom_abline(intercept = 50, slope = 0)
 
 
-ggsave("plot_CumulativeGermCv.png", width=12, height=10, dpi=500)
+ggsave("plot_CumulativeGermCv.tiff", width=12, height=10, dpi=600)
 
 ```
 

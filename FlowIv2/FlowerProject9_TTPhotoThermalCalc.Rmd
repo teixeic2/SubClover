@@ -12,7 +12,7 @@ note: include Pp analysis using selected datasets from Reanalysis scripts but us
   This script use the thermal time from emergence (TT50FromEmerg)
   
   
-  Pt=FP x Tt 0<1 
+  Pt= FP x Tt 0<1 
   
   Tt target here 
   
@@ -78,7 +78,7 @@ summary(df_tt_Pp)
 #5
 df_FP <- df_tt_Pp %>%
   mutate(FP = as.numeric(Pp_target-10)/6.7 ) %>%
-  mutate (Photo =FP*TT50F)
+  mutate (Photo =FP*TT50FromEmerg)
 
 ##Remember that TTtarget =0 is the sowing PP!! 
 
@@ -111,12 +111,14 @@ str(df_FP)
 str(df_FP)
 
  dfGraph1 <- df_FP %>% 
-  dplyr::select(SowingD:Block, Photo , TT50FromEmerg, Pp_target , TT_target)%>%
-  filter(TT_target!=1900)%>%
+  dplyr::select(SowingD:Block, Photo, TT50FromEmerg, Pp_target,TT_target)%>%
+  filter(TT_target!=1900)
 
+dfGraph1 <-dfGraph1 %>%
   group_by(Cultivar,SowingD,SowTreat,Variable) %>%
   #select variables to average 
-  select(Cultivar,SowingD,SowTreat, Photo , TT50FromEmerg, Pp_target)%>%
+  #ungroup()%>%
+  dplyr::select(Cultivar,SowingD,SowTreat, Photo , TT50FromEmerg, Pp_target)%>%
   summarise_all(funs(mean))
 
 
@@ -131,7 +133,9 @@ dfGraph1 %>%
   #geom_line() + 
   facet_grid(.~Cultivar)+
   theme_bw()+
-    ylim(0,1500) + geom_smooth(stat='lm', fill='blue', alpha=0.2, stat = "identity") + geom_point(size=2,alpha=0.5,stat = "identity")
+    ylim(0,1500) + 
+  geom_smooth(stat='lm', fill='blue', alpha=0.2, stat = "identity") +
+  geom_point(size=2,alpha=0.5,stat = "identity")
   
 
 ```
@@ -183,14 +187,14 @@ mutate (SowTreat= factor(SowTreat, levels=c("S1", "S2", "S3", "S4", "S5", "S6", 
 
 df_FP_all_mean <- df_FP %>%
   
-    dplyr::select(Cultivar,Variable,SowTreat,Photo, TT50FromEmerg, TT_target,Pp_target)%>%
+    dplyr::select(Cultivar,Variable,SowTreat,Photo, TT50FromEmerg, TT_target,Pp_target,SowingD)%>%
     group_by(Cultivar,SowTreat, Variable,TT_target)  %>%
     #filter(Variable=="Flowering") %>%
     summarise_all(funs(mean))
 
 #str(df_FP_all_mean)
 
-#summary (df_FP_all_mean)
+summary (df_FP_all_mean)
 
 ```
 
@@ -277,6 +281,121 @@ indexCV <- unique(df_FP_all_mean$Cultivar)
 }
 
 ```
+
+
+
+All togteher 
+
+```{r, fig.width=15, fig.height=10}
+
+  df_FP_all_mean %>%
+  ungroup() %>%
+    mutate (SowTreat= factor(SowTreat, 
+    levels=c("S1", "S2", "S3", "S4", "S5", "S6", "S7","S8"),
+    labels=c("June", "July", "Sept.", "Nov.", "Dec.", "Feb.", "March", "May"))) %>%
+  ggplot(aes(x=Pp_target,y=Photo))   +
+  geom_text(aes(label=SowTreat, colour=Cultivar),hjust=0, vjust=0,size=5) +
+  ylab(expression(Mean~PhotoThermal~time~Flowering~"("^"o"*"Cd)")) + 
+  xlab(" Photoperiod at Target Thermal times") +
+  facet_grid(Cultivar~TT_target, scales="free")+
+  theme(text = element_text(size=16))+
+  xlim(9,20)+
+  ylim(0,2000) + geom_smooth(stat='lm', fill='blue', alpha=0.2) + geom_point(size=2,alpha=0.5)
+  
+```
+
+Make black and white graph 
+
+
+```{r, fig.width=15, fig.height=10}
+
+  df_FP_all_mean %>%
+  ungroup() %>%
+    mutate (SowTreat= factor(SowTreat, 
+    levels=c("S1", "S2", "S3", "S4", "S5", "S6", "S7","S8"),
+    #labels=c("June", "July", "Sept.", "Nov.", "Dec.", "Feb.", "March", "May"))) %>%
+    labels=c("Jun", "Jul", "Se", "No", "De", "Fe", "Mar", "May"))) %>%
+  ggplot(aes(x=Pp_target,y=Photo))   +
+  geom_text(aes(label=SowTreat, colour=Cultivar),hjust=0, vjust=0,size=5) +
+  geom_text(aes(label=SowTreat),hjust=0, vjust=0,size=5) +
+  ylab(expression(Mean~PhotoThermal~time~Flowering~"("^"o"*"Cd)")) + 
+  xlab(" Photoperiod at Target Thermal times") +
+  facet_grid(Cultivar~TT_target, scales="free")+
+   theme_bw()+
+  theme(text = element_text(size=20))+
+  xlim(9,20)+
+  ylim(0,2000) + 
+  #geom_smooth(stat='lm', fill='grey', alpha=0.2) + 
+  geom_smooth(method ='lm', colour="black") +
+  geom_point(size=2,alpha=0.5)+
+  
+#make sowing dates white  
+   theme(strip.background = element_rect(colour = "black", fill = "white",size=1))
+  #remove grid lines 
+    theme(
+     panel.border = element_rect(colour = "black", size = 3), 
+     panel.grid.major = element_blank(),
+     panel.grid.minor = element_blank(),
+     axis.line = element_line(colour = "black"))
+    
+     ggsave("plot_PhotoThermalTimeFloweringVsPpTarget_AllCvs.tiff", width=14, height=16, dpi=600)
+
+```
+
+
+graph as sowing date in the X axis and photothermal time at y axis 
+
+
+```{r, fig.width=15, fig.height=10}
+
+  df_FP_all_mean %>%
+  ungroup() %>%
+    mutate (SowTreat= factor(SowTreat, 
+    levels=c("S1", "S2", "S3", "S4", "S5", "S6", "S7","S8"),
+    #labels=c("June", "July", "Sept.", "Nov.", "Dec.", "Feb.", "March", "May"))) %>%
+    labels=c("Jun", "Jul", "Se", "No", "De", "Fe", "Mar", "May"))) %>%
+  ggplot(aes(x=SowingD,y=Photo))   +
+  #geom_text(aes(label=SowTreat),hjust=0, vjust=0,size=5) +
+  geom_text(aes(label=SowTreat),hjust=0, vjust=0,size=4) +
+  ylab(expression(Mean~PhotoThermal~time~Flowering~"("^"o"*"Cd)")) + 
+  xlab(" Sowing Month ") +
+  facet_grid(Cultivar~TT_target, scales="free")+
+  theme_bw()+
+  theme(text = element_text(size=18))+
+  theme(axis.text.x=element_text(angle = 90, hjust = 0.5))+
+  scale_x_date(date_breaks = "3 month", 
+                 labels=date_format("%b-%Y"),
+                 limits = as.Date(c('2015-05-01','2016-08-01')))+
+  #xlim(0,20)+
+  ylim(0,2000) + 
+  #geom_smooth(stat='lm', fill='grey', alpha=0.2) + 
+  #geom_smooth(method ='lm', colour="black") +
+  geom_point(size=2,alpha=0.5)+
+  
+#make sowing dates white  
+   theme(strip.background = element_rect(colour = "black", fill = "white",size=1))
+  #remove grid lines 
+    theme(
+     panel.border = element_rect(colour = "black", size = 3), 
+     panel.grid.major = element_blank(),
+     panel.grid.minor = element_blank(),
+     axis.line = element_line(colour = "black"))
+    
+     ggsave("plot_PhotoThermalTimeFloweringVsSowingMonth_AllCvs.tiff", width=16, height=14, dpi=600)
+
+```
+
+Inspect values to write 
+
+```{r}
+ Monti <-df_FP_all_mean  %>%
+   filter (Cultivar=="Monti")
+
+Leura <-df_FP_all_mean  %>%
+   filter (Cultivar=="Leura")
+
+```
+
 
 
 get graph for antas 

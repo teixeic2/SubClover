@@ -183,9 +183,9 @@ summary(my.anova)
 
 
 ```{r}
-#(LSD.test(my.anova, c("SowTreat"), alpha= 0.05, p.adj="none"))
+(LSD.test(my.anova, c("SowTreat"), alpha= 0.05, p.adj="none"))
 #(LSD.test(my.anova, c("Cultivar"), alpha= 0.05, p.adj="none"))
-(LSD.test(my.anova, c("SowTreat", "Cultivar"), alpha= 0.05, p.adj="none"))
+#(LSD.test(my.anova, c("SowTreat", "Cultivar"), alpha= 0.05, p.adj="none"))
 
 
 ```
@@ -259,6 +259,8 @@ summary(file.subs)
 my.anova <- aov(TTRunFromEmerg ~ Cultivar*SowTreat+ Block, data = file.subs)
 
 summary(my.anova )
+
+(LSD.test(my.anova, c("SowTreat", "Cultivar"), alpha= 0.05, p.adj="none"))
 
 ```
 

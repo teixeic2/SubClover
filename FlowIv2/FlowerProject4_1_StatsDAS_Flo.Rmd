@@ -49,6 +49,10 @@ Do Stats for DAS50F for Bud first
 df_Bud <-df_work %>%
   filter(PhenoStage=="Bud")
 
+df_Bur<-df_work %>%
+  filter(PhenoStage=="Bur")
+
+
 ```
 
 

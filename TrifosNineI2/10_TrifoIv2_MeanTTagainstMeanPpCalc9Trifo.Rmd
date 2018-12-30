@@ -167,6 +167,7 @@ ggplot(aes(x=meanPp509T_mean,y=TT9TFromEmerg_mean)) +
   #  geom_point(aes(shape= SowTreat), size=4)+
   
   geom_text(aes(label=SowTreat),hjust=0, vjust=0,size=5) +
+ # geom_smooth()+
   theme_bw()+
   #remove grid lines 
    theme(

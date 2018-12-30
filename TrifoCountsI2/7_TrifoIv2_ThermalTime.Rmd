@@ -625,6 +625,34 @@ if ((summary(my.anova)[[1]][["Pr(>F)"]][1])>0.05) {
 
 ```
 
+Perform two way anova sowing date cultivar 
+
+
+Here general data overview 
+```{r}
+
+## ANOVA (selecing by hand FIXME: do loop)
+file.subset <- dfPhyllo# %>% subset(SowTreat == "S7" )
+#file.subset <- file 
+
+head(file.subset, 50)
+summary(file.subset)
+my.anova <- aov(PhylC ~ Cultivar*SowTreat + Block, 
+                data = file.subset)
+
+#my.anova <- aov(transf_no ~ Cultivar + Block, 
+               # data = file.subset)
+summary(my.anova)
+
+#TukeyHSD(my.anova)
+
+#Means separation 
+#(LSD.test(my.anova, c("SowTreat"), alpha= 0.05, p.adj="none")) 
+#(LSD.test(my.anova, c("Cultivar"), alpha= 0.05, p.adj="none") )
+(LSD.test(my.anova, c("SowTreat","Cultivar"), alpha= 0.05, p.adj="none"))
+
+#loop trough each combination of factor levels
+```
 
 
 END ....graphs with DAS50E with mean soil Temp continue in Script EmergenceI2_Calc5EmergSoilGraph

@@ -2,7 +2,8 @@
 title: "Thermal time to reach the 5 trifolite stage in I2"
 author: "CT"
 date: "28.11.2017"
-output: word_document: default
+output: 
+  word_document: default
   pdf_document: default
   html_document: default
 ---
@@ -12,6 +13,7 @@ This script does this:
 - get the dataframe with sowing dates and DAS  to 50% of plants with 5 trifoliates  
 - get the dataframe with max and min air temperature in Iversen  
 - merge the two dataframes to calculate the thermal time from sowing to 5 trifo stage  using the  Tb= 0 and standard cardinal temps.
+-The file RawWeaIv2.txt brings the air Temperature!! Follow same method as per Nori et al (air temperature)!! 
 
 
 #---------------------------------------------------------------------------------------------------------------
@@ -29,16 +31,17 @@ library(knitr)
 library(lubridate)
 library(mosaic)
 library(lattice)
+
 ```
 
 
 ```{r loadFile}
 # Get dataframe 1 with DAS5trifo info 
-setwd("C:\\GitHubRepos\\SubCloverPhD\\SubClover\\TrifosNineI2")
+setwd("C:\\GitHubRepos\\SubCloverPhD\\SubClover\\TrifoCountsI2")
 getwd()
 
 #create file
-df_emerg4 <- read.table("df_DAS_9_Trifo.txt",header=TRUE)
+df_emerg4 <- read.table("df_DAS_5_Trifo.txt",header=TRUE)
 
 df_emerg4$SowingDate <- ymd(df_emerg4$SowingDate )
 df_emerg4$Block <- as.factor(df_emerg4$Block)
@@ -47,7 +50,7 @@ df_emerg4$Plot <- as.factor(df_emerg4$Plot)
 # head(df_emerg4)
 
 D <- df_emerg4 %>%
-dplyr::select(Cultivar,SowTreat, Plot, SowingDate,DAS9T,Block)
+dplyr::select(Cultivar,SowTreat, Plot, SowingDate,DAS5T,Block)
 
 str(D)
 
@@ -63,12 +66,12 @@ df_emerg4 <- NULL
 #Note df_Md has duplicated rows - fix it!! 
 
 df_MD <- D %>%
-  mutate(Date9T=SowingDate+DAS9T) 
+  mutate(Date5T=SowingDate+DAS5T) 
   # group_by(Plot, DAS5T) %>% 
   # dplyr::filter(row_number() == 1)
 
 str(df_MD)
-#Here DAte9T is included no need to change format 
+#Here DAte5T is included no need to change format 
 
          
 ```
@@ -80,7 +83,7 @@ Read the temperature  data and adjust formats
 ```{r}
 
 # Get dataframe 1 with the soil Temp 
-setwd("C:\\GitHubRepos\\SubCloverPhD\\SubClover\\TrifosNineI2")
+setwd("C:\\GitHubRepos\\SubCloverPhD\\SubClover\\TrifoCountsI2")
 getwd()
 
 #create file here using the Air temperature !!!! 
@@ -223,6 +226,7 @@ TTfunc(10,24)
  
  
 - Compares with simple method to calculate Tt with base temperature of 0oC 
+
 ```{r, warning=FALSE}
 
 df_We_tt <- df_emerg6 %>%
@@ -266,7 +270,7 @@ summary(df_TT)
 ```
 
 
-figure out how to calculate tt at sow then tt ate date of 50 % plants with 9T  make one minus another to find TT
+figure out how to calculate tt at sow then tt ate date of 50 % plants with 5T  make one minus another to find TT emerg 
 
 ```{r}
 df1 <- merge(df_MD,df_TT, by.x="SowingDate",by.y="Date") %>%
@@ -284,14 +288,14 @@ Save dataframe as txt file
 ```{r}
 
 # force formats of dates
-df1$Date <- round(df1$Date9T,0)
+df1$Date <- round(df1$Date5T,0)
 df_TT$Date <- round(df_TT$Date,0)
 
 
   df_merge <- merge(df1, df_TT, by="Date") %>%
     mutate(AirTempAcc_em = SumTTday) %>%
   dplyr::select(-SumTTday) %>%
-  mutate(SummTT9Trifo = (AirTempAcc_em-AirTempAcc_sow))  
+  mutate(SummTT5Trifo = (AirTempAcc_em-AirTempAcc_sow))  
 
 summary(df_merge)
 
@@ -302,27 +306,13 @@ get the TT and SE for the cultivar. exclude Sow treats if needed.
 
 ```{r}
 df_TT <- df_merge %>%
-  select(Date:Plot,Block, DAS9T, Pp.x,SummTT9Trifo)
+  select(Date:Plot,Block, DAS5T, Pp.x,SummTT5Trifo)
   
    #filter(SowTreat!= "S1")
 
 
 
 ```
-
-
-```{r}
-#then select sow treat and means and se
-
-df_TTN <-df_TT %>%
-  group_by(Cultivar,SowTreat,Pp.x) %>%
-  dplyr::select(SummTT9Trifo)%>%
-  summarise_all(funs(mean,sd))%>%
-    mutate(SE=sd/1.73)
-  
-```
-
-##Here insert the dataframe with the Emergence data (DAS50E and TT50E)
 
 
 ##Insert here the dataframe with the DAS50E and TT50E 
@@ -347,38 +337,35 @@ head(df_Emergence)
 
 
 
+
+
 ```
 
-
-now 
-
-
-##Prepare dataframe 2 with DAS and TT of Nine trifo  Need to select columns
+##Prepare dataframe 2 with DAS and TT of Five trifo (df_merge). Need to select columns
 
 ```{r}
 str(df_TT)
 
 
 df_mergeSelect <- df_TT %>%
-dplyr::select(SowTreat , SowingDate, Cultivar,Plot,Block,DAS9T,SummTT9Trifo,Pp.x)
+dplyr::select(SowTreat ,Cultivar,Plot,Block,DAS5T,SummTT5Trifo,Pp.x)
 
 
 ```
+
 
 
 
 ##to merge with the dataframe with the five trifoliate values (df_mergeSelect) 
 
 ```{r}
-df_mergedNineTrifo <- merge(df_mergeSelect,df_Emergence, by="Plot") 
+df_mergedFiveTrifo <- merge(df_mergeSelect,df_Emergence, by="Plot") 
   #mutate(soilTempAcc_sow = SumTTday) %>%
   #dplyr::select(-SumTTday)
  # filter(Cultivar=="Antas")
 
-str(df_mergedNineTrifo)
+str(df_mergedFiveTrifo)
 ```
-
-
 
 
 Cool! Now subtract DASTrifo - DASE and TT50E - SummTTTrifo to get the values from emergence 
@@ -388,13 +375,14 @@ Cool! Now subtract DASTrifo - DASE and TT50E - SummTTTrifo to get the values fro
 
 #str(df_mergedFiveTrifo)
 
-df_mergedNineTrifo <-df_mergedNineTrifo%>%
-mutate(DAS9TFromEmerg=DAS9T-DAS50E,
-       TT9TFromEmerg=SummTT9Trifo-TT50E)
+df_mergedFiveTrifo <-df_mergedFiveTrifo%>%
+mutate(DAS5TFromEmerg=DAS5T-DAS50E,
+       TT5TFromEmerg=SummTT5Trifo-TT50E)
 
-str(df_mergedNineTrifo)
+str(df_mergedFiveTrifo)
 
 ```
+
 
 write a table with this dataset!!! 
 
@@ -402,47 +390,36 @@ write a table with this dataset!!!
 ```{r}
 
 #write.table(df_mergedFiveTrifo, "C:\\GitHubRepos\\SubCloverPhD\\SubClover\\TrifoCountsI2/DaysTT1TFromEmergence.txt")
-write.table(df_mergedNineTrifo, "C:/GitHubRepos/SubCloverPhD/SubClover/TrifosNineI2/DaysTT9TFromEmergence.txt")
+write.table(df_mergedFiveTrifo, "C:/GitHubRepos/SubCloverPhD/SubClover/TrifoCountsI2/DaysTT5TFromEmergence.txt")
 
 ```
 
-
-Inspect values and means 
  
- 
- 
-```{r}
-
-df_mean9T <-df_mergedNineTrifo %>%
-  dplyr:: select(Plot:Cultivar,DAS9T, SummTT9Trifo,DAS9TFromEmerg,TT9TFromEmerg )%>%
-
-  #group_by(Cultivar,SowTreat) %>%
-  group_by(SowTreat) %>%
-  # dplyr::select(SummTT5Trifo)%>%
-  # summarise_all(funs(mean,sd))%>%
-  #   mutate(SE=sd/1.73)
-  
-  summarise_at(c( "SummTT9Trifo", "TT9TFromEmerg"), mean, na.rm = TRUE)
-  #summarise_at(c( "DAS9T", "DAS9TFromEmerg"), mean, na.rm = TRUE)
-
-
-```
- 
-Then move to a new script to run ANOVA with DAS and TT from emergence to 9 trifoliates (similar what was done with 5 Trifoliates )
+Then move to a new script to run ANOVA with DAS and TT from emergence to 5 trifoliates. 
 And continue with the phyllocchron from here below (may need to review this later )
 
 
-#--------------------------------------This section needs re thinking (phyllocron)
+
+```{r}
+#then select sow treat and means and se
+
+df_TTN <-df_TT %>%
+  group_by(Cultivar,SowTreat,Pp.x) %>%
+  dplyr::select(SummTT5Trifo)%>%
+  summarise_all(funs(mean,sd))%>%
+    mutate(SE=sd/1.73)
+  
+```
 
 
 
+Calculate the phyllocron (oCd/leaf) consider 6 leaves (5 trifoliates + spade leaf)
 
-Calculate the phyllocron (oCd/leaf) consider 10 leaves (9 trifoliates + spade leaf) but this is not accurate as need to calculate phyllochron from the first to the 9 trifoliates!!! 
 
 
 ```{r}
 dfPhyllo <-df_TT %>%
-  mutate(PhylC=SummTT9Trifo/10) #here it considers from sowing ! not accurate ! 
+  mutate(PhylC=SummTT5Trifo/6)
 
 #then select sow treat and means and se
 
@@ -453,6 +430,24 @@ df_Phyllo2 <-dfPhyllo %>%
     mutate(SE=sd/1.73)
 
 ```
+
+
+```{r}
+
+df_PhylloAverages <-df_Phyllo2 %>%
+  mutate(PhylC=mean)%>%
+  dplyr::select(-mean)%>%
+  group_by(SowTreat,Pp.x) %>%
+  dplyr::select(PhylC)%>%
+  summarise_all(funs(mean,sd))%>%
+    mutate(SE=sd/1.73)
+
+
+```
+
+
+
+
 
 
 graph both TT and phylloc - Pp.x isthe Photoperiod at sowing 
@@ -485,7 +480,7 @@ str(df_TT)
   theme(text = element_text(size=12))+
   theme(legend.text=element_text(size=10))+
   #scale_x_continuous(limits = c(10,20))+
-  scale_y_continuous(limits = c(0,800))
+  scale_y_continuous(limits = c(0,600))
 
 # 1/DAS50E
   g4 <- df_Phyllo2 %>%
@@ -519,10 +514,8 @@ str(df_TT)
 ```{r}
 #save df_TT as table to do statistics in script 8 _ stats Thermal time 
 
-write.table(df_TT,"ThermalT_9_Trifo.txt")
+write.table(df_TT,"ThermalT_5_Trifo.txt")
 ```
-
- 
 
 
 Perform Anova 
@@ -557,7 +550,7 @@ for (i in 1:length(sdIndex)) {
 head(file.subset, 50)
    summary(file.subset)
 #my.anova <- aov( DAS5T ~ Cultivar + Block, data = file.subset)
-   my.anova <- aov( SummTT9Trifo ~ Cultivar + Block, data = file.subset)
+   my.anova <- aov( SummTT5Trifo ~ Cultivar + Block, data = file.subset)
 
 print(summary(my.anova))
 
@@ -577,6 +570,62 @@ if ((summary(my.anova)[[1]][["Pr(>F)"]][1])>0.05) {
 }
 
 ```
+
+
+Do the stats for the phyllochron 
+
+
+
+## Create index to filter for loop ANOVA
+
+```{r}
+y <- c("S1","S2","S3","S4","S5","S6","S7","S8")
+
+sdIndex <- unique(dfPhyllo$SowTreat)
+
+sdIndex[order(match(sdIndex,y))]
+
+length(sdIndex)
+sdIndex
+```
+
+
+# Then loop anova for each individual sowing date considering variable PhylC
+
+```{r}
+for (i in 1:length(sdIndex)) {
+  
+ #print(i)
+ print(paste0(sdIndex[i],"--------------------------------"))
+  
+  file.subset <- dfPhyllo %>%
+  filter(SowTreat==sdIndex[i])
+  
+ 
+head(file.subset, 50)
+   summary(file.subset)
+#my.anova <- aov( DAS5T ~ Cultivar + Block, data = file.subset)
+   my.anova <- aov(PhylC ~ Cultivar + Block, data = file.subset)
+
+print(summary(my.anova))
+
+if ((summary(my.anova)[[1]][["Pr(>F)"]][1])<0.05) {
+  print("***Sig Cultivar***") 
+  print((LSD.test(my.anova, c("Cultivar"), alpha= 0.05, p.adj="none"))) } 
+
+
+if ((summary(my.anova)[[1]][["Pr(>F)"]][1])>0.05) {
+  print("***Sig Cultivar***") 
+  print((LSD.test(my.anova, c("Cultivar"), alpha= 0.05, p.adj="none"))) } 
+
+# make mean separation if significant
+
+(LSD.test(my.anova, c("Cultivar"), alpha= 0.05, p.adj="none"))
+  
+}
+
+```
+
 
 
 END ....graphs with DAS50E with mean soil Temp continue in Script EmergenceI2_Calc5EmergSoilGraph

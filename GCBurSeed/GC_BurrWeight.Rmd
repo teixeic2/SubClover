@@ -1,0 +1,274 @@
+ ---
+title: "SeedWeight_Analysis Growth Chamber "
+author: "CT"
+date: " , 2016"
+output: 
+  word_document: default
+  pdf_document: default
+  html_document: default
+
+---
+Purpose : 
+
+Calculation for the seed individual weight  (g)
+use file RawData : GCSeedRawData.txt
+
+```{r, warning=FALSE}
+#Load libraries 
+library(tidyr)
+library (dplyr)
+library (ggplot2)
+library(agricolae)
+library(lubridate)
+library(extrafont)
+library(knitr)
+
+```
+
+
+
+
+Read File 
+
+```{r, echo=FALSE}
+#setwd("C:\\GitHubRepos\\SubCloverPhD\\SubClover\\Bur16cv")
+setwd("C:\\GitHubRepos\\SubCloverPhD\\SubClover\\GCBurSeed")
+getwd()
+file <- read.table("GCSeedRawData.txt",header=TRUE)
+head(file)
+
+
+#summary(file)
+```
+
+Define the formats  
+
+```{r}
+
+# define factors and formats
+file <- file %>%
+  mutate(
+    BurrStage = as.factor(BurrStage),
+    Block = as.factor(Block),
+    Cultivar = as.factor(Cultivar)
+   
+  )
+
+str(file)
+summary(file)
+
+```
+
+
+
+Statistical Analysis 
+Do ANOVA simple as per D. Saville :each seson and variate separately
+Select y variable to analyse
+
+```{r}
+
+#select variable :  IndividualSeedWeight.mg
+df_seedANOVA_1 <- file%>%
+dplyr:: select(Cultivar:BurrStage, IndividualSeedWeightmg)
+```
+
+subset for anova
+```{r}
+
+ 
+summary(df_seedANOVA_1)
+
+#-------------------------------------------------
+# anova 
+
+file.subset <- df_seedANOVA_1 
+
+head(file.subset)
+summary(file.subset)
+
+```
+
+
+## ########ANOVA#############
+
+```{r}
+
+#ANOVA
+
+my.anova <- aov(IndividualSeedWeightmg ~ Cultivar * BurrStage + Block, data = file.subset)
+#my.anova <- aov(SeedsPerM2 ~ Cultivar + Block, data = file.subset)
+summary(my.anova)
+```
+
+```{r}
+#Means separation after ANOVA
+#(LSD.test(my.anova, c("BurrStage"), alpha= 0.05, p.adj="none")) 
+(LSD.test(my.anova, c("Cultivar", "BurrStage"), alpha= 0.05, p.adj="none")) 
+```
+
+Performey Tukey's test 
+
+```{r}
+posthoc <- TukeyHSD(x=my.anova, 'Cultivar', conf.level=0.95)
+
+posthoc
+
+
+```
+
+Then 
+This is the mean separation using Tukey 
+
+
+```{r}
+
+fogo <-HSD.test(my.anova, 'Cultivar', group=TRUE)
+fogo
+
+```
+
+Correlate with the values of Nichols and Actual seed lots weights
+
+```{r}
+#Bring data Nichols 
+
+setwd("C:\\GitHubRepos\\SubCloverPhD\\SubClover\\Bur16cv")
+getwd()
+df_SeedComp <- read.table("CVTrial2016_SeedWeightCompare.txt",header=TRUE)
+head(df_SeedComp)
+summary(df_SeedComp)
+
+
+
+```
+
+merge with the seed weight dataframe by Cultivar 
+
+```{r}
+
+#dataframes to merge : df_burSubset and df_SeedComp
+str(df_burSubset)
+str(df_SeedComp)
+
+df_Merged <- merge(df_burSubset,df_SeedComp, by="Cultivar")
+
+```
+
+Now  create the graph with Nichols standard seed weight 9x)and the measured weithgs in Y axis. 
+ 
+
+
+```{r,fig.height=5, fig.width=10}
+
+
+
+str(df_Merged)
+
+df_Merged %>%
+   ggplot(aes(x=S2Nichols, y=mean)) + # mean=measured value
+   geom_point(aes(shape= Cultivar), size=5)+
+  scale_shape_manual(values = c(0,1,2,3,4,5,6,7,8))+
+  #scale_shape_manual(values = c(0,1,2,3,4,5,6))+
+  geom_point()+
+  geom_errorbar(aes(ymin=mean-SE/2,
+                    ymax=mean+SE/2),width=0.5)+
+   
+  #edit the size of error bars for Errol
+  #geom_errorbar(aes(ymin=mean-ci, ymax=mean+ci),
+                 # width=1,
+                  #size=0.5
+  
+  
+#facet_wrap(~Month_f,ncol=3, scales = "free")+
+  theme_bw(base_size=16)+
+  #scale_x_continuous(breaks = c(1,200,300))+
+ ylim(4, 12)+
+ xlim(4, 12)+
+theme(axis.text.y = element_text( size = 26))+
+theme(axis.title.y = element_text(face="bold", size=22))+
+theme(axis.text.x=element_text(angle = 0, hjust=0.5,vjust=0,size = 22,face="bold"))+
+theme(axis.title.x = element_text( size=24))+
+  labs(y="Measured seed weight (mg) ",x="Reported seed weight (mg) ")
+ # geom_abline(intercept = 50, slope = 0)
+
+
+#ggsave("plot_SeedWeightComparison.png", width=12, height=6, dpi=400)
+
+
+```
+
+then compare seed weight with Actual seeds used to sow! 
+
+
+
+```{r,fig.height=5, fig.width=10}
+
+
+loadfonts(device = "win")
+
+str(df_Merged)
+
+df_Merged %>%
+   ggplot(aes(x=S3Actual, y=mean)) + # mean=measured value
+   geom_point(aes(shape= Cultivar), size=5, stroke=2)+
+  scale_shape_manual(values = c(0,1,2,3,4,5,6,7,8))+
+  #scale_shape_manual(values = c(0,1,2,3,4,5,6))+
+  geom_point()+
+  geom_errorbar(aes(ymin=mean-SE/2,
+                    ymax=mean+SE/2),size=0.85,width=0.4)+
+#facet_wrap(~Month_f,ncol=3, scales = "free")+
+  theme_bw(base_size=16)+
+  #scale_x_continuous(breaks = c(1,200,300))+
+ ylim(4, 12)+
+  xlim(4, 12)+
+  #labels
+  annotate("text", x=5, y=11, label= "r = 0.80", size = 8,family="serif") +
+  
+  annotate("text", x=6, y=7.5, label= "C", size = 8,family="serif", face="bold") +
+  annotate("text", x=7, y=6.5, label= "D", size = 8,family="serif", face="bold") +
+  annotate("text", x=8, y=6.3, label= "R", size = 8,family="serif", face="bold") +
+  annotate("text", x=9, y=7.0, label= "N", size = 8,family="serif", face="bold") +
+  annotate("text", x=9, y=9.1, label= "M", size = 8,family="serif", face="bold") +
+  annotate("text", x=10, y=10.4, label= "W", size = 8,family="serif", face="bold") +
+  annotate("text", x=11, y=10.3, label= "A", size = 8,family="serif", face="bold") +
+  
+#geom_text(aes(label=text), family="Times", fontface="italic")+
+#theme(axis.text.y = element_text( size = 26, family="Serif"))+
+#theme(axis.title.y = element_text( face="bold", size=22))+
+theme(axis.text.x=element_text(angle = 0, hjust=0.5,vjust=0,size = 26,face="bold"))+
+theme(axis.title.x = element_text( size=26))+
+  
+  theme(axis.text.y=element_text(angle = 0, hjust=0.5,vjust=0,size = 26,face="bold"))+
+  theme(axis.title.y = element_text( size=26))+
+  
+  labs(y="Measured seed weight (mg) ",x="Initial seed weight (mg) ")+
+  
+  
+  theme(text=element_text(size=26,  family="serif"))+
+  theme(title=element_text(size=26,  family="serif"))+
+  theme(title=element_text(size=26,  family="serif"))+
+
+
+#remove grid lines 
+   theme(
+     panel.border = element_rect(colour = "black", size = 3), 
+     panel.grid.major = element_blank(),
+     panel.grid.minor = element_blank(),
+     axis.line = element_line(colour = "black"))+
+   
+   
+   #make sowing dates white  
+   theme(strip.background = element_rect(colour = "black", fill = "white",size=2))
+
+print(df_Merged)
+ # geom_abline(intercept = 50, slope = 0)
+
+
+
+ggsave("plot_SeedWeightComparison_Actual.png", width=12, height=6, dpi=400)
+
+
+```
+
+
+end of this script 

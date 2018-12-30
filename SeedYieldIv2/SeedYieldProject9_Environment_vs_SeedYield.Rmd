@@ -186,6 +186,18 @@ str(df_All)
 ```
 
 
+inspect means 
+
+```{r}
+
+MeanAirTemp<- df_All %>%
+  group_by(SowTreat)%>%
+ dplyr::select(Temp , SeedYield)%>%
+  summarise_all(funs(mean))
+
+```
+
+
 Now plot variates to find  ...any correlation? 
 
 

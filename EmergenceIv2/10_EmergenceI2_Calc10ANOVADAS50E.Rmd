@@ -78,15 +78,6 @@ filter (SowTreat== "S2"| SowTreat== "S3"|SowTreat== "S4"|SowTreat== "S6")
 ```
 
 
-
-
-```{r}
-
-  
-```
-
-
-
 Run ANOVA pure numbers for Woogenellup in 4 sowig dates 
 
 ```{r}
@@ -107,6 +98,7 @@ summary(file.subset)
 my.anova <- aov(DAS50E ~ SowTreat + Block, 
                 data = file.subset)
 
+
 summary(my.anova)
 
 
@@ -116,8 +108,9 @@ summary(my.anova)
 ```{r}
 #TukeyHSD(my.anova)
 
-#Means separation 
+#Means separation
 (LSD.test(my.anova, c("SowTreat"), alpha= 0.05, p.adj="none") )
+#(LSD.test(my.anova, c("SowTreat","SowTreat","Block"), alpha= 0.05, p.adj="none") )
 #(LSD.test(my.anova, "Cultivar"))
 ```
 
@@ -143,8 +136,9 @@ file.subset <- file
 
 head(file.subset, 50)
 summary(file.subset)
-my.anova <- aov(transf_no ~ Cultivar + Block, 
-                data = file.subset)
+
+#my.anova <- aov(transf_no ~ Cultivar + Block, data = file.subset)
+ my.anova <- aov(transf_no ~ Cultivar * SowTreat + Block, data = file.subset)
 
 summary(my.anova)
 

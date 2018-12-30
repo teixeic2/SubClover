@@ -129,7 +129,7 @@ dodge_x <- position_dodge(width = 0.9)
   #mutate(SeedsNo_m2= Down/(Down+Up)*100) %>%
   #mutate(Depth = factor(Depth,levels=c( "Above","Below"))) %>%
 group_by(Cultivar, SowTreat) %>%
-    filter(SowTreat!="S6", SowTreat!="S7")%>%
+    #filter(SowTreat!="S6", SowTreat!="S7")%>%
     dplyr::select(SeedperPlant)%>%
     summarise_all(funs(mean,sd)) %>%
     mutate(SE=sd/1.73)%>%
@@ -188,6 +188,18 @@ dfmerged2 <- merge(df1,file2, by=c("Plot")) %>%
 
 str(dfmerged2)
 ```
+
+Ispect means gram seed per plant
+
+```{r}
+
+MeanGramperPlant<-dfmerged2%>%
+group_by(SowTreat)%>%
+  dplyr::select(GramSeedperPlant)%>%
+  summarise_all(funs(sum))
+
+```
+
 
 Graph the grams of seed per plant 
 

@@ -118,13 +118,14 @@ ggplot(aes(x=Hour, y=temperature, shape=Incubator)) +
   guides(fill=FALSE)+
   ylim(0, 40)+
   #xlim(0, 6)+
-  theme(axis.text.x=element_text(angle = +0, hjust = 0, size= 14))+
+  theme(axis.text.x=element_text(angle = +0, hjust = 0.5, size= 14))+
   theme(axis.text.y=element_text(angle = +0, hjust = 0, size= 14))+
   xlab(expression(Hour~"("*"hs"*")")) + 
-  ylab(expression(Temperature~~"("^"o"*"C)"))
+  ylab(expression(Temperature~~"("^"o"*"C)"))+
   
  # geom_abline(intercept = 50, slope = 0)
-
+ ##ticks length
+  theme(axis.ticks.length=unit(.3, "cm"))
 
 ggsave("plot_IncubTemps1.png", width=12, height=6, dpi=400)
 
@@ -165,12 +166,13 @@ ggplot(aes(x=Hour, y=temperature, shape=Incubator)) +
   #xlim(0, 6)+
   #remove legend
   guides(fill=FALSE)+
-  theme(axis.text.x=element_text(angle = +0, hjust = 0, size= 14))+
-  theme(axis.text.y=element_text(angle = +0, hjust = 0, size= 14))+
+  theme(axis.text.x=element_text(angle = 0, hjust = 0.5, size= 14))+
+  theme(axis.text.y=element_text(angle = 0, hjust = 0, size= 14))+
   xlab(expression(Hour~"("*"hs"*")")) + 
   ylab(expression(Temperature~~"("^"o"*"C)"))
 
-
+##ticks length
+  theme(axis.ticks.length=unit(.3, "cm"))
   
  ggsave("plot_IncubTemps2.png", width=12, height=6, dpi=400)
 

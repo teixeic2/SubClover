@@ -1,0 +1,426 @@
+---
+title: "thermal time to flower versus Mean Photoperiod analysis "
+author: "CT"
+date: "09.07.2018"
+output:
+  pdf_document: default
+  html_document: default
+  word_document: default
+
+note: include Pp analysis using the mean photoperiod to compare with the results from the re analysis. 
+  Iversen 2 collected data; this script is a continuation of script 9 .
+  This script use the thermal time from emergence (TT50FromEmerg)
+  
+  
+  
+---
+
+```{r loadLibraries, echo=FALSE, include=FALSE}
+#1
+library(tidyr)
+library (dplyr)
+library (ggplot2)
+library(agricolae)
+library(knitr)
+library (lubridate)
+library (segmented)
+library(hydroGOF)
+
+
+```
+ 
+AIM:
+- Plot the thermal time to flower against the mean photoperiod (as per Evans and re analysis)
+
+
+```{r   loadFile}
+#2
+setwd("C:\\GitHubRepos\\SubCloverPhD\\SubClover\\FlowIv2")
+
+getwd()
+
+
+```
+## Change formats
+
+##file is : TT50FloAndMeanPhotoperiod 
+
+```{r}
+#3 get dataframe created similar to ReAnalysis4 which contains the mean photoperiod 
+df_tt_MeanPp <- read.table("TT50FloAndMeanPhotoperiod .txt",header=TRUE) 
+
+#df_Pptargets_TT50FFromEmergence
+#df_tt_Pp <- read.table("df_Pptargets_TT50FFromEmergence.txt",header=TRUE)
+
+# force date format
+df_tt_MeanPp$SowingD <- dmy(df_tt_MeanPp$SowingD)
+str(df_tt_MeanPp)
+
+
+```
+
+```{r}
+#4
+
+summary(df_tt_MeanPp)
+```
+
+simply plot the TT50FromEmerg in y and Mean Pp in x 
+
+
+
+```{r}
+
+## create indexes for increase Pp (ipp) and decrease Pp (dpp)
+ipp <- c("S1","S2","S3", "S4", "S5")
+dpp <- c("S6", "S7","S8")
+
+##create indexes for the maturity or sensgroup: early or late as per rea nalysis 
+early <- c("Monti","Narrikup")
+late <-  c("Antas", "Denmark","Leura","Woogenellup")
+
+
+df_FP_all_mean <- df_tt_MeanPp  %>%
+    dplyr::select(Cultivar,Variable,SowTreat,TT50FromEmerg, meanPp50F,SowingD) %>%
+    group_by(Cultivar,SowTreat, Variable) %>%
+    summarise_all(funs(mean,sd))  %>%
+  ungroup() %>%
+  mutate(Pp_dir = ifelse(SowTreat %in% ipp, "IncreasingPp", "DecreasingPp")) %>%
+  mutate(Pp_dir = as.factor(Pp_dir))%>%
+  mutate(Group = ifelse(Cultivar %in% early, "Early", "Late")) %>%
+  mutate(Group = as.factor(Group))
+
+#str(df_FP_all_mean)
+
+summary (df_FP_all_mean)
+
+```
+
+
+
+
+
+```{r, fig.width=15, fig.height=6}
+
+#str(df_pp_all)
+
+  
+   df_FP_all_mean  %>%
+  ungroup() %>%
+    mutate (SowTreat= factor(SowTreat, levels=c("S1", "S2", "S3", "S4", "S5", "S6", "S7","S8"),labels=c("June", "July", "Sept.", "Nov.", "Dec.", "Feb.", "March", "May")))%>%
+  filter (Cultivar=="Woogenellup")%>%
+  ggplot(aes(x=meanPp50F_mean ,y=TT50FromEmerg_mean))   +
+  geom_text(aes(label=SowTreat, colour=Cultivar),hjust=0, vjust=0,size=4) +
+    scale_colour_manual(values=c("#000000" ))+
+  #scale_shape_manual(values = c(0,1,2,3,4,5,6,7,8))+
+  theme_bw() +
+  ylab(expression(Mean~Thermal~time~Flowering~"("^"o"*"Cd)")) + 
+  #xlab(expression(Photoperiod~at~Thermal~time~Flowering~"("^"o"*"Cd)")) +
+  xlab(" Mean Photoperiod") +
+ #facet_grid(.~Cultivar, scales="free")+
+  
+     
+  facet_wrap(~Cultivar, scales="free",ncol=6)+
+     
+   #facet_grid(TT_target~., scales="free")+
+  theme(text = element_text(size=16))+
+   # xlim(9,20)+
+    ylim(0,2000)+
+#geom_smooth(stat='lm', fill='blue', alpha=0.2) + geom_point(size=2,alpha=0.5)
+ geom_smooth(method='lm', fill='blue', alpha=0.2) + geom_point(size=2,alpha=0.5) 
+  
+
+```
+
+
+
+
+All togteher 
+
+```{r, fig.width=15, fig.height=10}
+
+  df_FP_all_mean %>%
+  ungroup() %>%
+    mutate (SowTreat= factor(SowTreat, 
+    levels=c("S1", "S2", "S3", "S4", "S5", "S6", "S7","S8"),
+    labels=c("June", "July", "Sept.", "Nov.", "Dec.", "Feb.", "March", "May"))) %>%
+  ggplot(aes(x=meanPp50F_mean ,y=TT50FromEmerg_mean))   +
+  geom_text(aes(label=SowTreat, colour=Cultivar),hjust=0, vjust=0,size=5) +
+  ylab(expression(Mean~Thermal~time~Flowering~"("^"o"*"Cd)")) + 
+  xlab(" Mean Photoperiod ") +
+  facet_grid(Cultivar~., scales="free")+
+  theme(text = element_text(size=16))+
+  #xlim(9,20)+
+  ylim(0,3000) + geom_smooth(stat='lm', fill='blue', alpha=0.2) + geom_point(size=2,alpha=0.5)
+  
+```
+
+Make black and white graph 
+
+
+```{r, fig.width=15, fig.height=10}
+  df_FP_all_mean %>%
+  ungroup() %>%
+    mutate (SowTreat= factor(SowTreat, 
+    levels=c("S1", "S2", "S3", "S4", "S5", "S6", "S7","S8"),
+    labels=c("Jun", "Jul", "Sep", "Nov", "Dec", "Feb", "Mar", "May"))) %>%
+  ggplot(aes(x=as.numeric(meanPp50F_mean),y=TT50FromEmerg_mean, 
+             linetype= Pp_dir,
+             colour=interaction(Group, Pp_dir),
+             fill=interaction(Group, Pp_dir))) +
+    geom_point(aes(shape = factor(Cultivar)), size=5) +
+    geom_smooth(method='lm',se=TRUE, aes()) +
+    labs(x="Mean photoperiod (hours)", y="Time to 50% flowering ") +
+      scale_fill_manual(name="Interactions",
+        values=c(Early.DecreasingPp="red", 
+                 Late.DecreasingPp="blue", 
+                 Late.IncreasingPp= "blue",
+                 Early.IncreasingPp="red")) +
+    scale_color_manual(name="Interactions",
+        values=c(Early.DecreasingPp="red", 
+                 Late.DecreasingPp="blue", 
+                 Late.IncreasingPp= "blue",
+                 Early.IncreasingPp="red"))
+  
+  
+  
+  
+  
+  
+  # ylab(expression(Mean~thermal~time~flowering~"("^"o"*"Cd)")) + 
+  # xlab(" Mean photoperiod (h) ") +
+  # theme_bw()+
+  # theme(text = element_text(size=18))+
+  # ylim(0,3000) + 
+  # geom_smooth(method='lm', aes(colour=interaction(Pp_dir)))+
+  # geom_point(size=4,alpha=0.5,aes(shape=Cultivar))
+
+```
+
+```{r, fig.width=15, fig.height=10}
+  df_FP_all_mean %>%
+  ungroup() %>%
+    mutate (SowTreat= factor(SowTreat, 
+    levels=c("S1", "S2", "S3", "S4", "S5", "S6", "S7","S8"),
+    labels=c("Jun", "Jul", "Sep", "Nov", "Dec", "Feb", "Mar", "May"))) %>%
+  ggplot(aes(x=as.numeric(meanPp50F_mean),y=TT50FromEmerg_mean)) +
+  ylab(expression(Mean~thermal~time~flowering~"("^"o"*"Cd)")) +
+  xlab(" Mean photoperiod (h) ") +
+  theme_bw()  +
+  ylim(0,3000) +
+  geom_smooth(method='lm', aes( linetype=Pp_dir))+
+  geom_point(size=5,alpha=0.5,aes(shape=Cultivar,colour=Group)) +
+  theme(text = element_text(size=25)) +
+    labs(linetype="Pp direction")
+
+```
+
+
+Insert graph here with das 
+
+
+
+
+
+graph as sowing date in the X axis and thermal time at y axis  (parei aqui) 
+
+
+```{r, fig.width=15, fig.height=10}
+
+  df_FP_all_mean %>%
+  ungroup() %>%
+    mutate (SowTreat= factor(SowTreat, 
+    levels=c("S1", "S2", "S3", "S4", "S5", "S6", "S7","S8"),
+    #labels=c("June", "July", "Sept.", "Nov.", "Dec.", "Feb.", "March", "May"))) %>%
+    labels=c("Jun", "Jul", "Sep", "Nov", "Dec", "Feb", "Mar", "May"))) %>%
+  # ggplot(aes(x=as.numeric(month(SowingD)),y=TT50FromEmerg))   +
+ ggplot(aes(x=SowingD_mean,y=TT50FromEmerg_mean, colour=Cultivar))   +
+  #geom_text(aes(label=SowTreat),hjust=0, vjust=0,size=5) +
+ # geom_text(aes(label=SowTreat),hjust=0, vjust=0,size=5) +
+  ylab(expression(Thermal~time~flowering~"("^"o"*"Cd)")) + 
+  xlab(" Sowing month ") +
+ # facet_wrap(~Cultivar, scales="free", ncol=2)+
+  theme_bw()+
+  theme(text = element_text(size=18))+
+ # theme(axis.text.x=element_text(angle = 90, hjust = 0.5))+
+  scale_x_date(date_breaks = "3 month", 
+                 labels=date_format("%b-%Y"),
+                 limits = as.Date(c('2015-05-01','2016-08-01')))+
+  #xlim(0,20)+
+  ylim(0,3000) + 
+  #geom_smooth(stat='lm', fill='grey', alpha=0.2) + 
+#  geom_smooth(method ='lm', colour="black") +
+  geom_point(size=2,alpha=0.5)+
+  geom_line(aes(colour=Cultivar)) # +
+#make sowing dates white  
+  #  theme(strip.background = element_rect(colour = "black", fill = "white",size=1))+
+  # #remove grid lines 
+  #   theme(
+  #    panel.border = element_rect(colour = "black", size = 3), 
+  #    panel.grid.major = element_blank(),
+  #    panel.grid.minor = element_blank(),
+  #    axis.line = element_line(colour = "black"))
+    
+     #ggsave("plot_PhotoThermalTimeFloweringVsSowingMonth_AllCvs.tiff", width=16, height=14, dpi=600)
+
+```
+
+make a black and white graph
+
+```{r, fig.width=15, fig.height=7 }
+
+
+
+#then create the error bar position
+#Here how to create the end error bar with max Sd 
+# find size of bar per cultivar and temp
+# find single position of x y to put the bar
+
+#check name columns 
+
+# str(df_FP_all_mean)
+# 
+# 
+# #extraPos<- 1.10 # extra position for single error bar
+# extraPos<- 1.1 # extra position for single error bar
+# x_max<-max(df_FP_all_mean$SowingD_max)
+# y_max<-max(df_FP_all_mean$TT50FromEmerg)
+# 
+# 
+# sd_df <- df_FP_all_mean %>% 
+#   group_by(Cultivar) %>%
+#   dplyr::select(sd)%>%
+#   summarise_all(funs(max))%>%
+#   #summarise(max_sd = max(sd)) %>% 
+#   ungroup() %>%
+#   rowwise() %>%
+#   mutate(ActTemp_max = x_max*extraPos, max = y_max*extraPos, max_sd=sd)
+# 
+# summary(sd_df)
+
+
+
+
+  df_FP_all_mean %>%
+  ungroup() %>%
+    mutate (SowTreat= factor(SowTreat, 
+    levels=c("S1", "S2", "S3", "S4", "S5", "S6", "S7","S8"),
+    #labels=c("June", "July", "Sept.", "Nov.", "Dec.", "Feb.", "March", "May"))) %>%
+    labels=c("Jun", "Jul", "Sep", "Nov", "Dec", "Feb", "Mar", "May"))) %>%
+  # ggplot(aes(x=as.numeric(month(SowingD)),y=TT50FromEmerg))   +
+  
+  
+  
+ ggplot(aes(x=SowingD_mean,y=TT50FromEmerg_mean, shape=Cultivar))   +
+  
+  #geom_text(aes(label=SowTreat),hjust=0, vjust=0,size=5) +
+ # geom_text(aes(label=SowTreat),hjust=0, vjust=0,size=5) +
+  ylab(expression(Thermal~time~flowering~"("^"o"*"Cd)")) + 
+  xlab(" Sowing month ") +
+ # facet_wrap(~Cultivar, scales="free", ncol=2)+
+  theme_bw()+
+  theme(text = element_text(size=26))+
+ # theme(axis.text.x=element_text(angle = 90, hjust = 0.5))+
+  scale_x_date(date_breaks = "3 month", 
+                 labels=date_format("%b-%Y"),
+                 limits = as.Date(c('2015-05-01','2016-08-01')))+
+  #xlim(0,20)+
+  ylim(0,3000) + 
+  
+  
+  #geom_smooth(stat='lm', fill='grey', alpha=0.2) + 
+#  geom_smooth(method ='lm', colour="black") +
+  geom_point(size=8)+
+  scale_shape_manual(values = c(1,2,0,4,7,8))+
+  geom_line(aes(linetype_pal=Cultivar),colour="grey")  +
+
+
+#remove grid lines 
+   theme(
+     panel.border = element_rect(colour = "black", size = 3), 
+   #  panel.grid.major = element_blank(),
+   #  panel.grid.minor = element_blank(),
+     axis.line = element_line(colour = "black"))
+
+ ##thicks in axis
+  theme(axis.ticks.length=unit(.3, "cm"))+
+   #scale_fill_manual("legend", values = c("Antas" = "#660066", "Denmark" = "lightgrey","Leura" = "darkgrey", "Monti" = "#FF9933","Narrikup" = "blue",  "Woogenellup" = "#033333"))+
+   
+   #make sowing dates white  
+   theme(strip.background = element_rect(colour = "black", fill = "white",size=2))+
+   
+  #label sizes 
+theme(text = element_text(size = 26))
+
+
+    
+     #ggsave("plot_ThermalTimeFlo_MeanPP_VsSowingMonth_AllCvs.tiff", width=14, height=8, dpi=600)
+
+```
+
+Do a graph with the days and TT 50 as per re analysis 
+
+```{r}
+##first gather variable TT50 and DAS50 in a column called Variable and value 
+#str(df_tt_MeanPp)
+
+df_Panel <- df_tt_MeanPp %>%
+  dplyr::select(-Plot,-Variable,-Block)%>%
+  gather(VariableName, VariableValue,DAS50FFromEmerg,TT50FromEmerg)%>%
+  mutate(VariableName=as.factor(VariableName))
+
+summary(df_Panel)
+
+
+  
+##now use df_Panelwork to build graph 
+
+```
+
+```{r}
+## create indexes for increase Pp (ipp) and decrease Pp (dpp)
+ipp <- c("S1","S2","S3", "S4", "S5")
+
+##create indexes for the maturity or sensgroup: early or late as per rea nalysis 
+early <- c("Monti","Narrikup")
+
+
+df_Panelwork <- df_Panel %>%
+ # dplyr::select(SowTreat,VariableValue, meanPp50F )%>%
+  mutate(Pp_dir=factor(ifelse(SowTreat %in% ipp, "Increase","Decreasing"))) %>%
+  mutate(Group=factor(ifelse(Cultivar %in% early, "Larly","Late"))) %>%
+  na.omit() %>%
+  group_by(SowingD, Pp_dir, Group, Cultivar,SowTreat, VariableName) %>%
+  summarise_all(funs(mean,sd)) %>%
+  mutate(VariableName=factor(VariableName, 
+                             level=c("DAS50FFromEmerg","TT50FromEmerg"),
+                             labels=c("Days to flower","Thermal-time (degree days)"))) 
+
+summary(df_Panelwork)
+```
+
+Simple Graphs 
+
+```{r, fig.width=15, fig.height=10 }
+
+
+df_Panelwork %>%
+  ggplot(aes(x=meanPp50F_mean,y=VariableValue_mean)) +
+  geom_point()+
+  facet_grid(VariableName~.,scales = 'free')
+
+```
+
+
+
+```{r, fig.width=15, fig.height=10 }
+
+
+df_Panelwork %>%
+  ggplot(aes(x=SowingD,y=VariableValue_mean)) +
+  geom_point()+
+  facet_grid(VariableName~.,scales = 'free')
+
+```
+
+

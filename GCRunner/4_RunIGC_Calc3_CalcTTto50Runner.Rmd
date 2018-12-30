@@ -1,5 +1,5 @@
 ---
-title: "Runner DA50% and rate to 50%  Iversen "
+title: "Runner DA50% and rate to 50% Growth Chamber  "
 author: "CT"
 date: "17.08.2017"
 output: 
@@ -10,7 +10,7 @@ output:
 
 Purpose:
 
--Combine the rate of runner appearance of 50% plants with one runner  and  Mean Air Temp during runner  appearance   
+-Combine the rate of runner appearance of 50% plants with one runner  and  Mean Air Temp during runner  appearance  GC experiment  
  
 ```{r loadLibraries}
 library(tidyr)
@@ -23,28 +23,29 @@ library(lattice)
 library(knitr)
 ```
 
-Get data from Emergence Folder, Daily Mean Air temperature and dates to combine in dataframe 
+Get data from Emergence Folder, Daily Mean Air temperature and dates to combine into a dataframe 
 
 
 ```{r}
 
-setwd("C:\\GitHubRepos\\SubCloverPhD\\SubClover\\RunnerIv2")
+setwd("C:\\GitHubRepos\\SubCloverPhD\\SubClover\\GCRunner")
 getwd()
 #create file
 
-df_RunnerRate <- read.table("RateRunner.txt",header=TRUE)
+df_RunnerRate <- read.table("GC_RateRunner.txt",header=TRUE)
 
 
 
 #adjust formats 
 df_RunnerRate$SowingDate <- ymd(df_RunnerRate$SowingDate )
 df_RunnerRate$Block <- as.factor(df_RunnerRate$Block)
-df_RunnerRate$Plot <- as.factor(df_RunnerRate$Plot)
+##rename Plot as Pot to harmonise with other scripts 
+df_RunnerRate$Pot <- as.factor(df_RunnerRate$Plot)
 df_RunnerRate$DAS50Run <- as.numeric(df_RunnerRate$DAS)
 
 ```
 
-Create df_MD to workout dates to % trifoliates 
+Create df_MD to workout dates to % runner 
 ```{r}
 
   df_MD <- df_RunnerRate %>%
@@ -58,29 +59,26 @@ H <-df_MD %>%
  dplyr:: select (Plot, DateRunner)
 
 #save and store table 
-write.table(H, "DateTo50Runner.txt")
+write.table(H, "GC_DateTo50Runner.txt")
 
 ```
 
 
 
-Read the soil Temp data and Air temp data and  adjust formats 
+Read the Accumulated  Temp data : adjust formats; Sum of thermal time  already calculated in Folder Climate GC! use file : SumTTHourGC.txt
 
 ```{r}
 
 #create file
-df_A <- read.table("AirTemp.txt",header=TRUE)
-df_Soil <-read.table("SoilTemp.txt",header=TRUE)
+df_A <- read.table("SumTTHourGC.txt",header=TRUE)
 
 #adjust formats
 df_A %>%
-  mutate(Date=dmy(Date))
+  mutate(Date=ymd(Date))
 
 str(df_A)
 
-#adjust formats
-df_Soil <- df_Soil%>%
-mutate(Date=dmy(Date))
+
 
 
 ```
@@ -89,18 +87,13 @@ Now
 Add the accumulation of of soil temperatures to calculate the average temperature during the desired process (here 50% plants with first runner ). 
 
 ```{r}
-#cumulate air
+#just rename and clean columns that are not needed 
 df_B <- df_A %>%
-  mutate(SumAir = cumsum(AirTt)) %>%
-  mutate(Date=dmy(Date))%>%
-  dplyr::select(-AirTt)
+  mutate(SumAir = SumTTday) %>%
+  mutate(Date=ymd(Date))%>%
+  dplyr::select(-SumTTday, -TTday, -TThour)
 
-#cumulate soil
-
-df_Soil1 <- df_Soil %>%
-  mutate(SumTempSo = cumsum(TempSoil10mm)) %>%
-  #mutate(Date=dmy(Date))%>%
-  dplyr::select(-TempSoil10mm)
+str(df_B )
 
 
 ```
@@ -108,33 +101,331 @@ df_Soil1 <- df_Soil %>%
 check data with graph
 
 ```{r}
-df_Soil1 %>%
-  ggplot(aes(x=Date,y=SumTempSo)) +
-  geom_point()
 
-df_B%>%
+
+df_B %>%
   ggplot(aes(x=Date,y=SumAir)) +
   geom_point()
 
 ```
 
 
+##Add the number of days for 50% emergence to calculate the days to runner  after emergence (DAE)
+
+##File ready at : GC_DASToEmergence.txt (already calculated the days after emergence)
 
 
+
+
+
+```{r}
+#setwd("C:\\GitHubRepos\\SubCloverPhD\\SubClover\\GCRunner")
+getwd()
+#create file
+df_trif2 <- read.table("GC_DASToEmergence.txt",header=TRUE)
+
+
+str(df_trif2)
+
+
+```
+
+Define formats 
+
+```{r loadFile}
+
+
+# define factors for the ones that "look like" values
+
+df_trif2 <- df_trif2 %>%
+  mutate(SowingDate = ymd(SowingDate), 
+         Date50Emerg = ymd(Date50Emerg),
+         DAS_ToEmerg = as.numeric(DAS_ToEmerg))
+
+
+df_trif2$Pot <- as.factor(df_trif2$Pot)
+df_trif2$Block <- as.factor(df_trif2$Block)
+df_trif2$Cultivar <- as.factor(df_trif2$Cultivar)
+#df_trif$SowTreat <- as.factor(df_trif$SowTreat)
+
+##Reminder !!! Exclude the info ot 1_T ...that comes automatically from excel but not essential here 
+ 
+         
+
+str(df_trif2)
+
+
+```
+
+##Remove extra columns 
+
+
+
+```{r}
+
+##Estimate date for runner appearance after after emergence 
+##Here select only columns related to emergence  !! 
+
+df_DatetoEmerg <-df_trif2 %>%
+  select(Cultivar:Block,DAS_ToEmerg)
+  
+  
+ ## mutate(DateTo5TFromEmerg=Date50Emerg+ DAE_1T)
+  
+
+```
+
+
+
+
+# ################## Quantify TT from emergence to runner ############
+
+```{r}
+
+#prep dataframe with TT at emergence 
+
+
+str (df_MD )
+##bring data frame above with the runner info: df_MD
+#select columns needed : 
+
+df_Runner_select <-df_MD%>%
+  select(Cultivar, SowingDate, Block,DAS50Run, Pot)
+
+
+##bring data frame above : df_trif2
+
+df_trif2Select <-df_trif2%>%
+  select(Date50Emerg, Pot)
+
+  
+df_TempA1 <- merge(df_Runner_select,df_trif2Select,by="Pot")
+
+##inspect  new data frame
+
+ 
+
+df_TempA1 <- df_TempA1%>%
+  mutate(DateRun_Em=Date50Emerg+DAS50Run)
+
+str(df_TempA1,wraning=FALSE)
+
+
+```
+
+
+##Now include the Accumulated thermal time (Sum TT)  data  
+
+
+```{r}
+
+#prep Sum TT dataframe
+
+
+Te<-df_A %>%
+  select (Date,SumTTday)%>%
+  mutate(Date=ymd(Date))
+
+  
+str(Te)
+str(df_TempA1)
+
+df_Temp1 <- merge(df_TempA1,Te, by.x="Date50Emerg",by.y="Date") 
+
+#Hold valeus to merge later and calculate TT for 50Runner
+##Need to force a date for Five Trifo  (round) to calculate the TT during first trifo appearance 
+
+# force formats of dates
+df_Temp1$Date <- round(df_Temp1$Date50Emerg,0)
+Te$Date <- round(Te$Date,0)
+
+df_merge1 <- merge(df_Temp1, Te, by="Date")
+
+```
+
+
+#Remove extra info 
+
+```{r}
+
+#tidy up dataframe 
+
+df_merge1.2<- df_merge1 %>%
+mutate(SumTTEmerg=SumTTday.x) %>%
+select(-SumTTday.y, Date, Date50Emerg, -SumTTday.x)
+  
+str(df_merge1.2)
+
+# force formats of dates
+df_merge1.2$Date <- round(df_merge1.2$DateRun_Em)
+Te$Date <- round(Te$Date,0)
+
+##write a table with the values of TT at emergence to use in other scripst (i.e GC flower)
+
+
+#save and store table 
+write.table(df_merge1.2, "GC_ThermalTime_Emergence.txt")
+
+##Now incorporate the thermal time sum on teh date for first trifo  
+
+
+df_merge2 <- merge(df_merge1.2, Te, by="Date")%>%
+  mutate(SumTTRunner= SumTTday)%>%
+  select(-SumTTday)
+
+#check data
+str(df_merge2)
+```
+
+
+
+
+## Then subtract SumTTRunner - SumTTEmerg to find out the Thermal time from emergence to 1 trioliate 
+
+```{r}
+
+df_merge2 <- df_merge2%>%
+  mutate(TTtoRunner= SumTTRunner-SumTTEmerg) 
+
+#give a meaningful name for the df!
+
+
+df_TT_ToRunner_Emerg <-df_merge2
+
+str(df_TT_ToRunner_Emerg)
+
+```
+
+
+Check : Inspect means  before ANOVA
+
+```{r}
+#Graph 
+
+
+ # a <- df_RateTrifo %>%
+
+ f <- df_TT_ToRunner_Emerg %>%
+  group_by( Cultivar) %>%
+  dplyr::select(  TTtoRunner ) %>%
+  summarise_all(funs(mean,sd))
+
+
+
+```
+
+
+
+## ######################### RUN ANOVA ##########################
+
+
+
+```{r ANOVAMaxPlantPop}
+
+#compare DAE_1T  among cultivars
+
+df_ANOVA <- df_TT_ToRunner_Emerg %>%
+  dplyr::select(Cultivar,Block,Pot,TTtoRunner)
+
+```
+Overall analysis consider sowing date and cultivar 
+
+
+```{r}
+##Overview   
+
+file <- df_ANOVA 
+
+str(file)
+
+file$transf_no <- 1*(df_ANOVA$TTtoRunner)
+
+head(file)
+
+#-------------------------------------------------
+# ANOVA 
+file.subset <- file 
+
+head(file.subset)
+summary(file.subset)
+my.anova <- aov(transf_no ~ Cultivar + Block, 
+                data = file.subset)
+
+summary(my.anova)
+
+```
+
+
+
+First LSD  Fisher's
+
+```{r}
+#Means separation after ANOVA
+#(LSD.test(my.anova, c("Treat"), alpha= 0.05, p.adj="none")) 
+(LSD.test(my.anova, c("Cultivar"), alpha= 0.05, p.adj="none")) 
+
+#(LSD.test(my.anova, c("Block"), alpha= 0.05, p.adj="none")) 
+
+```
+
+
+Perform Tukeys 
+
+
+This is Tukeys test for mean comparison 
+
+
+
+
+```{r}
+posthoc <- TukeyHSD(x=my.anova, 'Cultivar', conf.level=0.95)
+#posthoc <- TukeyHSD(x=my.anova, 'Cultivar', conf.level=0.25)
+
+posthoc
+
+```
+
+Then 
+This is the mean separation using Tukey 
+
+
+```{r}
+
+fogo<-HSD.test(my.anova, 'Cultivar', group=TRUE)
+fogo
+
+```
+
+
+
+
+##End of this script. 
+##(Use similar code to calculate TT to and 9T)
+
+
+
+
+
+
+
+
+########################end of insertion ########################
 Merge dataframes by date
 
 ```{r}
 
-# first merge the soil and air temperature dataframes 
+#  merge the  air temperature and the runner info dataframes 
 
-df_Temp <- merge(df_Soil1,df_B,by="Date") 
-
+#df_Temp <- merge(df_Soil1,df_B,by="Date") 
+str(df_MD)
+str(df_B)
 
 #Merge the two dataframes by Date
-df1 <- merge(df_MD,df_Temp, by.x="SowingDate",by.y="Date") %>%
-  mutate(soilTempAcc_sow = SumTempSo) %>% 
+
+df1 <- merge(df_MD,df_B, by.x="SowingDate",by.y="Date") %>%
+  #mutate(soilTempAcc_sow = SumTempSo) %>% 
   mutate(airTempAcc_sow=SumAir)%>%
-dplyr::select(-SumTempSo,-SumAir)
+dplyr::select(-SumAir)
 
 str(df1)
 
@@ -207,17 +498,7 @@ dGraph <-df_merge %>%
 
 ```
 
-# inspect means 
-```{r, fig.height=5, fig.width=8}
 
-str(df_merge)
-
-dGph <-df_merge %>%
-  group_by(SowTreat) %>%
-  dplyr::select(Rate,meanTempAir_Runner) %>%
-  summarise_all(funs(mean,sd)) 
-
-```
 
 
 Not using this part yet . Bring data from emergence folder ....

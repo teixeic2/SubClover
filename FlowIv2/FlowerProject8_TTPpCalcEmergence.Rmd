@@ -440,6 +440,98 @@ y_max<-max(df$TT50FromEmerg_mean)
 ```
 
 
+Singke version
+
+```{r}
+df_pp_all_mean<-NULL
+df_pp_all_mean <- df_pp_allEmer %>%
+  ungroup()%>%
+    dplyr::select(Cultivar,Variable,SowTreat,TT50FromEmerg,TT_target,Pp_target)%>%
+    group_by(Cultivar,SowTreat, Variable,TT_target)  %>%
+    filter(Variable=="Flowering") %>%
+    summarise_all(funs(mean,sd))
+
+summary(df_pp_all_mean)
+```
+
+
+```{r, fig.width=15, fig.height=10}
+
+  df_pp_all_mean %>%
+  ungroup() %>%
+  mutate (SowTreat= factor(SowTreat, 
+  levels=c("S1", "S2", "S3", "S4", "S5", "S6", "S7","S8"),
+  labels=c("June", "July", "Sept.", "Nov.", "Dec.", "Feb.", "March", "May"))) %>%
+  ggplot(aes(x=Pp_target_mean,y=TT50FromEmerg_mean))   +
+  geom_text(aes(label=SowTreat, colour=Cultivar),hjust=0, vjust=0,size=4) +
+  ylab(expression(Mean~Thermal~time~Flowering~"("^"o"*"Cd)")) + 
+  xlab(" Photoperiod at Target Thermal times (hours) ") +
+  facet_grid(Cultivar~TT_target, scales="free")+
+  theme(text = element_text(size=16))+
+    xlim(9,20)+
+    ylim(0,2500)+
+    geom_smooth(method ='lm') + 
+    geom_point(size=2,alpha=0.5) 
+   
+```
+
+
+## Here same graph black and white 
+
+```{r, fig.width=15, fig.height=10}
+
+  df_pp_all_mean %>%
+  ungroup() %>%
+  mutate (SowTreat= factor(SowTreat, 
+  levels=c("S1", "S2", "S3", "S4", "S5", "S6", "S7","S8"),
+  labels=c("Jun", "Jul", "Se", "No", "De", "Fe", "Mar", "May"))) %>%
+  #filter(Cultivar=="Antas"|Cultivar=="Denmark"|Cultivar=="Leura") %>%
+  ggplot(aes(x=Pp_target_mean,y=TT50FromEmerg_mean))   +
+  #geom_text(aes(label=SowTreat, colour=Cultivar),hjust=0, vjust=0,size=6) +
+  geom_text(aes(label=SowTreat),hjust=0, vjust=0,size=5) +
+  
+  ylab(expression(Mean~Thermal~time~Flowering~"("^"o"*"Cd)")) + 
+  xlab(" Photoperiod at Target Thermal times (hours) ") +
+  facet_grid(Cultivar~TT_target, scales="free")+
+  theme_bw()+
+  theme(text = element_text(size=20))+
+    xlim(9,20)+
+    ylim(0,2500)+
+    geom_smooth(method ='lm', colour="black") + 
+    geom_point(size=2,alpha=0.5)+
+    
+  
+  #make sowing dates white  
+   theme(strip.background = element_rect(colour = "black", fill = "white",size=1))
+  #remove grid lines 
+    theme(
+     panel.border = element_rect(colour = "black", size = 3), 
+     panel.grid.major = element_blank(),
+     panel.grid.minor = element_blank(),
+     axis.line = element_line(colour = "black"))
+   
+    
+    ggsave("plot_ThermalTimeFloweringVsPpTarget_AllCvs.tiff", width=12, height=16, dpi=600)
+    
+```
+
+
+Inspect values 
+
+
+```{r}
+four <-df_pp_all_mean %>%
+ #filter(Cultivar == "Narrikup")
+ filter(Cultivar == "Antas"| Cultivar == "Denmark"|Cultivar=="Leura"|Cultivar=="Woogenellup")
+
+summary (four)
+
+```
+
+
+
+
+
 get all graphs in appendix then. (This is the same graph but removed the geom smooth )
 
 

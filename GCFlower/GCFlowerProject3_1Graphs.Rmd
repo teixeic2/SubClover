@@ -1,0 +1,213 @@
+---
+title: "Flowering 3CV Growth chamber"
+author: "CT"
+date: "December 30, 2016"
+output: html_document
+---
+
+```{r loadLibraries}
+library(tidyr)
+library (dplyr)
+library (ggplot2)
+library(agricolae)
+library(knitr)
+library (lubridate)
+```
+
+This script reads the dataframe ( GCdf_tt_50p_flow) created in previous script 3 and makes graphs 
+
+```{r loadFile}
+setwd("C:\\GitHubRepos\\SubCloverPhD\\SubClover\\GCFlower")
+getwd()
+
+#create file ; this file was generated in the previous script FlowerProject2
+
+df_tt_50p_flow <- read.table("GCdf_tt_50p_flow.txt",header=TRUE)
+
+#head(df_bud_flow_bur_simple)
+# change formats
+df_tt_50p_flow <- df_tt_50p_flow %>%
+mutate (SowingD=ymd(SowingD))
+
+summary(df_tt_50p_flow)
+#tail(df_bud_flow_bur_simple)
+```
+
+
+
+Use this chunk to generate TT50 for bud, flowering(fertilization) and seed mature
+
+```{r GraphResults, fig.width=12}
+
+#Here need to create Variable2 to make a graph with the DAS50F and TT50F 
+
+  df_tt_50p_flow %>%
+  #use filter to check single variables -Bud, Flowering and Bur
+  filter( Variable== "Bud") %>%
+  mutate(TT50F=ifelse(TT50F==0,NA,as.numeric(TT50F)))%>%
+  mutate(DAS50F=ifelse(DAS50F==0,NA,as.numeric(DAS50F)))%>%
+  tidyr::gather("Variable2","Value",DAS50F:TT50F) %>%
+  mutate(Variable2=as.factor(Variable2))%>%
+
+  ggplot(aes(x=SowingD,y=Value,colour=Cultivar, shape=Cultivar))+
+  geom_point()+
+  geom_line()+
+  facet_grid(Variable2~Block, scales="free")+
+  theme_bw()+
+  #theme(axis.text.x = element_text(angle = 0, hjust = 1.0))+
+  scale_x_date(date_breaks = "1 month",date_labels =  "%b")+
+labs(x="Sowing Month")+
+ylab(expression(Tt~"("^"o"*"Cd)"~~~~~~~~~~~~~~~~Days)) 
+  
+
+
+```
+
+Check means 
+
+
+```{r}
+
+dfN <-  df_tt_50p_flow %>%
+  #filter(Cultivar=="Narrikup")%>%
+  #filter(SowTreat=="S7")%>% 
+  group_by(Cultivar, Variable)%>%
+  summarise_all(funs(mean,sd))
+
+
+
+
+```
+
+
+
+
+stopped here .. need to check why there are zeros !!! 
+
+
+```{r}
+df_tt_50p_flow %>%
+  na.omit() %>%
+    #filter( SowTreat != "S6" & SowTreat != "S7")%>%
+  ggplot(aes(x=SowingD,y=TT50F,colour=Cultivar, shape=Cultivar))+
+  geom_point()+
+  facet_grid(Variable~Block)+
+  theme_bw()+
+  geom_line()
+
+```
+Now 
+
+```{r,  warning =FALSE }
+
+#CalculateDAys from bud to bur phases,
+df_tt_50p_flow %>%
+  dplyr::select(-TT50F)  %>%
+  tidyr::spread(Variable,DAS50F) %>%
+  mutate(DAS50Bud2Bur = Bur - Bud) %>%
+ggplot(aes(x=SowingD, y=DAS50Bud2Bur)) + 
+  geom_line(aes(colour=Cultivar)) +
+  geom_point(aes(shape=Cultivar,colour=Cultivar))+
+  #facet_grid(Cultivar~SowTreat, scales = "free") +
+  facet_grid(.~Block, scales = "free") +
+  geom_abline(intercept = 50, slope = 0) +
+  #ylab("Percent of Flowering (%)") +
+  #xlab("Thermal-time from sowing (oCd)")+
+theme(axis.text.x = element_text(angle = 60, hjust = 1))
+
+# save final DF
+#write.table(df_tt_50p_flow, "df_tt_50p_flow.txt")
+
+
+
+
+
+
+```
+
+Graph thermal time required from bud to bur phase 
+
+```{r}
+df_tt_50p_flow %>%
+  dplyr::select(-DAS50F)  %>%
+  tidyr::spread(Variable,TT50F) %>%
+  mutate(TT50Bud2Bur = Bur - Bud) %>%
+  #graph it
+ggplot(aes(x=SowingD, y=TT50Bud2Bur)) + 
+  geom_line(aes(colour=Cultivar)) +
+  geom_point(aes(shape=Cultivar,colour=Cultivar))+
+  #facet_grid(Cultivar~SowTreat, scales = "free") +
+  facet_grid(SowTreat~Cultivar, scales = "free") +
+  geom_abline(intercept = 50, slope = 0) +
+  #ylab("Percent of Flowering (%)") +
+  #xlab("Thermal-time from sowing (oCd)")+
+theme(axis.text.x = element_text(angle = 60, hjust = 1))
+```
+
+
+
+Now take the dataframe with 50 to flower and combine with photoperiod at sowing 
+
+```{r}
+
+df_Photo <- read.table("Photoperiod.txt",header=T)
+df_Photo$Date <- dmy(df_Photo$Date)
+df_Photo$SowingD <- df_Photo$Date
+head(df_Photo)
+head(df_tt_50p_flow)
+df_tt_50p_flow$SowingD <- ymd(df_tt_50p_flow$SowingD)
+
+#merge two data frames by ID
+df_photoTT <- merge(df_tt_50p_flow,df_Photo, by="SowingD")
+#head(df_photoTT)
+summary(df_photoTT)
+
+
+
+
+```
+
+```{r}
+#graph
+df_photoTT %>%
+  ggplot(aes(x=Pp, y=TT50F,color=factor(Cultivar)))  +
+  geom_point()+
+  geom_line() +
+ # geom_smooth(aes(color=Cultivar))+
+  facet_grid(Variable~Block, scales = "free")
+```
+
+
+next step: join early_open and petal categories to create " flower" 
+
+Graph TTAS and Photoperiod 
+
+```{r GraphPhoto}
+
+# graph it
+#head (df_bur_simple)
+df_bud_flow_bur_simple %>%
+  filter(Variable == "Bud" |
+           Variable =="Flowering"| 
+           Variable =="Bur")  %>%
+  mutate(Variable = 
+  factor(Variable,levels = c("Bud","Flowering",
+                             "Bur"))) %>%
+  group_by(TT50F,Cultivar,SowTreat,Variable,Pp_sow) %>%
+  summarise_each(funs(mean)) %>%
+  #select(Variable,Percent, Cultivar,TTAS,SowTreat,Pp_sow) %>%
+  #filter(Cultivar == "Monti" | Cultivar == "Leura" ) %>%
+  #filter(Variable == "Bud") %>%
+  ggplot(aes(x=TT50F, y=Percent)) + 
+  geom_line(aes(colour=Cultivar)) +
+  geom_point(aes(shape=Cultivar,colour=Cultivar))+
+  facet_grid(SowTreat~Variable, scales = "free") +
+  geom_abline(intercept = 50, slope = 0)+
+theme(axis.text.x = element_text(angle = 60, hjust = 1))
+
+unique(df_bur_simple$Variable)
+
+
+```
+
+
