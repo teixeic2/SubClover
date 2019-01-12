@@ -182,35 +182,58 @@ mutate(status = factor(status, levels = c("HardUngermFinal_perc",
 ```
 
 ###### HERE!  use texture fill not colour! ###########
+##palletes in http://www.sthda.com/english/wiki/ggplot2-colors-how-to-change-colors-automatically-and-manually
 
 ```{r,fig.height=6, fig.width=12}
 
 ## Modify this chunck please: create fill texture for seed status. 
 
-# df_Percentages_gather%>%
-#   ungroup(status)%>%
-# mutate(status = factor(status, levels = c("HardUngermFinal_perc",
-#                                           "Dead_perc",
-#                                   "SoftUngerm_perc",
-#                                  "Abn_perc",
-#                                  "Normal_perc"),
-#                                  
-#                                  
-#                           labels = c("Hard Ungerminated",
-#                                  "Dead",
-#                                  "Soft Ungerminated",
-#                                  "Abnormal",
-#                                  "Normal")
-#                           )) %>%
-#    mutate (SowTreat= factor(SowTreat, levels=c("S1", "S2", "S3", "S4", "S6","S7"),labels=c("June", "July", "September", "November", "February","March")))%>%
-#   ggplot(aes(x=Cultivar, y=percentage, fill=factor(status))) +
-#   geom_bar(stat="identity") +
-#   facet_grid(Depth~SowTreat) +
-#   theme_bw()+
-#   ylab("Percentage (%)") +
-#   xlab("Cultivar") +
-#   theme(axis.text.x = element_text(angle = 45, hjust=1)) + theme(legend.title=element_blank()) +
-#   theme(text = element_text(size=16))
+df_Percentages_gather%>%
+  ungroup(status)%>%
+mutate(status = factor(status, levels = c("HardUngermFinal_perc",
+                                          "Dead_perc",
+                                  "SoftUngerm_perc",
+                                 "Abn_perc",
+                                 "Normal_perc"),
+
+
+                          labels = c("Hard Ungerminated",
+                                 "Dead",
+                                 "Soft Ungerminated",
+                                 "Abnormal",
+                                 "Normal")
+                          )) %>%
+   mutate (SowTreat= factor(SowTreat, levels=c("S1", "S2", "S3", "S4", "S6","S7"),labels=c("June", "July", "September", "November", "February","March")))%>%
+  mutate (Cultivar= factor(Cultivar, levels=c("Antas", "Denmark", "Leura", "Monti", "Narrikup", "Woogenellup"),labels=c("A", "D", "L", "M", "N","W")))%>%
+  ggplot(aes(x=Cultivar, y=percentage, fill=factor(status))) +
+  #geom_bar(stat="identity") +
+  geom_bar(aes(fill=status), colour="black",stat="identity")+
+ # geom_bar(stat="identity",fill = "#FF6666")+
+   #colour
+      #scale_fill_brewer(palette="Greys")+
+  #scale_fill_brewer(palette="Blues")+
+  #scale_fill_manual("legend", values = c("Antas" = "#660066", "Denmark" = "lightgrey","Leura" = "darkgrey", "Monti" = "#FF9933","Narrikup" = "blue",  "Woogenellup" = "#033333"))+
+  scale_fill_manual("legend", values = c("Normal" = "olivedrab", "Abnormal" = "ivory","Soft Ungerminated" = "darkgrey", "Dead" = "black","Hard Ungerminated" = "coral4"))+
+  
+  facet_grid(Depth~SowTreat) +
+  theme_bw()+
+  ylab("Percentage (%)") +
+  xlab("Cultivar") +
+  theme(axis.text.x = element_text(angle = 0, hjust=1)) + theme(legend.title=element_blank()) +
+  theme(text = element_text(size=18))+
+  #remove grid lines 
+   theme(
+     panel.border = element_rect(colour = "black", size = 2), 
+     panel.grid.major = element_blank(),
+     panel.grid.minor = element_blank(),
+     axis.line = element_line(colour = "black"))+
+   
+   
+   #make sowing dates white  
+   theme(strip.background = element_rect(colour = "black", fill = "white",size=2))
+  
+  
+  ggsave("plot_SeedStatus.tiff", width=16, height=8, dpi=600)
 # 
 
 ```

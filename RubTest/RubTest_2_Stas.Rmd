@@ -85,7 +85,8 @@ summary(my.anova)
 Then use multiple comparisons of means
 ```{r}
 #Means separation after ANOVA
-(LSD.test(my.anova, c("CV"), alpha= 0.05, p.adj="none")) 
+#(LSD.test(my.anova, c("CV"), alpha= 0.05, p.adj="none"))
+(LSD.test(my.anova, c("CV","Treat"), alpha= 0.05, p.adj="none"))
 ```
 
 

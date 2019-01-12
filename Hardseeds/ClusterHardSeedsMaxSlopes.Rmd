@@ -96,14 +96,15 @@ dftemp1 %>%
   geom_boxplot(alpha=0.2) +
   #geom_point(aes( colour=sow), size =5) +
   geom_point(aes(shape= sow), size=5)+
+ # geom_line()+
   scale_shape_manual(values = c(0,1,2,3,4,5,6,7,8))+
   theme_bw()+
   ylab("Hardseedbreakdown (%/Tt)") +
   xlab("Cultivar")+
   theme(axis.text.x=element_text(angle = 0, hjust = 0.5, size= 18))+
   theme(axis.title.x=element_text(angle = 0, hjust = 0.5, size= 18))+
-  theme(axis.text.y=element_text(angle = 0, hjust = 0, size= 18))+
-  theme(axis.title.y=element_text(angle = 90, hjust = 0.5, size= 18))+
+  theme(axis.text.y=element_text(angle = 0, hjust = 0, size= 22))+
+  theme(axis.title.y=element_text(angle = 90, hjust = 0.5, size= 22))+
 
 #remove grid lines 
    theme(

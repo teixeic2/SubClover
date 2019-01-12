@@ -1,0 +1,387 @@
+---
+title: "Hardseeds Slopes 6CV"
+author: "CT"
+date: " 27 November, 2018"
+output:
+  word_document: default
+  pdf_document: default
+  html_document: default
+---
+Purpose: this script calculates the differential in hardseed  based on percent of hardseeds initially (Max hardseeds at day 14 or TTsum = 0) and at the final incubation day (98 days, TTsum = 1680) and the perform ANOVA on the minimum values of hardseeds at the end  of the experiment  
+
+```{r loadLibraries}
+library(tidyr)
+library (dplyr)
+library (ggplot2)
+library(agricolae)
+library(knitr)
+library (lubridate)
+library(markdown)
+
+```
+
+Get the dataframe 
+
+```{r loadFile}
+setwd("C:\\GitHubRepos\\SubCloverPhD\\SubClover\\Hardseeds")
+
+#create file
+df_seed <- read.table("dfHard_break.txt",header=TRUE)
+head(df_seed)
+
+
+
+```
+
+Thermal sum 
+
+```{r}
+# get TT at each  day
+#create file
+df_Tt <- read.table("dfHard_breakTT.txt",header=TRUE) %>% dplyr::select(Days,TtSum) %>% unique()
+head(df_Tt)
+
+
+```
+
+```{r}
+plot(df_Tt)
+```
+
+
+
+Just change name of dataframe and select columns to work 
+```{r}
+#Select depth of interest start with above seeds 
+
+df_temp <- df_seed %>%
+ mutate(Days=Round) %>%
+ dplyr::select(Plot, Cultivar, Block, SowingD, SowTreat, Days, Depth, HardAccum, Round) 
+
+dfSubSet <- merge(df_temp, df_Tt, by="Days")
+
+dfSubSet$LoopIndex <- as.factor(paste0(dfSubSet$Plot,"_",dfSubSet$Depth)) # prepare for loop below
+
+summary(dfSubSet)
+  
+```
+
+
+
+```{r, fig.height= 8, fig.width=12}
+#change data frame name and Graph Breakdown live hard seeds 
+
+#df_cum_soft<- df_Dif2
+
+
+dfSubSet%>%
+  mutate(SowingD = dmy(SowingD)) %>%
+  mutate (SowTreat= factor(SowTreat, levels=c("S1", "S2", "S3", "S4", "S6","S7"),labels=c("June", "July", "September", "November", "February","March")))%>%
+  #filter(Round == 14) %>%
+  group_by(Cultivar, SowTreat,TtSum) %>%
+  dplyr::select(HardAccum) %>%
+  summarise_all(funs(mean,sd)) %>%
+  ggplot(aes(x=TtSum, y=mean, colour=Cultivar, shape=Cultivar)) +
+  geom_point(size=3) +
+  geom_line() +
+ facet_grid(.~SowTreat) +
+  labs(y=" Percentage of Hardseeds(%)") +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1))+
+                  geom_errorbar(aes(ymin=mean-sd/3.46,
+                    ymax=mean+sd/3.46))+
+  theme_bw()+
+  ylim(0,100)+
+  xlim(0,2200)+
+  #ylab(expression(Percentage~of~Hardseeds~"(%)"))+
+  xlab(expression(Accumulated~Thermal~time~"("^"o"*"Cd)"))+
+  #theme(text = element_text(size=12))+
+  #xlab(expression(Days))+
+  theme(axis.text.x=element_text(angle = 45, hjust = 0.5, size= 14))+
+#  theme(axis.text.x = element_text(margin = margin(t = 0, r = 1, b = 0.8, l = 0)))+
+  
+    #margin y axis
+   theme (axis.text.x = element_text( margin = margin(t=10,r=0,b=0,l=0)))+
+  
+  theme(axis.title.x=element_text(angle = 0, hjust = 0.5, size= 16))+
+  
+  theme(axis.text.y=element_text(angle = 0, hjust = 0.5, size= 12))+
+  theme(axis.title.y=element_text(angle = 90, hjust = 0.5, size= 16))+
+#remove grid lines 
+   theme(
+     panel.border = element_rect(colour = "black", size = 2), 
+     panel.grid.major = element_blank(),
+     panel.grid.minor = element_blank(),
+     axis.line = element_line(colour = "black"))+
+  theme(text = element_text(size=20))+
+   
+   
+   #make TT target labels  white  
+   theme(strip.background = element_rect(colour = "black", fill = "white",size=2))
+  
+#ggsave("plots_OverTtSum_PercentHardseeds.tiff", width=14, height=6, dpi=500)
+
+
+
+
+```
+
+
+graph hardseed decay with thermal time - data exploration
+
+```{r}
+ 
+# df_graf <-dfSubSet %>%
+#   group_by(Cultivar,SowingD, SowTreat, TtSum) %>%
+#   dplyr::select(HardAccum) %>%
+#   summarise_all(funs(mean,sd)) 
+# 
+# 
+# df_graf %>%
+#   filter(SowTreat=="S2")%>%
+#   filter(Cultivar=="Antas"| Cultivar=="Monti" )%>%
+# ggplot(aes(x=TtSum , y=mean, colour=Cultivar, shape=Cultivar)) +
+#   geom_point(size=3) +
+#   geom_line() +
+#  #facet_grid(Depth~SowTreat) +
+#   labs(x="TT",y=" Percentage of LiveHardseeds") +
+#   theme(axis.text.x = element_text(angle = 90, hjust = 1))+
+#                   geom_errorbar(aes(ymin=mean-sd/3.46,
+#                     ymax=mean+sd/3.46),width=1,
+#                       size=0.4)+
+#   theme_bw()+
+#   ylim(0,100)+
+#   xlim(0,1900)+
+#   ylab(expression(Percentage~of~Hardseeds~"(%)"))+
+#   #theme(text = element_text(size=12))+
+#   xlab(expression(Thermal~time ~"("^"o"*"Cd)"))+
+#   theme(axis.text.x=element_text(angle = 0, hjust = 0.5, size= 11))+
+#   theme(axis.title.x=element_text(angle = 0, hjust = 0.5, size= 16))+
+#   theme(axis.text.y=element_text(angle = 0, hjust = 0, size= 12))+
+#   theme(axis.title.y=element_text(angle = 90, hjust = 0.5, size= 16))
+# 
+# #ggsave("plot_Antas_Narrikup.png", width=12, height=6, dpi=400)
+```
+
+Select only intial and final days to calculate differential 
+
+
+```{r}
+
+str(dfSubSet)
+
+df_Dif <-dfSubSet %>%
+  filter(Round=="14"|Round=="98")%>%
+  mutate (Round = as.character(Round))
+
+#Spread Round to calculate the differencet the beggining and at the end of the incubation 
+
+## Dif = HardAccum14 - HardAccum98 / days or TT  
+
+df_Dif1<- df_Dif %>%
+  dplyr:: select(LoopIndex,Round,HardAccum) %>%
+  spread(Round, HardAccum)
+
+#Change column names 
+colnames(df_Dif1)<- c("LoopIndex", "HardPerc_Initial14", "HardPerc_End98") 
+
+#Calculate the difference 
+  df_Dif2<-df_Dif1 %>%
+    mutate(Difference=HardPerc_Initial14-HardPerc_End98)
+
+  str(df_Dif2)
+  
+
+
+```
+
+
+
+Now bring the differential values to the main dataframe dfSubSet
+
+
+```{r}
+
+#Prepare data frame 1 with all column names-factors  :
+
+#Days   Plot   Cultivar Block   SowingD    SowTreat   Depth  HardAccum 
+df_A <-dfSubSet %>%
+  filter(Round=="14")%>%
+ dplyr:: select(Plot,Block,Cultivar:Depth, LoopIndex)
+  
+#bring dataframe with Differential values 
+str(df_Dif2)
+
+#merge dataframes by Loopindex 
+
+df_Dif3 <- merge(df_A, df_Dif2, by= "LoopIndex")
+
+
+
+
+```
+
+Calculate diferential divided by TT sum 
+
+```{r}
+
+df_Dif3 <-df_Dif3 %>%
+  mutate(RateDecreasePerDay= Difference/98)%>%
+  mutate(RateDecreasePerTTunit= Difference/1680)
+
+```
+
+
+Check if means are making sense 
+
+
+```{r}
+
+MeanHardEnd <-df_Dif3 %>%
+  group_by(Cultivar, SowTreat)%>%
+  #select(End98)%>%
+  dplyr::select(RateDecreasePerDay ) %>%
+  summarise_all(funs(mean,sd))
+  
+
+```
+
+
+##### Perform Stats Hardseed percentage at the end of the 98 days period (minimum hardseed )  #######
+
+
+```{r ANOVAMaxPlantPop}
+
+str(df_Dif3)
+
+#compare DAE_1T  among cultivars
+
+df_ANOVA <- df_Dif3  %>%
+  dplyr::select(Cultivar,Block,Plot, SowTreat, Depth,HardPerc_End98)
+
+```
+
+##Overall analysis consider sowing date and cultivar 
+
+```{r}
+##Overview   variable = Difference
+
+file <- df_ANOVA
+#file$transf_no <- 1*(df_ANOVA$Difference)
+##use the : RateDecreasePerDay 
+#file$transf_no <- 1*(df_ANOVA$RateDecreasePerDay)
+##use the : RateDecreasePerTTunit
+file$transf_no <- 1*(df_ANOVA$HardPerc_End98)
+
+
+head(file)
+
+#-------------------------------------------------
+# ANOVA 
+file.subset <- file 
+
+head(file.subset)
+summary(file.subset)
+my.anova <- aov(transf_no ~ Cultivar*Depth* SowTreat, 
+                data = file.subset)
+
+summary(my.anova)
+
+```
+
+
+
+
+
+#####  Inspect First LSD 
+
+```{r}
+#Means separation after ANOVA
+#(LSD.test(my.anova, c("Cultivar"), alpha= 0.05, p.adj="none")) 
+#(LSD.test(my.anova, c("SowTreat"), alpha= 0.05, p.adj="none"))
+
+(LSD.test(my.anova, c("Cultivar", "SowTreat"), alpha= 0.05, p.adj="none")) 
+
+
+```
+
+
+```{r}
+posthoc <- TukeyHSD(x=my.anova, 'Cultivar', conf.level=0.95)
+#posthoc <- TukeyHSD(x=my.anova, 'Cultivar', conf.level=0.25)
+
+posthoc
+
+```
+
+Then 
+This is the mean separation using Tukey 
+
+```{r}
+
+fogo<-HSD.test(my.anova, 'Cultivar', group=TRUE)
+fogo
+
+```
+
+##Make the ANOVA loop
+
+
+
+
+## Create index to filter for loop ANOVA
+
+```{r}
+y <- c("S1","S2","S3","S4","S5","S6","S7","S8")
+
+sdIndex <- unique(df_ANOVA$SowTreat)
+
+sdIndex[order(match(sdIndex,y))]
+
+length(sdIndex)
+sdIndex
+```
+
+
+
+## Then loop anova for each individual sowing date 
+```{r}
+for (i in 1:length(sdIndex)) {
+  
+ #print(i)
+ print(paste0(sdIndex[i],"--------------------------------"))
+  
+  file.subset <-df_ANOVA %>%
+  filter(SowTreat==sdIndex[i])
+  
+ 
+head(file.subset, 50)
+   summary(file.subset)
+my.anova <- aov(RateDecreasePerTTunit ~ Cultivar + Block, data = file.subset)
+print(summary(my.anova))
+
+if ((summary(my.anova)[[1]][["Pr(>F)"]][1])<0.05) {
+  print("***Sig Cultivar***") 
+  print((LSD.test(my.anova, c("Cultivar"), alpha= 0.05, p.adj="none"))) } 
+
+
+if ((summary(my.anova)[[1]][["Pr(>F)"]][1])>0.05) {
+  print("***Sig Cultivar***") 
+  print((LSD.test(my.anova, c("Cultivar"), alpha= 0.05, p.adj="none"))) } 
+
+# make mean separation if significant
+
+(LSD.test(my.anova, c("Cultivar"), alpha= 0.05, p.adj="none"))
+  
+}
+
+```
+
+Analyse the minimum value of Hardseeds or the Percentage of hardseed at the end of the thermal treatment (script 15 )
+
+
+
+
+
+
+
+

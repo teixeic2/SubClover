@@ -198,6 +198,17 @@ summary (df_FP_all_mean)
 
 ```
 
+```{r}
+
+check<- df_FP_all_mean%>%
+  filter(TT_target=="200")%>%
+  group_by(Cultivar,SowTreat)%>%
+ summarise_all(funs(mean))
+```
+
+
+
+
 
 get graph for antas 
 

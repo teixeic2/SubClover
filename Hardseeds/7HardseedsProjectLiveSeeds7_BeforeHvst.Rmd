@@ -63,7 +63,7 @@ head(df_Slope)
 
 df_Slope <- df_Slope %>%
   mutate(SowTreat=sow, Cultivar=cv)%>%
-  select (-sow,-cv)
+  dplyr::select (-sow,-cv)
 
 str(df_Slope)
 
@@ -79,7 +79,7 @@ str(df_seed)
 
 df_seed <- df_seed %>%
   
-select(Block:Round,HardAccum)  
+dplyr::select(Block:Round,HardAccum)  
 
 str(df_seed)
 
@@ -129,17 +129,35 @@ df_All <-df_All %>%
 ```
 
 
-Now plot variates to find  ...any correlation? 
+##Now include the days from sowing to harvest the seeds (DAS)
+
+
+
+```{r}
+
+df_seedHvst <- read.table("df_DaysToSeedHvst.txt",header=TRUE)
+
+str(df_seedHvst)
+
+# then merge 
+df_All2 <- merge(df_All, df_seedHvst, by=c("Cultivar","SowTreat"))
+
+```
+
+##parei aqui atualizar 
+
+
+##Now plot variates to find  ...any correlation? 
 
 
 
 
 ```{r, fig.height=5, fig.width=10}
 
-str(df_All)
+str(df_All2)
 
-pairs(~HardAccum+slope+Rain+RH+Temp,data=df_All, main="Simple Scatterplot Matrix")
-  
+#pairs(~HardAccum+slope+Rain+RH+Temp,data=df_All, main="Simple Scatterplot Matrix")
+  pairs(~HardAccum+slope+Rain+RH+Temp+DaysToSeedharvest,data=df_All2, main="Simple Scatterplot Matrix")
 # dfD <- df_All%>%
 #   filter(Cultivar=="Denmark")
 # pairs(~HardAccum+slope+Rain+RH+Temp,data=dfD, main="Simple Scatterplot Matrix Denmark")
@@ -152,20 +170,36 @@ then select columns of interest : here stats for overall means (SowTreat and Cul
 
 #find coefficients 
 
-cor (df_All[,-c(1,2)])
+#cor (df_All[,-c(1,2)])
+cor (df_All2[,-c(1,2)])
 # cor (dfD[,-c(1,2)])
 ```
 
 Plot Weather variables with Maximum Percentage of Hardseeds 
 
 
-```{r, fig.height=15, fig.width=15}
+```{r, fig.height=15, fig.width=20}
+
+#hardAccum vs DaysToSeed Harvest 
+
+ g1 <-df_All2 %>%
+  ggplot(aes(x=DaysToSeedharvest, y= HardAccum))  +
+  geom_point(colour= "black", alpha=0.2) +
+  geom_point(aes(shape=SowTreat),size=5)+
+   geom_smooth(method='lm',formula=y~x, colour="grey",alpha=0.1)+
+  theme_bw() +
+  xlab(expression(Days~to~Harvest~"(n)"))+ 
+  ylab(expression(Maximum~Hardseeds~Percent~"(%)"))+
+  theme(text = element_text(size=20))+
+  facet_wrap(~Cultivar)
+
+
 #hardAccum vs Rain 
 
-g1 <-df_All %>%
+g2 <-df_All2 %>%
   ggplot(aes(x=Rain, y= HardAccum))  +
   geom_point(colour= "black", alpha=0.2) +
-  geom_point(aes(shape=SowTreat),size=4)+
+  geom_point(aes(shape=SowTreat),size=5)+
    geom_smooth(method='lm',formula=y~x, colour="grey",alpha=0.1)+
   theme_bw() +
   xlab(expression(Rain~"("*"mm"*")"))+ 
@@ -175,10 +209,10 @@ g1 <-df_All %>%
   #theme(title =  element_text(size=14))
   
 #hardAccum vs RH
-g2 <-df_All %>%
+g3 <-df_All2 %>%
   ggplot(aes(x=RH, y= HardAccum))  +
   geom_point(colour= "black", alpha=0.2) +
-  geom_point(aes(shape=SowTreat),size=4)+
+  geom_point(aes(shape=SowTreat),size=5)+
    geom_smooth(method='lm',formula=y~x, colour="grey",alpha=0.1)+
   theme_bw() +
   xlab(expression(RH~"("*"%"*")"))+ 
@@ -186,18 +220,23 @@ g2 <-df_All %>%
   theme(text = element_text(size=20))+
   facet_wrap(~Cultivar)
   
- g3 <-df_All %>%
+#hardAccum vs Temp
+
+ g4 <-df_All2 %>%
   ggplot(aes(x=Temp, y= HardAccum))  +
   geom_point(colour= "black", alpha=0.2) +
-  geom_point(aes(shape=SowTreat),size=4)+
+  geom_point(aes(shape=SowTreat),size=5)+
    geom_smooth(method='lm',formula=y~x, colour="grey",alpha=0.1)+
   theme_bw() +
   xlab(expression(Air~temperature~"( "^"o"*"C)"))+ 
   ylab(expression(Maximum~Hardseeds~Percent~"(%)"))+
   theme(text = element_text(size=20))+
   facet_wrap(~Cultivar) 
+ 
+ 
+ 
   
-grid.arrange(g1, g2, g3)
+grid.arrange(g1, g2, g3, g4)
 # Save
 #ggsave("plot_MaxHard_WeatherTendays.png", width=12, height=6, dpi=400)
 

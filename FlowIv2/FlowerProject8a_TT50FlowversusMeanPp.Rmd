@@ -198,7 +198,8 @@ Make black and white graph
 ```
 
 ```{r, fig.width=15, fig.height=10}
-  df_FP_all_mean %>%
+  
+df_FP_all_mean %>%
   ungroup() %>%
     mutate (SowTreat= factor(SowTreat, 
     levels=c("S1", "S2", "S3", "S4", "S5", "S6", "S7","S8"),
@@ -388,7 +389,7 @@ early <- c("Monti","Narrikup")
 df_Panelwork <- df_Panel %>%
  # dplyr::select(SowTreat,VariableValue, meanPp50F )%>%
   mutate(Pp_dir=factor(ifelse(SowTreat %in% ipp, "Increase","Decreasing"))) %>%
-  mutate(Group=factor(ifelse(Cultivar %in% early, "Larly","Late"))) %>%
+  mutate(Group=factor(ifelse(Cultivar %in% early, "Early","Late"))) %>%
   na.omit() %>%
   group_by(SowingD, Pp_dir, Group, Cultivar,SowTreat, VariableName) %>%
   summarise_all(funs(mean,sd)) %>%
@@ -397,6 +398,7 @@ df_Panelwork <- df_Panel %>%
                              labels=c("Days to flower","Thermal-time (degree days)"))) 
 
 summary(df_Panelwork)
+str(df_Panelwork)
 ```
 
 Simple Graphs 
@@ -422,5 +424,259 @@ df_Panelwork %>%
   facet_grid(VariableName~.,scales = 'free')
 
 ```
+ 
+ ##Now join comples aesthetics 
+
+
+
+```{r, fig.width=12, fig.height=7}
+  
+str(df_Panelwork)
+
+df_Panelwork %>%
+  ggplot(aes(x=meanPp50F_mean,y=VariableValue_mean),
+         linetype= Pp_dir,
+             fill=interaction(Group, Pp_dir)) +
+  
+  #ylab(expression(Mean~thermal~time~flowering~"("^"o"*"Cd)")) +
+  xlab(" Mean photoperiod (hours) ") +
+  ylab(" Time to flowering ") +
+  theme_bw() +
+  geom_smooth(method='lm', aes( linetype=Pp_dir), colour="black")+
+   
+  facet_grid(VariableName~.,scales = 'free')+
+  geom_point(size=8,alpha=0.99,aes(shape=Cultivar,colour=Group)) +
+  scale_shape_manual(values = c(1,2,0,4,7,8))+
+  theme(text = element_text(size=22)) +
+    labs(linetype="Pp direction")+
+  
+
+ ##thicks in axis
+  theme(axis.ticks.length=unit(.3, "cm"))+
+ ##make sowing dates white  
+  theme(strip.background = element_rect(colour = "black", fill = "white",size=2))
+
+
+```
+
+
+
+```{r, fig.width=12, fig.height=7}
+  
+str(df_Panelwork)
+
+df_Panelwork %>%
+  ggplot(aes(x=SowingD,y=VariableValue_mean)) +
+  ylab(expression(Mean~thermal~time~flowering~"("^"o"*"Cd)")) +
+  xlab("Sowing Month") +
+   scale_x_date(date_breaks = "months" , date_labels = "%b")+
+  ylab(" Time to flowering ") +
+  theme_bw() +
+  geom_smooth(method='lm', aes( linetype=Pp_dir), colour="black")+
+  facet_grid(VariableName~.,scales = 'free')+
+  geom_point(size=8,alpha=0.99,aes(shape=Cultivar,colour=Group)) +
+  scale_shape_manual(values = c(1,2,0,4,7,8))+
+  #theme(axis.text.x=element_text(angle = 0, hjust = 0.5, size= 18))+
+  theme(text = element_text(size=22)) +
+    labs(linetype="Pp direction")+
+
+ ##thicks in axis
+  theme(axis.ticks.length=unit(.3, "cm"))+
+ ##make sowing dates white  
+  theme(strip.background = element_rect(colour = "black", fill = "white",size=2))
+
+
+```
+
+##Re graph as per re analyis Mena Pp in x axis
+
+
+```{r, fig.width= 12,fig.height=10, warning=FALSE}
+
+df_Panelwork %>%
+      ggplot(aes(x=meanPp50F_mean, y= VariableValue_mean, 
+             colour=interaction(Group, Pp_dir),
+             linetype= Pp_dir,
+             fill=interaction(Group, Pp_dir))) +
+    geom_point(aes(shape = factor(Cultivar)),size=5) +
+    theme_bw(base_size = 18) +
+    geom_smooth(method='lm',se=TRUE)+
+    labs(x="Mean photoperiod (hours)", y="Time to 50% flowering ") +
+    facet_grid(VariableName~.,scales ="free") +
+    #scale_shape_manual(values = c(0,1,2,3,4,5,6,7,8,9,10,11)) +
+    scale_shape_manual(values = c(1,2,0,4,7,8)) + 
+    scale_fill_manual(name="Interactions",
+        values=c(Early.Decreasing="red", 
+                 Late.Decreasing="blue", 
+                 Late.Increase= "blue",
+                 Early.Increase="red")) +
+    scale_color_manual(name="Interactions",
+        values=c(Early.Decreasing="red", 
+                 Late.Decreasing="blue", 
+                 Late.Increase= "blue",
+                 Early.Increase="red"))
+
+ggsave("plot_Days_ThermalTimeFlo_vs_MeanPp_AllCvs.tiff", width=14, height=8, dpi=600)
+
+```
+
+##Re graph as per re analyis use Sowing Month in x axis; Do same graph per sowing month 
+
+
+
+```{r, fig.width= 12,fig.height=8, warning=FALSE}
+
+df_Panelwork %>%
+      ggplot(aes(x=SowingD, y= VariableValue_mean, 
+             colour=Group,
+             linetype=Cultivar,
+             fill=Group)) +
+    geom_point(aes(shape = Cultivar),size=8) +
+    theme_bw(base_size = 18) +
+    #geom_smooth(method='lm',se=TRUE)+
+    geom_line(aes())  +
+    labs(x="Sowing Month", y="Time to 50% flowering ") +
+    scale_x_date(date_breaks = "months" , date_labels = "%b")+
+    facet_grid(VariableName~.,scales ="free") +
+  
+  theme(axis.text.x=element_text(angle = 0, hjust = 0.5, size= 22))+
+  theme(axis.title.x=element_text(angle = 0, hjust = 0.5, size= 22))+
+  theme(axis.text.y=element_text(angle = 0, hjust = 0, size= 22))+
+  theme(axis.title.y=element_text(angle = 90, hjust = 0.5, size= 22))+
+  
+    #scale_shape_manual(values = c(0,1,2,3,4,5,6,7,8,9,10,11)) +
+    scale_shape_manual(values = c(1,2,0,4,7,8)) + 
+#remove grid lines 
+   theme(
+     panel.border = element_rect(colour = "black", size = 3), 
+   #  panel.grid.major = element_blank(),
+   #  panel.grid.minor = element_blank(),
+     axis.line = element_line(colour = "black"))
+
+ ##thicks in axis
+  theme(axis.ticks.length=unit(.3, "cm"))+
+   
+   #make sowing dates white  
+   theme(strip.background = element_rect(colour = "black", fill = "white",size=2)) +
+    
+# theme(strip.text = element_text(face="bold", size=9))+
+   
+  #label sizes 
+theme(text = element_text(size = 24))
+
+#ggsave("plot_Days_ThermalTimeFlo_VsSowingMonth_AllCvs.tiff", width=14, height=8, dpi=600)
+  
+```
+
+
+
+#do graph starting with y in zero  Days to Flower 
+
+```{r, fig.width= 12,fig.height=6, warning=FALSE}
+
+#str(df_Panelwork)
+
+
+df_Panelwork %>%
+  filter(VariableName =="Days to flower")%>%
+      ggplot(aes(x=SowingD, y= VariableValue_mean, 
+             colour=Group,
+             linetype=Cultivar,
+             fill=Group)) +
+    geom_point(aes(shape = Cultivar),size=8) +
+    theme_bw(base_size = 18) +
+    #geom_smooth(method='lm',se=TRUE)+
+    geom_line(aes())  +
+    labs(x="Sowing Month", y="Number of days to 50% flowering ") +
+    scale_x_date(date_breaks = "months" , date_labels = "%b")+
+    #facet_grid(VariableName~.,scales ="free") +
+  
+  theme(axis.text.x=element_text(angle = 0, hjust = 0.5, size= 22))+
+  theme(axis.title.x=element_text(angle = 0, hjust = 0.5, size= 22))+
+  theme(axis.text.y=element_text(angle = 0, hjust = 0, size= 22))+
+  theme(axis.title.y=element_text(angle = 90, hjust = 0.5, size= 22))+
+  ylim(0,300)+
+  
+    #scale_shape_manual(values = c(0,1,2,3,4,5,6,7,8,9,10,11)) +
+    scale_shape_manual(values = c(1,2,0,4,7,8)) + 
+#remove grid lines 
+   theme(
+     panel.border = element_rect(colour = "black", size = 3), 
+   #  panel.grid.major = element_blank(),
+   #  panel.grid.minor = element_blank(),
+     axis.line = element_line(colour = "black"))+
+
+ ##thicks in axis
+  theme(axis.ticks.length=unit(.3, "cm"))+
+   
+   #make sowing dates white  
+   theme(strip.background = element_rect(colour = "black", fill = "white",size=2)) +
+    
+# theme(strip.text = element_text(face="bold", size=9))+
+   
+  #label sizes 
+theme(text = element_text(size = 24))
+
+ggsave("plot_DAE50Flo_VsSowingMonth_AllCvs.tiff", width=14, height=8, dpi=600)
+  
+```
+
+#do the graph now with Thermal time TT50 
+
+```{r, fig.width= 12,fig.height=6, warning=FALSE}
+
+
+df_Panelwork %>%
+  filter(VariableName =="Thermal-time (degree days)")%>%
+      ggplot(aes(x=SowingD, y= VariableValue_mean, 
+             colour=Group,
+             linetype=Cultivar,
+             fill=Group)) +
+    geom_point(aes(shape = Cultivar),size=8) +
+    theme_bw(base_size = 18) +
+    #geom_smooth(method='lm',se=TRUE)+
+    geom_line(aes())  +
+    labs(x="Sowing Month") +
+    ylab(expression(Mean~Thermal~time~Flowering~"("^"o"*"Cd)")) + 
+    scale_x_date(date_breaks = "months" , date_labels = "%b")+
+    #facet_grid(VariableName~.,scales ="free") +
+  
+  theme(axis.text.x=element_text(angle = 0, hjust = 0.5, size= 22))+
+  theme(axis.title.x=element_text(angle = 0, hjust = 0.5, size= 22))+
+  theme(axis.text.y=element_text(angle = 0, hjust = 0, size= 22))+
+  theme(axis.title.y=element_text(angle = 90, hjust = 0.5, size= 22))+
+  ylim(0,3000)+
+  
+    #scale_shape_manual(values = c(0,1,2,3,4,5,6,7,8,9,10,11)) +
+    scale_shape_manual(values = c(1,2,0,4,7,8)) + 
+#remove grid lines 
+   theme(
+     panel.border = element_rect(colour = "black", size = 3), 
+   #  panel.grid.major = element_blank(),
+   #  panel.grid.minor = element_blank(),
+     axis.line = element_line(colour = "black"))+
+
+ ##thicks in axis
+  theme(axis.ticks.length=unit(.3, "cm"))+
+   
+   #make sowing dates white  
+   theme(strip.background = element_rect(colour = "black", fill = "white",size=2)) +
+    
+# theme(strip.text = element_text(face="bold", size=9))+
+   
+  #label sizes 
+theme(text = element_text(size = 24))
+
+ggsave("plot_TT50Flo_VsSowingMonth_AllCvs.tiff", width=14, height=8, dpi=600)
+
+
+```
+
+
+
+
+
+
+
 
 

@@ -141,7 +141,7 @@ str(df_IncPp)
 
 
 
-then loop every plot and depth to find the linear equation and print a list of the coefficients and R2. 
+##then loop every plot and depth to find the linear equation and print a list of the coefficients and R2. 
 ```{r}
 all.data<-data.frame()
 counter<-0

@@ -167,8 +167,6 @@ Check means among sowing dates
 
 
 
-
-
 Then select for individual sowing dates 
 S1 
 
@@ -278,7 +276,9 @@ summary(my.anova)
 
 ```{r}
 #Means separation 
-(LSD.test(my.anova, c("Cultivar"), alpha= 0.05, p.adj="none"))
+#(LSD.test(my.anova, c("Cultivar"), alpha= 0.05, p.adj="none"))
+#(LSD.test(my.anova, c("Depth"), alpha= 0.05, p.adj="none"))
+
 ```
 
  

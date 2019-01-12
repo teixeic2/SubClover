@@ -733,5 +733,114 @@ write.table(df_pp_allEmer, "df_Pptargets_TT50FFromEmergence.txt")
 
 ```
 
-Cool now proceed with the next ones 
-End of this script 
+get the regressions and R2 
+
+##This code is similar to HardseedProjectLive_4Calc
+
+```{r}
+
+df_pp_allEmer$LoopIndex <- as.factor(paste0(df_pp_allEmer$Cultivar,"_",
+                                            df_pp_allEmer$Block,"_",
+                                            df_pp_allEmer$TT_target)) # prepare for loop below
+
+str(df_pp_allEmer)
+
+```
+
+
+
+
+##then loop every plot and depth to find the linear equation and print a list of the coefficients and R2. 
+```{r}
+all.data<-data.frame()
+
+counter<-0
+
+li<- unique(df_pp_allEmer$LoopIndex)
+
+  for(d in 1:length(li)) {
+ 
+     df_sub <- data.frame()  
+
+     df_sub <- df_pp_allEmer %>% filter(LoopIndex==li[d])
+  
+## Linear fit
+  
+# select type of slope calculated  
+  x <- df_sub$Pp_target
+  y <- df_sub$TT50FromEmerg
+  
+  fit <- NULL
+  fit <- lm(y ~ x)
+  
+  block <- as.factor(df_sub$Block[1])
+  intercept <- round(fit$coefficients[[1]],2)
+  slope <- round(fit$coefficients[[2]],3)
+  r2 <- round(summary(fit)$r.squared * 100,2)
+  cv <- as.factor(df_sub$Cultivar[1])
+  TT<- as.character(df_sub$TT_target[1])
+  
+  
+  buf <- data.frame(cv=cv, block=block, 
+                    TT=TT, int=intercept, 
+                    slope=slope, r2=r2, n=nrow(df_sub))
+  
+  all.data <- rbind(buf, all.data)
+  
+  }
+
+summary(all.data)
+
+```
+
+
+get mean values to write 
+
+```{r}
+df_FitTT_PPtarget <- all.data 
+
+write.table(df_FitTT_PPtarget, "df_FitLinear_ThermT_allPp.txt")
+
+```
+
+
+
+inspect means 
+
+```{r}
+fit_stats <- df_FitTT_PPtarget %>%
+  dplyr::select(-block) %>%
+  group_by(cv, TT) %>%
+  summarise_all(funs(mean,sd)) %>%
+  na.omit()
+
+summary(fit_stats)
+
+write.csv(fit_stats, "table_fit_stats.csv")
+
+```
+
+```{r}
+#Table for main thesis
+fit_stats_opt <- fit_stats %>% group_by(cv) %>% filter(r2_mean==max(r2_mean))
+
+summary(fit_stats_opt)
+write.csv(fit_stats_opt, "table_fit_stats_opt.csv")
+```
+
+
+```{r,fig.width=12}
+fit_stats  %>%
+  mutate(TT=as.numeric(as.character(TT)))   %>%
+  ggplot(aes(x=TT,y=r2_mean,colour=cv)) +
+  geom_line() +
+  geom_point()
+```
+```{r,fig.width=12}
+fit_stats  %>%
+  mutate(TT=as.numeric(as.character(TT)))   %>%
+  ggplot(aes(x=TT,y=slope_mean,colour=cv)) +
+  geom_line() +
+  geom_point()
+```
+

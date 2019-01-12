@@ -111,9 +111,9 @@ df_hard_live_max <- df_final %>% mutate(Round=factor(Round))
 summary (df_hard_live_max)
 
 ```
-check
+check - draft graph 
 
-```{r, fig.height=5, fig.width=10}
+```{r, fig.height=5, fig.width=12}
 
 #Graph the maximum percentage of Live hardseeds!!! Here graph already show SE sd/3,.46 n = 3.
 
@@ -123,10 +123,10 @@ check
   group_by(Cultivar,SowingD, Depth) %>%
   dplyr::select(Hard_perc) %>%
   summarise_all(funs(mean,sd)) %>%
-  ggplot(aes(x=SowingD, y=mean, colour=Cultivar, shape=Cultivar)) +
+  ggplot(aes(x=SowingD, y=mean, colour=Depth)) +
   geom_point() +
   geom_line() +
- facet_grid(Depth~Cultivar) +
+ facet_grid(.~Cultivar) +
   labs(x="Sowing Date",y="Maximum Percentage of Live Hardseeds (%)") +
   theme(axis.text.x = element_text(angle = 90, hjust = 1))+
                   geom_errorbar(aes(ymin=mean-sd/3.46,
@@ -137,6 +137,146 @@ check
   theme(axis.text.y=element_text(angle = 0, hjust = 0, size= 12))
 
 ```
+
+
+RE graph 
+
+
+```{r, fig.height=5, fig.width=14}
+
+#Graph the maximum percentage of Live hardseeds!!! Here graph already show SE sd/3,.46 n = 3.
+
+  df_hard_live_max %>%
+  mutate(SowingD = dmy(SowingD)) %>%
+  filter(Round == 14) %>%
+  group_by(Cultivar,SowingD, Depth) %>%
+  dplyr::select(Hard_perc) %>%
+  summarise_all(funs(mean,sd)) %>%
+  ggplot(aes(x=SowingD, y=mean, colour=Depth,linetype=Depth, shape=Depth)) +
+  scale_color_manual(values = c("Above" = "black", "Below" = "grey"))+
+  #scale_shape(solid = FALSE)+
+  geom_point(size=5) +
+  geom_line() +
+ facet_grid(.~Cultivar) +
+  labs(x="Sowing Date",y="Maximum Percentage of Hardseeds (%)") +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1))+
+                  geom_errorbar(aes(ymin=mean-sd/3.46,
+                    ymax=mean+sd/3.46))+
+  theme_bw()+
+  ylim(0,100)+
+  theme(axis.text.x=element_text(angle = 0, hjust = 0.5, size= 18))+
+  theme(axis.text.y=element_text(angle = 0, hjust = 0, size= 18))+
+  
+  #remove grid lines 
+   theme(
+     panel.border = element_rect(colour = "black", size = 2), 
+     panel.grid.major = element_blank(),
+     panel.grid.minor = element_blank(),
+     axis.line = element_line(colour = "black"))+
+  theme(text = element_text(size=20))+
+   
+   
+   #make TT target labels  white  
+   theme(strip.background = element_rect(colour = "black", fill = "white",size=2))
+  
+ggsave("plots_MaxHardSeeds.tiff", width=15, height=6, dpi=500)
+
+
+```
+
+
+
+```{r, fig.height=7, fig.width=15}
+str (df_hard_live_max) 
+
+df_hard_live_max %>%
+   mutate (SowTreat= factor(SowTreat, levels=c("S1", "S2", "S3", "S4", "S6","S7"),labels=c("June", "July", "September", "November", "February","March")))%>%
+  group_by(Cultivar,SowTreat, Depth) %>%
+  dplyr::select(Hard_perc)%>%
+  summarise_all(funs(mean,sd)) %>%
+  #ggplot(aes(x=Cultivar, y=mean, colour=Cultivar,     shape=Cultivar)) +
+  ggplot(aes(x=Cultivar, y=mean,     shape=Cultivar)) +
+  geom_point(size=5, alpha=0.8) +
+  scale_shape(solid = FALSE)+
+  #geom_text(aes(label=Cultivar),hjust=0, vjust=0,size=5)
+  geom_line() +
+ facet_grid(Depth~SowTreat) +
+  labs(x="Cultivar",y="Percentage of hardseeds (%)") +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1))+
+  geom_errorbar(aes(ymin=mean-sd/1.73,
+                    ymax=mean+sd/1.73))+
+  theme_bw()+
+    ylim(0,100)+
+ theme(axis.text.x=element_text(angle = 45, hjust = 1, size= 16))+
+  theme(axis.text.y=element_text(angle = 0, hjust = 0, size= 16))+
+   #remove grid lines 
+   theme(
+     panel.border = element_rect(colour = "black", size = 2), 
+     panel.grid.major = element_blank(),
+     panel.grid.minor = element_blank(),
+     axis.line = element_line(colour = "black"))+
+  theme(text = element_text(size=18))+
+   
+   
+   #make TT target labels  white  
+   theme(strip.background = element_rect(colour = "black", fill = "white",size=2))
+
+#ggsave("plots_MaxHardSeeds.tiff", width=14, height=7, dpi=500)
+
+
+
+```
+
+improve graphs 
+
+
+
+```{r, fig.height=7, fig.width=14}
+str (df_hard_live_max) 
+
+df_hard_live_max %>%
+   mutate (SowTreat= factor(SowTreat, levels=c("S1", "S2", "S3", "S4", "S6","S7"),labels=c("June", "July", "September", "November", "February","March")))%>%
+  group_by(Cultivar,SowTreat, Depth) %>%
+  dplyr::select(Hard_perc)%>%
+  summarise_all(funs(mean,sd)) %>%
+  #ggplot(aes(x=Cultivar, y=mean, colour=Cultivar,     shape=Cultivar)) +
+  ggplot(aes(x=SowTreat, y=mean,     colour=Depth)) +
+  geom_point() +
+  geom_line() +
+  #geom_point(size=5, alpha=0.8) +
+  #geom_line()+
+  #scale_shape(solid = FALSE)+
+  #geom_text(aes(label=Cultivar),hjust=0, vjust=0,size=5)
+facet_grid(.~Cultivar) +
+  labs(x="Cultivar",y="Percentage of hardseeds (%)") +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1))+
+  geom_errorbar(aes(ymin=mean-sd/1.73,
+                    ymax=mean+sd/1.73))+
+  theme_bw()+
+    ylim(0,100)+
+ theme(axis.text.x=element_text(angle = 45, hjust = 1, size= 16))+
+  theme(axis.text.y=element_text(angle = 0, hjust = 0, size= 16))+
+   #remove grid lines 
+   theme(
+     panel.border = element_rect(colour = "black", size = 2), 
+     panel.grid.major = element_blank(),
+     panel.grid.minor = element_blank(),
+     axis.line = element_line(colour = "black"))+
+  theme(text = element_text(size=18))+
+   
+   
+   #make TT target labels  white  
+   theme(strip.background = element_rect(colour = "black", fill = "white",size=2))
+
+##ggsave("plots_MaxHardSeeds.tiff", width=14, height=7, dpi=500)
+
+
+
+```
+
+
+
+
 
 
 here loop to get the cumulative hardseeds in all rounds 
@@ -211,6 +351,44 @@ df_cum_soft %>%
   geom_point(size=3) +
   geom_line() +
  facet_grid(Depth~SowTreat) +
+  labs(x="Days",y=" Percentage of LiveHardseeds") +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1))+
+                  geom_errorbar(aes(ymin=mean-sd/3.46,
+                    ymax=mean+sd/3.46))+
+  theme_bw()+
+  ylim(0,100)+
+  xlim(0,100)+
+  ylab(expression(Percentage~of~Hardseeds~"(%)"))+
+  #theme(text = element_text(size=12))+
+  #xlab(expression(Days))+
+  theme(axis.text.x=element_text(angle = 45, hjust = 0.5, size= 11))+
+   theme(axis.title.x=element_text(angle = 0, hjust = 0.5, size= 16))+
+  theme(axis.text.y=element_text(angle = 0, hjust = 0, size= 12))+
+   theme(axis.title.y=element_text(angle = 90, hjust = 0.5, size= 16))
+
+
+
+```
+
+here graph mean without the depth as facet 
+
+```{r, fig.height= 8, fig.width=12}
+#change data frame name and Graph Breakdown live hard seeds 
+
+df_cum_soft<- df_final2
+str(df_cum_soft )
+
+df_cum_soft %>%
+  mutate(SowingD = dmy(SowingD)) %>%
+  mutate (SowTreat= factor(SowTreat, levels=c("S1", "S2", "S3", "S4", "S6","S7"),labels=c("June", "July", "September", "November", "February","March")))%>%
+  #filter(Round == 14) %>%
+  group_by(Cultivar,SowingD, SowTreat, Round) %>%
+  dplyr::select(HardAccum) %>%
+  summarise_all(funs(mean,sd)) %>%
+  ggplot(aes(x=Round, y=mean, colour=Cultivar, shape=Cultivar)) +
+  geom_point(size=3) +
+  geom_line() +
+ facet_grid(.~SowTreat) +
   labs(x="Days",y=" Percentage of LiveHardseeds") +
   theme(axis.text.x = element_text(angle = 90, hjust = 1))+
                   geom_errorbar(aes(ymin=mean-sd/3.46,
