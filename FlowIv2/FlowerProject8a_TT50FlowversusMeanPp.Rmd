@@ -11,7 +11,7 @@ note: include Pp analysis using the mean photoperiod to compare with the results
   Iversen 2 collected data; this script is a continuation of script 9 .
   This script use the thermal time from emergence (TT50FromEmerg)
   
-  
+  Next scrip 8b contains all the Photoperiods!!! 
   
 ---
 

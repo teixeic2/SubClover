@@ -244,55 +244,239 @@ metfilegather%>%
 
 ```
 
-
-```{r PotEvap_graph}
-
-# Get file (simulated eo by APSIM - Pot ET for modsim paper)
-theFile <- "C:\\Apsim_dev\\Projects\\Forage_MBIE(FRNL)\\ModelStudies\\05_CoverCropPaperSoils\\LightSoil EarlyCover ETPdaily.out"
-
-etpFile <- read.table(theFile, skip = 3, header = TRUE, comment.char = "(", blank.lines.skip = TRUE)
-head(etpFile)
-tail(etpFile)
-summary(etpFile)
+Graph simple black and white 
 
 
-#etpFile$Date <- as.Date(etpFile$Dat, format="%dd-%mm-%YYYY")
 
-#etpFile$day <- yday(etpFile$Date)
+```{r, fig.height=5, fig.width=10}
 
-#write.csv(etpFile, file = "test.csv")
+#combine Min and Max temps 
 
-summary(etpFile)
+metfilegather<-metFile%>%
+  group_by(day) %>%
+ summarise_all(funs(mean)) %>%
+ gather(key= "Temperature" , value = "Degrees", maxt,mint)
 
-g5 <- etpFile %>%
-  filter(year %in% 1960:2000) %>%
-   group_by(day_of_year) %>%
- # summarise_each(funs(mean)) %>%
-  ggplot(aes(x=day_of_year, y=eo))  +
-  geom_point(colour= "darkblue", alpha=0.2) +
-  stat_smooth(level = 0.9, size = 1, colour="white") + 
-  xlab("Day of the year (1-365)") + 
-  ylab("Potential evapo-transpiration (mm)") +
-  theme(text = element_text(size=fontSize))
+metfilegather%>%
+  #filter(year %in% 1960:2000) %>%
+  #group_by(day) %>%
+ #summarise_all(funs(mean)) %>%
+  ggplot(aes(x=day, y=Degrees))  +
+  #geom_point(aes(colour= Temperature,shape=Temperature), alpha=0.2, size =5 ) +
+  geom_point(aes(shape=Temperature), alpha=0.2, size =5 ) +
+ # geom_point(aes(colour= Temperature,shape=Temperature), alpha=0.2, size =5 ) +
+  #scale_fill_manual(name="Temperature",
+        #values=c(maxt="lightgray", mint="black"))+
+        #values=c(maxt="#008B00", mint="salmon4"))+
+  #geom_smooth(aes(colour=Temperature))+ 
+  #geom_smooth()+ 
+  
+  theme_bw() +
+ xlab("Day of the year (1-365)") + 
+    ylab(expression(Mean~Daily~Temperature~"("^"o"*"C)"))+
+  theme(text = element_text(size=18))+
+  theme(axis.text.x=element_text(angle = +0, hjust = 0, size= 14))+
+  theme(axis.text.y=element_text(angle = +0, hjust = 0, size= 14))+
+  
+   #remove grid lines 
+   theme(
+     panel.border = element_rect(colour = "black", size = 3), 
+     panel.grid.major = element_blank(),
+     panel.grid.minor = element_blank(),
+     axis.line = element_line(colour = "black"))+
+   #scale_fill_manual("legend", values = c("Antas" = "#660066", "Denmark" = "lightgrey","Leura" = "darkgrey", "Monti" = "#FF9933","Narrikup" = "blue",  "Woogenellup" = "#033333"))+
+   
+   #make sowing dates white  
+   theme(strip.background = element_rect(colour = "black", fill = "white",size=1))+
+   
+  #label sizes 
+theme(text = element_text(size = 22))
+ 
+ 
+
+ggsave("plot_MinMaxTemp_Historic_BlackWhite.png", width=10, height=5, dpi=400)
+
+```
 
 
-g5 <- etpFile %>%
+
+```{r,fig.height=5, fig.width=10}
+
+
+metFile %>%
   filter(year %in% 1960:2000) %>%
   group_by(year, month) %>%
   summarise_each(funs(sum)) %>%
   group_by(month) %>%
-  select(month, eo) %>%
-  summarise(rainMean = mean(eo), rainSd = sd(eo)/2) %>%
+  select(month, rain) %>%
+  summarise(rainMean = mean(rain), rainSd = sd(rain)/2) %>%
   ggplot(aes(x=month, y=rainMean)) + 
-  geom_bar(stat ='identity') +
-  xlab("Month") + 
-  ylab("Potential evapo-transpiration (mm)") +
+  #geom_bar(stat ='identity') +
+  geom_bar(stat="identity", fill="lightgrey", colour="black")+
+  theme_bw() +
+ xlab("Month") + 
+  ylab("Monthly rainfall (mm)") +
   scale_x_continuous(breaks=1:12) +
   geom_errorbar(aes(ymax = rainMean + rainSd, ymin=rainMean - rainSd), 
                 position=position_dodge(width=0.9), width=0.25)+
-  theme(text = element_text(size=fontSize))
+  theme(text = element_text(size=fontSize))+
 
-grid.arrange(g1, g3, g4, g5)
+#remove grid lines 
+   theme(
+     panel.border = element_rect(colour = "black", size = 3), 
+     panel.grid.major = element_blank(),
+     panel.grid.minor = element_blank(),
+     axis.line = element_line(colour = "black"))+
+   #scale_fill_manual("legend", values = c("Antas" = "#660066", "Denmark" = "lightgrey","Leura" = "darkgrey", "Monti" = "#FF9933","Narrikup" = "blue",  "Woogenellup" = "#033333"))+
+   
+   #make sowing dates white  
+   theme(strip.background = element_rect(colour = "black", fill = "white",size=1))+
+   
+  #label sizes 
+theme(text = element_text(size = 22))
+
+
+ggsave("plot_Rainfall_Historic_BlackWhite.png", width=10, height=5, dpi=400)
+
+
+```
+
+
+bring PET data monthly 
+
+
+```{r}
+
+# Get file
+Petfile <- read.table(paste0("MeanHistoricPet.txt"),  header = TRUE)
+
+Petfile<-Petfile%>%
+  mutate(month=as.numeric(month),
+         HistoricPET=as.numeric(HistoricPET))
+
+
+```
+
+build mean rain per month
+
+```{r}
+
+Rain <-metFile %>%
+  filter(year %in% 1960:2000) %>%
+  group_by(year, month) %>%
+  summarise_all(funs(sum)) %>%
+  group_by(month) %>%
+  select(month, rain) %>%
+  summarise(rainMean = mean(rain), rainSd = sd(rain)/2) 
+
+
+str(Rain)
+str(Petfile)
+## merge
+
+RainPet <- merge(Rain, Petfile,  by="month")
+
+```
+
+build multiple graph
+
+
+
+```{r,fig.height=5, fig.width=10}
+
+str(RainPet)
+
+ RainPet%>%
+   #mutate(month=as.factor(month))%>%
+  #mutate (month= factor(month, levels=c("1", "2", "3", "4", "5","6","7","8","9","10","11","12"),labels=c("Jan","Feb", "Mar",  "Ap", "May","Jun", "Jul", "Aug", "Sept","Oct", "Nov", "Dec")))%>%
+  ggplot(aes(x=month, y=rainMean))+ 
+  #geom_bar(stat ='identity') +
+  geom_bar(stat="identity", fill="lightgrey", colour="black")+
+ # geom_bar(aes(x=month, y=rainMean),stat="identity", fill="tan1", colour="sienna3")+
+  geom_line(aes(x=month, y=HistoricPET,stat="identity"),linetype=2)+
+   geom_point(aes(x=month, y=HistoricPET,stat="identity"),size=6)+
+  
+ theme_bw() +
+ xlab("Month") + 
+  ylab("Monthly rainfall and PET (mm)") +
+  scale_x_continuous(breaks=1:12) +
+   #scale_y_continuous()+
+  geom_errorbar(aes(ymax = rainMean + rainSd, ymin=rainMean - rainSd), 
+                position=position_dodge(width=0.9), width=0.25)+
+  theme(text = element_text(size=fontSize))+
+
+#remove grid lines 
+   theme(
+     panel.border = element_rect(colour = "black", size = 3), 
+     panel.grid.major = element_blank(),
+     panel.grid.minor = element_blank(),
+     axis.line = element_line(colour = "black"))+
+   #scale_fill_manual("legend", values = c("Antas" = "#660066", "Denmark" = "lightgrey","Leura" = "darkgrey", "Monti" = "#FF9933","Narrikup" = "blue",  "Woogenellup" = "#033333"))+
+   
+   #make sowing dates white  
+   theme(strip.background = element_rect(colour = "black", fill = "white",size=1))+
+   
+  #label sizes 
+theme(text = element_text(size = 22))
+
+
+ggsave("plot_PETRain_Historic_BlackWhite.png", width=10, height=5, dpi=400)
+
+
+```
+
+
+
+
+
+```{r PotEvap_graph}
+
+# # Get file (simulated eo by APSIM - Pot ET for modsim paper)
+# theFile <- "C:\\Apsim_dev\\Projects\\Forage_MBIE(FRNL)\\ModelStudies\\05_CoverCropPaperSoils\\LightSoil EarlyCover ETPdaily.out"
+# 
+# etpFile <- read.table(theFile, skip = 3, header = TRUE, comment.char = "(", blank.lines.skip = TRUE)
+# head(etpFile)
+# tail(etpFile)
+# summary(etpFile)
+# 
+# 
+# #etpFile$Date <- as.Date(etpFile$Dat, format="%dd-%mm-%YYYY")
+# 
+# #etpFile$day <- yday(etpFile$Date)
+# 
+# #write.csv(etpFile, file = "test.csv")
+# 
+# summary(etpFile)
+# 
+# g5 <- etpFile %>%
+#   filter(year %in% 1960:2000) %>%
+#    group_by(day_of_year) %>%
+#  # summarise_each(funs(mean)) %>%
+#   ggplot(aes(x=day_of_year, y=eo))  +
+#   geom_point(colour= "darkblue", alpha=0.2) +
+#   stat_smooth(level = 0.9, size = 1, colour="white") + 
+#   xlab("Day of the year (1-365)") + 
+#   ylab("Potential evapo-transpiration (mm)") +
+#   theme(text = element_text(size=fontSize))
+# 
+# 
+# g5 <- etpFile %>%
+#   filter(year %in% 1960:2000) %>%
+#   group_by(year, month) %>%
+#   summarise_each(funs(sum)) %>%
+#   group_by(month) %>%
+#   select(month, eo) %>%
+#   summarise(rainMean = mean(eo), rainSd = sd(eo)/2) %>%
+#   ggplot(aes(x=month, y=rainMean)) + 
+#   geom_bar(stat ='identity') +
+#   xlab("Month") + 
+#   ylab("Potential evapo-transpiration (mm)") +
+#   scale_x_continuous(breaks=1:12) +
+#   geom_errorbar(aes(ymax = rainMean + rainSd, ymin=rainMean - rainSd), 
+#                 position=position_dodge(width=0.9), width=0.25)+
+#   theme(text = element_text(size=fontSize))
+# 
+# grid.arrange(g1, g3, g4, g5)
 
 ```
 

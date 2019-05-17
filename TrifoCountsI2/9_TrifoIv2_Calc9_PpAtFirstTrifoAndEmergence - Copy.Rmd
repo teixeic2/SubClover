@@ -1,0 +1,146 @@
+---
+title: "Trifoliates Iversen "
+author: "CT"
+date: "04.07.2018" 
+output: 
+  word_document: default
+  pdf_document: default
+  html_document: default
+---
+
+Purpose:
+
+-Add Photoperiod at First trifoliat and Emergence for each plot 
+ 
+```{r loadLibraries}
+library(tidyr)
+library (dplyr)
+library (ggplot2)
+library(agricolae)
+library (lubridate)
+library(mosaic)
+library(lattice)
+library(knitr)
+```
+
+Read document generated in script "3" 5Trifo_rate
+
+```{r}
+setwd("C:\\GitHubRepos\\SubCloverPhD\\SubClover\\TrifoCountsI2")
+getwd()
+#create file
+
+##Path "C:/GitHubRepos/SubCloverPhD/SubClover/TrifoCountsI2/DaysTT5TFromEmergence.txt"
+
+df_trifo <- read.table("DaysTT1TFromEmergence.txt",header=TRUE)
+
+
+head(df_trifo)
+
+
+```
+Define formats and calculate the number of trifoliates considering the sub samples (S1-S10)
+
+```{r loadFile}
+
+
+# define factors for the ones that "look like" values
+df_trifo$Plot <- as.factor(df_trifo$Plot)
+df_trifo$Block <- as.factor(df_trifo$Block)
+df_trifo$Cultivar <- as.factor(df_trifo$Cultivar)
+df_trifo$SowTreat <- as.factor(df_trifo$SowTreat)
+
+ #df_trifo <- df_trifo %>%
+ # mutate(SowingDate = ymd(SowingDate)) 
+
+str(df_trifo)
+
+
+
+```
+
+Bring the photoperiod data 
+
+```{r}
+
+df_Photo <- read.table("Photoperiod.txt",header=TRUE)
+
+# rename date column for merge
+df_Photo <- df_Photo %>%
+mutate(SowingDate = Date)
+head(df_Photo)
+
+# convert to date format
+df_Photo <- df_Photo %>%
+mutate(Date=dmy(Date))
+
+```
+
+Then add the photoperiod at frist trifoliate
+
+
+```{r}
+
+str(df_trifo)
+  
+  df_insertion<-df_trifo%>%
+  select(Plot,Date50FirstTrif)%>%
+  mutate(Date=ymd(Date50FirstTrif))
+  
+  str(df_insertion)
+  str(df_Photo)
+  
+  # force formats of dates
+#df_insertion$Date <- round(df_insertion$Date50FirstTrif,0)
+#df_Photo$Date <- round(df_Photo$Date,0)
+  
+Merged<-merge(df_insertion,df_Photo, by="Date")
+##Here you have Pp at First Trifoliate for each plot
+Merged1<-Merged%>%
+  mutate(Pp1Trifo=Pp)%>%
+  select(Plot,Pp1Trifo)
+
+write.table(Merged1, "PpAtFirstTrifo.txt")
+```
+
+
+## Now include the photoperiod at emergence (repeat process ) 
+
+```{r}
+
+dfEmergenceDate <- read.table("DASSeedEmer.txt",header=TRUE)
+
+
+str(dfEmergenceDate)
+
+#adjust format
+df_insertionEmerg<-dfEmergenceDate%>%
+  select(Plot,Date50SeedEm)%>%
+  mutate(Date=dmy(Date50SeedEm))%>%
+  select(Plot,Date)
+##merge with Photoperiod by date 
+
+Merged2<-merge(df_insertionEmerg,df_Photo, by="Date")
+##Here you have Pp at First Trifoliate for each plot
+Merged2<-Merged2%>%
+  mutate(PpEmerg=Pp)%>%
+  select(Plot,PpEmerg)
+
+
+```
+
+
+
+
+Now combine the PpEmerg and PP1trifo per plot and save 
+
+
+```{r}
+
+MergedAll<-merge(Merged1,Merged2, by="Plot")
+
+write.table(MergedAll,"PhotoperiodEmergAnd1trifo.txt")
+
+```
+
+Use the data to plot phyllochron in Y and photoperiod in x 

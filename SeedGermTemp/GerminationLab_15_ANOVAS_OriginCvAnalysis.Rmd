@@ -68,7 +68,7 @@ Get overall means and se
 ```{r}
 
 df_Allmeans<- df_Data%>%
-  group_by(Origin,Variate,Temp) %>%
+  group_by(Cultivar, Origin,Variate,Temp) %>%
   dplyr::select( Variate, Value)%>%
   summarise_all(funs(mean(Value),sd))%>%
   mutate(SE=sd/2)
@@ -159,7 +159,7 @@ ggplot(aes(x=Temp, y=mean)) +
    theme(strip.background = element_rect(colour = "black", fill = "white",size=2))+
   
   #label sizes 
-theme(text = element_text(size = 26))
+theme(text = element_text(size = 26)) 
   
   #geom_abline(intercept = 50, slope = 0)
 

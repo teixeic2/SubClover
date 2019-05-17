@@ -1,0 +1,442 @@
+---
+title: "Hardseeds Live_compare hardseed and normal germ"
+author: "CT"
+date: "09.01.2018"
+output:
+  word_document: default
+  pdf_document: default
+  html_document: default
+---
+##this script reads
+
+```{r loadLibraries}
+library(tidyr)
+library (dplyr)
+library (ggplot2)
+library(agricolae)
+library(knitr)
+library (lubridate)
+
+
+```
+
+This script reads the 'MaxHardAndRate_Diff.txt " and the normal germ txt 
+Combine the two dataframes with the objective to compare hardseedbreakdown rate and normal germination (is there a relationship?)
+
+
+```{r loadFile}
+setwd("C:\\GitHubRepos\\SubCloverPhD\\SubClover\\Hardseeds")
+getwd()
+
+#create file
+##previous analysis : df_seed <- read.table("MeanSlope.txt",header=TRUE) 
+
+df_seed <- read.table("MaxHardAndRate_Diff.txt",header=TRUE) 
+
+
+str(df_seed)
+```
+
+
+then enter in the other folder 
+
+C:\GitHubRepos\SubCloverPhD\SubClover\DeadAbnSeeds
+```{r}
+setwd("C:\\GitHubRepos\\SubCloverPhD\\SubClover\\DeadAbnSeeds")
+getwd()
+
+#create file
+df_norm<- read.table("MeanGermination.txt",header=TRUE) 
+
+str(df_norm)
+
+df_norm<-df_norm %>%
+mutate(Germination=mean)
+
+```
+
+
+adjust data frames 
+
+combine the two dataframes 
+
+
+```{r}
+str(df_seed)
+
+# df_seed <- df_seed%>%
+#   mutate(Cultivar=cv, SowTreat=sow, rate= -1*RateDecreasePerTTunit) %>%
+#   select(-cv,-sow)
+
+
+```
+
+
+```{r}
+
+
+
+dfMerge <-merge(df_seed, df_norm, by=c("Cultivar","SowTreat"))
+
+#then rename column mean and slope
+
+# dfMerge<-dfMerge %>%
+#   mutate(Germination=mean)
+
+
+```
+
+then plot one against the other (x= RateDecreasePerTTunit, y = germination)
+
+```{r}
+
+str(dfMerge)
+
+Average <-dfMerge %>%
+  dplyr::select(Cultivar :Depth ,RateDecreasePerTTunit,   Germination)
+
+##Calculate the overall mean (group by Cultivar)
+
+OverallAverage<-Average %>%
+  group_by(Cultivar, SowTreat)%>%
+  dplyr::select(RateDecreasePerTTunit,   Germination)%>%
+  summarise_all(funs(mean))
+  
+  
+  
+```
+
+
+```{r, fig.height=7, fig.width=15}
+
+
+
+##Calculate the overall mean (group by Cultivar)
+
+OverallAverage %>%
+  ggplot(aes(x=RateDecreasePerTTunit, y= Germination))  +
+  geom_point(colour= "black", alpha=0.2) +
+  geom_point(aes(shape=SowTreat),size=4)+
+  geom_smooth(method='lm',formula=y~x, colour="grey",alpha=0.2)+
+  theme_bw() +
+  xlab(expression(Mean~hardseed~breakdown~"(%/"^"o"*"Cd)"))+ 
+  scale_x_continuous(breaks=c(0,0.01, 0.02, 0.03))+
+   xlim(0,0.038)+
+  ylab(expression(Germination~"(%)"))+
+    scale_y_continuous(breaks=c(0,25,50, 75, 100))+
+  ylim(0,130)+
+  theme(text = element_text(size=20))+
+  facet_wrap(~Cultivar)+
+
+#remove grid lines 
+   theme(
+     panel.border = element_rect(colour = "black", size = 2), 
+     panel.grid.major = element_blank(),
+     panel.grid.minor = element_blank(),
+     axis.line = element_line(colour = "black"))+
+  theme(text = element_text(size=26))+
+   
+   
+   #make TT target labels  white  
+   theme(strip.background = element_rect(colour = "black", fill = "white",size=2))
+
+  
+  
+  #theme(title =  element_text(size=14))
+  
+  ggsave("plot_CorrelationHardBreakdown_GErmination.tiff", width=12, height=6, dpi=400)
+```
+
+
+
+
+get a summary of the lm of the geom method (general)
+
+equation is y = a(intercept) +b (rate) x
+```{r}
+summary(lm(Germination ~ RateDecreasePerTTunit, OverallAverage))
+```
+
+Plug a loop to generate summary by cultivar 
+
+```{r}
+
+#create a vector that holds names of all possible cultivars
+cv.unique <- unique(OverallAverage$Cultivar)
+
+summary(cv.unique )
+
+
+for (i in 1:length(cv.unique)) {
+  
+ #print(i)
+ print(paste0(cv.unique[i],"--------------------------------"))
+  
+  #then make it subset 
+  
+  df_subset <- OverallAverage %>%
+    subset(Cultivar==cv.unique[i])
+  
+  #add the function or calculation required 
+  
+    summary(lm(Germination ~ RateDecreasePerTTunit, df_subset))  
+    
+  #print
+    
+print(summary(lm(Germination ~ RateDecreasePerTTunit, df_subset)))
+
+
+  } 
+
+
+
+```
+
+
+##Do the same with Max Hardseeds 
+
+
+then plot one against the other (x= RateDecreasePerTTunit, y = germination)
+
+```{r}
+
+str(dfMerge)
+
+HardAverage <-dfMerge %>%
+  dplyr::select(Cultivar :Depth ,HardPerc_Initial14,  Germination,RateDecreasePerTTunit,HardPerc_End98)
+
+##Calculate the overall mean (group by Cultivar)
+
+OverallHardAverage<-HardAverage %>%
+  group_by(Cultivar, SowTreat)%>%
+  dplyr::select(HardPerc_Initial14, Germination,RateDecreasePerTTunit,HardPerc_End98)%>%
+  summarise_all(funs(mean))
+  
+  
+  
+```
+
+inspect S2
+
+```{r}
+
+S2<-OverallHardAverage%>%
+  filter(SowTreat=="S2")
+
+```
+
+
+```{r, fig.height=7, fig.width=15}
+
+
+
+##Calculate the overall mean (group by Cultivar)
+
+OverallHardAverage %>%
+  ggplot(aes(x=HardPerc_Initial14, y= Germination))  +
+  geom_point(colour= "black", alpha=0.2) +
+  geom_point(aes(shape=SowTreat),size=4)+
+  geom_smooth(method='lm',formula=y~x, colour="grey",alpha=0.2)+
+  theme_bw() +
+  xlab(expression(Max~hardseeds~"(%"^"*"*")"))+ 
+  ylab(expression(Germination~"(%)"))+
+  ylim(0,130)+
+  theme(text = element_text(size=20))+
+  facet_wrap(~Cultivar)+
+
+#remove grid lines 
+   theme(
+     panel.border = element_rect(colour = "black", size = 2), 
+     panel.grid.major = element_blank(),
+     panel.grid.minor = element_blank(),
+     axis.line = element_line(colour = "black"))+
+  theme(text = element_text(size=26))+
+   
+   
+   #make TT target labels  white  
+   theme(strip.background = element_rect(colour = "black", fill = "white",size=2))
+
+  
+  
+  #theme(title =  element_text(size=14))
+  
+  #ggsave("plot_CumulativeGerm.png", width=12, height=6, dpi=400)
+```
+
+
+
+
+get a summary of the lm of the geom method (general)
+
+equation is y = a(intercept) +b (rate) x
+```{r}
+summary(lm(Germination ~ HardPerc_Initial14,OverallHardAverage ))
+```
+
+
+
+## Is there any correlation with max seed hards and breakdown?
+
+
+```{r, fig.height=7, fig.width=15}
+
+
+
+##Calculate the overall mean (group by Cultivar)
+
+OverallHardAverage %>%
+  ggplot(aes(x=RateDecreasePerTTunit, y= HardPerc_Initial14))  +
+  geom_point(colour= "black", alpha=0.2) +
+  geom_point(aes(shape=SowTreat),size=4)+
+  geom_smooth(method='lm',formula=y~x, colour="grey",alpha=0.2)+
+  theme_bw() +
+  xlab(expression(Breakdown~"(%"^"*"*")"))+ 
+  ylab(expression(Maximum~Hardseededness~"(%)"))+
+  scale_x_continuous(breaks = seq(0, 0.05, by = 0.01))+
+  
+  scale_y_continuous(breaks=c(0,25,50, 75, 100))+
+  
+ # ylim(0,130)+
+  theme(text = element_text(size=20))+
+  facet_wrap(~Cultivar)+
+
+#remove grid lines 
+   theme(
+     panel.border = element_rect(colour = "black", size = 2), 
+     panel.grid.major = element_blank(),
+     panel.grid.minor = element_blank(),
+     axis.line = element_line(colour = "black"))+
+  theme(text = element_text(size=26))+
+   
+   
+   #make TT target labels  white  
+   theme(strip.background = element_rect(colour = "black", fill = "white",size=2))
+
+  
+  
+  #theme(title =  element_text(size=14))
+  
+  #ggsave("plot_CumulativeGerm.png", width=12, height=6, dpi=400)
+```
+
+
+
+
+##compare the hardseed breakdown with the hardseed ranking from Australia (similar to Paper NZGA)
+
+
+
+```{r}
+
+df_Rank <- read.table("HardseedRanking.txt",header=TRUE) 
+
+
+##merge with dataframe with hardseedbreakdown 
+CorrelateRank <-merge(OverallAverage, df_Rank, by =c("Cultivar"))
+
+#merge(df_seed, df_norm, by=c("Cultivar","SowTreat"))
+
+
+```
+
+
+
+
+Tip to use letters in grahs : 
+mutate(Cultivar= factor(Cultivar, 
+                           levels=c("Antas", "Denmark", "Leura", "Monti", "Narrikup", "Woogenellup"),
+                           labels=c("A", "D", "L", "M", "N.", "W"))) %>%
+                           geom_text(aes(label=Cultivar),hjust=0, vjust=0,size=7) +
+
+
+```{r, fig.height=7, fig.width=15}
+
+str(CorrelateRank)
+
+##Calculate the overall mean (group by Cultivar)
+
+CorrelateRank %>%
+   mutate (SowTreat= factor(SowTreat, levels=c("S1", "S2", "S3", "S4", "S6","S7"),labels=c("June", "July", "September", "November", "February","March")))%>%
+  mutate(Cultivar= factor(Cultivar, 
+                           levels=c("Antas", "Denmark", "Leura", "Monti", "Narrikup", "Woogenellup"),
+                           labels=c("A", "D", "L", "M", "N.", "W"))) %>%
+  ggplot(aes(x=RateDecreasePerTTunit, y= HardSeedRanking))  +
+  geom_point(colour= "black", alpha=0.2) +
+  geom_point(aes(shape=Cultivar),size=4)+
+  geom_text(aes(label=Cultivar),hjust=0, vjust=0,size=7) +
+  geom_smooth(method='lm',formula=y~x, colour="grey",alpha=0.2, linetype=2)+
+  theme_bw() +
+ xlab(expression(Mean~SDbreak~"(%/"^"o"*"Cd)"))+ 
+  ylab(expression(HardSeed~Rank~"(%)"))+
+  ylim(0,4)+
+  theme(text = element_text(size=20))+
+  facet_wrap(~SowTreat)+
+
+
+#remove grid lines 
+   theme(
+     panel.border = element_rect(colour = "black", size = 2), 
+     panel.grid.major = element_blank(),
+     panel.grid.minor = element_blank(),
+     axis.line = element_line(colour = "black"))+
+  theme(text = element_text(size=26))+
+   
+   
+   #make TT target labels  white  
+   theme(strip.background = element_rect(colour = "black", fill = "white",size=2))
+
+  
+  
+  #theme(title =  element_text(size=14))
+  
+  ggsave("plot_CorrelationRankAndBreakdown.tiff", width=15, height=6, dpi=500)
+```
+
+
+
+## Inspect the correlation coefficient overall 
+
+```{r}
+
+summary(lm(HardSeedRanking  ~ RateDecreasePerTTunit, CorrelateRank)) 
+
+```
+
+
+
+Plug a loop to generate summary by SowTreat
+
+```{r}
+
+#create a vector that holds names of all possible cultivars
+cv.unique <- unique(CorrelateRank$SowTreat)
+
+summary(cv.unique )
+
+
+for (i in 1:length(cv.unique)) {
+  
+ #print(i)
+ print(paste0(cv.unique[i],"--------------------------------"))
+  
+  #then make it subset 
+  
+  df_subset <- CorrelateRank %>%
+    subset(SowTreat==cv.unique[i])
+  
+  #add the function or calculation required 
+  
+    summary(lm(HardSeedRanking  ~ RateDecreasePerTTunit, df_subset))  
+    
+  #print
+    
+print(summary(lm(HardSeedRanking ~ RateDecreasePerTTunit, df_subset)))
+
+
+  } 
+
+
+
+```
+
+

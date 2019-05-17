@@ -191,11 +191,34 @@ split into early , medium late cvs and make from bud to fertilization (petal)
 df_1<-df_flower %>%
   group_by(DAS,Date,Cultivar,SowTreat, Variable)%>%
   dplyr::select(Cultivar:Variable, Percent)%>%
-  filter(Variable == "Bud"| Variable =="Petal"   )%>%
+  filter(Variable == "Petal"| Variable =="Bur4"   )%>%
 summarise_all(funs(mean)) 
 summary (df_1)
 
 ```
+
+
+then select only when percent is >40% get dates of seed filling period  (write chapter 5) 
+```{r}
+
+SeedFillPeriod<-df_1%>%
+ subset(Percent >40)%>%
+  filter(SowTreat=="S6")
+
+  
+  
+  
+  
+  
+  
+
+
+
+```
+
+
+
+
 
 This data frame was created to visualise means and write in chapter 4 
 

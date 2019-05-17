@@ -68,7 +68,8 @@ file <- df_emerg1
 file$transf_sqr <- sqrt(df_emerg1$DAS50E)
 file$transf_log <- log(df_emerg1$DAS50E)
 file$transf_log1 <- log(df_emerg1$DAS50E+1)
-file$transf_no <- 1*(df_emerg1$DAS50E)
+#file$transf_no <- 1*(df_emerg1$DAS50E)
+file$transf_no <- 1*(df_emerg1$TT50E)
 head(file)
 
 
@@ -113,7 +114,8 @@ qqline(var, col = 2)
 ```{r}
 
 # ANOVA (selecing by hand FIXME: do loop)
-file.subset <- file %>% subset(SowTreat == "S7" )
+file.subset <- file 
+#file.subset <- file %>% subset(SowTreat == "S5" )
 #file.subset <- file 
 
 head(file.subset, 50)
@@ -121,15 +123,19 @@ summary(file.subset)
 #my.anova <- aov(transf_no ~ Cultivar*SowTreat + Block, 
                 #data = file.subset)
 
-my.anova <- aov(transf_no ~ Cultivar+ Block, 
+#my.anova <- aov(transf_no ~ Cultivar+ Block, 
+                #data = file.subset)
+
+my.anova <- aov(transf_no ~ SowTreat*Cultivar+ Block, 
                 data = file.subset)
+
 summary(my.anova)
 
 #TukeyHSD(my.anova)
 
 #Means separation 
-#(LSD.test(my.anova, c("SowTreat"), alpha= 0.05, p.adj="none")) 
-(LSD.test(my.anova, c("Cultivar"), alpha= 0.05, p.adj="none") )
+(LSD.test(my.anova, c("SowTreat"), alpha= 0.05, p.adj="none")) 
+#(LSD.test(my.anova, c("Cultivar"), alpha= 0.05, p.adj="none") )
 #(LSD.test(my.anova, c("SowTreat","Cultivar"), alpha= 0.05, p.adj="none"))
 
 #loop trough each combination of factor levels
@@ -163,7 +169,11 @@ for (i in 1:length(sdIndex)) {
 
   head(file.subset, 50)
    summary(file.subset)
-my.anova <- aov(DAS50E~ Cultivar + Block, data = file.subset)
+   ##Eun with Days
+   #my.anova <- aov(DAS50E~ Cultivar + Block, data = file.subset)
+   ##run with TT50E
+   my.anova <- aov(TT50E~ Cultivar + Block, data = file.subset)
+   
 print(summary(my.anova))
 
 if ((summary(my.anova)[[1]][["Pr(>F)"]][1])<0.05) {

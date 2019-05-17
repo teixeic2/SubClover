@@ -147,6 +147,97 @@ write.table(dfMean_Germination, "MeanGermination.txt")
 
 
 
+Data Transformation :SoftGerm_perc
+
+
+```{r}
+
+str(df_SoftGerm)
+##rename dataframe 
+
+file <-df_SoftGerm
+  #filter(SowTreat=="S1")
+ #filter(SowTreat=="S2")
+ #filter(SowTreat=="S3") 
+ #filter(SowTreat=="S4")
+ #filter(SowTreat=="S6")
+ #filter(SowTreat=="S7")
+
+
+
+
+##data transformation
+file$transf_sqr <- sqrt(file$SoftGerm_perc)
+file$transf_log <- log(file$SoftGerm_perc)
+file$transf_not <- 1*(file$SoftGerm_perc/1)
+file$transf_acos <- acos(file$SoftGerm_perc/100)
+file$transf_sqrx <- (file$SoftGerm_perc^2)
+#mutate(mydata, sqr.x = x^2)
+
+
+head(file)
+
+x <- c("transf_sqr", "transf_log","transf_acos","transf_not", "transf_sqrx" )
+colsSelec <- match(x,colnames(file))
+
+
+
+
+``` 
+
+
+
+
+```{r, fig.height=7, fig.widht=8}
+
+
+file %>%
+  tidyr::gather("transformation","value",colsSelec) %>%
+  ggplot(aes(value)) + 
+  geom_histogram() +
+  facet_grid(.~transformation, scales="free")+
+  theme_bw()
+
+
+
+```
+
+
+
+
+
+check normality shapiro test +QQplots
+
+```{r}
+
+#normality test
+shapiro.test(file$transf_acos)
+shapiro.test(file$transf_not)
+shapiro.test(file$transf_sqr)
+shapiro.test(file$transf_log)
+shapiro.test(file$transf_sqrx)
+
+
+
+
+##QQplot
+#var<-file$transf_acos
+
+var<-file$transf_not
+#var<-file$transf_sqr
+#var<-file$transf_log
+#var<-file$transf_sqrx
+
+qqnorm(var)
+qqline(var, col = 2)
+qqplot(var, rt(300, df = 5))
+
+
+
+```
+
+
+
 
 
 then select columns of interest : here stats for overall means (SowTreat and Cultivar)
@@ -165,7 +256,7 @@ file.subset <- file
 
 head(file.subset, 50)
 summary(file.subset)
-my.anova <- aov(SoftGerm_perc~ Cultivar*SowTreat*Depth + Block, data = file.subset)
+#my.anova <- aov(SoftGerm_perc~ Cultivar*SowTreat*Depth + Block, data = file.subset)
 #my.anova <- aov(SoftGerm_perc~ Cultivar + Block, data = file.subset)
 #my.anova <- aov(SoftGerm_perc~ Depth + Block, data = file.subset)
 #my.anova <- aov(SoftGerm_perc~ SowTreat + Block, data = file.subset)
@@ -186,6 +277,40 @@ Check means among sowing dates
 #(LSD.test(my.anova, c("Depth"), alpha= 0.05, p.adj="none"))
 #(LSD.test(my.anova, c("Cultivar"), alpha= 0.05, p.adj="none"))
 ```
+
+Kruskal TEst 
+
+```{r}
+
+
+#wilcox.test(SoftGerm_perc ~ Cultivar, data = file)
+
+
+kruskal.test (SoftGerm_perc ~ Cultivar, data = file.subset)
+
+kruskal.test (SoftGerm_perc ~ SowTreat, data = file.subset)
+
+#find medians 
+
+
+
+## Interaction
+
+interCvSow<-interaction(file.subset$Cultivar, file.subset$SowTreat)
+kruskal.test(SoftGerm_perc ~ interCvSow, data = file.subset)
+
+
+
+## Interaction
+
+interCvSowDepth<-interaction(file.subset$Cultivar, file.subset$SowTreat, file.subset$Depth )
+kruskal.test(SoftGerm_perc ~ interCvSowDepth, data = file.subset)
+
+```
+
+
+
+
 
 The lowest percentage os normal seeds was observed in S1,S2,S3 . In S4, S6 and S7 the percentage of abnormal seeds was double. 
 

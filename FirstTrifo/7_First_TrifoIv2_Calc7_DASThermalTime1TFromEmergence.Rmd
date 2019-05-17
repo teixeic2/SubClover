@@ -176,4 +176,26 @@ if ((summary(my.anova)[[1]][["Pr(>F)"]][1])>0.05) {
 ```
 
 
+## Here run ANOVA overview 
+
+
+```{r}
+
+file.subset <- df 
+  #filter(SowTreat==sdIndex[i])
+  
+ 
+head(file.subset, 50)
+   summary(file.subset)
+my.anova <- aov( TT1TFromEmerg ~ Cultivar*SowTreat + Block, data = file.subset)
+
+summary(my.anova)
+  
+  
+  
+#(LSD.test(my.anova, c("Cultivar"), alpha= 0.05, p.adj="none")) 
+(LSD.test(my.anova, c("SowTreat"), alpha= 0.05, p.adj="none"))
+#(LSD.test(my.anova, c("Cultivar","SowTreat"), alpha= 0.05, p.adj="none")) 
+```
+
 End of this script . 

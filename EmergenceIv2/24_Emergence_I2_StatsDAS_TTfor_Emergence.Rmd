@@ -12,7 +12,7 @@ Purpose:
 
 -Analysis TT for emergence event  
 
-- Run ANOVA for variable thermal time to emergence   
+- Run ANOVA for variable thermal time to five trifos   
  
 ```{r loadLibraries}
 library(tidyr)
@@ -34,6 +34,7 @@ getwd()
 
 ##Path "C:/GitHubRepos/SubCloverPhD/SubClover/TrifoCountsI2/DaysTT5TFromEmergence.txt"
 
+##THIS IS 5 trifos dataframe!
 df_trifo <- read.table("DaysTT5TFromEmergence.txt",header=TRUE)
 head(df_trifo)
 
@@ -78,6 +79,29 @@ df_TTEmer <-df_trifo %>%
 
 ```
 
+Explore means for autumn sow (S6,7,8) and spring (S3,S4)
+
+```{r}
+Autumn<-df_TTEmer %>%
+  filter(SowTreat=="S6",
+         SowTreat=="S7",
+         SowTreat=="S8")%>%
+  group_by(SowTreat)%>%
+  select(TT50E)%>%
+  summarise_all(funs(mean))
+ 
+
+Spring<-df_TTEmer %>%
+  filter(SowTreat=="S3",
+         SowTreat=="S4")%>%
+  group_by(SowTreat)%>%
+  #select(TT50E)%>%
+  summarise_all(funs(mean))
+
+
+```
+
+
 
 
 ##Run stats for the number of days to reach 5 trifoliates (DAS5T) - use DAS5TFromEmerg;
@@ -96,8 +120,8 @@ summary(file.subs)
 #ANOVA
 
 #my.anova <- aov(DAS5TFromEmerg ~ SowTreat + Block, data = file.subs)
-my.anova <- aov(TT50E ~ Cultivar + Block, data = file.subs)
-#my.anova <- aov(DAS5TFromEmerg ~ Cultivar*SowTreat+ Block, data = file.subs)
+#my.anova <- aov(TT50E ~ Cultivar + Block, data = file.subs)
+my.anova <- aov(TT50E ~ SowTreat , data = file.subs)
 
 summary(my.anova)
 
@@ -105,7 +129,7 @@ summary(my.anova)
 
 
 ```{r}
-#(LSD.test(my.anova, c("SowTreat"), alpha= 0.05, p.adj="none"))
+(LSD.test(my.anova, c("SowTreat"), alpha= 0.05, p.adj="none"))
 #(LSD.test(my.anova, c("Cultivar"), alpha= 0.05, p.adj="none"))
 
 ```

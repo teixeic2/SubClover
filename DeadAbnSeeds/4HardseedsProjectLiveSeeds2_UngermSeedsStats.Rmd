@@ -146,7 +146,7 @@ file.subset <- file
 
 head(file.subset, 50)
 summary(file.subset)
-my.anova <- aov(SoftUngerm_perc~ Cultivar*SowTreat + Block, data = file.subset)
+my.anova <- aov(SoftUngerm_perc~ Cultivar*SowTreat*Depth + Block, data = file.subset)
 #my.anova <- aov(Abn_perc~ Cultivar + Block, data = file.subset)
 #my.anova <- aov(Abn_perc~ Depth + Block, data = file.subset)
 ```
@@ -161,8 +161,8 @@ summary(my.anova)
 Check means among sowing dates 
 ```{r}
 #Means separation 
-#(LSD.test(my.anova, c("Cultivar","SowTreat"), alpha= 0.05, p.adj="none"))
-(LSD.test(my.anova, c("SowTreat"), alpha= 0.05, p.adj="none"))
+(LSD.test(my.anova, c("Cultivar","SowTreat", "Depth"), alpha= 0.05, p.adj="none"))
+#(LSD.test(my.anova, c("SowTreat"), alpha= 0.05, p.adj="none"))
 #(LSD.test(my.anova, c("Depth"), alpha= 0.05, p.adj="none"))
 #(LSD.test(my.anova, c("Cultivar"), alpha= 0.05, p.adj="none"))
 ```
@@ -172,6 +172,59 @@ The lowest percentage of soft ungerminated  seeds was observed in  S4. The perce
 Then test each sowing date individually 
 S1
 
+loop ANOVA for each sowing date 
+
+Then test each sowing date individually 
+
+Loop Anova 
+
+## Create index to filter for loop ANOVA
+
+```{r}
+y <- c("S1","S2","S3","S4","S5","S6","S7","S8")
+
+sdIndex <- unique(file$SowTreat)
+
+sdIndex[order(match(sdIndex,y))]
+
+length(sdIndex)
+sdIndex
+```
+
+
+
+## Then loop anova for each individual sowing date 
+```{r}
+for (i in 1:length(sdIndex)) {
+  
+ #print(i)
+ print(paste0(sdIndex[i],"--------------------------------"))
+  
+  file.subset <- file %>%
+  filter(SowTreat==sdIndex[i])
+  
+ 
+head(file.subset, 50)
+   summary(file.subset)
+my.anova <- aov(SoftUngerm_perc ~ Cultivar*Depth + Block, data = file.subset)
+print(summary(my.anova))
+
+if ((summary(my.anova)[[1]][["Pr(>F)"]][1])<0.05) {
+  print("***Sig Cultivar***") 
+  print((LSD.test(my.anova, c("Cultivar","Depth"), alpha= 0.05, p.adj="none"))) } 
+
+
+if ((summary(my.anova)[[1]][["Pr(>F)"]][1])>0.05) {
+  print("***Sig Cultivar***") 
+  print((LSD.test(my.anova, c("Cultivar","Depth"), alpha= 0.05, p.adj="none"))) } 
+
+# make mean separation if significant
+
+(LSD.test(my.anova, c("Cultivar"), alpha= 0.05, p.adj="none"))
+  
+}
+
+```
 
 ```{r}
 #-------------------------------------------------

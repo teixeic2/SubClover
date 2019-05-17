@@ -1,0 +1,240 @@
+---
+title: "Spectra of S2All FTIR test"
+author: "CT"
+date: "17.09.2017"
+output: 
+  word_document: default
+  pdf_document: default
+  html_document: default
+
+This script runs anovas in specific bands (subset )
+#here files have already been baselined corrected in OPUS. Raw data is on folder Bionami Matrix 25.04; worksheet Columns to R. In this script the analysis of wavenumber ranges and ANOVAS.
+
+---
+
+
+```{r setup, include=FALSE, loadlibraires}
+#knitr::opts_chunk$set(echo = TRUE)
+library(tidyr)
+library (dplyr)
+library (ggplot2)
+library(agricolae)
+library(knitr)
+library (lubridate)
+library(scales)
+#library(hyperSpec)
+
+```
+
+
+```{r readData}
+setwd("C:\\GitHubRepos\\SubCloverPhD\\SubClover\\Spectra_S2_Anovas")
+getwd()
+
+info <- read.table ("S2All.txt",  header = TRUE)
+##or launch the baselinedNormalised 
+
+
+summary (info)
+
+```
+```{r}
+str(info)
+```
+
+
+Adjust formats 
+
+```{r}
+
+info_av <- info %>%
+  mutate(Plot=factor(Plot), Block=factor(Block), wavelength=factor(wavelength)) %>%
+    dplyr::select(-Seed) %>%
+  group_by(Plot, Cultivar,Block,wavelength) %>%
+  summarise_all(funs(mean)) %>%
+  mutate(wavelength=as.numeric(as.character(wavelength))) 
+
+summary(info_av)
+
+write.table(info_av, "Absorb_Per_WL.txt")
+
+```
+
+##Then transform spectra in Normalised spectra (used Mas. normalisation treatment on spectra )
+
+##Keep columns names like that prior loop (easy) 
+
+
+```{r}
+info_av_norm <- info_av %>%
+  mutate(AbsorbanceNorm=Absorbance/max(Absorbance)) %>%
+  dplyr::select(-Hardness) %>%
+  ungroup()
+ 
+str(info_av_norm)
+
+```
+```{r}
+summary(info_av_norm)
+```
+
+
+##Subset spectra for selected wavenumber 
+
+```{r}
+
+
+
+
+```
+
+
+
+
+-------------------------ANOVAS -----------------------
+
+# Region 3000 - 2800
+##select band  of interest : in this case choose at 2930 cm-1 , which represents CH2 asymmetrical (lipids region) 
+
+
+
+```{r}
+
+
+##2930 cm-1
+ # df_sp2930 <-info_av_norm %>%
+ #   subset(wavelength  <2932 & wavelength  >2929)
+
+##2855 cm-1
+ # df_sp2855 <-info_av_norm %>%
+ #   subset(wavelength  <2856 & wavelength  >2853)
+
+##1745 cm-1
+  # df_sp1745 <-info_av_norm %>%
+  #   subset(wavelength  <1746 & wavelength  >1743)
+
+##1732 cm-1
+  #df_sp1732 <-info_av_norm %>%
+    #subset(wavelength  <1733 & wavelength  >1731)
+
+  
+   # df_sp1610 <-info_av_norm %>%
+   #   subset(wavelength  <1611 & wavelength  >1609)
+
+#df_sp1441 <-info_av_norm %>%
+     #subset(wavelength  <1442 & wavelength  >1440)
+
+ #df_sp1425 <-info_av_norm %>%
+     #subset(wavelength  <1426 & wavelength  >1424)
+
+ #df_sp1377 <-info_av_norm %>%
+     #subset(wavelength  <1378 & wavelength  >1376)
+
+ #df_sp1337 <-info_av_norm %>%
+    # subset(wavelength  <1339 & wavelength  >1336)
+
+ #df_sp1250 <-info_av_norm %>%
+     #subset(wavelength  <1251 & wavelength  >1249)
+
+ #df_sp1150 <-info_av_norm %>%
+     #subset(wavelength  <1153 & wavelength  >1149)
+
+ #df_sp1100 <-info_av_norm %>%
+     #subset(wavelength  <1102 & wavelength  >1099)
+
+   #df_sp1025 <-info_av_norm %>%
+       #subset(wavelength  <1027 & wavelength  >1024)
+
+ df_sp897 <-info_av_norm %>%
+      subset(wavelength  <898 & wavelength  >896)
+
+
+
+```
+
+
+check 
+
+```{r}
+
+#str(df_sp2930)
+#str(df_sp2855)
+#str(df_sp1745)
+#str(df_sp1732)
+#str(df_sp1610)
+#str(df_sp1441)
+#str(df_sp1425)
+#str(df_sp1377)
+#str(df_sp1337)
+#str(df_sp1250)
+#str(df_sp1150)
+#str(df_sp1100)
+#str(df_sp1025)
+#str(df_sp897)
+
+```
+
+
+
+##- Now run anova in this band 
+ 
+```{r, warning=FALSE }
+
+
+##use dataframe = df_sp1745
+
+#-------------------------------------------------
+
+# Chosen transform log to do anova 
+
+#file.subset <- df_sp2930 
+#file.subset <- df_sp2855
+#file.subset <- df_sp1745
+#file.subset <- df_sp1732
+#file.subset <- df_sp1610
+#file.subset <- df_sp1441
+#file.subset <- df_sp1425
+#file.subset <- df_sp1377
+#file.subset <- df_sp1337
+#file.subset <- df_sp1250
+#file.subset <- df_sp1150
+#file.subset <- df_sp1100
+#file.subset <- df_sp1025
+file.subset <- df_sp897
+
+head(file.subset, 50)
+summary(file.subset)
+#my.anova <- aov(AbsValue ~ Cultivar*IncubationDays, data = file.subset)
+  my.anova <- aov(AbsorbanceNorm ~ Cultivar+Block, data = file.subset)               
+
+    #-----------------------
+summary(my.anova)
+
+```
+
+
+
+## Means separation with LSD (not using for while )
+
+```{r}
+#Means separation after ANOVA
+#(LSD.test(my.anova, c("Treat"), alpha= 0.05, p.adj="none")) 
+(LSD.test(my.anova, c("Cultivar"), alpha= 0.05, p.adj="none")) 
+```
+
+
+##Using this : Tukey 
+
+```{r}
+#posthoc <- TukeyHSD(x=my.anova, 'Cultivar', conf.level=0.95)
+posthoc <- TukeyHSD(x=my.anova, "Cultivar", conf.level=0.95)
+#posthoc <- TukeyHSD(x=my.anova, c("Cultivar","IncubationDays"), conf.level=0.95, TRUE)
+posthoc
+
+
+
+```
+
+
+
+

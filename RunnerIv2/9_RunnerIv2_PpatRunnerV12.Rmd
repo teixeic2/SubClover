@@ -1,0 +1,115 @@
+---
+title: "Runners  Iversen   "
+author: "CT"
+date: "05.07.2018" 
+output:
+  word_document: default
+  pdf_document: default
+  html_document: default
+---
+
+Purpose:
+-bring data from DAS and TT from first trifo (from another folder )
+-merge with dataframe ThermalT_Runner 
+-calculate DAS and TT from emergence to runner phenophases 
+-calculate Pp at runner  
+
+ 
+```{r loadLibraries}
+library(tidyr)
+library (dplyr)
+library (ggplot2)
+library(agricolae)
+library (lubridate)
+library(mosaic)
+library(lattice)
+library(knitr)
+```
+
+Read document generated in script "3" 5Trifo_rate
+
+```{r}
+setwd("C:\\GitHubRepos\\SubCloverPhD\\SubClover\\RunnerIv2")
+getwd()
+
+##Path "C:/GitHubRepos/SubCloverPhD/SubClover/RunnerIv2/ThermalT_Runner.txt"
+
+##file ThermalT_Runner.txt
+#df_R<- read.table("TTFromFirstTrifoToRunner.txt",header=TRUE)
+df_R<- read.table("DateTo50Runner.txt",header=TRUE)
+head(df_R)
+
+
+```
+
+
+
+Define formats and calculate the number of trifoliates considering the sub samples (S1-S10)
+
+```{r loadFile}
+
+
+## define factors for the ones that "look like" values
+df_R$Plot <- as.factor(df_R$Plot)
+df_R$DAS <- as.numeric(df_R$DAS)
+#df_R$Cultivar <- as.factor(df_R$Cultivar)
+#df_R$SowTreat <- as.factor(df_R$SowTreat)
+
+ df_R <- df_R %>%
+  mutate(Date = ymd(DateRunner))
+  
+
+str(df_R)
+
+
+
+```
+
+
+bring Pp data and merge 
+Bring the photoperiod data 
+
+```{r}
+
+df_Photo <- read.table("Photoperiod.txt",header=TRUE)
+
+# rename date column for merge
+df_Photo <- df_Photo %>%
+mutate(SowingDate = Date)
+head(df_Photo)
+
+# convert to date format
+df_Photo <- df_Photo %>%
+mutate(Date=dmy(Date))
+
+str(df_Photo)
+
+```
+
+```{r}
+
+str(df_Photo)
+
+merged<-merge(df_R, df_Photo, by="Date")%>%
+  mutate(PpRunner=1*Pp)%>%
+  select(-Pp)
+
+
+
+```
+
+
+
+
+Define formats and calculate the number of trifoliates considering the sub samples (S1-S10)
+
+```{r loadFile}
+
+
+write.table(merged, "PpatRunnerV12.txt")
+
+
+
+```
+
+End of this script 

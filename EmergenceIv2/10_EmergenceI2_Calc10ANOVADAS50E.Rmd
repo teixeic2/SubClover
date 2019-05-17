@@ -61,7 +61,7 @@ Here only change the df name and removed unwanted columns
 #compare max plant population among Sowing dates and cultivars
 
 df_emerg_perc3 <- df_emerg%>%
-  dplyr::select(SowTreat,Cultivar,Block,Plot,DAS50E)
+  dplyr::select(SowTreat,Cultivar,Block,Plot,DAS50E,TT50E)
 
 ```
 
@@ -70,9 +70,9 @@ Then select only woogenellup
 
 ```{r}
 
-dfW <- df_emerg_perc3 %>%
-filter(Cultivar=="Woogenellup")%>%
-filter (SowTreat== "S2"| SowTreat== "S3"|SowTreat== "S4"|SowTreat== "S6")
+dfW <- df_emerg_perc3 
+#filter(Cultivar=="Woogenellup")%>%
+#filter (SowTreat== "S2"| SowTreat== "S3"|SowTreat== "S4"|SowTreat== "S6")
   
 
 ```
@@ -81,6 +81,8 @@ filter (SowTreat== "S2"| SowTreat== "S3"|SowTreat== "S4"|SowTreat== "S6")
 Run ANOVA pure numbers for Woogenellup in 4 sowig dates 
 
 ```{r}
+
+str (dfW)
 #data transf
 file <- dfW
 #this is to analyse DAS50E  

@@ -44,6 +44,24 @@ mutate(DaysBudDuration=as.numeric(DaysBudDuration))
 
 ```
 
+
+## create an average table Days of bud duration to compare with the hardseededness data 
+
+
+
+```{r}
+
+AverageBudDuration<-df_bud_duration %>%
+  group_by(Cultivar, SowTreat)%>%
+  dplyr::select(DaysBudDuration)%>%
+  summarise_all(funs(mean))
+
+write.table(AverageBudDuration, "AverageBudDuration.txt") 
+##this will be used in scripts dealing with seedhardness....investigate trade offs phenology and hardseeds  
+
+```
+
+
 Run ANOVA for DAysBud Duration 
 
 
@@ -73,8 +91,8 @@ There was an interaction between Cultivar and sowing date (P<0.001).
 
 
 ```{r}
-#(LSD.test(my.anova, c("SowTreat"), alpha= 0.05, p.adj="none"))
-(LSD.test(my.anova, c("SowTreat", "Cultivar"), alpha= 0.05, p.adj="none"))
+(LSD.test(my.anova, c("SowTreat"), alpha= 0.05, p.adj="none"))
+#(LSD.test(my.anova, c("SowTreat", "Cultivar"), alpha= 0.05, p.adj="none"))
 #(LSD.test(my.anova, c("Cultivar"), alpha= 0.05, p.adj="none"))
 
 ```

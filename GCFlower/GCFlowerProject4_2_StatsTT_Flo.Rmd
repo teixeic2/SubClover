@@ -115,7 +115,7 @@ df_TempA2 <- df_TempA1%>%
   mutate(TT50FEm= TT50F-SumTTEmerg)
 
 str (df_TempA2)
-
+head(df_TempA2)
 
 ```
 
@@ -126,7 +126,7 @@ str (df_TempA2)
 
 
 ```{r}
-y <- c("Bud","Bur","Flowering")
+y <- c("Bud","Bur","Flowering","R7Pol")
 
 sdIndex <- unique(df_TempA2$PhenoStage)
 

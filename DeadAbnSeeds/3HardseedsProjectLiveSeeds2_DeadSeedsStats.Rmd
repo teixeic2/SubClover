@@ -131,6 +131,44 @@ df_dead %>%
 
 
 
+Data Transformation :dead_perc
+
+
+```{r}
+
+str(df_SoftGerm)
+##rename dataframe 
+
+file <-df_SoftGerm
+  #filter(SowTreat=="S1")
+ #filter(SowTreat=="S2")
+ #filter(SowTreat=="S3") 
+ #filter(SowTreat=="S4")
+ #filter(SowTreat=="S6")
+ #filter(SowTreat=="S7")
+
+
+
+
+##data transformation
+file$transf_sqr <- sqrt(file$SoftGerm_perc)
+file$transf_log <- log(file$SoftGerm_perc)
+file$transf_not <- 1*(file$SoftGerm_perc/1)
+file$transf_acos <- acos(file$SoftGerm_perc/100)
+file$transf_sqrx <- (file$SoftGerm_perc^2)
+#mutate(mydata, sqr.x = x^2)
+
+
+head(file)
+
+x <- c("transf_sqr", "transf_log","transf_acos","transf_not", "transf_sqrx" )
+colsSelec <- match(x,colnames(file))
+
+
+
+
+``` 
+
 
 
 

@@ -56,6 +56,7 @@ df_gather%>%
   geom_point(aes(colour=Variable,shape=Variable), alpha=0.8, size=3)+
   #geom_point()+
   scale_color_manual(values = c("steelblue3","orange","red", "gray20" ))+
+  
   scale_shape_manual(values = c(15,16,17,18))+
   #geom_line(aes(colour=Variable))+
   #geom_smooth(aes(colour=Variable))+
@@ -74,7 +75,56 @@ df_gather%>%
  #ggsave("plot_TempPpIversen.png", width=12, height=6, dpi=400)
 
 ```
+graph air temperature (max, min mean and photoperiod)
 
+```{r,fig.height=5, fig.width=15}
+
+df_gather<-df_Air %>%
+  select(Date,Tx,Tm,MeanTt,Pp)%>%
+gather(key= "Variable" , value = "TempHour", Tx,Tm,MeanTt,Pp)%>%
+  mutate(Date=dmy(Date))
+  
+
+df_gather%>%
+  mutate(Variable=factor(Variable,levels=c("Tm","MeanTt","Tx","Pp"),labels = c("Tmin","Tmean","Tmax","Photoperiod")))%>%
+ ggplot(aes(x=Date, y= TempHour)) +
+  theme_bw()+
+  geom_point(aes(colour=Variable,shape=Variable), alpha=0.8, size=3)+
+  #geom_point()+
+  #scale_color_manual(values = c("steelblue3","orange","red", "gray20" ))+
+  scale_color_manual(values = c("black","grey","black", "gray20" ))+
+  scale_shape_manual(values = c(1,16,17,18))+
+  #geom_line(aes(colour=Variable))+
+  #geom_smooth(aes(colour=Variable))+
+  xlab(expression(Date~"(Month/Year)"))+
+  
+  ylab(expression(Air~Temperature~Photoperiod~"("^"o"*"C/hours)"))+
+  scale_x_date(date_breaks = "3 month", 
+                 date_labels = "%B%Y",
+                 limits = as.Date(c('2015-06-01','2017-07-07')))+
+  theme(axis.text.y = element_text(size=14))+
+  theme(axis.title.y = element_text(size=14))+
+  theme(legend.text = element_text(size=14))+
+  theme(axis.title.x = element_text(size=18))+
+  ylim(0,35)+
+  
+   #remove grid lines 
+   theme(
+     panel.border = element_rect(colour = "black", size = 3), 
+     panel.grid.major = element_blank(),
+     panel.grid.minor = element_blank(),
+     axis.line = element_line(colour = "black"))+
+   #scale_fill_manual("legend", values = c("Antas" = "#660066", "Denmark" = "lightgrey","Leura" = "darkgrey", "Monti" = "#FF9933","Narrikup" = "blue",  "Woogenellup" = "#033333"))+
+   
+   #make sowing dates white  
+   theme(strip.background = element_rect(colour = "black", fill = "white",size=1))+
+   
+  #label sizes 
+theme(text = element_text(size = 22))
+    
+ ggsave("plot_TempPpIversenBlackWhite.png", width=12, height=6, dpi=400)
+
+```
 
 do for soil temp 
 
@@ -96,7 +146,7 @@ df_file%>%
   xlab(expression(Date~"(Month/Year)"))+
   
   ylab(expression(Soil~Temperature~"("^"o"*"C)"))+
-  scale_x_date(date_breaks = "6 month", 
+  scale_x_date(date_breaks = "3 month", 
                  date_labels = "%B%Y",
                  limits = as.Date(c('2015-06-01','2017-07-07')))+
   theme(axis.text.y = element_text(size=18))+
@@ -104,9 +154,22 @@ df_file%>%
   theme(legend.text = element_text(size=18))+
   theme(axis.title.x = element_text(size=))+
   theme(axis.text.x = element_text(size=18))+
-  ylim(0,25)
+  ylim(0,25)+
+   #remove grid lines 
+   theme(
+     panel.border = element_rect(colour = "black", size = 3), 
+     panel.grid.major = element_blank(),
+     panel.grid.minor = element_blank(),
+     axis.line = element_line(colour = "black"))+
+   #scale_fill_manual("legend", values = c("Antas" = "#660066", "Denmark" = "lightgrey","Leura" = "darkgrey", "Monti" = "#FF9933","Narrikup" = "blue",  "Woogenellup" = "#033333"))+
+   
+   #make sowing dates white  
+   theme(strip.background = element_rect(colour = "black", fill = "white",size=1))+
+   
+  #label sizes 
+theme(text = element_text(size = 22))
     
- ggsave("plot_SoilTempPpIversen.png", width=12, height=6, dpi=400)
+ggsave("plot_SoilTempPpIversen.png", width=12, height=6, dpi=400)
 
 ```
 

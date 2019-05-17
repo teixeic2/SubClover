@@ -579,6 +579,7 @@ df_Rate_MeanR %>%
                     ymax=mean+max_sd/2), width=4,size=1.5)+
   facet_wrap (~Cultivar,ncol=2)+
   ylim(0,1.4) +
+  xlim(0,45)+
   ylab(expression(Germination~Rate~"(1/Days)"))+
   xlab(expression(Temperature~"("^"o"*"C)"))+
   #labs(y="Germination rate (1/days)",x="Temperature")+

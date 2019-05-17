@@ -1,0 +1,347 @@
+---
+title: "Trifoliates GC "
+author: "CT"
+date: "31.08.2016"
+output: 
+  word_document: default
+  pdf_document: default
+  html_document: default
+---
+
+Purpose:
+
+-Analysis of trifoliates expansion for GC with focus on first Trifoliate 
+- Graph the main dataset 
+ 
+```{r loadLibraries}
+library(tidyr)
+library (dplyr)
+library (ggplot2)
+library(agricolae)
+library (lubridate)
+library(mosaic)
+library(lattice)
+library(knitr)
+```
+
+
+
+```{r}
+setwd("C:\\GitHubRepos\\SubCloverPhD\\SubClover\\GC_TrifoCounts")
+getwd()
+#create file
+df_trifo <- read.table("GCTrifoCountall.txt",header=TRUE)
+head(df_trifo)
+
+
+```
+Define formats and calculate the mean number of trifoliates considering the sub samples (S1-S10)
+
+```{r loadFile}
+
+
+# define factors for the ones that "look like" values
+df_trifo$Plot <- as.factor(df_trifo$Plot)
+df_trifo$Block <- as.factor(df_trifo$Block)
+df_trifo$Cultivar <- as.factor(df_trifo$Cultivar)
+#df_trifo$SowTreat <- as.factor(df_trifo$SowTreat)
+
+ df_trifo <- df_trifo %>%
+  mutate(SowingDate = dmy(SowingDate), 
+         ReadingDate = dmy(ReadingDate),
+         Trifo = (S1+S2)/2)
+
+str(df_trifo)
+head(df_trifo)
+tail(df_trifo)
+
+
+df_trifo %>% filter(Plot ==1) %>% summary()
+
+
+
+```
+
+Graph the results : DAS and number of trifoliates 
+
+```{r, fig.height=8, fig.width=15}
+#Graph 1        
+  df_trifo %>%
+  #mutate (SowTreat= factor(SowTreat, levels=c("S1", "S2", "S3", "S4", "S5", "S6","S7", "S8"),labels=c("June", "July", "September", "November", "December", "February","March", "May")))%>%
+  #filter(Cultivar=="Antas"|Cultivar=="Denmark"|Cultivar=="Leura")%>%
+  group_by(Cultivar,  DAS) %>%
+  summarise_each(funs(mean)) %>%
+  ggplot(aes(x=DAS, y=Trifo)) + 
+  #geom_point(aes(colour=Cultivar, shape=Cultivar), size=4) +
+  geom_point(aes(shape=Cultivar), size=5) +
+  #scale_shape_manual(values = c(0,1,2, 3,4,5,6,7,8,9,10,11))+
+  scale_shape_manual(values = c(1,2,0)) +
+  #geom_line(aes(colour=Cultivar)) +
+  #geom_line()+
+  #facet_wrap(~SowTreat,ncol=4, scales = "free") +
+  #facet_wrap (~SowTreat,ncol=4)+
+  ylim(0,16)+
+  labs(y="Number of trifoliate leaves (n)",x="Days after sowing")+
+  #theme_grey(base_size = 16) +
+  theme_bw(base_size = 24)+
+  
+   #remove grid lines 
+     theme(
+     panel.border = element_rect(colour = "black", size = 2), 
+     panel.grid.major = element_blank(),
+     panel.grid.minor = element_blank(),
+     axis.line = element_line(colour = "black"))+
+  
+    geom_abline(intercept = 1, slope = 0, linetype=2)+
+   geom_abline(intercept = 5,  slope = 0, linetype=2)+
+   geom_abline(intercept = 9,  slope = 0, linetype=2)+
+theme(axis.text.x=element_text(angle = 0, hjust = 0))+
+theme(text = element_text(size = 24))
+
+
+#save
+   
+   #ggsave("plot_NumberOfTrifoliateLeavesA.png", width=16, height=8, dpi=400)
+
+
+
+
+```
+
+
+
+
+"
+
+```{r ReadThermalSumData}
+# read raw data
+
+#Temperatures from GC climate folder  
+ 
+#df_TTSum <- read.table("df_CumTTiv2.txt",header=TRUE)
+df_TTSum <- read.table("SumTTHour_Pp_GC.txt",header=TRUE)
+str(df_TTSum)
+
+# remove extra columns
+df_TTSum <- df_TTSum %>%
+#dplyr::select(Date,SumTTday)%>%
+  mutate(Date = dmy(Date))
+ 
+#check
+head(df_TTSum)
+
+```
+
+Check data 
+```{r}
+summary(df_TTSum)
+```
+
+
+
+Merge dfs TTSum at Measurement and Sowing Date into Flowering df
+```{r}
+
+str(df_trifo)
+df_trifo<-df_trifo%>%
+  mutate(Date=ymd(ReadingDate))
+str(df_trifo)
+
+# Add Tt at measurement date
+df_trifo2 <- merge(df_trifo,df_TTSum, by="Date")
+
+summary(df_trifo2)
+
+```
+
+
+Change column names and select only columns of interest (tidy up)
+
+```{r}
+
+
+# change name SumTTday to TT at measurement used mutate 1 x cause rename did not work 
+df_trifo2 <- df_trifo2 %>%
+mutate(TT_meas = 1*(SumTTday))
+#check the data 
+str(df_trifo2)
+
+#select only columns of interest 
+df_trifo3<- df_trifo2 %>%
+dplyr::select (-S1, -S2) 
+
+#check data 
+str(df_trifo3)
+```
+
+Need to modify the column name to be able to merge 
+```{r}
+# Add Tt at sowing date
+df_TTSum_mod <- df_TTSum %>%
+  mutate (SowingDate = Date) %>%
+  dplyr::select (-Date)
+
+ str(df_TTSum_mod)
+ str(df_trifo3)
+
+```
+
+
+Merge data frames 
+```{r}
+
+
+
+df_trifo4 <- merge(df_trifo3,df_TTSum_mod, by = "SowingDate")
+
+str(df_trifo4)
+
+# change name TT to TT at measurement
+df_trifo4 <- df_trifo4 %>%
+mutate(TT_sow = 1*(SumTTday.y))
+#check
+str(df_trifo4)
+
+```
+
+
+Graphic
+
+```{r MergeTTSumDate}
+
+#aqi
+# TT from Bud to Bur 3 
+
+df_trifo3 %>%
+  #filter(SowTreat != "S6" & SowTreat != "S7")%>%
+  group_by(DAS,Cultivar,TT_meas) %>%
+  summarise_each(funs(mean)) %>%
+  #select(Variable,Percent, Cultivar,SowTreat) %>%
+  #filter(Cultivar == "Narrikup" | Cultivar =="Denmark") %>%
+  ggplot(aes(x=TT_meas, y=Trifo)) + 
+  #geom_bar(shape=1, stat="identity")
+  geom_line(aes(colour=Cultivar)) +
+  #facet_grid(SowTreat~., scales = "free") +
+  geom_abline(intercept = 50, slope = 0)+
+  
+theme(axis.text.x = element_text(angle = 90, hjust = 1))
+
+
+```
+
+calculate TT after emergence 
+
+```{r Calc_TT_afterSow}
+
+##bring data emergence 
+
+df_emerg <- read.table("GC_DASToEmergence.txt",header=TRUE)
+head(df_emerg)
+
+df_emerg<-df_emerg%>%
+  dplyr::select(Plot,Date50Emerg )%>%
+  mutate(Date=ymd(Date50Emerg))%>%
+  dplyr::select(-Date50Emerg)
+
+str(df_emerg) 
+
+## then get the TT
+df_Emergence <- merge(df_emerg,df_TTSum, by="Date")%>%
+  mutate(SumTTdayToEmerg=SumTTday)%>%
+  dplyr::select(Plot,SumTTdayToEmerg)
+
+
+
+```
+
+merge data frames by plot to get the TT after emergence for trifo leaves 
+
+```{r ,merge}
+
+str(df_trifo3)
+
+mergedAgain<-merge(df_trifo3,df_Emergence, by="Plot")%>%
+ # mutate(TTTrifoFromEmerg=TT_meas-SumTTdayToEmerg)
+   mutate(TTTrifoFromEmerg=TT_meas-50)
+
+str(mergedAgain)
+  
+
+              
+
+# save final DF"
+write.table(mergedAgain, "df_ThermalTrifoLeaves.txt")
+
+```
+
+
+get the standard  error values for the final trifoliate numbers 
+
+
+```{r}
+str(mergedAgain)
+
+dfMaxTrifo <- mergedAgain %>% 
+
+  group_by(Cultivar) %>%
+  filter(DAS=="27")%>%
+  dplyr::select(  Trifo )%>%
+  summarise_all(funs(max,sd))%>%
+  mutate(SE=sd/2)
+ 
+
+  ##Max SE 1.6
+
+
+
+```
+
+Graphics 
+
+
+Graph the results : DAS and number of trifoliates 
+
+```{r, fig.height=8, fig.width=15}
+#Graph 1        
+A<- mergedAgain %>%
+  #mutate (SowTreat= factor(SowTreat, levels=c("S1", "S2", "S3", "S4", "S5", "S6","S7", "S8"),labels=c("June", "July", "September", "November", "December", "February","March", "May")))%>%
+  #filter(Cultivar=="Monti"|Cultivar=="Narrikup"|Cultivar=="Woogenellup")%>%
+  group_by(Cultivar,DAS,TTTrifoFromEmerg) %>%
+  summarise_all(funs(mean,sd)) 
+
+
+A %>%
+  ggplot(aes(x=TTTrifoFromEmerg, y=Trifo_mean)) + 
+  #geom_point(aes(colour=Cultivar, shape=Cultivar), size=4) +
+  geom_point(aes(shape=Cultivar), size=8) +
+  #scale_shape_manual(values = c(0,1,2, 3,4,5,6,7,8,9,10,11))+
+  scale_shape_manual(values = c(1,2,7)) +
+  #geom_line(aes(colour=Cultivar)) +
+  #geom_line()+
+  #facet_wrap(~SowTreat,ncol=4, scales = "free") +
+  #facet_wrap (~SowTreat,ncol=4)+
+  ylim(0,16)+
+  labs(y="Number of trifoliate leaves (n)")+
+  xlab(expression(Thermal~time~Sowing~"("^"o"*"Cd)"))+
+  theme_bw(base_size = 24)+
+  
+   #remove grid lines 
+     theme(
+     panel.border = element_rect(colour = "black", size = 2), 
+     panel.grid.major = element_blank(),
+     panel.grid.minor = element_blank(),
+     axis.line = element_line(colour = "black"))+
+  
+    geom_abline(intercept = 1, slope = 0, linetype=2)+
+   geom_abline(intercept = 5,  slope = 0, linetype=2)+
+   geom_abline(intercept = 9,  slope = 0, linetype=2)+
+theme(axis.text.x=element_text(angle = 0, hjust = 0))+
+theme(text = element_text(size = 24))
+
+#save
+   
+   ggsave("plot_NumberOfTrifosvsTT.png", width=12, height=6, dpi=400)
+ 
+##Max SE = 1.6 
+```
+

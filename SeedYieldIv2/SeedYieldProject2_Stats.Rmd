@@ -59,7 +59,8 @@ df_seedYS6 <- df_seedY
 
 #-------------------------------------------------
 # anova 
-file <- df_seedYS6
+file <- df_seedYS6%>%
+  filter(SowTreat!="S1")
 
 
 file.subset <- file 
@@ -72,8 +73,8 @@ summary(file.subset)
 
 ```{r}
 #ANOVA
-#my.anova <- aov(Seedskg_ha ~ Cultivar*Depth + Block, data = file.subset)
-my.anova <- aov(Seedskg_ha ~ SowTreat + Block, data = file.subset)
+my.anova <- aov(Seedskg_ha ~ Cultivar*SowTreat + Block, data = file.subset)
+#my.anova <- aov(Seedskg_ha ~ SowTreat + Block, data = file.subset)
 #my.anova <- aov(Seedskg_ha ~ Cultivar+ Block, data = file.subset)
 #my.anova <- aov(Seedskg_ha ~ Depth + Block, data = file.subset)
 summary(my.anova)
@@ -85,7 +86,7 @@ summary(my.anova)
 This is Tukeys test for mean comparison 
 
 ```{r}
-posthoc <- TukeyHSD(x=my.anova, 'SowTreat', conf.level=0.95)
+posthoc <- TukeyHSD(x=my.anova, 'Cultivar', conf.level=0.95)
 
 posthoc
 
@@ -96,7 +97,7 @@ This is the mean separation using Tukey
 
 ```{r}
 
-fogo <-HSD.test(my.anova, 'SowTreat', group=TRUE)
+fogo <-HSD.test(my.anova, 'Cultivar', group=TRUE)
 fogo
 
 ```
@@ -106,8 +107,8 @@ fogo
 Then use multiple comparisons of means and get the standard errors (std)
 ```{r}
 #Means separation after ANOVA
-#(LSD.test(my.anova, c("Cultivar"), alpha= 0.05, p.adj="none"))
-(LSD.test(my.anova, c("SowTreat"), alpha= 0.05, p.adj="none"))
+(LSD.test(my.anova, c("Cultivar"), alpha= 0.05, p.adj="none"))
+#(LSD.test(my.anova, c("SowTreat"), alpha= 0.05, p.adj="none"))
 #(LSD.test(my.anova, c("Depth"), alpha= 0.05, p.adj="none"))
 ```
 

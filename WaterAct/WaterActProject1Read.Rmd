@@ -177,8 +177,11 @@ write.table (df_HAW, "df_HAW.txt"  )
 ANOVAfor water activity 
 
 ```{r}
+
+str(df_seed)
+
 file <- df_seed %>%
-  dplyr::select(Block, Cultivar,SowTreat,Plot,Depth,WaterAct)
+  dplyr::select(Block, Cultivar,SowTreat,Plot,Depth,WaterAct,MoistureEstimate)
  
 
 #-------------------------------------------------
@@ -189,8 +192,8 @@ file.subset <- file
 head(file.subset, 50)
 summary(file.subset)
 #my.anova <- aov(SoftGerm_perc~ Cultivar*SowTreat + Block, data = file.subset)
-#my.anova <- aov(WaterAct~ Cultivar + Block, data = file.subset)
-my.anova <- aov(WaterAct~ Depth + Block, data = file.subset)
+my.anova <- aov(MoistureEstimate~ SowTreat*Cultivar + Depth, data = file.subset)
+#my.anova <- aov(WaterAct~ Depth + Block, data = file.subset)
 #my.anova <- aov(WaterAct~ SowTreat*Cultivar + Block, data = file.subset)
 ```
 
@@ -204,8 +207,8 @@ summary(my.anova)
 ```{r}
 #Means separation 
 #(LSD.test(my.anova, c("Cultivar","SowTreat"), alpha= 0.05, p.adj="none"))
-#(LSD.test(my.anova, c("SowTreat"), alpha= 0.05, p.adj="none"))
- (LSD.test(my.anova, c("Depth"), alpha= 0.05, p.adj="none"))
+(LSD.test(my.anova, c("SowTreat"), alpha= 0.05, p.adj="none"))
+ #(LSD.test(my.anova, c("Depth"), alpha= 0.05, p.adj="none"))
 #(LSD.test(my.anova, c("Cultivar"), alpha= 0.05, p.adj="none"))
 ```
 

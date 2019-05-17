@@ -338,7 +338,7 @@ df_spSegment2  %>%
   theme(strip.text.x =  element_blank())+
   theme(axis.text.x = element_text(angle = 90, hjust = 1)) +
   expand_limits(y=c(0,1.2)) +
-    labs(y= " Absorbance ")+
+    labs(y= " Absorbance (au) ")+
     xlab(expression(Wavenumber~"(cm"^"-1"*")"))+
 #theme(axis.text.y = element_text( size = 24))+
   #theme(axis.title.y = element_text(face="bold", size=14))+
@@ -391,12 +391,12 @@ theme(axis.title.x = element_text( size=32,face="bold"))+
 
 
 ##use this filter if need to select cultivars and calculate the means here to graph
-df_sp4B <-df_sp3%>%
-  group_by(Cultivar,Block, Wavenumber)%>%
+df_sp4B <-df_spSegment2%>%
+  group_by(Wavenumber, SpectraPart_f)%>%
   dplyr::select(AbsorbanceNorm)%>%
   summarise_all(funs(mean))
 
-
+write.table(df_sp4B, "meanspectraAllSubs.txt")
 ```
 
 

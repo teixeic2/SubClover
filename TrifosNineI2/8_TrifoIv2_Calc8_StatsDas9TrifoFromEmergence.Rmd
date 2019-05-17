@@ -35,7 +35,8 @@ getwd()
 ##Path "C:/GitHubRepos/SubCloverPhD/SubClover/TrifoCountsI2/DaysTT5TFromEmergence.txt"
 
 ##file DaysTT9TFromEmergence.txt
-df_trifo <- read.table("DaysTT9TFromEmergence.txt",header=TRUE)
+#df_trifo <- read.table("DaysTT9TFromEmergence.txt",header=TRUE)
+df_trifo <- read.table("DaysTT9TFromEmergence_v2.txt",header=TRUE)
 head(df_trifo)
 
 

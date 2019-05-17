@@ -12,7 +12,8 @@ This script does this:
 - get the dataframe with sowing dates and DAS  to 50% of plants with 5 trifoliates  
 - get the dataframe with max and min air temperature in Iversen  
 - merge the two dataframes to calculate the thermal time from sowing to 5 trifo stage  using the  Tb= 0 and standard cardinal temps.
--The file RawWeaIv2.txt brings the air Temperature!! Follow same method as per Nori et al (air temperature)!! 
+-The file RawWeaIv2.txt brings the air Temperature!! Follow same method as per Nori et al (air temperature)!!
+-Calculates the phylochron 
 
 
 #---------------------------------------------------------------------------------------------------------------
@@ -347,7 +348,7 @@ str(df_TT)
 
 
 df_mergeSelect <- df_TT %>%
-dplyr::select(SowTreat ,Cultivar,Plot,Block,DAS5T,SummTT5Trifo,Pp.x)
+dplyr::select(SowTreat ,Cultivar,Plot,Block,DAS5T,SummTT5Trifo,Pp.x,SowingDate)
 
 
 ```
@@ -382,6 +383,42 @@ str(df_mergedFiveTrifo)
 
 ```
 
+Insert Pp at emergence
+```{r}
+
+##bring date to emergence
+
+df_Emergence <- read.table("DASSeedEmer.txt",header=TRUE)
+str(df_Emergence)
+##format
+#df_Emergence<-df_Emergence%>%
+ df_Emergence$Date <- dmy(df_Emergence$Date50SeedEm )
+
+str(df_Emergence)
+## bring Photoperiod
+
+df_PhotoPeriod <- read.table("Photoperiod.txt",header=TRUE)
+
+str(df_PhotoPeriod)
+
+df_PhotoPeriod$Date <- dmy(df_PhotoPeriod$Date )
+
+##merge
+PpEmer<-merge(df_Emergence,df_PhotoPeriod, by="Date")%>%
+  select(Plot,Pp)%>%
+  mutate(PpEmer=Pp*1)%>%
+  select(-Pp)
+
+str(PpEmer)
+
+##then merge again 
+
+Trifo_PpEm<-merge(df_mergedFiveTrifo,PpEmer, by="Plot") 
+
+```
+
+
+
 
 write a table with this dataset!!! 
 
@@ -391,11 +428,12 @@ write a table with this dataset!!!
 #write.table(df_mergedFiveTrifo, "C:\\GitHubRepos\\SubCloverPhD\\SubClover\\TrifoCountsI2/DaysTT1TFromEmergence.txt")
 write.table(df_mergedFiveTrifo, "C:/GitHubRepos/SubCloverPhD/SubClover/TrifoCountsI2/DaysTT5TFromEmergence.txt")
 
+
 ```
 
  
 Then move to a new script to run ANOVA with DAS and TT from emergence to 5 trifoliates. 
-And continue with the phyllocchron from here below (may need to review this later )
+And continue with the phyllocchron from here below 
 
 
 
@@ -412,23 +450,83 @@ df_TTN <-df_TT %>%
 
 
 
-Calculate the phyllocron (oCd/leaf) consider 6 leaves (5 trifoliates + spade leaf)
+Calculate the phyllocron (oCd/leaf) consider interval between trifo 1 and trifo 5;
+
+```{r}
+##bring date to first trifo.... 
+
+
+
+##Use this: DaysTT1TFromEmergence
+df_Trifo1 <- read.table("DaysTT1TFromEmergence.txt",header=TRUE)
+
+str(df_Trifo1)
+
+df_Trifo1<-df_Trifo1%>%
+  dplyr::select(Plot,DAS1TFromEmerg,TT1TFromEmerg)
+  
+```
+
+```{r}
+
+##merge dataframes 
+
+df_mergedOneFiveTrifo <-merge(df_mergedFiveTrifo,df_Trifo1, by="Plot" )
+#mutate(DAS5TFromEmerg=DAS5T-DAS50E,
+       #TT5TFromEmerg=SummTT5Trifo-TT50E)
+
+str(df_mergedOneFiveTrifo)
+
+
+
+```
+
 
 
 
 ```{r}
-dfPhyllo <-df_TT %>%
-  mutate(PhylC=SummTT5Trifo/6)
 
+#str(dfPhyllo)
+
+dfPhyllo <-df_mergedOneFiveTrifo %>%
+mutate(DiffTT=SummTT5Trifo-TT1TFromEmerg)%>%
+ mutate(PhylC=DiffTT/4)%>%
+select(Plot, Cultivar,Block,SowTreat,PhylC)
+
+write.table(dfPhyllo, "PhyllochronCalculated.txt")
 #then select sow treat and means and se
 
-df_Phyllo2 <-dfPhyllo %>%
-  group_by(Cultivar,SowTreat,Pp.x) %>%
-  dplyr::select(PhylC)%>%
-  summarise_all(funs(mean,sd))%>%
-    mutate(SE=sd/1.73)
+# df_Phyllo2 <-dfPhyllo %>%
+#   group_by(Cultivar,SowTreat,Pp.x) %>%
+#   dplyr::select(PhylC)%>%
+#   summarise_all(funs(mean,sd))%>%
+#     mutate(SE=sd/1.73)
 
 ```
+
+
+
+
+```{r}
+
+
+##Insert Photoperiod at  First trifoliate 
+
+
+
+```
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 ```{r}

@@ -69,7 +69,7 @@ df_file_work %>%
   gather("VarName","Value",Tn:TTsum)%>%
     ggplot(aes(x=Date-stDate,y=Value)) +
   geom_line(aes(colour=VarName)) +
-  #geom_smooth(aes(colour=VarName), alpha=0.03)+
+  geom_smooth(aes(colour=VarName), alpha=0.03)+
  # ylim(0,mxT) +
   theme_bw()+
   ylab("Value")+
@@ -80,6 +80,60 @@ df_file_work %>%
   #ggsave("plot_ClimateGC.png", width=12, height=6, dpi=400)
 
 ```
+
+
+
+do graphs separated Temperature 
+
+```{r, fig.height=5, fig.width=10}
+
+stDate<-min(df_file_work$Date)
+mxT<-max(df_file_work$AI_TEMP)
+#stDate<-ymd("2016/1/1")
+
+
+
+P<-df_file_work %>%
+  group_by(Date)  %>%
+  summarise(Tn=min(AI_TEMP),Tm=mean(AI_TEMP),Tx=max(AI_TEMP),Pp=sum(AI_LIGHT>800)/187) %>%
+  mutate(TTsum=cumsum(Tm)) %>%
+  gather("VarName","Value",Tn:TTsum)%>%
+  filter(VarName=="Pp")
+
+    P %>%
+      ggplot(aes(x=Date,y=Value)) +
+     # geom_point()+
+  #geom_line(aes(colour="black")) +
+  geom_smooth(aes(), alpha=0.03)+
+ # ylim(0,mxT) +
+  theme_bw()+
+  ylab("Value")+
+  xlab("Date") +
+  #facet_wrap(~VarName, scales='free')
+    
+    #remove grid lines 
+   theme(
+     panel.border = element_rect(colour = "black", size = 3), 
+     panel.grid.major = element_blank(),
+     panel.grid.minor = element_blank(),
+     axis.line = element_line(colour = "black"))+
+   #scale_fill_manual("legend", values = c("Antas" = "#660066", "Denmark" = "lightgrey","Leura" = "darkgrey", "Monti" = "#FF9933","Narrikup" = "blue",  "Woogenellup" = "#033333"))+
+   
+   #make sowing dates white  
+   theme(strip.background = element_rect(colour = "black", fill = "white",size=1))+
+   
+  #label sizes 
+theme(text = element_text(size = 22))
+    
+    
+
+
+  #ggsave("plot_ClimateGC.png", width=12, height=6, dpi=400)
+
+```
+
+
+
 
 
 ```{r, fig.height=5, fig.width=10}

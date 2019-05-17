@@ -145,8 +145,8 @@ file.subset <- file
 head(file.subset, 50)
 summary(file.subset)
 
-my.anova <- aov(Hard_perc ~ Cultivar*SowTreat*Depth + Block, data = file.subset)
-#my.anova <- aov(Hard_perc ~ Cultivar*SowTreat + Block, data = file.subset)
+#my.anova <- aov(Hard_perc ~ Cultivar*SowTreat*Depth + Block, data = file.subset)
+my.anova <- aov(Hard_perc ~ Cultivar*SowTreat + Block, data = file.subset)
 
 ```
 
@@ -251,7 +251,7 @@ S3
 
 file <- df_hard_live_max %>%
   dplyr::select(Block, Cultivar,SowTreat,Plot,Depth,Hard_perc)%>%
-  filter(SowTreat=="S3")
+  filter(SowTreat=="S2")
 
 #-------------------------------------------------
 
@@ -276,7 +276,7 @@ summary(my.anova)
 
 ```{r}
 #Means separation 
-#(LSD.test(my.anova, c("Cultivar"), alpha= 0.05, p.adj="none"))
+(LSD.test(my.anova, c("Cultivar"), alpha= 0.05, p.adj="none"))
 #(LSD.test(my.anova, c("Depth"), alpha= 0.05, p.adj="none"))
 
 ```

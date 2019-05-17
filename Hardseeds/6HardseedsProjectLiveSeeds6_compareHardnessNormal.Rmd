@@ -29,9 +29,25 @@ setwd("C:\\GitHubRepos\\SubCloverPhD\\SubClover\\Hardseeds")
 getwd()
 
 #create file
-df_seed <- read.table("MeanSlope.txt",header=TRUE) 
+#df_seed <- read.table("MeanSlope.txt",header=TRUE) 
+df_seed <- read.table("MaxHardAndRate_Diff.txt",header=TRUE) 
+#MaxHardAndRate_Diff.txt
 
 str(df_seed)
+
+##select columns
+
+df_seed <-df_seed %>%
+  
+  dplyr::select(Plot,Cultivar,SowTreat, RateDecreasePerTTunit)
+  
+#make means
+
+df_seed <- df_seed %>%
+group_by(Cultivar, SowTreat)%>%
+  dplyr::select( RateDecreasePerTTunit)%>%
+  summarise_all(funs(mean))
+
 ```
 
 
@@ -60,8 +76,10 @@ combine the two dataframes
 str(df_seed)
 
 df_seed <- df_seed%>%
-  mutate(Cultivar=cv, SowTreat=sow, slope= -1*slope) %>%
-  select(-cv,-sow)
+  mutate( slope= 1*RateDecreasePerTTunit) 
+  #ungroup()%>%
+  #mutate(Cultivar=cv, SowTreat=sow, slope= -1*RateDecreasePerTTunit) %>%
+  #select(-cv,-sow)
 
 
 
@@ -89,18 +107,39 @@ then plot one against the other (x= slope, y = germination)
 str(dfMerge)
 
 dfMerge %>%
+   mutate (SowTreat= factor(SowTreat, levels=c("S1", "S2", "S3", "S4", "S6", "S7"),labels=c("Jun", "Jul", "Sept", "Nov", "Feb", "Mar")))%>%
   ggplot(aes(x=slope, y= Germination))  +
   geom_point(colour= "black", alpha=0.2) +
   geom_point(aes(shape=SowTreat),size=4)+
    geom_smooth(method='lm',formula=y~x, colour="grey",alpha=0.2)+
   theme_bw() +
-  xlab(expression(Mean~hardseed~breakdown~"( % /"^"o"*"Cd)"))+ 
+  xlab(expression(Mean~SDbreak~"( %/"^"o"*"Cd)"))+ 
   ylab(expression(Mean~Germination~"( %)"))+
   theme(text = element_text(size=20))+
-  facet_wrap(~Cultivar)
+  facet_wrap(~Cultivar)+
   #theme(title =  element_text(size=14))
+
+
+#remove grid lines 
+     theme(
+     panel.border = element_rect(colour = "black", size = 2), 
+     panel.grid.major = element_blank(),
+     panel.grid.minor = element_blank(),
+     axis.line = element_line(colour = "black"))+
   
-  #ggsave("plot_CumulativeGerm.png", width=12, height=6, dpi=400)
+  #make sowing dates white  
+   theme(strip.background = element_rect(colour = "black", fill = "white",size=2))+
+   theme(text = element_text(size = 24))
+
+
+
+  # annotate("text", x = 0.005, y = 110, label = "r= 0.37",size=6)+
+  # annotate("text", x = 0.025, y = 15, label = "Soft",size=6 )+
+  # annotate("text", x = 0.005, y = 15, label = "Medium",size=6)+
+  # annotate("text", x = 0.025, y = 110, label = "Medium",size=6 )
+
+  
+  ggsave("plot_MeanGermVersus.png", width=12, height=6, dpi=400)
 ```
 
 
@@ -111,6 +150,7 @@ get a summary of the lm of the geom method (general)
 equation is y = a(intercept) +b (slope) x
 ```{r}
 summary(lm(Germination ~ slope, dfMerge))
+
 ```
 
 Plug a loop to generate summary by cultivar 

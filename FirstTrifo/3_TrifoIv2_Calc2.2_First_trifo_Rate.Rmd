@@ -287,6 +287,8 @@ TfromEmerg_Trifo1 <-df_Trifomerged%>%
   
   
 #write.table(df_1T,"df_DAS_1_Trifo.txt")
+str(TfromEmerg_Trifo1)
+write.table(TfromEmerg_Trifo1,"df_DAS_1_TrifoFromEmerg.txt")
 
 ```
 
@@ -310,15 +312,12 @@ Mean_TfromEmerg<-TfromEmerg_Trifo1 %>%
 
 
 
-
-
-
-
 Calculate RAte (1/days to 50%) 
 
 
 ```{r}
 
+##From sowing 
 #try 1/DAS50% = Rate
 
 df_RateFirstTrifo <- df_1T %>%
@@ -328,6 +327,18 @@ df_RateFirstTrifo <- df_1T %>%
   
   write.table(df_RateFirstTrifo,"RateFirstTrifo.txt")
 
+  ##From emergence 
+  
+  df_RateFirstTrifoEmer <- TfromEmerg_Trifo1%>%
+  mutate(Rate=1/DASfromEmerg)
+
+  summary(df_RateFirstTrifoEmer)
+  
+  
+  
+  write.table(df_RateFirstTrifoEmer,"RateFirstTrifoFromEmer.txt")
+ 
+  
 ```
 
 

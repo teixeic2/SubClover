@@ -1,0 +1,399 @@
+---
+title: "Trifoliates Iversen "
+author: "CT"
+date: "04.07.2018" 
+output: 
+  word_document: default
+  pdf_document: default
+  html_document: default
+---
+
+Purpose:
+
+-Plot Phyllochron agains PP emergence and First trifo 
+ 
+```{r loadLibraries}
+library(tidyr)
+library (dplyr)
+library (ggplot2)
+library(agricolae)
+library (lubridate)
+library(mosaic)
+library(lattice)
+library(knitr)
+```
+
+Read document generated in script "3" 5Trifo_rate
+
+```{r}
+setwd("C:\\GitHubRepos\\SubCloverPhD\\SubClover\\TrifoCountsI2")
+getwd()
+#create file
+
+##Path "C:/GitHubRepos/SubCloverPhD/SubClover/TrifoCountsI2/DaysTT5TFromEmergence.txt"
+
+df_Phyllo <- read.table("PhyllochronCalculated.txt",header=TRUE)
+
+
+
+head(df_Phyllo)
+
+
+```
+Define formats 
+
+```{r loadFile}
+
+
+# define factors for the ones that "look like" values
+df_Phyllo$Plot <- as.factor(df_Phyllo$Plot)
+df_Phyllo$Block <- as.factor(df_Phyllo$Block)
+df_Phyllo$Cultivar <- as.factor(df_Phyllo$Cultivar)
+df_Phyllo$SowTreat <- as.factor(df_Phyllo$SowTreat)
+
+ #df_Phyllo <- df_Phyllo %>%
+ # mutate(SowingDate = ymd(SowingDate)) 
+
+str(df_Phyllo)
+
+
+
+```
+
+Bring the photoperiod data 
+
+```{r}
+
+df_PhotoP <- read.table("PhotoperiodEmergAnd1trifo.txt",header=TRUE)
+
+str(df_PhotoP)
+
+```
+
+```{r}
+
+
+df_merged<-merge(df_PhotoP ,df_Phyllo,by= "Plot"  )
+
+str(df_merged)
+
+```
+
+Graph it but select which Photoperiod is to be explored 
+PpEmerg or Pp1Trifo
+
+```{r}
+MeanData<-df_merged%>%
+  group_by(Cultivar, SowTreat)%>%
+  dplyr::select(PpEmerg,PhylC)%>%
+  ##use this for FirstTrifo
+  #dplyr::select(Pp1Trifo,PhylC)%>%
+  summarise_all(funs(mean,sd))
+
+
+```
+
+
+
+Plot Weather variables with Maximum Percentage of Hardseeds 
+```{r}
+str(MeanData)
+
+
+
+```
+
+```{r}
+summary(MeanData)
+
+
+summer <-MeanData%>%
+   #filter(SowTreat=="S3",SowTreat=="S4",SowTreat=="S5")%>%
+  group_by(Cultivar)%>%
+  summarise_all(funs(mean,sd))
+
+summary (summer)
+
+
+
+```
+
+
+```{r, fig.height=8, fig.width=15}
+#check data
+
+
+df_Photo_dir <- data.frame(
+  SowTreat = c("S1", "S2", "S3", "S4", "S5", "S6", "S7","S8"),
+  Pp_dir = c("Pp increase", "Pp increase", "Pp increase", "Pp increase", "Pp decrease", "Pp decrease", "Pp decrease","Pp decrease")
+)
+
+g1 <-MeanData %>%
+  ungroup() %>%
+  #mutate (SowTreat= factor(SowTreat, levels=c("S1", "S2", "S3", "S4","S5", "S6","S7","S8"),labels=c("June", #"July", "September", "November","December", "February","March","May")))%>%
+  mutate(SowMonth= factor(SowTreat, 
+                           levels=c("S1", "S2", "S3", "S4", "S5", "S6", "S7","S8"),
+                           labels=c("June", "July", "Sept.", "Nov.", "Dec.", "Feb.", "March", "May"))) %>%
+  left_join(df_Photo_dir, by="SowTreat") %>%
+  ##For Ppemergence
+  ggplot(aes(x=PpEmerg_mean, y= PhylC_mean))  +
+  
+  ##for fristtrifo (Pp1Trifo_mean)
+ #ggplot(aes(x=Pp1Trifo_mean, y= PhylC_mean))  +
+  geom_point(colour= "black", alpha=0.5) +
+  geom_point(aes(shape=SowMonth),size=4)+
+  scale_shape_manual(values = c(1,2,3,4,5,6,7,8)) +
+  geom_text(aes(label=SowMonth),hjust=0, vjust=0,size=7) +
+  geom_errorbar(aes(ymin=PhylC_mean-PhylC_sd/2,
+                    ymax=PhylC_mean+PhylC_sd/2), width=1.5)+
+ 
+  geom_smooth(method='lm',formula=y~x,alpha=0.01, aes(linetype=Pp_dir,fill = Pp_dir, colour="black"))+
+  #geom_smooth(method='lm',formula=y~x,alpha=0.1,  linetype = "dashed", colour= "grey")+
+  
+  theme_bw() +
+  xlab(expression(Photoperiod~"("*"hours"*")"))+ 
+  #ylab(expression(Maximum~Hardseeds~Percent~"("*"%"*")"))+
+  ylab(expression(Mean~Phyllochron~"("^"o"*"Cd/leaf)")) +
+  theme(text = element_text(size=24))+
+  facet_wrap(~Cultivar)+
+  xlim(9,18)+
+  ylim(0,120)+
+ #remove grid lines 
+   theme(
+     panel.border = element_rect(colour = "black", size = 3), 
+     panel.grid.major = element_blank(),
+     panel.grid.minor = element_blank(),
+     axis.line = element_line(colour = "black"))+
+   #scale_fill_manual("legend", values = c("Antas" = "#660066", "Denmark" = "lightgrey","Leura" = "darkgrey", "Monti" = "#FF9933","Narrikup" = "blue",  "Woogenellup" = "#033333"))+
+   
+   #make sowing dates white  
+   theme(strip.background = element_rect(colour = "black", fill = "white",size=1))+
+   
+  #label sizes 
+theme(text = element_text(size = 24))
+  
+
+#grid.arrange(g1, g2, g3,g4,g41)
+grid.arrange(g1)
+# Save
+ggsave("plot_Phyllochron_PpEmergence.tiff", width=12, height=6, dpi=400)
+#ggsave("plot_Phyllochron_PpFirstTrifo.tiff", width=12, height=6, dpi=400)
+
+```
+
+
+
+
+
+
+# Get linear coefficients of equations above
+##check what are these P values 
+
+```{r}
+library(broom)
+options(scipen=999)
+
+# create the linear fits by groups o variables
+dfreg <- MeanData %>% group_by(Cultivar) %>%
+  do(fitreg = lm(PhylC_mean ~ PpEmerg_mean, data = .))
+  #do(fitreg = lm(PhylC_mean ~ Pp1Trifo_mean, data = .))
+  #Pp1Trifo_mean
+
+# get the linear coefficients by group in a tidy data_frame
+dfCoef <- tidy(dfreg, fitreg)
+dfCoef
+
+
+
+```
+
+
+
+```{r}
+
+
+dfCoef = glance(dfreg, fitreg)
+dfCoef
+
+```
+
+Select only The increase in Photoperiod S1-S4
+
+```{r, fig.height=8, fig.width=15}
+#check data
+
+
+df_Photo_dir <- data.frame(
+  SowTreat = c("S1", "S2", "S3", "S4", "S5", "S6", "S7","S8"),
+  Pp_dir = c("Pp increase", "Pp increase", "Pp increase", "Pp increase", "Pp decrease", "Pp decrease", "Pp decrease","Pp decrease")
+)
+
+g2 <-MeanData %>%
+  ungroup() %>%
+  #mutate (SowTreat= factor(SowTreat, levels=c("S1", "S2", "S3", "S4","S5", "S6","S7","S8"),labels=c("June", #"July", "September", "November","December", "February","March","May")))%>%
+  mutate(SowMonth= factor(SowTreat, 
+                           levels=c("S1", "S2", "S3", "S4", "S5", "S6", "S7","S8"),
+                           labels=c("June", "July", "Sept.", "Nov.", "Dec.", "Feb.", "March", "May"))) %>%
+  left_join(df_Photo_dir, by="SowTreat") %>%
+  #filter(SowTreat=="S1"| 
+        # SowTreat=="S2"| 
+         #SowTreat=="S3"|
+         #SowTreat=="S4")%>%
+  
+  #ggplot(aes(x=PpEmerg_mean, y= PhylC_mean))  +
+  #Pp1Trifo_mean
+ ggplot(aes(x=Pp1Trifo_mean, y= PhylC_mean))  +
+  geom_point(colour= "black", alpha=0.5) +
+  geom_point(aes(shape=SowMonth),size=4)+
+  scale_shape_manual(values = c(1,2,3,4,5,6,7,8)) +
+  geom_text(aes(label=SowMonth),hjust=0, vjust=0,size=7) +
+  geom_errorbar(aes(ymin=PhylC_mean-PhylC_sd/2,
+                    ymax=PhylC_mean+PhylC_sd/2), width=1.5)+
+ 
+  #geom_smooth(method='lm',formula=y~x,alpha=0.1, aes(colour=Pp_dir, fill = Pp_dir)) +
+  geom_smooth(method='lm',formula=y~x,alpha=0.1,  linetype = "dashed", colour= "grey")+
+  
+  theme_bw() +
+  xlab(expression(Photoperiod~"("*"hours"*")"))+ 
+  #ylab(expression(Maximum~Hardseeds~Percent~"("*"%"*")"))+
+  ylab(expression(Mean~Phyllochron~"("^"o"*"Cd/leaf)")) +
+  theme(text = element_text(size=24))+
+  facet_wrap((Pp_dir~Cultivar), ncol = 6)+
+  xlim(9,20)+
+ #remove grid lines 
+   theme(
+     panel.border = element_rect(colour = "black", size = 3), 
+     panel.grid.major = element_blank(),
+     panel.grid.minor = element_blank(),
+     axis.line = element_line(colour = "black"))+
+   #scale_fill_manual("legend", values = c("Antas" = "#660066", "Denmark" = "lightgrey","Leura" = "darkgrey", "Monti" = "#FF9933","Narrikup" = "blue",  "Woogenellup" = "#033333"))+
+   
+   #make sowing dates white  
+   theme(strip.background = element_rect(colour = "black", fill = "white",size=1))+
+   
+  #label sizes 
+theme(text = element_text(size = 24))
+  
+
+#grid.arrange(g1, g2, g3,g4,g41)
+grid.arrange(g2)
+# Save
+#ggsave("plot_Phyllochron_PpEmergence.tiff", width=12, height=6, dpi=400)
+
+
+```
+
+
+
+# Get linear coefficients of equations above
+##check what are these P values lonly for the decreasing Photoperiod 
+
+```{r}
+library(broom)
+options(scipen=999)
+
+IncreasePp <-MeanData %>%
+  filter(SowTreat=="S1"| 
+         SowTreat=="S2"| 
+         SowTreat=="S3"|
+         SowTreat=="S4")
+
+
+
+# create the linear fits by groups o variables
+dfregInc <- IncreasePp %>% group_by(Cultivar) %>%
+##For emergence use PpEmerg_mean,
+  do(fitreg = lm(PhylC_mean ~ PpEmerg_mean, data = .))
+
+  ##For First Trifo use  Pp1Trifo_mean
+ #do(fitreg = lm(PhylC_mean ~ Pp1Trifo_mean, data = .))
+
+# get the linear coefficients by group in a tidy data_frame
+dfCoefInc <- tidy(dfregInc, fitreg)
+dfCoefInc
+
+
+```
+
+
+```{r}
+
+
+dfCoefInc = glance(dfregInc, fitreg)
+dfCoefInc
+
+```
+
+
+do the same with decreasing Pp 
+
+
+```{r}
+library(broom)
+options(scipen=999)
+
+DecreasePp <-MeanData %>%
+  filter(SowTreat=="S5"| 
+         SowTreat=="S6"| 
+         SowTreat=="S7"|
+         SowTreat=="S8")
+
+
+
+# create the linear fits by groups o variables
+dfregDec <- DecreasePp %>% group_by(Cultivar) %>%
+  do(fitreg = lm(PhylC_mean ~ PpEmerg_mean, data = .))
+  
+  ##Pp1Trifo_mean
+ # do(fitreg = lm(PhylC_mean ~ Pp1Trifo_mean, data = .))
+
+# get the linear coefficients by group in a tidy data_frame
+dfCoefDec <- tidy(dfregDec, fitreg)
+dfCoefDec
+
+
+```
+
+
+
+
+```{r}
+
+
+dfCoefDec = glance(dfregDec, fitreg)
+dfCoefDec
+
+```
+
+
+
+
+
+try with Ppfirst trifo 
+
+Graph it 
+```{r}
+
+MeanDataTrifo1<-df_merged%>%
+  group_by(Cultivar, SowTreat)%>%
+  select( Pp1Trifo,PhylC)%>%
+  summarise_all(funs(mean,sd))
+
+
+```
+
+
+
+
+
+
+
+
+
+
+```
+
+
+
+
+

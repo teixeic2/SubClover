@@ -238,10 +238,12 @@ Now subset only the data to use in the ESA2018 paper : S2 (July) : Monti and Ant
 df_Subset <- df_cum_soft %>%
   filter(SowTreat=="S2")%>%
   filter(Cultivar=="Antas"|Cultivar=="Monti"|Cultivar=="Narrikup" )%>%
-  filter (Round=="14" |Round=="98" )
+  filter (Round=="14" |Round=="98" )%>%
+  group_by(Cultivar,Block,Plot,Round)%>%
+  select(HardAccum)
   
 
-
+write.table(df_Subset, "SubsetDataESAHardness.txt")
 ```
 
 

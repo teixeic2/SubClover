@@ -29,7 +29,12 @@ This script reads the HardseedsLiveData (from raw data excel) with all catergori
 
 ```{r loadFile}
 #create file
-df_raw <- read.table("MaxHardness.txt",header=TRUE)
+#df_raw <- read.table("MaxHardness.txt",header=TRUE)
+
+##  use this file "MaxHardAndRate_Diff.txt" contains the SDmax and SD break!!
+
+df_raw <- read.table("MaxHardAndRate_Diff.txt",header=TRUE)
+
 head(df_raw)
 ```
 ```{r}

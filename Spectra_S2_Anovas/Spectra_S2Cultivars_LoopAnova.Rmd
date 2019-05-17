@@ -77,6 +77,7 @@ summary(info_av_norm)
 
 
 
+
 Loop throup spectra
 
 Loop unique wavenumber 
@@ -135,6 +136,7 @@ for (i in 1:length(idList)) {
 ```
 ```{r}
 summary(data.all)
+str(data.all)
 ```
 
 
@@ -183,10 +185,51 @@ save graph
 ```{r}
 
 
-ggsave( "plot_S2_WavePvaluesNorm_.png", width=15, height=6, dpi=500)
+#ggsave( "plot_S2_WavePvaluesNorm_.png", width=15, height=6, dpi=500)
 
 
 ```
+
+
+do graph with segmented spectra (do not show 2750-1800 interval )
+
+
+##data visualisation of segmented spectra 
+
+```{r, warning=FALSE, fig.height=6, fig.widht=12}
+
+##Segment the spectra 
+seg1<- subset(data.all, !( as.numeric(as.character(WaveNumber)) >= 1800 &
+            as.numeric(as.character(WaveNumber)) <= 2750)  )
+
+
+  
+ seg1%>%
+  ggplot(aes(x=WaveNumber,y=PV)) +
+  geom_rect(data=NULL,aes(xmin=850,xmax=4000,ymin=0,ymax=0.05),fill="grey", alpha = 0.01) +
+  geom_line() +
+  theme_bw(base_size = 22)+
+  #geom_abline(slope=0, intercept=0.05, linetype=2)+
+  geom_abline(slope=0, intercept=0.01, linetype=2)+
+  scale_x_reverse(breaks = seq(850, 4000, by = 100))+
+  theme(axis.text.x = element_text(angle = 90, hjust = 1)) +
+  xlab(expression(Wavenumber~"(cm"^"-1"*")"))+
+  theme(axis.text.x = element_text( size = 12,face="bold"))+
+  ylab(expression(P~value ~"(P)"))+
+  #remove grid lines 
+   theme(
+     panel.border = element_rect(colour = "black", size = 3), 
+     panel.grid.major = element_blank(),
+     panel.grid.minor = element_blank(),
+     axis.line = element_line(colour = "black"))
+  
+  
+ #ggsave( "plot_S2_WavePvaluesNorm_.tiff", width=15, height=6, dpi=500)
+  
+```
+
+
+
 
 
 ## Write data frame - as table for subsequent analysis 

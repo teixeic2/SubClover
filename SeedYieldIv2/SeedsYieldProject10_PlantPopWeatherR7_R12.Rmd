@@ -1,0 +1,681 @@
+---
+title: "Hardseeds Live Max 6CV"
+author: "CT"
+date: "11.01.2018"
+output:
+  word_document: default
+  pdf_document: default
+  html_document: default
+---
+
+
+```{r loadLibraries}
+library(tidyr)
+library (dplyr)
+library (ggplot2)
+library(agricolae)
+library(knitr)
+library (lubridate)
+library(gridExtra)
+
+```
+sow
+-This script reads the weather conditions for the  seed filling period (R7-R12) and average plant population and seed yield  uses the combo : 
+
+SeedYieldAndPlantPopAndTemRainR6_R11
+
+
+-Combines the info about the max hardness and slope hardseed breakdown 
+-Attempt to establish correlation between the different variates 
+
+```{r loadFile}
+setwd("C:\\GitHubRepos\\SubCloverPhD\\SubClover\\SeedYieldIv2")
+getwd()
+
+#create file
+df_SowHvst <- read.table("SeedYieldAndPlantPopAndTemRainR6_R11.txt",header=TRUE)
+
+head(df_SowHvst)
+# change format 
+
+
+```
+
+```{r}
+
+
+df_All<-df_SowHvst
+
+str(df_All)
+
+
+
+  
+  
+ # create an ID of each chunk
+df_All <- df_All %>%
+  #dplyr::select(-Date) %>%
+  mutate(codeID = as.factor(paste0(SowTreat,"_",Cultivar)))
+  
+
+  
+  
+
+```
+
+
+
+
+
+Now plot variates to find  ...any correlation? 
+
+
+
+
+```{r, fig.height=5, fig.width=10}
+
+str(df_All)
+
+pairs(~SeedkgHa+RainIrrig+SoilTemp+PlantPop,data=df_All, main="Simple Scatterplot Matrix")
+  
+# dfD <- df_All%>%
+#   filter(Cultivar=="Denmark")
+# pairs(~HardAccum+slope+Rain+RH+Temp,data=dfD, main="Simple Scatterplot Matrix Denmark")
+
+```
+
+then select columns of interest : here stats for overall means (SowTreat and Cultivar)
+
+```{r}
+
+#find coefficients 
+
+cor (df_All[,-c(1,2)])
+# cor (dfD[,-c(1,2)])
+```
+
+Plot plant po and Weather variables with seed yield 
+remove Monti S4 (outlier)
+
+
+```{r, fig.height=10, fig.width=10}
+#hardAccum vs Rain 
+
+g1 <-df_All %>%
+  #filter(codeID!="S4_Monti")%>%
+  mutate (SowTreat= factor(SowTreat, levels=c("S1", "S2", "S3", "S4", "S6","S7"),labels=c("June", "July", "September", "November", "February","March")))%>%
+  # mutate(Cultivar= factor(Cultivar, 
+  #                          levels=c("Antas", "Denmark", "Leura", "Monti", "Narrikup", "Woogenellup"),
+  #                          labels=c("A", "D", "L", "M", "N.", "W"))) %>%
+                           
+  ggplot(aes(x=RainIrrig, y= SeedkgHa))  +
+  geom_point(aes(shape=SowTreat, colour=Cultivar ),size=7)+
+  #geom_text(aes(label=Cultivar, colour=SowTreat),hjust=0, vjust=0,size=7) +
+  #geom_smooth(method='lm',formula=y~x, colour="grey",alpha=0.1)+
+  theme_bw() +
+  xlab(expression(Rain~"("*"mm"*")"))+ 
+  #ylab(expression(Maximum~Hardseeds~Percent~"("*"%"*")"))+
+  ylab(expression(Seed~Yield~"("*"kg/ha"*")"))+
+  theme(text = element_text(size=20))+
+  ylim(0,3500)+
+  #facet_wrap(~Cultivar)+
+  #theme(title =  element_text(size=14))
+ #remove grid lines 
+   theme(
+     panel.border = element_rect(colour = "black", size = 1), 
+     panel.grid.major = element_blank(),
+     panel.grid.minor = element_blank(),
+     axis.line = element_line(colour = "black"))+
+   #scale_fill_manual("legend", values = c("Antas" = "#660066", "Denmark" = "lightgrey","Leura" = "darkgrey", "Monti" = "#FF9933","Narrikup" = "blue",  "Woogenellup" = "#033333"))+
+    
+   #make sowing dates white  
+   theme(strip.background = element_rect(colour = "black", fill = "white",size=1))+
+  #theme(legend.position="bottom")
+  theme(legend.position = "none") 
+#+
+  #theme(title =  element_text(size=14))
+  
+
+
+ g2 <-df_All %>%
+   mutate (SowTreat= factor(SowTreat, levels=c("S1", "S2", "S3", "S4", "S6","S7"),labels=c("June", "July", "September", "November", "February","March")))%>%
+   mutate(Cultivar= factor(Cultivar, 
+                           levels=c("Antas", "Denmark", "Leura", "Monti", "Narrikup", "Woogenellup"),
+                           labels=c("A", "D", "L", "M", "N.", "W"))) %>%
+  ggplot(aes(x=SoilTemp, y= SeedkgHa))  +
+ # geom_point(colour= "black", alpha=0.2) +
+   geom_point(aes(shape=SowTreat, colour=Cultivar ),size=7)+
+  #geom_point(aes(shape=SowTreat),size=4)+
+   #geom_smooth(method='lm',formula=y~x, colour="grey",alpha=0.1)+
+  theme_bw() +
+     ylim(0,3500)+
+  xlab(expression(Soil~temperature~"( "^"o"*"C)"))+ 
+ ylab(expression(Seed~Yield~"("*"kg/ha"*")"))+
+  theme(text = element_text(size=20))+
+  #facet_wrap(~Cultivar)
+   #remove grid lines 
+   theme(
+     panel.border = element_rect(colour = "black", size = 1), 
+     panel.grid.major = element_blank(),
+     panel.grid.minor = element_blank(),
+     axis.line = element_line(colour = "black"))+
+   #scale_fill_manual("legend", values = c("Antas" = "#660066", "Denmark" = "lightgrey","Leura" = "darkgrey", "Monti" = "#FF9933","Narrikup" = "blue",  "Woogenellup" = "#033333"))+
+   
+   #make sowing dates white  
+   theme(strip.background = element_rect(colour = "black", fill = "white",size=1))+
+ #+
+ theme(legend.position = "none")
+  #theme(title =  element_text(size=14))
+  #theme(legend.position="bottom")
+ 
+ 
+ g3 <-df_All %>%
+  # filter(codeID!="S4_Monti")%>%
+   mutate (SowTreat= factor(SowTreat, levels=c("S1", "S2", "S3", "S4", "S6","S7"),labels=c("June", "July", "September", "November", "February","March")))%>%
+  ggplot(aes(x=PlantPop, y= SeedkgHa))  +
+  #geom_point(colour= "black", alpha=0.2) +
+  #geom_point(aes(shape=SowTreat),size=4)+
+   geom_point(aes(shape=SowTreat, colour=Cultivar ),size=7)+
+   #geom_smooth(method='lm',formula=y~x, colour="grey",alpha=0.1)+
+  theme_bw() +
+     ylim(0,3500)+
+ xlab(expression(Plant~number~per~m^"2"))+  
+ ylab(expression(Seed~Yield~"("*"kg/ha"*")"))+
+  theme(text = element_text(size=20))+
+  #facet_wrap(~Cultivar)
+   #remove grid lines 
+   theme(
+     panel.border = element_rect(colour = "black", size = 1), 
+     panel.grid.major = element_blank(),
+     panel.grid.minor = element_blank(),
+     axis.line = element_line(colour = "black"))+
+   #scale_fill_manual("legend", values = c("Antas" = "#660066", "Denmark" = "lightgrey","Leura" = "darkgrey", "Monti" = "#FF9933","Narrikup" = "blue",  "Woogenellup" = "#033333"))+
+   
+   #make sowing dates white  
+   theme(strip.background = element_rect(colour = "black", fill = "white",size=1))+
+   theme(legend.position = "none")
+ #+
+   # theme(legend.position="bottom")
+  #theme(title =  element_text(size=14))
+  
+grid.arrange(g3, g2, g1)
+# Save
+#ggsave("plot_MaxHard_WeatherTSowHvst.png", width=12, height=6, dpi=400)
+
+
+```
+
+
+##Plant Pop
+##remove Montti S4 data
+
+```{r}
+library(broom)
+options(scipen=999)
+
+str(df_All)
+
+##Remove outlier montis4
+MeanData <-df_All %>%
+  filter(codeID!="S4_Monti")
+
+
+# create the linear fits by groups o variables
+#dfreg <- MeanData %>% group_by(Cultivar) %>%
+dfregPop <- MeanData %>%
+  do(fitreg = lm(SeedkgHa ~  PlantPop, data = .))
+
+# get the linear coefficients by group in a tidy data_frame
+dfCoef <- tidy(dfregPop, fitreg)
+dfCoef
+
+```
+
+
+
+```{r}
+
+dfCoef = glance(dfregPop, fitreg)
+dfCoef
+
+##R2 = 0.32 means r=0.56, Pvalue =0.0004 for plant pop
+
+```
+
+###############
+Exactly -1. A perfect downhill (negative) linear relationship
+
+-0.70. A strong downhill (negative) linear relationship
+
+-0.50. A moderate downhill (negative) relationship
+
+-0.30. A weak downhill (negative) linear relationship
+
+0. No linear relationship
+###############################
+
+##Rain
+
+```{r}
+library(broom)
+options(scipen=999)
+
+str(df_All)
+
+##Remove outlier montis4
+MeanData <-df_All  # filter(codeID!="S4_Monti")
+
+
+# create the linear fits by groups o variables
+#dfreg <- MeanData %>% group_by(Cultivar) %>%
+dfregRain <- MeanData %>%
+  do(fitreg = lm(SeedkgHa ~ RainIrrig, data = .))
+
+# get the linear coefficients by group in a tidy data_frame
+dfCoef <- tidy(dfregRain, fitreg)
+dfCoef
+
+
+
+```
+
+
+
+
+```{r}
+
+dfCoef = glance(dfregRain, fitreg)
+dfCoef
+
+##R2 = 0.08 means r=0.3, Pvalue =0.08 for rain 
+
+```
+
+##Do for Soil temp 
+
+```{r}
+
+
+library(broom)
+options(scipen=999)
+
+str(df_All)
+
+##keep monti
+MeanData <-df_All 
+  #filter(codeID!="S4_Monti")
+
+
+# create the linear fits by groups o variables
+#dfreg <- MeanData %>% group_by(Cultivar) %>%
+dfregSoilT <- MeanData %>%
+  do(fitreg = lm(SeedkgHa ~ SoilTemp, data = .))
+
+# get the linear coefficients by group in a tidy data_frame
+dfCoef <- tidy(dfregSoilT, fitreg)
+dfCoef
+
+```
+
+`
+
+
+```{r}
+
+
+dfCoef = glance(dfregSoilT, fitreg)
+dfCoef
+
+##R2 = 0.18,  means r=0.4, Pvalue =0.009 for soilTemp 
+
+```
+
+
+overall correlation inspect for all 3 variables 
+
+
+##Linear regression with weather parameters between phenophase R8-R12 and SDmax (SDmax=a+bx) are:  r Rain+Irrigation =0.34 (P=0.03);  rRH (%)  = 0.26 (P=0.10) and rAirTemp =0.22 (P=0.17), rsoilTemp =0.14 (P=0.4), rPET =0.08 (P=0.6).   
+
+```{r}
+
+#summary(lm(HardAccum ~ RainIrrig, df_All))
+#summary(lm(HardAccum ~ RH, df_All))
+#summary(lm(HardAccum ~ Temp, df_All))
+#summary(lm(HardAccum ~ SoilTemp, df_All))
+summary(lm(HardAccum ~ PET, df_All))
+#summary(lm(HardAccum ~ DiffRainPET, df_All))
+
+
+
+
+```
+
+
+This loop checks the lm for all cultivars 
+
+```{r}
+
+#create a vector that holds names of all possible cultivars
+cv.unique <- unique(df_All$Cultivar)
+
+summary(cv.unique )
+
+
+for (i in 1:length(cv.unique)) {
+  
+ #print(i)
+ print(paste0(cv.unique[i],"--------------------------------"))
+  
+  #then make it subset 
+  
+  df_subset <- df_All %>%
+    subset(Cultivar==cv.unique[i])
+  
+  #add the function or calculation required 
+  
+    #summary(lm(HardAccum ~ RainIrrig, df_subset))  
+    #summary(lm(HardAccum ~ RH, df_subset))
+    summary(lm(HardAccum ~ Temp, df_subset))
+  #print
+    
+print(summary(lm(HardAccum ~ RainIrrig, df_subset)))
+#print(summary(lm(HardAccum ~ RH, df_subset)))
+   # print(summary(lm(HardAccum ~ Temp, df_subset)))
+
+  } 
+
+
+```
+
+
+
+Plot Weather variables with RAte of Hardseed breakdown  during R8-R12
+
+
+
+```{r, fig.height=12, fig.width=15}
+#hardAccum vs Rain 
+
+g11 <-df_All %>%
+   mutate (SowTreat= factor(SowTreat, levels=c("S1", "S2", "S3", "S4", "S6","S7"),labels=c("June", "July", "September", "November", "February","March")))%>%
+  ggplot(aes(x=RainIrrig, y= slope))  +
+  geom_point(colour= "black", alpha=0.2) +
+  geom_point(aes(shape=SowTreat),size=4)+
+  #geom_smooth(method='lm',formula=y~x, colour="grey",alpha=0.1)+
+  theme_bw() +
+  #geom_text(aes(label=SowTreat),hjust=0, vjust=0,size=7) +
+  xlab(expression(Rain+Irrigation~"("*"mm"*")"))+ 
+  #ylab(expression(Maximum~Hardseeds~Percent~"("*"%"*")"))+
+ ylab(expression(SDbreak~"( % /"^"o"*"Cd)"))+
+  theme(text = element_text(size=20))+
+  facet_wrap(~Cultivar)+
+  #remove grid lines 
+   theme(
+     panel.border = element_rect(colour = "black", size = 1), 
+     panel.grid.major = element_blank(),
+     panel.grid.minor = element_blank(),
+     axis.line = element_line(colour = "black"))+
+   #scale_fill_manual("legend", values = c("Antas" = "#660066", "Denmark" = "lightgrey","Leura" = "darkgrey", "Monti" = "#FF9933","Narrikup" = "blue",  "Woogenellup" = "#033333"))+
+   
+   #make sowing dates white  
+   theme(strip.background = element_rect(colour = "black", fill = "white",size=1))
+  #theme(title =  element_text(size=14))
+  
+#slope vs RH
+g12 <-df_All %>%
+  mutate (SowTreat= factor(SowTreat, levels=c("S1", "S2", "S3", "S4", "S6","S7"),labels=c("June", "July", "September", "November", "February","March")))%>%
+  ggplot(aes(x=RH, y= slope))  +
+  geom_point(colour= "black", alpha=0.2) +
+  geom_point(aes(shape=SowTreat),size=4)+
+   #geom_smooth(method='lm',formula=y~x, colour="grey",alpha=0.1)+
+  theme_bw() +
+  xlab(expression(RH~"("*"%"*")"))+ 
+  ylab(expression(SDbreak~"( % /"^"o"*"Cd)"))+
+  theme(text = element_text(size=20))+
+  facet_wrap(~Cultivar)+
+  #remove grid lines 
+   theme(
+     panel.border = element_rect(colour = "black", size = 1), 
+     panel.grid.major = element_blank(),
+     panel.grid.minor = element_blank(),
+     axis.line = element_line(colour = "black"))+
+   #scale_fill_manual("legend", values = c("Antas" = "#660066", "Denmark" = "lightgrey","Leura" = "darkgrey", "Monti" = "#FF9933","Narrikup" = "blue",  "Woogenellup" = "#033333"))+
+   
+   #make sowing dates white  
+   theme(strip.background = element_rect(colour = "black", fill = "white",size=1))
+  
+ g13 <-df_All %>%
+   mutate (SowTreat= factor(SowTreat, levels=c("S1", "S2", "S3", "S4", "S6","S7"),labels=c("June", "July", "September", "November", "February","March")))%>%
+  ggplot(aes(x=Temp, y= slope))  +
+  geom_point(colour= "black", alpha=0.2) +
+  geom_point(aes(shape=SowTreat),size=4)+
+  # geom_smooth(method='lm',formula=y~x, colour="grey",alpha=0.1)+
+  theme_bw() +
+  xlab(expression(Air~temperature~"( "^"o"*"C)"))+ 
+  ylab(expression(SDbreak~"( % /"^"o"*"Cd)"))+
+  theme(text = element_text(size=20))+
+  facet_wrap(~Cultivar) +
+   #remove grid lines 
+   theme(
+     panel.border = element_rect(colour = "black", size = 1), 
+     panel.grid.major = element_blank(),
+     panel.grid.minor = element_blank(),
+     axis.line = element_line(colour = "black"))+
+   #scale_fill_manual("legend", values = c("Antas" = "#660066", "Denmark" = "lightgrey","Leura" = "darkgrey", "Monti" = "#FF9933","Narrikup" = "blue",  "Woogenellup" = "#033333"))+
+   
+   #make sowing dates white  
+   theme(strip.background = element_rect(colour = "black", fill = "white",size=1))
+ 
+ g14 <-df_All %>%
+  mutate (SowTreat= factor(SowTreat, levels=c("S1", "S2", "S3", "S4", "S6","S7"),labels=c("June", "July", "September", "November", "February","March")))%>%
+  ggplot(aes(x=SoilTemp, y= slope))  +
+  geom_point(colour= "black", alpha=0.2) +
+  geom_point(aes(shape=SowTreat),size=4)+
+   #geom_smooth(method='lm',formula=y~x, colour="grey",alpha=0.1)+
+  theme_bw() +
+  xlab(expression(Soil~temperature~"( "^"o"*"C)"))+ 
+  ylab(expression(SDbreak~"( % /"^"o"*"Cd)"))+
+  theme(text = element_text(size=20))+
+  facet_wrap(~Cultivar)+
+   #remove grid lines 
+   theme(
+     panel.border = element_rect(colour = "black", size = 1), 
+     panel.grid.major = element_blank(),
+     panel.grid.minor = element_blank(),
+     axis.line = element_line(colour = "black"))+
+   #scale_fill_manual("legend", values = c("Antas" = "#660066", "Denmark" = "lightgrey","Leura" = "darkgrey", "Monti" = "#FF9933","Narrikup" = "blue",  "Woogenellup" = "#033333"))+
+   
+   #make sowing dates white  
+   theme(strip.background = element_rect(colour = "black", fill = "white",size=1))
+ 
+ g15 <-df_All %>%
+   mutate (SowTreat= factor(SowTreat, levels=c("S1", "S2", "S3", "S4", "S6","S7"),labels=c("June", "July", "September", "November", "February","March")))%>%
+  ggplot(aes(x=PET, y= slope))  +
+  geom_point(colour= "black", alpha=0.2) +
+  geom_point(aes(shape=SowTreat),size=4)+
+   #geom_smooth(method='lm',formula=y~x, colour="grey",alpha=0.1)+
+  theme_bw() +
+ xlab(expression(PET~"("*"mm"*")"))+  
+ ylab(expression(SDbreak~"( % /"^"o"*"Cd)"))+
+   
+    theme(text = element_text(size=20))+
+   theme(axis.text.x = element_text( 
+                           size=12, angle=45 ))+
+  facet_wrap(~Cultivar)+
+   #remove grid lines 
+   theme(
+     panel.border = element_rect(colour = "black", size = 1), 
+     panel.grid.major = element_blank(),
+     panel.grid.minor = element_blank(),
+     axis.line = element_line(colour = "black"))+
+   #scale_fill_manual("legend", values = c("Antas" = "#660066", "Denmark" = "lightgrey","Leura" = "darkgrey", "Monti" = "#FF9933","Narrikup" = "blue",  "Woogenellup" = "#033333"))+
+   
+   #make sowing dates white
+   theme(strip.background = element_rect(colour = "black", fill = "white",size=1))
+ 
+ 
+ # g42 <-df_All %>%
+ #   mutate (SowTreat= factor(SowTreat, levels=c("S1", "S2", "S3", "S4", "S6","S7"),labels=c("June", "July", "September", "November", "February","March")))%>%
+ #  ggplot(aes(x=DiffRainPET , y= slope))  +
+ #  geom_point(colour= "black", alpha=0.2) +
+ #  geom_point(aes(shape=SowTreat),size=4)+
+ #   geom_smooth(method='lm',formula=y~x, colour="grey",alpha=0.1)+
+ #  theme_bw() +
+ # xlab(expression(Water~balance~"("*"mm"*")"))+  
+ #  ylab(expression(SDmax~"("*"%"*")"))+
+ #  theme(text = element_text(size=20))+
+ #  facet_wrap(~Cultivar)
+  
+grid.arrange(g11, g12, g13,g14,g15)
+# Save
+#ggsave(file="whatever.pdf", g1, g2, g3,g4,g41)
+#ggsave("plot_MaxHard_EnviroTSowHvst.png", width=14, height=7, dpi=400)
+
+
+```
+
+
+
+old graph
+
+
+
+
+```{r, fig.height=10, fig.width=15}
+#Hardbreak vs Rain 
+
+g4 <-df_All %>%
+    mutate (SowTreat= factor(SowTreat, levels=c("S1", "S2", "S3", "S4", "S6","S7"),labels=c("June", "July", "September", "November", "February","March")))%>%
+  ggplot(aes(x=RainIrrig, y= slope))  +
+  geom_point(colour= "black", alpha=0.2) +
+  geom_point(aes(shape=SowTreat),size=4)+
+   geom_smooth(method='lm',formula=y~x, colour="grey",alpha=0.1)+
+  theme_bw() +
+  xlab(expression(RainIrrig~"("*"mm"*")"))+ 
+  ylab(expression(SDbreak~"( % /"^"o"*"Cd)"))+
+  theme(text = element_text(size=20))+
+  facet_wrap(~Cultivar)
+  #theme(title =  element_text(size=14))
+  
+#hardAccum vs RH
+g5 <-df_All %>%
+    mutate (SowTreat= factor(SowTreat, levels=c("S1", "S2", "S3", "S4", "S6","S7"),labels=c("June", "July", "September", "November", "February","March")))%>%
+  ggplot(aes(x=RH, y= slope))  +
+  geom_point(colour= "black", alpha=0.2) +
+  geom_point(aes(shape=SowTreat),size=4)+
+   geom_smooth(method='lm',formula=y~x, colour="grey",alpha=0.1)+
+  theme_bw() +
+  xlab(expression(RH~"("*"%"*")"))+ 
+  ylab(expression(SDbreak~"( % /"^"o"*"Cd)"))+
+  theme(text = element_text(size=20))+
+  facet_wrap(~Cultivar)
+  
+ g6 <-df_All %>%
+     mutate (SowTreat= factor(SowTreat, levels=c("S1", "S2", "S3", "S4", "S6","S7"),labels=c("June", "July", "September", "November", "February","March")))%>%
+  ggplot(aes(x=Temp, y= slope))  +
+  geom_point(colour= "black", alpha=0.2) +
+  geom_point(aes(shape=SowTreat),size=4)+
+   geom_smooth(method='lm',formula=y~x, colour="grey",alpha=0.1)+
+  theme_bw() +
+  xlab(expression(Air~temperature~"( "^"o"*"C)"))+ 
+  ylab(expression(SDbreak~"( % /"^"o"*"Cd)"))+
+  theme(text = element_text(size=20))+
+  facet_wrap(~Cultivar) 
+ 
+ g7 <-df_All %>%
+     mutate (SowTreat= factor(SowTreat, levels=c("S1", "S2", "S3", "S4", "S6","S7"),labels=c("June", "July", "September", "November", "February","March")))%>%
+  ggplot(aes(x=SoilTemp, y= slope))  +
+  geom_point(colour= "black", alpha=0.2) +
+  geom_point(aes(shape=SowTreat),size=4)+
+   geom_smooth(method='lm',formula=y~x, colour="grey",alpha=0.1)+
+  theme_bw() +
+  xlab(expression(Soil~temperature~"( "^"o"*"C)"))+ 
+  ylab(expression(SDbreak~"( % /"^"o"*"Cd)"))+
+  theme(text = element_text(size=20))+
+  facet_wrap(~Cultivar) 
+ 
+ 
+ g8 <-df_All %>%
+    mutate (SowTreat= factor(SowTreat, levels=c("S1", "S2", "S3", "S4", "S6","S7"),labels=c("June", "July", "September", "November", "February","March")))%>%
+  ggplot(aes(x=PET, y= slope))  +
+  geom_point(colour= "black", alpha=0.2) +
+  geom_point(aes(shape=SowTreat),size=4)+
+   geom_smooth(method='lm',formula=y~x, colour="grey",alpha=0.1)+
+  theme_bw() +
+  xlab(expression(PET~"("*"mm"*")"))+ 
+  ylab(expression(SDbreak~"( % /"^"o"*"Cd)"))+
+  theme(text = element_text(size=20))+
+  facet_wrap(~Cultivar)
+  #theme(title =  element_text(size=14))
+ 
+  
+grid.arrange(g4, g5, g6, g7,g8)
+# Save
+# ggsave(file="Fig_weather.tiff", dpi = 300)
+
+#ggsave("plot_HardBreak_WeatherTSowHvst.png", width=12, height=6, dpi=400)
+
+
+```
+ Inspect correlation overall 
+ 
+ overall correlation inspect for all 3 variables ; remember here slope is the decrease in percentage units 
+ 
+ data generated was : Linear regression with weather parameters between phenophase R8-R12 and SDmax (SDmax=a+bx) are:  r Rain+Irrigation =0.26 (P=0.1);  rRH (%)  = 0.37 (P=0.02) and rAirTemp =0.22 (P=0.18), rsoilTemp =0.39 (P=0.02), rPET =0.31(P=0.06).   
+
+```{r}
+
+#summary(lm(slope ~ RainIrrig, df_All))
+#summary(lm(slope ~ RH, df_All))
+#summary(lm(slope ~ Temp, df_All))
+#summary(lm(slope ~ SoilTemp, df_All))
+summary(lm(slope ~ PET, df_All))
+```
+
+This loop checks the lm for all cultivars 
+
+```{r}
+
+#create a vector that holds names of all possible cultivars
+cv.unique <- unique(df_All$Cultivar)
+
+summary(cv.unique )
+
+
+for (i in 1:length(cv.unique)) {
+  
+ #print(i)
+ print(paste0(cv.unique[i],"--------------------------------"))
+  
+  #then make it subset 
+  
+  df_subset <- df_All %>%
+    subset(Cultivar==cv.unique[i])
+  
+  #add the function or calculation required 
+  
+    #summary(lm(HardAccum ~ RainIrrig, df_subset))  
+    #summary(lm(HardAccum ~ RH, df_subset))
+    summary(lm(slope ~ RH, df_subset))
+  #print
+    
+print(summary(lm(slope ~ RH, df_subset)))
+#print(summary(lm(HardAccum ~ RH, df_subset)))
+   # print(summary(lm(HardAccum ~ Temp, df_subset)))
+
+  } 
+
+
+```
+
+
+
+
+
+
+```{r}
+
+#markdown::render("<C:\\GitHubRepos\\SubCloverPhD\\SubClover\\HardseedsProject1Read.Rmd>") 
+```
+
+

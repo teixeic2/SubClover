@@ -1,0 +1,52 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+
+```{r loadLibraries}
+
+library(tidyr)
+library (dplyr)
+library (ggplot2)  
+library(agricolae)
+library(knitr)
+library (lubridate)
+
+```
+
+
+
+```{r}
+info <- read.table("CardinalTemps.txt" , header=TRUE)
+summary(info)
+```
+
+```{r, fig.width=12}
+
+info_work <- info %>%
+  mutate(Tb2=Tb, Topt2=Topt,Tmax2=Tmax) %>%
+  na.omit() %>%
+  gather(VarName,VarValue,Tb:Tmax) %>%
+  mutate(VarName=factor(VarName, levels=c("Tb","Topt","Tmax")))
+
+
+b <-info_work %>%
+  group_by(VarName) %>%
+  summarise(bx=max(VarValue), bn =min(VarValue)) %>%
+  gather("VarType","VarValue",bx:bn) %>%
+  spread(VarName,VarValue) %>%
+  ungroup()
+
+
+info_work %>%
+ggplot(aes(x=reorder(Cultivar,Tb2),y=VarValue)) +
+ geom_point(size=4,alpha=0.5, aes(shape=VarName, colour=VarName)) +
+ geom_abline(intercept = b$Tb, slope = 0, linetype=2, colour='red') +
+ geom_abline(intercept = b$Topt, slope = 0, linetype=2, colour='green') +
+ geom_abline(intercept = b$Tmax, slope = 0, linetype=2, colour='blue') +
+  ylab(expression(Temperature~"("^"o"*"C)")) +
+  xlab("Cultivar") +
+  coord_flip() + theme(legend.title=element_blank())
+
+```

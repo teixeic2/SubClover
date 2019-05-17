@@ -212,6 +212,28 @@ df_Iv %>%
 
 ```
 
+Find date of flowering to recommend paddock closure 
+
+```{r}
+
+averageS7<-df_Iv %>%
+  na.omit() %>%
+  #remove data from S5 Denmark and Leura 
+  subset(DAS50FFromEmerg>0.05)%>%
+  filter(SowTreat=="S7")%>%
+  filter(Variable=="Flowering")%>%
+  dplyr::select(Cultivar, SowTreat, Variable, DAS50F) %>%
+  group_by(Cultivar, SowTreat, Variable) %>%
+  summarise_all(funs(mean,sd)) 
+
+
+
+```
+
+
+
+
+
 
 ##Now include Pp function with target thermal time using the dataframe with days and TT from emergence 
 
@@ -341,6 +363,10 @@ summary(df_pp_allEmer)
 
 ```
 
+
+
+
+
 Check photoperiod direction 
 
 
@@ -440,7 +466,7 @@ y_max<-max(df$TT50FromEmerg_mean)
 ```
 
 
-Singke version
+Single version
 
 ```{r}
 df_pp_all_mean<-NULL
@@ -732,6 +758,16 @@ str(df_pp_allEmer)
 write.table(df_pp_allEmer, "df_Pptargets_TT50FFromEmergence.txt")
 
 ```
+
+```{r}
+
+##just checking 
+Sel<-df_pp_allEmer%>%
+  dplyr::select(SowingD , Cultivar, TT50E,Pp_target)
+  
+```
+
+
 
 get the regressions and R2 
 

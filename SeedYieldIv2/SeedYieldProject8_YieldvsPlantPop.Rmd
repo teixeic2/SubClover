@@ -10,6 +10,7 @@ output:
 This script :
 reads the file with burrs and seeds numbers and yields
 -merge with dataframe which contains plant population to calculate seed numbers and yield per plant instead of per area 
+- This is data exploration...overview ... move to script Project 10 for better correlations
 
 
 
@@ -82,6 +83,22 @@ dftotal<-df %>%
 
 ```
 
+
+```{r}
+df2<- file %>%
+  dplyr::select(Plot, Cultivar, SowingD, SowTreat,sample_area_m2,Block,
+                Depth,bur_total_weight_g,
+                bur_no_subSample,
+                bur_weight_subSample_g,seed_weight_g) %>%
+  #stop here calculate kg seed / ha
+  mutate(Seedskg_ha = (((seed_weight_g/bur_weight_subSample_g)*
+           bur_total_weight_g)/sample_area_m2)*10 ) 
+
+
+```
+
+ 
+
 bring data plant pop 
 
 ```{r}
@@ -100,14 +117,121 @@ file2<-file1 %>%
 
 then merge the two dataframes by Plot
 
-```{r}
-dfmerged <- merge(dftotal,file2, by=c("Plot")) %>%
-  mutate(SeedperPlant=SeedsNo_m2/FinalPop)
-  #dplyr::select(Plot:SowTreat, Hard_perc,slope)
 
+```{r}
+str(df2)
+
+dfmerged <- merge(df2,file2, by=c("Plot")) 
+  #mutate(SeedperPlant=SeedsNo_m2/FinalPop)
+  #dplyr::select(Plot:SowTreat, Hard_perc,slope)
 
 str(dfmerged)
 ```
+
+
+```{r}
+
+relationship<-dfmerged%>%
+  dplyr::select(Plot,Cultivar,SowTreat,FinalPop,Seedskg_ha)%>%
+  group_by(Plot,Cultivar,SowTreat)%>%
+  select(FinalPop,Seedskg_ha)%>%
+  summarise_all(funs(mean))
+
+MeanData<-relationship%>%
+  group_by(Cultivar,SowTreat)%>%
+  select(FinalPop,Seedskg_ha)%>%
+  summarise_all(funs(mean))
+
+str(MeanData)
+```
+
+
+
+
+
+```{r,fig.height=5, fig.width=10}
+
+
+g1 <-MeanData %>%
+  ungroup() %>%
+  #mutate (SowTreat= factor(SowTreat, levels=c("S1", "S2", "S3", "S4","S5", "S6","S7","S8"),labels=c("June", #"July", "September", "November","December", "February","March","May")))%>%
+  mutate(SowMonth= factor(SowTreat, 
+                           levels=c("S1", "S2", "S3", "S4", "S5", "S6", "S7","S8"),
+                           labels=c("June", "July", "Sept.", "Nov.", "Dec.", "Feb.", "March", "May"))) %>%
+  #left_join(df_Photo_dir, by="SowTreat") %>%
+  ggplot(aes(x=FinalPop, y= Seedskg_ha))  +
+  geom_point(colour= "black", alpha=0.5) +
+  geom_point(aes(shape=SowMonth),size=4)+
+  scale_shape_manual(values = c(1,2,3,4,5,6,7,8)) +
+  geom_text(aes(label=SowMonth),hjust=0, vjust=0,size=7) +
+  #geom_errorbar(aes(ymin=PhylC_mean-PhylC_sd/2,
+                    #ymax=PhylC_mean+PhylC_sd/2), width=1.5)+
+ 
+  #geom_smooth(method='lm',formula=y~x,alpha=0.1, aes(colour=Pp_dir, fill = Pp_dir)) +
+  geom_smooth(method='lm',formula=y~x,alpha=0.1)+
+  theme_bw() +
+  #xlab(expression(Plant~Population"("plants~/~m"*"^"2"*")")) + 
+  #ylab(expression(Maximum~Hardseeds~Percent~"("*"%"*")"))+
+  #ylab(expression(~Phyllochron~"("^"o"*"Cd/leaf)")) +
+  xlab(expression(Plant~Pop))+
+  ylab(expression(Seed~Yield~(kg/ha)))+
+  theme(text = element_text(size=24))+
+  facet_wrap(~Cultivar)+
+ #remove grid lines 
+   theme(
+     panel.border = element_rect(colour = "black", size = 3), 
+     panel.grid.major = element_blank(),
+     panel.grid.minor = element_blank(),
+     axis.line = element_line(colour = "black"))+
+   #scale_fill_manual("legend", values = c("Antas" = "#660066", "Denmark" = "lightgrey","Leura" = "darkgrey", "Monti" = "#FF9933","Narrikup" = "blue",  "Woogenellup" = "#033333"))+
+   
+   #make sowing dates white  
+   theme(strip.background = element_rect(colour = "black", fill = "white",size=1))+
+   
+  #label sizes 
+theme(text = element_text(size = 24))
+  
+
+#grid.arrange(g1, g2, g3,g4,g41)
+grid.arrange(g1)
+# Save
+#ggsave("plot_Phyllochron_PpEmergence.tiff", width=12, height=6, dpi=400)
+
+```
+
+
+# Get linear coefficients of equations above
+##check what are these P values 
+
+```{r}
+library(broom)
+options(scipen=999)
+
+# create the linear fits by groups o variables
+dfreg <- MeanData %>% group_by(Cultivar) %>%
+  do(fitreg = lm(FinalPop ~ Seedskg_ha, data = .))
+
+# get the linear coefficients by group in a tidy data_frame
+dfCoef <- tidy(dfreg, fitreg)
+dfCoef
+
+
+
+```
+
+
+
+```{r}
+
+
+dfCoef = glance(dfreg, fitreg)
+dfCoef
+
+
+
+
+```
+
 
 
 
@@ -178,6 +302,9 @@ str(df1)
 
 ```
 
+
+
+
 then merge the two dataframes by Plot
 
 ```{r}
@@ -189,6 +316,95 @@ dfmerged2 <- merge(df1,file2, by=c("Plot")) %>%
 str(dfmerged2)
 ```
 
+```{r}
+
+str(relationship)
+
+Se <-relationship %>%
+  dplyr::select(Plot,Seedskg_ha)
+
+str(Se)
+
+
+```
+
+```{r}
+
+
+dfMerge3 <- merge(dfmerged2, Se, by="Plot")%>%
+  mutate(Index=GramSeedperPlant*FinalPop)
+
+str(dfMerge3)
+
+```
+
+
+
+get means 
+
+```{r}
+MeanDataIndex<-dfMerge3%>%
+ 
+  group_by(SowTreat)%>%
+  select(Index ,GramSeedperPlant,FinalPop,Seedsgperm2)%>%
+  summarise_all(funs(mean))
+
+
+
+```
+
+
+```{r,fig.height=5, fig.width=10}
+
+
+g1 <-MeanDataIndex %>%
+  ungroup() %>%
+  #mutate (SowTreat= factor(SowTreat, levels=c("S1", "S2", "S3", "S4","S5", "S6","S7","S8"),labels=c("June", #"July", "September", "November","December", "February","March","May")))%>%
+  mutate(SowMonth= factor(SowTreat, 
+                           levels=c("S1", "S2", "S3", "S4", "S5", "S6", "S7","S8"),
+                           labels=c("June", "July", "Sept.", "Nov.", "Dec.", "Feb.", "March", "May"))) %>%
+  #left_join(df_Photo_dir, by="SowTreat") %>%
+  ggplot(aes(x=FinalPop, y= Seedskg_ha))  +
+  geom_point(colour= "black", alpha=0.5) +
+  geom_point(aes(shape=SowMonth),size=4)+
+  scale_shape_manual(values = c(1,2,3,4,5,6,7,8)) +
+  geom_text(aes(label=SowMonth),hjust=0, vjust=0,size=7) +
+  #geom_errorbar(aes(ymin=PhylC_mean-PhylC_sd/2,
+                    #ymax=PhylC_mean+PhylC_sd/2), width=1.5)+
+ 
+  #geom_smooth(method='lm',formula=y~x,alpha=0.1, aes(colour=Pp_dir, fill = Pp_dir)) +
+  geom_smooth(method='lm',formula=y~x,alpha=0.1)+
+  theme_bw() +
+  #xlab(expression(Plant~Population"("plants~/~m"*"^"2"*")")) + 
+  #ylab(expression(Maximum~Hardseeds~Percent~"("*"%"*")"))+
+  #ylab(expression(~Phyllochron~"("^"o"*"Cd/leaf)")) +
+  xlab(expression(Plant~Pop))+
+  ylab(expression(Seed~Yield~(kg/ha)))+
+  theme(text = element_text(size=24))+
+  facet_wrap(~Cultivar)+
+ #remove grid lines 
+   theme(
+     panel.border = element_rect(colour = "black", size = 3), 
+     panel.grid.major = element_blank(),
+     panel.grid.minor = element_blank(),
+     axis.line = element_line(colour = "black"))+
+   #scale_fill_manual("legend", values = c("Antas" = "#660066", "Denmark" = "lightgrey","Leura" = "darkgrey", "Monti" = "#FF9933","Narrikup" = "blue",  "Woogenellup" = "#033333"))+
+   
+   #make sowing dates white  
+   theme(strip.background = element_rect(colour = "black", fill = "white",size=1))+
+   
+  #label sizes 
+theme(text = element_text(size = 24))
+  
+
+#grid.arrange(g1, g2, g3,g4,g41)
+grid.arrange(g1)
+# Save
+#ggsave("plot_Phyllochron_PpEmergence.tiff", width=12, height=6, dpi=400)
+
+```
+
+
 Ispect means gram seed per plant
 
 ```{r}
@@ -197,6 +413,8 @@ MeanGramperPlant<-dfmerged2%>%
 group_by(SowTreat)%>%
   dplyr::select(GramSeedperPlant)%>%
   summarise_all(funs(sum))
+
+
 
 ```
 

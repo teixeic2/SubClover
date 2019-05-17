@@ -579,6 +579,6 @@ if ((summary(my.anova)[[1]][["Pr(>F)"]][1])>0.05) {
 ```
 
 
-END ....graphs with DAS50E with mean soil Temp continue in Script EmergenceI2_Calc5EmergSoilGraph
+END ....
 
 

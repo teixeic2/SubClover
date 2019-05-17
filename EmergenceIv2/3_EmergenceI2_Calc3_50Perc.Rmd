@@ -250,6 +250,17 @@ ggplot(aes(x=SowingDate, y=mean, colour=factor(Cultivar), shape=factor(Cultivar)
 
 ```
 
+
+```{r}
+
+
+##wrtie table 
+
+write.table(df_tt_50p_emerg, "DAYSTo50Emerg.txt")
+
+```
+
+
 Do new graph with the standard error 
 
 ```{r, fig.height=8, fig.width=12}

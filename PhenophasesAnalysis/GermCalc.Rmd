@@ -1,0 +1,139 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+
+
+```{r}
+library(dplyr)
+library(ggplot2)
+library(tidyr)
+library(lubridate)
+
+phenoPhases<-read.table("TtPhenoPhases.txt", header=TRUE)
+summary(phenoPhases)
+```
+
+```{r}
+#rawData<-read.table("df_CumTT.txt", header=TRUE)
+
+##try this ; df_CumTT_GeoAnalysis.txt
+
+rawData<-read.table("df_CumTT_GeoAnalysis.txt", header=TRUE)
+
+
+
+
+summary(rawData)
+```
+
+```{r}
+
+#Sow yearDay is 84 (25-March)mutate(A_p = cut(Ttsum,c(0,40,150,1500,10000))) %>%
+#str(workData)  
+
+workData <- rawData %>%
+  mutate(Date=ymd(Date))  %>%
+  dplyr::select(Country:Date,TTday) %>%
+  mutate(YearDay=yday(Date)) %>%
+  group_by(LocationYear) %>%
+  mutate(MinYear=year(min(Date))) %>%
+  mutate(thisSowDate= dmy(paste0("25/03/",MinYear))) %>%
+  mutate(Ttday_period = ifelse(Date > thisSowDate, TTday,NA)) %>%
+  na.omit() %>%
+  mutate(Ttsum=cumsum(Ttday_period)) %>%
+  mutate(Antas = cut(Ttsum,c(0,96,153,372,842,2183,10000), labels = c(1,2,3,4,5,6))) %>%
+  mutate(Denmark = cut(Ttsum,c(0,104,132,415,989,2070,10000), labels = c(1,2,3,4,5,6))) %>%
+  mutate(Leura = cut(Ttsum,c(0,97,173,440,1013,2136,10000), labels = c(1,2,3,4,5,6))) %>%
+  mutate(Monti = cut(Ttsum,c(0,100,142,382,1031,1786,10000), labels = c(1,2,3,4,5,6))) %>%
+  mutate(Narrikup = cut(Ttsum,c(0,103,152,395,913,1809,10000), labels = c(1,2,3,4,5,6))) %>%
+  mutate(Woogenellup = cut(Ttsum,c(0,99,134,404,755,2051,10000), labels = c(1,2,3,4,5,6))) %>%
+  gather("Cultivar","PhenoPhase",Antas:Woogenellup) %>%
+  mutate(Cultivar=factor(Cultivar), PhenoPhase=as.numeric(as.character(PhenoPhase))) %>%
+#  mutate(PhenoPhase=ifelse(PhenoPhase==6,NA,as.numeric(PhenoPhase))) %>%
+  na.omit()
+
+summary(workData)
+```
+```{r, fig.height=6}
+library(scales)
+A <-workData %>%
+  filter(LocationYear !="Whatawhata1989_91")  %>%
+  ggplot(aes(x=Date, y=PhenoPhase)) +
+  geom_line(aes(colour=Cultivar)) +
+  facet_wrap(~LocationYear, scale="free") +
+  scale_x_date(labels = date_format("%b"))
+```
+
+
+
+
+
+
+```{r, fig.height=6}
+library(scales)
+workData %>%
+  filter(LocationYear=="Christchurch1993")  %>%
+  ggplot(aes(x=Ttsum, y=PhenoPhase)) +
+  geom_line(aes(colour=Cultivar)) +
+  facet_wrap(~LocationYear, scale="free") +
+  geom_vline(xintercept = c(755,1030), linetype=2)
+```
+
+Table
+```{r}
+workData %>%
+  filter(LocationYear !="Whatawhata1989_91")  %>%
+  group_by(LocationYear) %>%
+  mutate(FlagChange = ifelse(PhenoPhase == lag(PhenoPhase)+1, "Change", NA )) %>%
+  na.omit() %>%
+  dplyr::select(Cultivar,LocationYear,YearDay, PhenoPhase) %>%
+  mutate(PhenoName=factor(PhenoPhase, labels=c("A","B","C","D","E"))) %>%
+  dplyr::select(-PhenoPhase) %>%
+ # spread(PhenoName,YearDay)
+  spread(LocationYear,YearDay)
+
+```
+
+
+
+look at Monti sown in spring for example
+
+
+```{r}
+
+#Sow yearDay is 242 (01-September)mutate(A_p = cut(Ttsum,c(0,40,150,1500,10000))) %>%
+#str(workData)  
+
+workData_Monti <- rawData %>%
+  mutate(Date=ymd(Date))  %>%
+  dplyr::select(Country:Date,TTday) %>%
+  mutate(YearDay=yday(Date)) %>%
+  group_by(LocationYear) %>%
+  mutate(MinYear=year(min(Date))) %>%
+  mutate(thisSowDate= dmy(paste0("01/09/",MinYear))) %>%
+  mutate(Ttday_period = ifelse(Date > thisSowDate, TTday,NA)) %>%
+  na.omit() %>%
+  mutate(Ttsum=cumsum(Ttday_period)) %>%
+  #mutate(Antas = cut(Ttsum,c(0,96,153,372,842,2183,10000), labels = c(1,2,3,4,5,6))) %>%
+  #mutate(Denmark = cut(Ttsum,c(0,104,132,415,989,2070,10000), labels = c(1,2,3,4,5,6))) %>%
+  #mutate(Leura = cut(Ttsum,c(0,97,173,440,1013,2136,10000), labels = c(1,2,3,4,5,6))) %>%
+  mutate(Monti = cut(Ttsum,c(0,97,162,367,483,870,10000), labels = c(1,2,3,4,5,6))) %>%
+  #mutate(Narrikup = cut(Ttsum,c(0,103,152,395,913,1809,10000), labels = c(1,2,3,4,5,6))) %>%
+ # mutate(Woogenellup = cut(Ttsum,c(0,99,134,404,755,2051,10000), labels = c(1,2,3,4,5,6))) %>%
+  gather("Cultivar","PhenoPhase",Monti:Monti) %>%
+  mutate(Cultivar=factor(Cultivar), PhenoPhase=as.numeric(as.character(PhenoPhase))) %>%
+#  mutate(PhenoPhase=ifelse(PhenoPhase==6,NA,as.numeric(PhenoPhase))) %>%
+  na.omit()
+
+summary(workData_Monti)
+```
+
+
+```
+
+
+
+
+

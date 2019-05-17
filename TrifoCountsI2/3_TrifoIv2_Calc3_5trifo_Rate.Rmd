@@ -264,6 +264,47 @@ str(df_5T)
 write.table(df_5T,"df_DAS_5_Trifo.txt")
 ```
 
+```{r}
+
+
+##Insert DAETo1Trifo 
+
+
+setwd("C:\\GitHubRepos\\SubCloverPhD\\SubClover\\TrifoCountsI2")
+getwd()
+#create file
+df_1Trifo <- read.table("RateFirstTrifo.txt",header=TRUE)
+str(df_1Trifo)
+
+selected<-df_1Trifo%>%
+  dplyr::select(Plot ,DAS1T)
+
+```
+
+
+
+
+subtract DAS5T -DAS1T  
+
+
+```{r}
+
+
+df_DaysFrom1T <- merge(df_5T, selected, by="Plot")
+
+head(df_DaysFrom1T)
+
+A<-df_DaysFrom1T %>%
+  mutate(Daysto5Tnew=DAS5T-DAS1T)
+
+
+A<-A%>%
+  group_by(SowTreat,Cultivar)%>%
+  select(Daysto5Tnew)%>%
+  summarise_all(funs(mean))
+
+
+```
 
 
 

@@ -70,6 +70,29 @@ group_by(Date, Plot) %>%
 str(df_flower_simple)
 ```
 
+Do the same to create the R7 (pollinated flower)
+
+```{r}
+
+# create df with flowering stages only (merged)
+df_pollen <- df_flower %>%
+  #mutate(Plot=Pot)%>%
+filter(Variable == "Petal" | 
+         Variable == "Bur1") %>%
+group_by(Date, Plot) %>%
+  mutate(Variable = "R7Pol", 
+         Percent=(Percent)) %>%
+           ungroup()
+
+
+
+
+```
+
+
+
+
+
 Do the same joining for Burr
 
 ```{r}
@@ -104,7 +127,7 @@ Combine all three dataframes
 str(df_bud_simple)
 str(df_flower_simple)
 str(df_bur_simple)
-
+str(df_pollen)
 
 
 ```
@@ -113,7 +136,7 @@ str(df_bur_simple)
 
 # merge both dfs
 df_bud_flow_bur_simple <- 
-  rbind(df_bud_simple, df_flower_simple, df_bur_simple)
+  rbind(df_bud_simple, df_flower_simple, df_pollen, df_bur_simple)
   #rbind(df_bud_simple, df_flower_simple)
 #check
 summary(df_bud_flow_bur_simple)

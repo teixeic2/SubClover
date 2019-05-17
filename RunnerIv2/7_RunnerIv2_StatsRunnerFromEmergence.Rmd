@@ -254,13 +254,15 @@ summary(file.subs)
 
 #ANOVA
 
-#my.anova <- aov(DASRunFromEmerg ~ SowTreat + Block, data = file.subs)
-#my.anova <- aov(DASRunFromEmerg ~ Cultivar + Block, data = file.subs)
+#my.anova <- aov(TTRunFromEmerg ~ SowTreat + Block, data = file.subs)
+#my.anova <- aov(TTRunFromEmerg ~ Cultivar + Block, data = file.subs)
 my.anova <- aov(TTRunFromEmerg ~ Cultivar*SowTreat+ Block, data = file.subs)
 
 summary(my.anova )
 
 (LSD.test(my.anova, c("SowTreat", "Cultivar"), alpha= 0.05, p.adj="none"))
+#(LSD.test(my.anova, c("SowTreat"), alpha= 0.05, p.adj="none"))
+#(LSD.test(my.anova, c("Cultivar"), alpha= 0.05, p.adj="none"))
 
 ```
 

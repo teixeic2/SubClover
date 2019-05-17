@@ -1,0 +1,547 @@
+---
+title: "ESA2018_subset-Hardseeds Live Max 6CV"
+author: "CT"
+date: "18.01.2018"
+output:
+  word_document: default
+  pdf_document: default
+  html_document: default
+---
+
+
+```{r loadLibraries}
+
+library(tidyr)
+library (dplyr)
+library (ggplot2)
+library(agricolae)
+library(knitr)
+library (lubridate)
+
+```
+
+
+```{r}
+setwd("C:\\GitHubRepos\\SubCloverPhD\\SubClover\\ESA2018_Biochem")
+getwd()
+```
+
+
+
+This script reads the HardseedsLiveData (from raw data excel) with all catergories of seeds (germ, abnormal, dead).calculation of max hardseeds and cumulative hardseeds.
+
+```{r loadFile}
+#create file
+#df_seed_raw <- read.table("HardseedsLiveData.txt",header=TRUE)
+df_seed <- read.table("HardseedsLiveData.txt",header=TRUE)
+head(df_seed_raw)
+```
+
+```{r}
+# jeito 2 de trocar formato (usando dplyr)
+df_seed <- df_seed_raw %>%
+  mutate(Plot = as.factor(Plot), 
+         Block = as.factor(Block),
+         Date = dmy(Date),
+         Depth = factor(Depth,levels=c("Above","Below")),
+         Soft = as.numeric(Soft),
+         SoftDead = as.numeric(SoftDead),
+         SoftGerm = as.numeric (SoftGerm),
+         SoftAbn = as.numeric (SoftAbn),
+         SoftUngerm = as.numeric (SoftUngerm),
+       HardUngermFinal = as.numeric (HardUngermFinal)) 
+  
+
+summary(df_seed) # explore values
+
+```
+
+```{r}
+str(df_seed) # check formats
+```
+
+here get the minimum round for the maximum percentage of hardseeds 
+
+```{r}
+
+
+
+# create an ID of each chunk
+df_temp <- df_seed %>%
+  dplyr::select(-Date) %>%
+  mutate(codeID = as.factor(paste0(Plot,"_",Depth)))
+
+# define unique factors to loop around
+codesNames <- unique(df_temp$codeID)
+
+# prepare final df to store data
+df_final <- data.frame()
+
+# loop
+for(i in 1:length(codesNames)) {
+  
+  df_sub <- data.frame() # empty df
+  
+  df_sub <- df_temp %>%
+    subset(codeID == codesNames[i]) %>% # segment one unique combination
+    mutate(codeID = factor(codeID)) %>%
+    arrange(Round) %>%
+    mutate(CumSoftDead = cumsum(SoftDead)) %>%
+    mutate(Total_live = InitialSeedlotR1Number-max(CumSoftDead)) %>%
+    mutate(Soft_live = SoftGerm + SoftUngerm + SoftAbn) %>%
+    filter(Round==min(Round)) %>% 
+    mutate(Hard_perc = round(100-(Soft_live/Total_live*100),2))
+  
+  df_final <- rbind(df_final,df_sub)
+  
+}
+
+summary(df_final)
+```
+
+
+
+
+
+
+```{r CreatePercentSoft}
+
+#Change name of dataframes - u should not do that, makes things confuse
+
+df_hard_live_max <- df_final %>% mutate(Round=factor(Round))
+
+summary (df_hard_live_max)
+
+```
+check
+
+```{r, fig.height=5, fig.width=10}
+
+#Graph the maximum percentage of Live hardseeds!!! Here graph already show SE sd/3,.46 n = 3.
+
+  df_hard_live_max %>%
+  mutate(SowingD = dmy(SowingD)) %>%
+  filter(Round == 14) %>%
+  group_by(Cultivar,SowingD, Depth) %>%
+  dplyr::select(Hard_perc) %>%
+  summarise_all(funs(mean,sd)) %>%
+  ggplot(aes(x=SowingD, y=mean, colour=Cultivar, shape=Cultivar)) +
+  geom_point() +
+  geom_line() +
+ facet_grid(Depth~Cultivar) +
+  labs(x="Sowing Date",y="Maximum Percentage of Live Hardseeds (%)") +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1))+
+                  geom_errorbar(aes(ymin=mean-sd/3.46,
+                    ymax=mean+sd/3.46))+
+  theme_bw()+
+  ylim(0,100)+
+  theme(axis.text.x=element_text(angle = 0, hjust = 0.5, size= 11))+
+  theme(axis.text.y=element_text(angle = 0, hjust = 0, size= 12))
+
+```
+
+
+here loop to get the cumulative hardseeds in all rounds 
+
+```{r}
+# df_cum_soft<-df_seed %>%
+#   mutate(LiveSeed=InitialSeedlotR1Number-SoftDead) %>%
+#   mutate(SoftLive=SoftGerm+SoftAbn)  %>%
+#   mutate(PercSoft=SoftLive/LiveSeed*100) %>%
+#   mutate(PercHard=100-PercSoft) %>%
+#   group_by(Plot,Depth) %>%
+#   arrange(Round) %>%
+#   mutate(HardAccum = 100-cumsum(PercSoft))
+#   
+# summary(df_cum_soft)
+
+
+
+
+# create an ID of each chunk
+df_temp <- df_seed %>%
+  dplyr::select(-Date) %>%
+  mutate(codeID = as.factor(paste0(Plot,"_",Depth)))
+
+# define unique factors to loop around
+codesNames <- unique(df_temp$codeID)
+
+# prepare final df to store data
+df_final2 <- data.frame()
+
+# loop
+for(i in 1:length(codesNames)) {
+  
+  df_sub <- data.frame() # empty df
+  
+  df_sub <- df_temp %>%
+    subset(codeID == codesNames[i]) %>% # segment one unique combination
+    mutate(codeID = factor(codeID)) %>%
+    arrange(Round) %>%
+    mutate(LiveSeed=InitialSeedlotR1Number-SoftDead) %>%
+    mutate(SoftLive=SoftGerm+SoftAbn)  %>%
+    mutate(PercSoft=SoftLive/LiveSeed*100) %>%
+    mutate(PercHard=100-PercSoft)%>%
+   
+    
+   # filter(Round==min(Round)) %>% 
+     mutate(HardAccum = 100-cumsum(PercSoft))
+  
+  df_final2 <- rbind(df_final2,df_sub)
+  
+}
+
+summary(df_final2)
+  
+```
+
+Here graph the percentage of hardseeds based on living seeds (exclude dead! )
+
+```{r, fig.height= 8, fig.width=12}
+#change data frame name and Graph Breakdown live hard seeds 
+
+df_cum_soft<- df_final2
+
+df_cum_soft %>%
+  mutate(SowingD = dmy(SowingD)) %>%
+  mutate (SowTreat= factor(SowTreat, levels=c("S1", "S2", "S3", "S4", "S6","S7"),labels=c("June", "July", "September", "November", "February","March")))%>%
+  #filter(Round == 14) %>%
+  group_by(Cultivar,SowingD, SowTreat, Depth,Round) %>%
+  dplyr::select(HardAccum) %>%
+  summarise_all(funs(mean,sd)) %>%
+  ggplot(aes(x=Round, y=mean, colour=Cultivar, shape=Cultivar)) +
+  geom_point(size=3) +
+  geom_line() +
+ facet_grid(Depth~SowTreat) +
+  labs(x="Days",y=" Percentage of LiveHardseeds") +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1))+
+                  geom_errorbar(aes(ymin=mean-sd/3.46,
+                    ymax=mean+sd/3.46))+
+  theme_bw()+
+  ylim(0,100)+
+  xlim(0,100)+
+  ylab(expression(Percentage~of~Hardseeds~"(%)"))+
+  #theme(text = element_text(size=12))+
+  #xlab(expression(Days))+
+  theme(axis.text.x=element_text(angle = 45, hjust = 0.5, size= 11))+
+   theme(axis.title.x=element_text(angle = 0, hjust = 0.5, size= 16))+
+  theme(axis.text.y=element_text(angle = 0, hjust = 0, size= 12))+
+   theme(axis.title.y=element_text(angle = 90, hjust = 0.5, size= 16))
+
+
+
+```
+Now subset only the data to use in the ESA2018 paper : S2 (July) : Monti and Antas; 0 and 98 days 
+
+```{r}
+
+
+df_Subset <- df_cum_soft %>%
+  filter(SowTreat=="S2")%>%
+  filter(Cultivar=="Antas"|Cultivar=="Monti"|Cultivar=="Narrikup" )%>%
+  filter (Round=="14" |Round=="98" )
+  
+
+
+```
+
+
+
+
+Then make the bar Graph . 
+Calculate SE = sd/sqrt of n (n=6, )
+
+```{r, fig.height=5, fig.width=15}
+
+#graph with dark and ccream colours 
+df_graf2 <-df_Subset %>%
+#group_by(Cultivar,Round,Block) %>%
+  group_by(Cultivar,Round) %>%
+  dplyr::select(HardAccum) %>%
+  summarise_all(funs(mean,sd)) 
+
+# define position of bar and errorbar
+dodge_x <- position_dodge(width = 0.9)
+
+df_graf2%>%
+  # filter(SowTreat=="S2")%>%
+  # filter(Cultivar=="Antas"| Cultivar=="Monti" )%>%
+  # filter(TtSum=="0"| TtSum=="1680" )%>%
+mutate (Round= factor(Round, levels=c("14", "98"),labels=c("DAY 0 ", "DAY 84")))%>%
+ #ggplot(aes(x=Cultivar, y=mean), fill=Cultivar) +
+  ggplot(aes(x= Cultivar, y=(mean))) +
+  geom_bar(aes(fill=Cultivar), colour="black",stat="identity",position = dodge_x) +
+  #geom_bar(stat="identity",position = dodge_x) +
+  geom_errorbar(aes(ymin=mean-(sd/2.4)/2,
+                    ymax=mean+(sd/2.4)/2),
+                width=0.25, size=0.3,position=dodge_x)   +
+  theme_bw(base_size=16)+
+  
+  facet_grid(.~Round, scales="free") +
+    #this is for pallet blues : 
+  #scale_fill_brewer(palette="Blues")+
+  
+  #
+  #scale_fill_manual("legend", values = c("Antas" = "#660066", "Monti" = "#FF9933"))+
+   scale_fill_manual("legend", values = c("Antas" = "gray32", "Monti" = "darkgoldenrod2"))+
+  
+  #remove grid lines 
+   theme(
+     panel.border = element_rect(colour = "black", size = 2), 
+     panel.grid.major = element_blank(),
+     panel.grid.minor = element_blank(),
+     axis.line = element_line(colour = "black"))+
+   
+   
+   #make sowing dates white  
+   theme(strip.background = element_rect(colour = "black", fill = "white",size=2))+
+   
+   scale_y_continuous(expand = c(0, 0), limits = c(0, 100))+
+    labs(y= " Hardseeds (%) ")+
+  #edit y axis
+theme(axis.text.y = element_text( size = 32))+
+  theme(axis.title.y = element_text( size = 32))+
+  #theme(axis.title.y = element_text(face="bold", size=14))+
+theme(axis.text.x=element_text(angle = 0, hjust=0.5,vjust=0.2,size = 32)) +
+  theme(text = element_text(size = 32))
+# theme(axis.text.y = element_text( size = 26))+
+# theme(axis.title.y = element_text(face="bold", size=22))+
+# theme(axis.text.x=element_text(angle = 0, hjust=0.5,vjust=0,size = 22,face="bold"))+
+# theme(axis.title.x = element_text( size=24))+
+#   labs(y="Measured seed weight (mg) ",x="Reported seed weight (mg) ")
+#  # geom_abline(intercept = 50, slope = 0)
+# 
+# 
+# 
+ ggsave("plot_PercentHardness.png", width=14, height=7, dpi=500)
+
+```
+
+
+Now make the graph with border bars in black 
+
+
+
+```{r, fig.height=5, fig.width=15}
+
+df_graf2 <-df_Subset %>%
+group_by(Cultivar,Round) %>%
+  dplyr::select(HardAccum) %>%
+  summarise_all(funs(mean,sd)) 
+
+# define position of bar and errorbar
+dodge_x <- position_dodge(width = 0.9)
+
+df_graf2%>%
+  # filter(SowTreat=="S2")%>%
+  # filter(Cultivar=="Antas"| Cultivar=="Monti" )%>%
+  # filter(TtSum=="0"| TtSum=="1680" )%>%
+mutate (Round= factor(Round, levels=c("14", "98"),labels=c("DAY 0 ", "DAY 84")))%>%
+ #ggplot(aes(x=Cultivar, y=mean), fill=Cultivar) +
+  ggplot(aes(x= Cultivar, y=(mean))) +
+  geom_bar(aes(fill=Cultivar), colour="black",stat="identity",position = dodge_x) +
+  #geom_bar(stat="identity",position = dodge_x) +
+  geom_errorbar(aes(ymin=mean-(sd/2.4)/2,
+                    ymax=mean+(sd/2.4)/2),
+                width=0.25, size=0.3,position=dodge_x)   +
+  theme_bw(base_size=16)+
+  
+  facet_grid(.~Round, scales="free") +
+    scale_fill_brewer(palette="Blues")+
+   
+  #remove grid lines 
+   theme(
+     panel.border = element_rect(colour = "black", size = 2), 
+     panel.grid.major = element_blank(),
+     panel.grid.minor = element_blank(),
+     axis.line = element_line(colour = "black"))+
+   #scale_fill_manual("legend", values = c("Antas" = "#660066", "Denmark" = "lightgrey","Leura" = "darkgrey", "Monti" = "#FF9933","Narrikup" = "blue",  "Woogenellup" = "#033333"))+
+   
+   #make sowing dates white  
+   theme(strip.background = element_rect(colour = "black", fill = "white",size=2))+
+   
+   scale_y_continuous(expand = c(0, 0), limits = c(0, 100))+
+  
+  
+    labs(y= " Hardseeds (%) ")+
+theme(axis.text.y = element_text( size = 18))+
+  #theme(axis.title.y = element_text(face="bold", size=14))+
+theme(axis.text.x=element_text(angle = 0, hjust=0.95,vjust=0.2,size = 28)) +
+  theme(text = element_text(size = 26))
+# theme(axis.text.y = element_text( size = 26))+
+# theme(axis.title.y = element_text(face="bold", size=22))+
+# theme(axis.text.x=element_text(angle = 0, hjust=0.5,vjust=0,size = 22,face="bold"))+
+# theme(axis.title.x = element_text( size=24))+
+#   labs(y="Measured seed weight (mg) ",x="Reported seed weight (mg) ")
+#  # geom_abline(intercept = 50, slope = 0)
+# 
+# 
+# 
+# 
+ #ggsave("plot_PercentHardness.png", width=14, height=7, dpi=500)
+
+```
+
+
+
+```{r}
+
+
+
+
+
+
+
+
+```
+
+
+
+
+Now run the stats for this subset 
+
+```{r}
+str (df_Subset)
+
+```
+Select columns of interest compare cultivars and round 
+
+```{r}
+
+
+file <- df_Subset %>%
+  dplyr::select(Block, Cultivar,Round,Plot,HardAccum)
+  #filter(Round=="14")
+
+#-------------------------------------------------
+
+# Chosen transform log to do anova 
+file.subset <- file 
+
+head(file.subset, 50)
+summary(file.subset)
+#my.anova <- aov(HardAccum ~ Cultivar*Round + Block, data = file.subset)
+  my.anova <- aov(HardAccum ~ Cultivar*Round, data = file.subset)               
+#-----------------------
+summary(my.anova)
+
+```
+
+
+
+## Create index to filter for loop ANOVA for time 
+
+```{r}
+y <- c("14","98")
+
+sdIndex <- unique(df_Subset$Round)
+
+sdIndex[order(match(sdIndex,y))]
+
+length(sdIndex)
+sdIndex
+```
+
+```{r}
+
+for (i in 1:length(sdIndex)) {
+  
+ #print(i)
+ print(paste0(sdIndex[i],"--------------------------------"))
+  
+  file.subset <- df_Subset %>%
+    
+  filter(Round==sdIndex[i])
+
+  head(file.subset, 50)
+   summary(file.subset)
+my.anova <- aov( HardAccum~ Cultivar + Block, data = file.subset)
+print(summary(my.anova))
+
+if ((summary(my.anova)[[1]][["Pr(>F)"]][1])<0.05) {
+  print("***Sig CV***") 
+  print((LSD.test(my.anova, c("Cultivar"), alpha= 0.05, p.adj="none"))) } # do if
+
+
+  } 
+if ((summary(my.anova)[[1]][["Pr(>F)"]][2])<0.05) {print("***Sig Block***")
+  print((LSD.test(my.anova, c("Block"), alpha= 0.05, p.adj="none")))
+  
+  
+}
+
+# if ((summary(my.anova)[[1]][["Pr(>F)"]][3])<0.05) {print("***Sig CV:Block Int***")
+#   print((LSD.test(my.anova, c("Cultivar:Block"), alpha= 0.05, p.adj="none")))
+#   
+#   } 
+
+# make mean separation if significant
+
+(LSD.test(my.anova, c("cultivar"), alpha= 0.05, p.adj="none"))
+  
+}
+
+
+```
+
+then run loop anova to detect LSD for time effect 
+
+## Create index to filter for loop ANOVA for cultivar
+
+```{r}
+y <- c("Antas","Monti")
+
+sdIndex <- unique(df_Subset$Cultivar)
+
+sdIndex[order(match(sdIndex,y))]
+
+length(sdIndex)
+sdIndex
+```
+
+```{r}
+
+for (i in 1:length(sdIndex)) {
+  
+ #print(i)
+ print(paste0(sdIndex[i],"--------------------------------"))
+  
+  file.subset <- df_Subset %>%
+    
+  filter(Cultivar==sdIndex[i])
+
+  head(file.subset, 50)
+   summary(file.subset)
+my.anova <- aov( HardAccum~ Round + Block, data = file.subset)
+print(summary(my.anova))
+
+if ((summary(my.anova)[[1]][["Pr(>F)"]][1])<0.05) {
+  print("***Sig CV***") 
+  print((LSD.test(my.anova, c("Roundr"), alpha= 0.05, p.adj="none"))) } # do if
+
+
+  } 
+if ((summary(my.anova)[[1]][["Pr(>F)"]][2])<0.05) {print("***Sig Block***")
+  print((LSD.test(my.anova, c("Block"), alpha= 0.05, p.adj="none")))
+  
+  
+}
+
+if ((summary(my.anova)[[1]][["Pr(>F)"]][3])<0.05) {print("***Sig CV:Block Int***")
+  print((LSD.test(my.anova, c("Round:Block"), alpha= 0.05, p.adj="none")))
+  
+  } 
+
+# make mean separation if significant
+
+(LSD.test(my.anova, c("round"), alpha= 0.05, p.adj="none"))
+  
+}
+
+
+```
+
+
+
+
+
