@@ -127,10 +127,93 @@ df_HardUngermFinal %>%
 
 ```
 
+transform HardUngermFinal_perc
 
 
 
 
+
+```{r}
+
+##rename dataframe 
+
+file <-df_HardUngermFinal
+  #filter(SowTreat=="S1")
+ #filter(SowTreat=="S2")
+ #filter(SowTreat=="S3") 
+ #filter(SowTreat=="S4")
+ #filter(SowTreat=="S6")
+ #filter(SowTreat=="S7")
+
+
+
+
+#data transformation
+file$transf_sqr <- sqrt(file$HardUngermFinal_perc)
+file$transf_log <- log(file$HardUngermFinal_perc)
+file$transf_not <- 1*(file$HardUngermFinal_perc/1)
+file$transf_acos <- acos(file$HardUngermFinal_perc/100)
+file$transf_sqrx <- (file$HardUngermFinal_perc^2)
+#mutate(mydata, sqr.x = x^2)
+
+
+head(file)
+
+x <- c("transf_sqr", "transf_log","transf_acos","transf_not", "transf_sqrx" )
+colsSelec <- match(x,colnames(file))
+
+
+
+
+```
+
+QQplots
+
+
+```{r, fig.height=7, fig.widht=8}
+
+
+file %>%
+  tidyr::gather("transformation","value",colsSelec) %>%
+  ggplot(aes(value)) + 
+  geom_histogram() +
+  facet_grid(.~transformation, scales="free")+
+  theme_bw()
+
+
+
+```
+
+
+check normality shapiro test +QQplots
+
+```{r}
+
+#normality test
+shapiro.test(file$transf_acos)
+shapiro.test(file$transf_not)
+shapiro.test(file$transf_sqr)
+shapiro.test(file$transf_log)
+shapiro.test(file$transf_sqrx)
+
+
+
+
+##QQplot
+#var<-file$transf_acos
+
+#var<-file$transf_not
+#var<-file$transf_sqr
+#var<-file$transf_log
+#var<-file$transf_sqrx
+
+qqnorm(var)
+qqline(var, col = 2)
+qqplot(var, rt(300, df = 5))
+
+
+
+```
 
 then select columns of interest : here stats for overall means (SowTreat and Cultivar)
 
@@ -146,9 +229,9 @@ file.subset <- file
 
 head(file.subset, 50)
 summary(file.subset)
-#my.anova <- aov(HardUngermFinal_perc~ Cultivar*SowTreat*Depth + Block, data = file.subset)
+my.anova <- aov(HardUngermFinal_perc~ Cultivar*SowTreat*Depth + Block, data = file.subset)
 #my.anova <- aov(HardUngermFinal_perc~ Cultivar + Block, data = file.subset)
-my.anova <- aov(HardUngermFinal_perc~ SowTreat + Block, data = file.subset)
+#my.anova <- aov(HardUngermFinal_perc~ SowTreat + Block, data = file.subset)
 ```
 
 ```{r}

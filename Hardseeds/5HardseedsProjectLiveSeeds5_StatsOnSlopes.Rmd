@@ -32,6 +32,56 @@ df_seed <- read.table("df_slopesBreak.txt",header=TRUE)
 str(df_seed)
 ```
 
+test normality (attention!! look at script 14 for stats of SDbreak)
+
+
+```{r}
+
+
+##Data Transformation :Hard_perc
+
+
+```{r}
+
+##rename dataframe 
+
+file <-df_hard_live_max
+  #filter(SowTreat=="S1")
+ #filter(SowTreat=="S2")
+ #filter(SowTreat=="S3") 
+ #filter(SowTreat=="S4")
+ #filter(SowTreat=="S6")
+ #filter(SowTreat=="S7")
+
+
+
+
+#data transformation
+file$transf_sqr <- sqrt(file$Hard_perc)
+file$transf_log <- log(file$Hard_perc)
+file$transf_not <- 1*(file$Hard_perc/1)
+file$transf_acos <- acos(file$Hard_perc/100)
+file$transf_sqrx <- (file$Hard_perc^2)
+#mutate(mydata, sqr.x = x^2)
+
+
+head(file)
+
+x <- c("transf_sqr", "transf_log","transf_acos","transf_not", "transf_sqrx" )
+colsSelec <- match(x,colnames(file))
+
+
+
+
+```
+
+
+```
+
+
+
+
+
 
 
 ## Create index to filter for loop ANOVA

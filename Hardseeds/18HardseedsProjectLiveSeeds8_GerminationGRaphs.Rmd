@@ -1,0 +1,238 @@
+---
+title: "Hardseeds Live Max 6CV"
+author: "CT"
+date: "11.01.2018"
+output:
+  word_document: default
+  pdf_document: default
+  html_document: default
+---
+
+
+```{r loadLibraries}
+library(tidyr)
+library (dplyr)
+library (ggplot2)
+library(agricolae)
+library(knitr)
+library (lubridate)
+library(gridExtra)
+library(rpart)
+
+```
+sow
+-This script reads the weather conditions for the  seed filling period (R7-R12)   EnviroSeedFillingR7_R12.txt
+-Combines the info about the max hardness and slope hardseed breakdown 
+-Attempt to establish correlation between the different variates 
+- build a decision tree using rpart package 
+
+```{r loadFile}
+setwd("C:\\GitHubRepos\\SubCloverPhD\\SubClover\\Hardseeds")
+getwd()
+
+#create file
+#df_SowHvst <- read.table("EnviroSeedFillingR7_R12.txt",header=TRUE)
+df_All <- read.table("AllDataAllPeriodsSDandGerm.txt",header=TRUE)
+head(df_All)
+# change format 
+
+
+```
+
+
+
+
+
+
+```{r, fig.height=5, fig.width=10}
+
+#str(df_All)
+
+str(df_All)
+
+#pairs(~HardAccum+slope+RainIrrig+RH+Temp+SoilTemp+PET+DiffRainPET,data=df_AllPlotsR7_R12, main="Simple Scatterplot Matrix")
+pairs(~HardAccum+RainIrrig+RH+Temp+PET,data=df_All, main="Simple Scatterplot Matrix")
+  
+# dfD <- df_All%>%
+#   filter(Cultivar=="Denmark")
+# pairs(~HardAccum+slope+Rain+RH+Temp,data=dfD, main="Simple Scatterplot Matrix Denmark")
+
+```
+
+then select columns of interest : here stats for overall means (SowTreat and Cultivar)
+
+```{r}
+
+#find coefficients 
+
+cor (df_All[,-c(1,2)])
+# cor (dfD[,-c(1,2)])
+```
+ 
+##Test regressions with  df_AllPlotsR7_R12
+
+
+```{r}
+
+str(df_All)
+summary(lm(HardAccum ~ RainIrrig+RH+PET+SoilTemp, df_All))
+summary(lm(Germination ~ RainIrrig+RH+PET+SoilTemp, df_All))
+#summary(lm(HardAccum ~ RH, df_AllPlotsR7_R12))
+#summary(lm(HardAccum ~ Temp, df_AllPlotsR7_R12))
+#summary(lm(HardAccum ~ SoilTemp, df_AllPlotsR7_R12))
+#summary(lm(HardAccum ~ PET, df_AllPlotsR7_R12))
+#summary(lm(HardAccum ~ DiffRainPET, df_AllPlotsR7_R12))
+
+
+
+```
+
+
+##This loop checks the lm for all Periods first  for Hardcumm
+## (Sdmax)
+ 
+ 
+```{r}
+
+#create a vector that holds names of all possible cultivars
+cv.unique <- unique(df_All$Period)
+
+summary(cv.unique )
+
+
+for (i in 1:length(cv.unique)) {
+  
+ #print(i)
+ print(paste0(cv.unique[i],"--------------------------------"))
+  
+  #then make it subset 
+  
+  df_subset <- df_All %>%
+    subset(Period==cv.unique[i])
+  
+  #add the function or calculation required 
+  
+    #summary(lm(HardAccum ~ RainIrrig+RH+PET+SoilTemp, df_subset)) 
+     #summary(lm(Germination ~ RainIrrig+RH+PET+SoilTemp, df_subset))
+     summary(lm(Sqrtslope ~ RainIrrig+RH+PET+SoilTemp, df_subset))
+    #summary(lm(HardAccum ~ Temp, df_subset))
+  #print
+    
+#print(summary(lm(HardAccum ~ RainIrrig+RH+PET+SoilTemp, df_subset)))
+#print(summary(lm(Germination ~ RainIrrig+RH+PET+SoilTemp, df_subset)))
+print(summary(lm(Sqrtslope ~ RainIrrig+RH+PET+SoilTemp, df_subset)))
+   # print(summary(lm(HardAccum ~ Temp, df_subset)))
+
+  } 
+
+
+```
+
+
+
+
+```{r}
+
+AllGrw<-df_All %>%
+  filter(Period=="AllGrowth")
+
+  #summary(lm(Sqrtslope ~ RainIrrig+PET, AllGrw))
+  summary(lm(Germination ~ SoilTemp+PET+RainIrrig, AllGrw))
+  
+  
+  SeedFill<-df_All %>%
+  filter(Period=="SeedFill")
+
+  #summary(lm(Germination ~ PET+SoilTemp, SeedFill))
+  summary(lm(Sqrtslope ~ PET+SoilTemp, SeedFill))
+  
+  
+   BefHvst<-df_All %>%
+  filter(Period=="BeforeHvst")
+
+  #summary(lm(Germination ~ RH+RainIrrig+SoilTemp, BefHvst))
+  summary(lm(Sqrtslope ~ SoilTemp+RH, BefHvst))
+
+```
+
+Plot Weather variables with GErmination  in whole period  RH and Soil temp
+
+
+```{r}
+
+  str(AllGrw )
+
+
+AllGrw %>%
+  mutate (SowTreat= factor(SowTreat, levels=c("S1", "S2", "S3", "S4", "S6","S7"),labels=c("June", "July", "September", "November", "February","March")))%>%
+  ggplot(aes(x=SoilTemp , y= Germination))  +
+  geom_point(colour= "black", alpha=0.2) +
+  geom_point(aes(shape=SowTreat),size=6)+
+  #geom_point(aes(shape=SowTreat),size=4)+
+   geom_smooth(method='lm',formula=y~x, colour="grey",alpha=0.1)+
+  theme_bw() +
+  xlab(expression(Soil~temperature~"( "^"o"*"C)"))+ 
+  #ylab(expression(Maximum~Hardseeds~Percent~"("*"%"*")"))+
+  #ylab(expression(SDmax~"("*"%"*")"))+
+  ylab(expression(Germinatio~percentage~"("*"%"*")"))+
+  theme(text = element_text(size=22))+
+  scale_x_continuous(limits = c(10,18),breaks=c(10,12,14,16, 18))+
+  scale_y_continuous(limits = c(0,100),breaks=c(0,20,40,60,80, 100))+
+  #facet_wrap(~Cultivar)+
+  #remove grid lines 
+   theme(
+     panel.border = element_rect(colour = "black", size = 1), 
+     panel.grid.major = element_blank(),
+     panel.grid.minor = element_blank(),
+     axis.line = element_line(colour = "black"))+
+   #scale_fill_manual("legend", values = c("Antas" = "#660066", "Denmark" = "lightgrey","Leura" = "darkgrey", "Monti" = "#FF9933","Narrikup" = "blue",  "Woogenellup" = "#033333"))+
+   
+   #make sowing dates white  
+   theme(strip.background = element_rect(colour = "black", fill = "white",size=1))
+  #theme(title =  element_text(size=14))
+  #theme(title =  element_text(size=14))
+
+  ggsave("plot_Prjt18_Regression_Germination_SoilTemp_AllGrowPeriod.tiff", width=12, height=6, dpi=400)
+
+```
+
+
+
+
+```{r}
+
+  str(SeedFill )
+
+
+SeedFill %>%
+  mutate (SowTreat= factor(SowTreat, levels=c("S1", "S2", "S3", "S4", "S6","S7"),labels=c("June", "July", "September", "November", "February","March")))%>%
+  ggplot(aes(x=SoilTemp , y= Germination))  +
+  geom_point(colour= "black", alpha=0.2) +
+  geom_point(aes(shape=SowTreat),size=6)+
+  #geom_point(aes(shape=SowTreat),size=4)+
+   geom_smooth(method='lm',formula=y~x, colour="grey",alpha=0.1)+
+  theme_bw() +
+  xlab(expression(Soil~temperature~"( "^"o"*"C)"))+ 
+  #ylab(expression(Maximum~Hardseeds~Percent~"("*"%"*")"))+
+  #ylab(expression(SDmax~"("*"%"*")"))+
+  ylab(expression(Germinatio~percentage~"("*"%"*")"))+
+  theme(text = element_text(size=22))+
+  scale_x_continuous(limits = c(14,20),breaks=c(14,15,16,17,18))+
+  scale_y_continuous(limits = c(0,100),breaks=c(0,20,40,60,80, 100))+
+  #facet_wrap(~Cultivar)+
+  #remove grid lines 
+   theme(
+     panel.border = element_rect(colour = "black", size = 1), 
+     panel.grid.major = element_blank(),
+     panel.grid.minor = element_blank(),
+     axis.line = element_line(colour = "black"))+
+   #scale_fill_manual("legend", values = c("Antas" = "#660066", "Denmark" = "lightgrey","Leura" = "darkgrey", "Monti" = "#FF9933","Narrikup" = "blue",  "Woogenellup" = "#033333"))+
+   
+   #make sowing dates white  
+   theme(strip.background = element_rect(colour = "black", fill = "white",size=1))
+  #theme(title =  element_text(size=14))
+  #theme(title =  element_text(size=14))
+
+  ggsave("plot_Prjt18_Regression_Germination_SoilTemp_SeedFillPeriod.tiff", width=12, height=6, dpi=400)
+
+```

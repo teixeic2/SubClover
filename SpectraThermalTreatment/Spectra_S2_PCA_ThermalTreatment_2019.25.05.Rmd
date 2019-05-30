@@ -23,26 +23,15 @@ library (lubridate)
 library(scales)
 library(calibrate)
 library(factoextra)
-library(FactoMineR)
 ```
 
 # Get the segmented spectra  and continue here 
 ```{r}
-
-
-setwd("C:\\GitHubRepos\\SubCloverPhD\\SubClover\\Spectra_S2_Anovas")
+setwd("C:\\GitHubRepos\\SubCloverPhD\\SubClover\\SpectraThermalTreatment")
 getwd()
 
-#create file using the data from: "s2_Segmented_BaselinedMaxNorm1And2.txt"
-
-#this is the whole spectra :
-
-#df_G <- read.table("S2All.txt",header=TRUE)
-#this is the sniped  spectra :
-
-df_G <- read.table("S2_BaselinedMaxNormBlock1And2.txt",header=TRUE)
-
-str(df_G)
+df_G <- read.table("NormalSnipped_CvByIncub.txt",header=TRUE)
+summary(df_G)
 ```
 
 Here take the mean of each replicate !!Analyse at the replicate level!  To get the following treatment combinations : 
@@ -60,39 +49,6 @@ M842
 M843
 
 
-select columns of interest and Adjust formats 
-```{r}
-
-#change formats
-df_G$Cultivar <- as.integer(df_G$Cultivar)
-df_G$Block <- as.integer(df_G$Block)
-#df_G$Wavenumber   <- as.factor(df_G$Wavenumber)
-df_G$Wavenumber  <- as.numeric(df_G$Wavenumber)
-
-#select columns and change name wavelenght for wavenumber (easy)
-# df_G <-df_G %>%
-#   mutate(Wavenumber = as.numeric(wavelength))%>%
-#   dplyr:: select (-wavelength)
-
-  #mutate_(Wavenumber=wavelength) 
-
-#dplyr:: select(Plot,Block,Cultivar)
-
-
-str(df_G)
-
-# this is to "clean previous dfs : df_emerg4 <- NULL
-
-
-
-
-
-
-
-
-```
-
-
 ##Now you have the dataframe organized vertically: spread the wavenumber horizontally 
 
 
@@ -101,169 +57,140 @@ str(df_G)
 
 #-------------here is just to produce a matrix to export to Unscrambleror PCA 
 
-#duplicated(df_G) 
+dftemp <- df_G %>%
+dplyr::select(-RowNumber, -Seed, -Rep, -AbsFactor, -id) %>%  
+#filter(Wavenumber %in% 852:3599) %>% # select only wavelengths of interest
+mutate(Wavenumber=factor(Wavenumber), IncubationDays=as.factor(IncubationDays)) #
 
+summary(dftemp)
 
- df_U <- df_G %>%
- mutate(Wavenumber=factor(Wavenumber)) %>%
- group_by(Cultivar,Block, Wavenumber) %>%
-  summarise_all(funs(mean))  %>%
-   dplyr::select(Cultivar,Block, Wavenumber,AbsorbanceNorm) %>%
+length(unique(dftemp$Wavenumber))
+
+df_U <- dftemp %>%
    tidyr::spread(Wavenumber, AbsorbanceNorm)
 
+#row.names(df_U) <-  df_U$RN    
+```
+
+```{r}
+head(df_U)[,1:10]
 ```
 
 
 
 ## -------------here PCa starts
 
-##Prepare dataframe
-
-```{r}
-df_spRep <- df_U%>%
-
-#filter(Cultivar =="A")%>%
-#filter(IncubationDays!="0")%>%
-group_by(Cultivar) %>%
-summarise_all(funs(mean))%>%
-dplyr::select(-Block)
-  
-
-
-```
-Now you have the dataframe with the mean spectra values at replicate level! Then do the selection of columns of interest ...before re labelling of row names 
-
-```{r}
-
-df_spU <- df_spRep
-#filter(Cultivar =="A")%>%
-#filter(IncubationDays!="0")%>%
-#dplyr::select( -Plot, -Seed)
-
-#here define the wavenumbers ;set active row numbers and column of variables
-#df_sp.activeU <- df_spU[,1:25, 2:1738 ]
-
-#df_sp.activeU <- df_spU[,1:25, 2:908 ]
-#str(df_sp.activeU[, 1:6])
-
-df_sp.activeU <- df_spU[1:6, 1:907 ]
-#str(df_sp.activeU[, 1:6])
-
-
-
-
-head(df_sp.activeU[, 1:6])
-
-
-```
-
 ##Re label row names per replicate (or Block is the same)  
 
-```{r}
-
-##attribute new labels 
-# row.names (df_sp.activeU) <-c("A0_1","A84_2","M0_1","M84_2")
-# # 
-# head (df_sp.activeU)
-
-#Re label row names per cultivar and block (replicate )
- #row.names (df_sp.activeU) <-c("A_1","A_2","A_3",
-# "D_1","D_2","D_3",
-# "L_1","L_2","L_3",
-#  "M_1","M_2","M_3",
-#  "N_1","N_2","N_3",
-#  "W_1","W_2","W_3")
-
-row.names (df_sp.activeU) <-c("A","D","L","M","N","W")
-
-
-
-
-# 
- head (df_sp.activeU)
-
-#df_sp.activeU$row.name<-as.numeric(df_sp.activeU$row.name)
-
-```
-
-
-
 ```{r readData}
+# Transforming Cv to number
+cv   <- as.vector(unique(df_U$Cultivar))
+cv_n <- seq(cv)
 
+#rownames(df_U) <- NULL
 
-#Need to convert the cultivar names to numbers as numeric
+df_U_pca <- df_U %>%
+  ungroup() %>%
+  mutate(Cultivar = factor(Cultivar, levels=cv,labels=cv_n)) %>%
+  mutate(Cultivar=as.numeric(as.character(Cultivar))) %>%
+  mutate(IncubationDays=as.numeric(as.character(IncubationDays)))
 
+head(df_U_pca)[,1:5]
 
-
-#compute PCA
-#res.pca <- prcomp (df_sp.active[,apply(df_sp.active, 2, var, na.rm=TRUE) != 0])
-
-res.pca <- prcomp(df_sp.activeU ,scale = TRUE)
-
-
-str(res.pca)
 
 ```
-
 
 ```{r}
-summary(res.pca$rotation)
-
+res.pca <- prcomp(df_U_pca, scale = TRUE)
+summary(res.pca)
 ```
-
-
-```{r}
-str(res.pca)
-
-```
-
 
 ## Visualize eigenvalues (scree plot). Show the percentage of variances explained by each principal component. 
 
 ```{r, fig.height=5, fig.width=10}
+ fviz_eig(res.pca)
+```
 
- 
+```{r}
+str(res.pca)
 
-fviz_eig(res.pca)
+```
 
-#str(fviz_eig(res.pca))
+# loadings are rotation in pca object
 
+##source: http://www.sthda.com/english/articles/31-principal-component-methods-in-r-practical-guide/118-principal-component-analysis-in-r-prcomp-vs-princomp/
+
+```{r}
+summary(res.pca$rotation)
+```
+
+Graph the loading of PC1 and PC2 
+
+```{r, warning=FALSE}
+
+LabelColumn<-row.names(res.pca$rotation)
+
+load.graph <- res.pca$rotation %>%
+  as.data.frame() %>%
+  dplyr::select(PC1,PC2) %>%
+  mutate(WaveLength=as.numeric(LabelColumn)) %>%
+  na.omit() %>% # FIXME: Cultivar and block come with value ??????
+  gather("PC","PC_Value",PC1:PC2) %>%
+  mutate(PC=factor(PC))
+
+str(load.graph)
+  
+```
+
+
+Separate loading
+
+
+```{r, fig.width=10}
+load.graph %>%
+   mutate(Show_WL = ifelse(WaveLength <1799,"Show2",
+                          ifelse(WaveLength > 2802,"Show1","NotShow"))) %>%
+  filter(Show_WL != "NotShow") %>%
+  ggplot(aes(x=WaveLength,y=PC_Value, colour=PC)) +
+  geom_line() +
+  geom_abline(slope=0,intercept=0, linetupe=2, colout="darkgreey")+
+  labs(x= "X variables ([PC1_55%] _ [PC2_13%])")+
+   scale_x_reverse()+
+  theme_bw() +
+  facet_grid(PC~Show_WL, scale="free")+
+  #make sowing dates white  
+   theme(strip.background = element_rect(colour = "black", fill = "white",size=2))
+  
+ ggsave("plot_LoadingsPC1PC2_ThermalTreatment_CVIncub.tiff", width=20, height=10, dpi=400)
+  
+```
+
+##Graph of individuals. Individuals with a similar profile are grouped together. 
+
+## Add PC1 = 55% and PC2= 13% in axis titles 
+
+
+```{r}
+fviz_pca_ind(res.pca)
 ```
 
 
 
-
-##Graph of individuals. Individuals with a similar profile are grouped together. 
-
-## Add PC1 = 57% and PC2= 28% in axis titles 
-
-
 ```{r, fig.height=5, fig.width=10}
 
-# fviz_pca_ind(res.pca,
-#              col.ind = "cos2", # Color by the quality of representation
-#              #col.ind = "Cultivar", 
-#              gradient.cols = c("#00AFBB", "#E7B800", "#FC4E07"),
-#              #gradient.cols = c("#00AFBB", "#E7B800"),
-#              geom="point",
-#              
-#              repel = TRUE     # Avoid text overlapping
-#              )
 
+str(res.pca$scale)
 
 fviz_pca_ind(res.pca,
-            # col.ind = "cos2", # Color by the quality of representation
-             #gradient.cols = c("#00AFBB", "#E7B800", "#FC4E07"),
-             geom = c("point", "text"),
-             label = "all", invisible = "none", labelsize = 8,pointsize = 5,
+             col.ind = "cos2", # Color by the quality of representation
+             geom = c("point","text"),
+             label = "all", invisible = "none", labelsize = 7,pointsize = 3,
              repel = TRUE     # Avoid text overlapping
              )+
              scale_color_gradient2(low="light green", mid="green",
       high="black", midpoint=0.6)+
    theme_bw()+
-  # theme(axis.text.x=element_text(angle = 0, hjust = 0.5, size= 20))+
-  # theme(axis.text.y=element_text(angle = 0, hjust = 0, size= 20))+
-  theme(axis.text.y = element_text( size = 26))+
+   theme(axis.text.y = element_text( size = 26))+
 theme(axis.title.y = element_text(face="bold", size=26))+
 theme(axis.text.x=element_text(angle = 0, hjust=0.5,vjust=0,size = 26,face="bold"))+
 theme(axis.title.x = element_text( face="bold", size=26))+
@@ -277,8 +204,8 @@ theme(axis.title.x = element_text( face="bold", size=26))+
      axis.line = element_line(colour = "black"))+
   
 #if need the axes labels 
-  xlab(expression(PC1~"(60%)"))+ 
-  ylab(expression(PC2~"(21%)")) +
+  xlab(expression(PC1~"(57%)"))+ 
+  ylab(expression(PC2~"(28%)")) +
   xlim(-50, 50)+
   ylim(-50, 50)
 
@@ -291,105 +218,9 @@ theme(axis.title.x = element_text( face="bold", size=26))+
 
 ```{r}
 
-#ggsave("S2_plot_PC1andPC2.png", width=14, height=7, dpi=500)
+ggsave("S2_plot_PC1andPC2.png", width=14, height=7, dpi=500)
 
 ```
-
-
-```{r}
-
-#res.pca <- prcomp(df_sp.activeU ,scale = TRUE)
-
-res.pca2 <-PCA(df_sp.activeU, ncp = 2, graph = FALSE)
-
-res.hcpc <- HCPC(res.pca2, graph = FALSE)
-
-
-fviz_cluster(res.hcpc,
-             repel = TRUE,            # Avoid label overlapping
-             show.clust.cent = TRUE, # Show cluster centers
-             palette = "jco",         # Color palette see ?ggpubr::ggpar
-             ggtheme = theme_minimal(),
-             main = "Factor map"
-             )
-
-
-
-
-```
-
-
-
-```{r}
-
-
-# Principal components + tree
-plot(res.hcpc, choice = "3D.map")+
-  
-
-
-
-
-```
-
-
-```{r}
-
-
-# Dendrogram
-fviz_dend(res.hcpc, show_labels = FALSE)
-
-# Individuals facor map
-fviz_cluster(res.hcpc, geom = "point", main = "Factor map")
-
-```
-
-
-
-
-Graph the loading of PC1 and PC2 
-
-```{r, warning=FALSE}
-
-LabelColumn<-row.names(res.pca$rotation)
-
-load.graph <- res.pca$rotation %>%
-  as.data.frame() %>%
-  dplyr::select(PC1,PC2) %>%
-  mutate(WaveLength=as.numeric(LabelColumn)) %>%
-  na.omit() %>% 
-  gather("PC","PC_Value",PC1:PC2) %>%
-  mutate(PC=factor(PC))
-
-summary(load.graph)
-  
-```
-
-
-
-
-```{r, fig.width=10}
-load.graph %>%
-  mutate(Show_WL = ifelse(WaveLength %in% c(1799:2802), "NotShow","Show")) %>%
-   mutate(Show_WL = ifelse(WaveLength <1799,"Show1",
-                          ifelse(WaveLength %in% c(1799:2802), "NotShow","Show2"))) %>%
-     
-  
-  filter(Show_WL != "NotShow") %>%
-  ggplot(aes(x=WaveLength,y=PC_Value, colour=PC)) +
-  geom_line() +
-  geom_abline(slope=0,intercept=0, linetupe=2, colout="darkgreey")+
-  labs(x= "X variables ([PC1_59%] _ [PC2_21%])")+
-   scale_x_reverse()+
-  theme_bw() +
-  facet_grid(PC~Show_WL, scale="free")+
-  #make sowing dates white  
-   theme(strip.background = element_rect(colour = "black", fill = "white",size=2))
-  
-
-  
-```
-
 
 
 
@@ -401,7 +232,7 @@ df_sp.activeU
 
 # Add ellipses
 p <- fviz_pca_ind(res.pca, label="none", habillage=df_sp.activeU$Cultivar,
-             addEllipses=TRUE, ellipse.level=0.2, alpha=0.25)+
+             addEllipses=TRUE, ellipse.level=0.2, alpha=0.95)+
   #scale_color_brewer(palette="Set1") +
      theme_minimal()
 print(p)
@@ -469,8 +300,61 @@ res.ind$cos2           # Quality of representation
 ```
 
 
+Predict using PCA
+In this section, we'll show how to predict the coordinates of supplementary individuals and variables using only the information provided by the previously performed PCA.
 
-############################################# ended here ###################################
+Supplementary individuals
+Data: rows 24 to 27 and columns 1 to to 10 [in decathlon2 data sets]. The new data must contain columns (variables) with the same names and in the same order as the active data used to compute PCA.
+
+```{r}
+
+
+# Data for the supplementary individuals
+ind.sup <- decathlon2[24:27, 1:10]
+ind.sup[, 1:6]
+```
+
+Predict the coordinates of new individuals data. Use the R base function predict():
+
+
+```{r}
+
+ind.sup.coord <- predict(res.pca, newdata = ind.sup)
+ind.sup.coord[, 1:4]
+```
+
+
+```{r, fig.height=5, fig.width=10}
+# Plot of active individuals
+p <- fviz_pca_ind(res.pca, repel = TRUE)
+# Add supplementary individuals
+fviz_add(p, ind.sup.coord, color ="blue")
+```
+
+
+
+
+Supplementary variables
+Qualitative / categorical variables
+The data sets decathlon2 contain a supplementary qualitative variable at columns 13 corresponding to the type of competitions.
+
+Qualitative / categorical variables can be used to color individuals by groups. The grouping variable should be of same length as the number of active individuals (here 23).
+
+```{r}
+
+groups <- as.factor(decathlon2$Competition[1:23])
+fviz_pca_ind(res.pca,
+             col.ind = groups, # color by groups
+             palette = c("#00AFBB",  "#FC4E07"),
+             addEllipses = TRUE, # Concentration ellipses
+             ellipse.type = "confidence",
+             legend.title = "Groups",
+             repel = TRUE
+             )
+
+
+```
+
 
 Theory behind PCA results
 PCA results for variables

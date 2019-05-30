@@ -113,7 +113,7 @@ str(df_sp1)
 
 ```
 
-## Normalization with Max Peak method (Burgi feedback 18.06!!)
+## Normalization with Max Peak method (Burgi feedback 18.06!!) - max peak 
 
 ```{r}
 
@@ -123,6 +123,7 @@ df_sp2 <- df_sp1%>%
   group_by(Cultivar, Block)%>%
   
   mutate(AbsorbanceNorm=Absorbance/max(Absorbance))
+  
 
 str(df_sp2)
 
@@ -318,10 +319,14 @@ df_spSegment2<-df_spSegment  %>%
 
 ```{r, fig.height=10, fig.width=20}
 
-df_spSegment2  %>%   
-    #force spectra order here                              
-     # df_spSegment$SpectraPart_f = factor(df_spSegment$SpectraPart, levels=c('3700-2700','1800-850'))%>% 
-  ggplot(aes(x=Wavenumber,y=AbsorbanceNorm))+
+Adjusted<-df_spSegment2  %>%   
+  ##adjust graph  for maximum peak be value = 1 
+  mutate(AbsorbanceNorm2=AbsorbanceNorm/max(AbsorbanceNorm))
+
+
+##Now graph correctly 
+  Adjusted  %>%
+  ggplot(aes(x=Wavenumber,y=AbsorbanceNorm2))+
     #geom_line(aes(), colour=IncubationDays))+
   geom_line(aes(colour=Cultivar),size=2)+
     #scale_color_manual(values=c("blue", "darkred"))+
@@ -337,7 +342,7 @@ df_spSegment2  %>%
   theme_bw(base_size=30)+
   theme(strip.text.x =  element_blank())+
   theme(axis.text.x = element_text(angle = 90, hjust = 1)) +
-  expand_limits(y=c(0,1.2)) +
+  expand_limits(y=c(0,1.1)) +
     labs(y= " Absorbance (au) ")+
     xlab(expression(Wavenumber~"(cm"^"-1"*")"))+
 #theme(axis.text.y = element_text( size = 24))+

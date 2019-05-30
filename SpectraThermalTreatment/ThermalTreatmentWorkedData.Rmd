@@ -97,6 +97,8 @@ Now Spread the dataframe to feed Unscrumbler
 
 df_spread<-df_AverageRep %>%
   tidyr::spread("WaveNumber", "AbsValue")
+str(df_spread)
+
 
 #then write a tabel with spread data 
 

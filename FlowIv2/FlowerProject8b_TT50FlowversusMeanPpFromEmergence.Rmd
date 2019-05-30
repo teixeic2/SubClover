@@ -59,6 +59,82 @@ str(df_tt_MeanPp)
 
 ```
 
+
+```{r, fig.height= 6, fig.width=12}
+
+
+Graphic<- df_tt_MeanPp%>%
+  #mutate(SowingD = dmy(SowingD)) %>%
+  #mutate (SowTreat= factor(SowTreat, levels=c("S1", "S2", "S3", "S4", "S6","S7"),labels=c("June", "July", "September", "November", "February","March")))%>%
+  #mutate(Cultivar= factor(Cultivar, 
+                           #levels=c("Antas", "Denmark", "Leura", "Monti", "Narrikup", "Woogenellup"),
+                           #labels=c("A", "D", "L", "M", "N.", "W"))) %>%
+  #filter(Round == 14) %>%
+  
+  group_by(Cultivar, SowTreat,SowingD  ) %>%
+  
+  dplyr::select(TTFlo1T ) %>%
+
+  summarise_all(funs(mean,sd))
+
+
+
+
+dfError<- Graphic%>%
+  group_by(SowingD)%>%
+  summarise(SE=max(sd)/3.46)%>%
+  mutate(SowingD="24/06/2015",mean=600) %>%
+  ungroup()
+
+##x=2000
+##y=100
+  
+  Graphic %>%
+  mutate(Month=format(as.Date(ymd(SowingD)),"%b"))%>%
+  ggplot(aes(x=reorder(Month,month(SowingD)), y= mean))+ 
+  geom_point(size=6, aes( shape=Cultivar),stroke=1.5) +
+ 
+  #theme(legend.position="none")+
+  geom_smooth(se=FALSE)+
+  #facet_grid(Variable~., scales = "free")
+ geom_line(aes(c=Cultivar)) +
+   # geom_point(data = dfError,aes(x=2000,y=100))+
+    theme_bw()+
+    facet_wrap(~Cultivar, ncol=3) +
+  ylim(0,3000)+
+  
+  labs(x=" Sowing Month")+
+  
+  ylab(expression(Thermal~time~"("^"o"*"Cd)"))+
+    #geom_abline(intercept = 50,  slope = 0, linetype=2)+
+
+# #remove grid lines 
+    theme(
+      panel.border = element_rect(colour = "black", size = 2), 
+      panel.grid.major = element_blank(),
+     panel.grid.minor = element_blank(),
+      axis.line = element_line(colour = "black"))+
+   theme(text = element_text(size=22))+
+    theme(axis.text.x = element_text(angle = 60, hjust = 1, size=18))+
+  
+#    #make TT target labels  white  
+   theme(strip.background = element_rect(colour = "black", fill = "white",size=2))
+  
+ggsave("plots_Prj8b_TTBud_SowingMonth.tiff", width=12, height=8, dpi=500)
+
+
+
+```
+
+
+
+
+
+
+
+
+
+
 ```{r}
 #4
 
@@ -148,11 +224,21 @@ All togteher , simply plot thermal time vs mean Pp as per Evans 1992
 
 ```{r, fig.width=10, fig.height=12}
 
+
+##Create datapoint for error bar 
+# dfError<- df_FP_all_mean%>%
+#   group_by(Cultivar)%>%
+#   summarise(SE=max(PhylC_sd)/1.73)%>%
+#   mutate(PpEmerg_mean=18,PhylC_mean=90) %>%
+#   ungroup()
+
+
+
   df_FP_all_mean %>%
   ungroup() %>%
     mutate (SowTreat= factor(SowTreat, 
     levels=c("S1", "S2", "S3", "S4", "S5", "S6", "S7","S8"),
-    labels=c("June", "July", "Sept.", "Nov.", "Dec.", "Feb.", "March", "May"))) %>%
+    labels=c("Jun", "Jul", "Sept", "Nov", "Dec", "Feb", "Mar", "May"))) %>%
   mutate (Cultivar= factor(Cultivar, 
     levels=c("Antas", "Denmark", "Leura", "Monti", "Narrikup", "Woogenellup"),
     labels=c("A", "D", "L", "M", "N", "W"))) %>%
@@ -160,8 +246,9 @@ All togteher , simply plot thermal time vs mean Pp as per Evans 1992
   ggplot(aes(x=meanPp50F_mean ,y=TTFlo1T_mean)) +
   geom_errorbar(aes(ymin=TTFlo1T_mean-TTFlo1T_sd/2,
                     ymax=TTFlo1T_mean+TTFlo1T_sd/2),width=0.1)+
-  geom_text(aes(label=SowTreat),hjust=0, vjust=0,size=8) +
-  geom_point(size=4,alpha=0.5, shape="Cultivar")+
+  geom_text(aes(label=SowTreat),hjust=0, vjust=0,size=8,alpha=0.3) +
+  geom_point(aes(shape=SowTreat),size=6,alpha=1,stroke=1.5)+
+  scale_shape_manual(values = c(1,2,3,4,5,6,7,8)) +
   
   ylab(expression(Mean~Thermal~time~Flowering~"("^"o"*"Cd)")) + 
   xlab(" Mean Photoperiod (hours)") +

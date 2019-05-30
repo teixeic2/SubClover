@@ -99,6 +99,52 @@ str(df_FP)
 
 ```
 
+
+
+# Get linear coefficients of equations above
+##check what are these P values lonly for the decreasing Photoperiod 
+
+```{r}
+library(broom)
+options(scipen=999)
+
+IncreasePp <-df_FP%>%
+  filter(SowTreat=="S1"| 
+         SowTreat=="S2"| 
+         SowTreat=="S3"|
+         SowTreat=="S4")
+
+str(IncreasePp)
+
+# create the linear fits by groups o variables
+dfregInc <- IncreasePp %>% group_by(Cultivar, TT_target) %>%
+##For emergence use PpEmerg_mean,
+  do(fitreg = lm(Photo ~ Pp_target, data = .))
+
+  ##For First Trifo use  Pp1Trifo_mean
+ #do(fitreg = lm(PhylC_mean ~ Pp1Trifo_mean, data = .))
+
+# get the linear coefficients by group in a tidy data_frame
+dfCoefInc <- tidy(dfregInc, fitreg)
+dfCoefInc
+
+
+```
+
+
+
+```{r}
+
+
+dfCoefInc = glance(dfregInc, fitreg)
+dfCoefInc
+
+```
+
+
+
+
+
 ----------------Started Increase Pp-------------------
 ##Create dataframe with increasing Pp (S1- S5)
 ## Prep dataframe with only 
@@ -229,6 +275,13 @@ write.table(df_FitIncPp, "df_FitLinear_PhotoTherm_IncreasePp.txt")
   
 
 ```
+
+
+
+
+
+
+
 
 ----------------End of loop for Increased Pp----------
 

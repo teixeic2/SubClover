@@ -117,7 +117,7 @@ summary (summer)
 
 
 ```
-
+Draft graph 1
 
 ```{r, fig.height=8, fig.width=15}
 #check data
@@ -176,12 +176,88 @@ theme(text = element_text(size = 24))
 #grid.arrange(g1, g2, g3,g4,g41)
 grid.arrange(g1)
 # Save
-ggsave("plot_Phyllochron_PpEmergence.tiff", width=12, height=6, dpi=400)
+#ggsave("plot_Phyllochron_PpEmergence.tiff", width=12, height=6, dpi=400)
 #ggsave("plot_Phyllochron_PpFirstTrifo.tiff", width=12, height=6, dpi=400)
 
 ```
 
 
+Create a graph with max SE 
+
+
+
+```{r, fig.height=8, fig.width=15}
+#check data
+
+##Create Sowing date an photoperiod direction labels
+df_Photo_dir <- data.frame(
+  SowTreat = c("S1", "S2", "S3", "S4", "S5", "S6", "S7","S8"),
+  Pp_dir = c("Pp increase", "Pp increase", "Pp increase", "Pp increase", "Pp decrease", "Pp decrease", "Pp decrease","Pp decrease")
+)
+
+##Create datapoint for error bar 
+dfError<- MeanData%>%
+  group_by(Cultivar)%>%
+  summarise(SE=max(PhylC_sd)/1.73)%>%
+  mutate(PpEmerg_mean=18,PhylC_mean=90) %>%
+  ungroup()
+
+
+
+g1 <-MeanData %>%
+  ungroup() %>%
+  #mutate (SowTreat= factor(SowTreat, levels=c("S1", "S2", "S3", "S4","S5", "S6","S7","S8"),labels=c("June", #"July", "September", "November","December", "February","March","May")))%>%
+  mutate(SowMonth= factor(SowTreat, 
+                           levels=c("S1", "S2", "S3", "S4", "S5", "S6", "S7","S8"),
+                           labels=c("June", "July", "Sept.", "Nov.", "Dec.", "Feb.", "March", "May"))) %>%
+  left_join(df_Photo_dir, by="SowTreat") %>%
+  ##For Ppemergence
+  ggplot(aes(x=PpEmerg_mean, y= PhylC_mean))  +
+  
+  ##for fristtrifo (Pp1Trifo_mean)
+ #ggplot(aes(x=Pp1Trifo_mean, y= PhylC_mean))  +
+  geom_point(colour= "black", alpha=0.5) +
+  geom_point(aes(shape=SowMonth),size=6, stroke=1.5)+
+  scale_shape_manual(values = c(1,2,3,4,5,6,7,8)) +
+  #geom_text(aes(label=SowMonth),hjust=0, vjust=0,size=7) +
+  #geom_errorbar(aes(ymin=PhylC_mean-PhylC_sd/2,
+                    #ymax=PhylC_mean+PhylC_sd/2), width=1.5)+
+  geom_errorbar(data=dfError, aes(ymin=PhylC_mean-SE,ymax=PhylC_mean+SE), width=.9)+
+ 
+  #geom_smooth(method='lm',formula=y~x,alpha=0.01, aes(linetype=Pp_dir,fill = Pp_dir, colour="black"))+
+    geom_smooth(method='lm',formula=y~x,alpha=0.01, aes(linetype=Pp_dir,fill = Pp_dir),colour="black")+
+  #geom_smooth(method='lm',formula=y~x,alpha=0.1,  linetype = "dashed", colour= "grey")+
+  
+  theme_bw() +
+  xlab(expression(Photoperiod~"("*"hours"*")"))+ 
+  #ylab(expression(Maximum~Hardseeds~Percent~"("*"%"*")"))+
+  ylab(expression(Mean~Phyllochron~"("^"o"*"Cd/leaf)")) +
+  theme(text = element_text(size=24))+
+  facet_wrap(~Cultivar)+
+  xlim(9,20)+
+  ylim(0,120)+
+ #remove grid lines 
+   theme(
+     panel.border = element_rect(colour = "black", size = 3), 
+     panel.grid.major = element_blank(),
+     panel.grid.minor = element_blank(),
+     axis.line = element_line(colour = "black"))+
+   #scale_fill_manual("legend", values = c("Antas" = "#660066", "Denmark" = "lightgrey","Leura" = "darkgrey", "Monti" = "#FF9933","Narrikup" = "blue",  "Woogenellup" = "#033333"))+
+   
+   #make sowing dates white  
+   theme(strip.background = element_rect(colour = "black", fill = "white",size=1))+
+   
+  #label sizes 
+theme(text = element_text(size = 24))
+  
+
+#grid.arrange(g1, g2, g3,g4,g41)
+grid.arrange(g1)
+# Save
+#ggsave("plot_Phyllochron_PpEmergence.tiff", width=12, height=6, dpi=400)
+ggsave("plot_Prjt10_Phyllochron_PpFirstTrifo.tiff", width=12, height=6, dpi=400)
+
+```
 
 
 

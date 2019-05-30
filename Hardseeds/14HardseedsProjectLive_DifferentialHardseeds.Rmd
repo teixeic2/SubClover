@@ -68,7 +68,7 @@ summary(dfSubSet)
 
 
 
-```{r, fig.height= 8, fig.width=12}
+```{r, fig.height= 12, fig.width=12}
 #change data frame name and Graph Breakdown live hard seeds 
 
 #df_cum_soft<- df_Dif2
@@ -77,18 +77,27 @@ summary(dfSubSet)
 dfSubSet%>%
   mutate(SowingD = dmy(SowingD)) %>%
   mutate (SowTreat= factor(SowTreat, levels=c("S1", "S2", "S3", "S4", "S6","S7"),labels=c("June", "July", "September", "November", "February","March")))%>%
+  mutate(Cultivar= factor(Cultivar, 
+                           levels=c("Antas", "Denmark", "Leura", "Monti", "Narrikup", "Woogenellup"),
+                           labels=c("A", "D", "L", "M", "N.", "W"))) %>%
   #filter(Round == 14) %>%
+  
   group_by(Cultivar, SowTreat,TtSum) %>%
+  
   dplyr::select(HardAccum) %>%
+
   summarise_all(funs(mean,sd)) %>%
+ 
+  
   ggplot(aes(x=TtSum, y=mean, colour=Cultivar, shape=Cultivar)) +
-  geom_point(size=3) +
+  geom_point(size=1,alpha=0.1) +
+  geom_text(aes(label=Cultivar),hjust=0, vjust=0,size=7) +
   geom_line() +
  facet_grid(.~SowTreat) +
-  labs(y=" Percentage of Hardseeds(%)") +
+  labs(y=" Percentage of Hardseeds (%)") +
   theme(axis.text.x = element_text(angle = 90, hjust = 1))+
-                  geom_errorbar(aes(ymin=mean-sd/3.46,
-                    ymax=mean+sd/3.46))+
+                 # geom_errorbar(aes(ymin=mean-sd/3.46,
+                   # ymax=mean+sd/3.46))+
   theme_bw()+
   ylim(0,100)+
   xlim(0,2200)+
@@ -119,6 +128,85 @@ dfSubSet%>%
    theme(strip.background = element_rect(colour = "black", fill = "white",size=2))
   
 ggsave("plots_OverTtSum_PercentHardseeds.tiff", width=14, height=6, dpi=500)
+
+
+
+
+```
+
+
+new graph
+
+```{r, fig.height= 8, fig.width=14}
+#change data frame name and Graph Breakdown live hard seeds 
+
+#df_cum_soft<- df_Dif2
+
+
+Graphic<- dfSubSet%>%
+  mutate(SowingD = dmy(SowingD)) %>%
+  mutate (SowTreat= factor(SowTreat, levels=c("S1", "S2", "S3", "S4", "S6","S7"),labels=c("June", "July", "September", "November", "February","March")))%>%
+  #mutate(Cultivar= factor(Cultivar, 
+                           #levels=c("Antas", "Denmark", "Leura", "Monti", "Narrikup", "Woogenellup"),
+                           #labels=c("A", "D", "L", "M", "N.", "W"))) %>%
+  #filter(Round == 14) %>%
+  
+  group_by(Cultivar, SowTreat,TtSum) %>%
+  
+  dplyr::select(HardAccum) %>%
+
+  summarise_all(funs(mean,sd))
+
+
+
+
+dfError<- Graphic%>%
+  group_by(SowTreat)%>%
+  summarise(SE=max(sd)/3.46)%>%
+  mutate(TtSum=2000,mean=100) %>%
+  ungroup()
+
+##x=2000
+##y=100
+  
+ 
+  Graphic %>%
+  ggplot(aes(x=TtSum, y=mean)) +
+  #ggplot(aes(x=TtSum, y=mean, shape=Cultivar)) +
+  geom_point(size=6, aes(colour=Cultivar, shape=Cultivar)) +
+  #geom_text(aes(label=Cultivar),hjust=0, vjust=0,size=7) +
+  geom_line(aes(colour=Cultivar)) +
+   # geom_point(data = dfError,aes(x=2000,y=100))+
+  geom_errorbar(data=dfError, aes(ymin=mean-SE,ymax=mean+SE),width=150)+
+   
+ #facet_grid(.~SowTreat) +
+  facet_wrap(~SowTreat, ncol=3) +
+  
+
+  labs(y=" Percentage of Hardseeds (%)") +
+  
+  theme_bw()+
+  ylim(0,130)+
+   xlim(0,2400)+
+  
+  xlab(expression(Accumulated~Thermal~time~"("^"o"*"Cd)"))+
+    geom_abline(intercept = 50,  slope = 0, linetype=2)+
+
+# #remove grid lines 
+    theme(
+      panel.border = element_rect(colour = "black", size = 2), 
+      panel.grid.major = element_blank(),
+     panel.grid.minor = element_blank(),
+      axis.line = element_line(colour = "black"))+
+   theme(text = element_text(size=22))+
+    theme(axis.text.x = element_text(angle = 60, hjust = 1, size=18))+
+    
+#    
+#    
+#    #make TT target labels  white  
+   theme(strip.background = element_rect(colour = "black", fill = "white",size=2))
+  
+ggsave("plots_14HardPrjt_New_OverTtSum_PercentHard.tiff", width=12, height=8, dpi=500)
 
 
 
@@ -676,17 +764,108 @@ df_ANOVA <- df_Dif3  %>%
 
 ```
 
+
+```{r}
+
+
+##Data Transformation :Hard_perc
+
+
+##rename dataframe 
+
+file <-df_ANOVA
+  #filter(SowTreat=="S1")
+ #filter(SowTreat=="S2")
+ #filter(SowTreat=="S3") 
+ #filter(SowTreat=="S4")
+ #filter(SowTreat=="S6")
+ #filter(SowTreat=="S7")
+
+
+
+
+#data transformation
+file$transf_sqr <- sqrt(file$RateDecreasePerTTunit)
+file$transf_log <- log(file$RateDecreasePerTTunit)
+file$transf_not <- 1*(file$RateDecreasePerTTunit/1)
+file$transf_acos <- acos(file$RateDecreasePerTTunit/100)
+file$transf_sqrx <- (file$RateDecreasePerTTunit^2)
+#mutate(mydata, sqr.x = x^2)
+
+
+head(file)
+
+x <- c("transf_sqr", "transf_log","transf_acos","transf_not", "transf_sqrx" )
+colsSelec <- match(x,colnames(file))
+
+
+
+
+```
+
+
+
+```{r, fig.height=7, fig.widht=8}
+
+
+file %>%
+  tidyr::gather("transformation","value",colsSelec) %>%
+  ggplot(aes(value)) + 
+  geom_histogram() +
+  facet_grid(.~transformation, scales="free")+
+  theme_bw()
+
+
+
+```
+
+
+
+check normality shapiro test +QQplots
+
+```{r}
+
+#normality test
+shapiro.test(file$transf_acos)
+shapiro.test(file$transf_not)
+shapiro.test(file$transf_sqr)
+shapiro.test(file$transf_log)
+shapiro.test(file$transf_sqrx)
+
+
+
+
+##QQplot
+#var<-file$transf_acos
+
+#var<-file$transf_not
+var<-file$transf_sqr
+#var<-file$transf_log
+#var<-file$transf_sqrx
+
+qqnorm(var)
+qqline(var, col = 2)
+qqplot(var, rt(300, df = 5))
+
+
+
+```
+
+
+
+
+
 ##Overall analysis consider sowing date and cultivar 
 
 ```{r}
 ##Overview   variable = Difference
 
-file <- df_ANOVA
+#file <- df_ANOVA
 #file$transf_no <- 1*(df_ANOVA$Difference)
 ##use the : RateDecreasePerDay 
 #file$transf_no <- 1*(df_ANOVA$RateDecreasePerDay)
 ##use the : RateDecreasePerTTunit
-file$transf_no <- 1*(df_ANOVA$RateDecreasePerTTunit)
+#file$transf_no <- 1*(df_ANOVA$RateDecreasePerTTunit)
 
 
 head(file)
@@ -697,10 +876,14 @@ file.subset <- file
 
 head(file.subset)
 summary(file.subset)
-#my.anova <- aov(transf_no ~ Cultivar*Depth* SowTreat, 
-               # data = file.subset)
-my.anova <- aov(transf_no ~ Cultivar* SowTreat, 
+my.anova <- aov(transf_not ~ Cultivar*Depth* SowTreat, 
                 data = file.subset)
+#my.anova <- aov(transf_no ~ Cultivar* SowTreat*Depth, 
+                ##data = file.subset)
+##Use transformed data 
+##my.anova <- aov(transf_sqr ~ Cultivar* SowTreat*Depth, 
+               # data = file.subset)
+
 summary(my.anova)
 
 ```
@@ -714,9 +897,9 @@ summary(my.anova)
 ```{r}
 #Means separation after ANOVA
 #(LSD.test(my.anova, c("Cultivar"), alpha= 0.05, p.adj="none")) 
-(LSD.test(my.anova, c("SowTreat"), alpha= 0.05, p.adj="none"))
+#(LSD.test(my.anova, c("SowTreat"), alpha= 0.05, p.adj="none"))
 
-#(LSD.test(my.anova, c("Cultivar", "SowTreat"), alpha= 0.05, p.adj="none")) 
+(LSD.test(my.anova, c("Cultivar", "SowTreat"), alpha= 0.05, p.adj="none")) 
 
 
 ```

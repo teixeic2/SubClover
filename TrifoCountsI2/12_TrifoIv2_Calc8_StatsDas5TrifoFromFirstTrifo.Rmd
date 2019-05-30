@@ -98,8 +98,8 @@ summary(file.subs)
 #ANOVA
 
 #my.anova <- aov(DAS5TFromEmerg ~ SowTreat + Block, data = file.subs)
-my.anova <- aov(TT5TrifoFrom1Trifo ~ Cultivar + Block, data = file.subs)
-#my.anova <- aov(DAS5TFromEmerg ~ Cultivar*SowTreat+ Block, data = file.subs)
+#my.anova <- aov(TT5TrifoFrom1Trifo ~ Cultivar + Block, data = file.subs)
+my.anova <- aov(TT5TrifoFrom1Trifo ~ Cultivar*SowTreat+ Block, data = file.subs)
 
 summary(my.anova)
 

@@ -1,0 +1,332 @@
+---
+title: "Fitting Photothermal time relationship - increase decrease Pp "
+author: "CT"
+date: "12.07.2018"
+output:
+  pdf_document: default
+  html_document: default
+  word_document: default
+
+note: include Pp analysis using selected datasets from Reanalysis scripts but use
+  Iversen 2 collected data; this script is a continuation of script 9 and 10 and estimate linear fits for 
+  
+  y = Photorhemal time to Varialbe == flowering .
+  x= Photoperiod target 
+  
+   (after Nori et al 2014)
+  
+  This script use the thermal time from first trifo (TT50F1T)
+  
+! 
+---
+
+```{r loadLibraries, echo=FALSE, include=FALSE}
+#1
+library(tidyr)
+library (dplyr)
+library (ggplot2)
+library(agricolae)
+library(knitr)
+library (lubridate)
+library (segmented)
+library(hydroGOF)
+
+
+```
+ 
+AIM:
+- Estimate photothermal time to flowering TT to 50% flowering in relation to Pp
+
+
+```{r   loadFile}
+#2
+setwd("C:\\GitHubRepos\\SubCloverPhD\\SubClover\\FlowIv2")
+
+getwd()
+
+
+```
+## Change formats 
+
+```{r}
+#3 get dataframe with TTFlo1T
+df_Flo1T <- read.table("DASTTToFloweringFromFirstTRif_MeanPp.txt",header=TRUE) 
+
+#get the photperiods at phenophses 
+df_tt_Pp <- read.table("PpSowEmer1TrifoRunner.txt",header=TRUE)
+
+
+
+str(df_Flo1T )
+str(df_tt_Pp)
+
+
+
+
+
+
+```
+
+## Yes, That's the dataframe ! ! 
+
+```{r}
+# Merge by plot
+
+
+df_All <- merge(df_Flo1T, df_tt_Pp, by="Plot")
+# force date format
+df_All$SowingD <- dmy(df_All$SowingD)
+
+
+```
+##Calculate the photoperiod factor, Here consists of getting the  Pp_target - 10 / (16.7-10) and calculate Photothermal time 
+
+```{r}
+
+#5Tidy up data frame
+
+str(df_All)
+
+df_worked <-df_All%>%
+dplyr::select(Plot, Cultivar,SowTreat, Variable,TTFlo1T,Pp1Trifo,PpEmerg, meanPp50F , PpRunner,SowingD )
+
+```
+
+## Prepare dataframe to fit linear equations in increasing and decreasing Pp ...
+
+Photothermal is (Ppemerg-10/16.7-10) =PpEmerg-
+
+
+```{r}
+##empty 
+
+df_worked 
+## create indexes for increase Pp (ipp) and decrease Pp (dpp)
+ipp <- c("S1","S2","S3", "S4", "S5")
+dpp <- c("S6", "S7","S8")
+
+##create indexes for the maturity or sensgroup: early or late as per rea nalysis 
+early <- c("Monti","Narrikup")
+late <-  c("Antas", "Denmark","Leura","Woogenellup")
+
+
+##Include indexes
+
+df_worked_A<-df_worked%>%
+ mutate(Pp_dir = ifelse(SowTreat %in% ipp, "IncreasingPp", "DecreasingPp")) %>%
+mutate(Pp_dir = as.factor(Pp_dir))%>%
+  mutate(Pp_dir = ifelse(SowTreat %in% ipp, "IncreasingPp", "DecreasingPp")) %>%
+mutate(Pp_dir = as.factor(Pp_dir))%>%
+   mutate(Group = ifelse(Cultivar %in% early, "Early", "Late")) %>%
+  mutate(Group = as.factor(Group))%>%
+##Calculate PhotothermalTime
+  mutate(PhoTherm=((PpEmerg-10)/6.7)*TTFlo1T)
+
+
+
+```
+
+
+Here graph PT against months the means 
+
+```{r}
+
+MeanData<-df_worked_A%>%
+  ##remove the NA from Denmark and Leura 
+  subset(TTFlo1T>1) %>%
+  dplyr::select(Plot,Cultivar,SowTreat,SowingD, PpEmerg,Pp1Trifo, meanPp50F,PhoTherm,TTFlo1T,Pp_dir,Group)%>%
+  group_by(Cultivar,SowTreat,Pp_dir,SowingD,Group)%>%
+  dplyr::select(PpEmerg,TTFlo1T,meanPp50F,PhoTherm,Pp1Trifo)%>%
+  summarise_all(funs(mean,sd))
+
+```
+
+
+
+
+```{r, fig.width=12, fig.height=7}
+
+
+str(MeanData)
+
+MeanData %>%
+      ggplot(aes(x=SowingD, y= PhoTherm_mean, 
+             colour=Group,
+             linetype=Cultivar,
+             fill=Group)) +
+    geom_point(aes(shape = Cultivar),size=8, stroke=1.5) +
+    theme_bw(base_size = 18) +
+    #geom_smooth(method='lm',se=TRUE)+
+    geom_line(aes())  +
+    labs(x="Sowing Month") +
+    ylab(expression(Mean~Photothermal~time~to~Flowering~"("^"o"*"Cd)")) + 
+    scale_x_date(date_breaks = "months" , date_labels = "%b")+
+    #facet_grid(VariableName~.,scales ="free") +
+  
+  theme(axis.text.x=element_text(angle = 0, hjust = 0.5, size= 22))+
+  theme(axis.title.x=element_text(angle = 0, hjust = 0.5, size= 22))+
+  theme(axis.text.y=element_text(angle = 0, hjust = 0, size= 22))+
+  theme(axis.title.y=element_text(angle = 90, hjust = 0.5, size= 22))+
+  ylim(0,2000)+
+  
+    #scale_shape_manual(values = c(0,1,2,3,4,5,6,7,8,9,10,11)) +
+    scale_shape_manual(values = c(1,2,0,4,7,8)) + 
+#remove grid lines 
+   theme(
+     panel.border = element_rect(colour = "black", size = 3), 
+     panel.grid.major = element_blank(),
+     panel.grid.minor = element_blank(),
+     axis.line = element_line(colour = "black"))+
+
+ ##thicks in axis
+  theme(axis.ticks.length=unit(.3, "cm"))+
+   
+   #make sowing dates white  
+   theme(strip.background = element_rect(colour = "black", fill = "white",size=2)) +
+    
+# theme(strip.text = element_text(face="bold", size=9))+
+   
+  #label sizes 
+theme(text = element_text(size = 24))
+
+ggsave("plot_Prj11_PT_VsSowingMonth_AllCvs.tiff", width=14, height=8, dpi=600)
+  
+```
+
+
+
+Here Graph the Photothermal time against Pp emergence for all cultivars 
+
+use this (°Cd) 
+
+
+
+```{r, fig.height=8, fig.width=15}
+
+
+
+MeanData<-df_worked_A%>%
+  ##remove the NA from Denmark and Leura 
+  subset(TTFlo1T>1) %>%
+  dplyr::select(Plot,Cultivar,SowTreat,PpEmerg,Pp1Trifo, meanPp50F,PhoTherm,TTFlo1T,Pp_dir,Group)%>%
+  group_by(Cultivar,SowTreat,Pp_dir,Group)%>%
+  dplyr::select(PpEmerg,TTFlo1T,meanPp50F,PhoTherm,Pp1Trifo)%>%
+  summarise_all(funs(mean,sd))
+  
+  
+##Create datapoint for error bar 
+dfError<- MeanData %>%
+  group_by(Cultivar)%>%
+  summarise(SE=max(PhoTherm_sd)/1.73)%>%
+ # mutate(PpEmerg_mean=18,PhoTherm_mean=1000) %>%
+   mutate(Pp1Trifo_mean=17.5,PhoTherm_mean=1300) %>%
+  ungroup()
+
+
+str(MeanData)
+g1 <-MeanData %>%
+  ungroup() %>%
+  #mutate (SowTreat= factor(SowTreat, levels=c("S1", "S2", "S3", "S4","S5", "S6","S7","S8"),labels=c("June", #"July", "September", "November","December", "February","March","May")))%>%
+  mutate(SowMonth= factor(SowTreat, 
+                           levels=c("S1", "S2", "S3", "S4", "S5", "S6", "S7","S8"),
+                           labels=c("June", "July", "Sept.", "Nov.", "Dec.", "Feb.", "March", "May"))) %>%
+  #left_join(df_Photo_dir, by="SowTreat") %>%
+  ##For Ppemergence
+  #ggplot(aes(x=meanPp50F_mean, y= PhoTherm_mean))  +
+  
+  ##for fristtrifo (Pp1Trifo_mean)
+ ggplot(aes(x=Pp1Trifo_mean, y= PhoTherm_mean))  +
+  geom_point(colour= "black", alpha=0.5) +
+  geom_point(aes(shape=SowMonth, colour=Group),size=6, stroke=1.5)+
+  scale_shape_manual(values = c(1,2,3,4,5,6,7,8)) +
+  #geom_text(aes(label=SowMonth),hjust=0, vjust=0,size=7) +
+  #geom_errorbar(aes(ymin=PhylC_mean-PhylC_sd/2,
+                    #ymax=PhylC_mean+PhylC_sd/2), width=1.5)+
+  geom_errorbar(data=dfError, aes(ymin=PhoTherm_mean-SE,ymax=PhoTherm_mean+SE), width=.9)+
+ 
+  #geom_smooth(method='lm',formula=y~x,alpha=0.01, aes(linetype=Pp_dir,fill = Pp_dir, colour="black"))+
+    geom_smooth(method='lm',formula=y~x,alpha=0.01, aes(linetype=Pp_dir,fill = Pp_dir),colour="black")+
+  #geom_smooth(method='lm',formula=y~x,alpha=0.1,  linetype = "dashed", colour= "grey")+
+  
+  theme_bw() +
+  xlab(expression(Photoperiod~"("*"hours"*")"))+ 
+  #ylab(expression(Maximum~Hardseeds~Percent~"("*"%"*")"))+
+  ylab(expression(Mean~Photothermal~time~"("^"o"*"Cd)")) +
+  theme(text = element_text(size=24))+
+  facet_wrap(~Cultivar)+
+  xlim(9,18)+
+  ylim(0,2000)+
+ #remove grid lines 
+   theme(
+     panel.border = element_rect(colour = "black", size = 3), 
+     panel.grid.major = element_blank(),
+     panel.grid.minor = element_blank(),
+     axis.line = element_line(colour = "black"))+
+   #scale_fill_manual("legend", values = c("Antas" = "#660066", "Denmark" = "lightgrey","Leura" = "darkgrey", "Monti" = "#FF9933","Narrikup" = "blue",  "Woogenellup" = "#033333"))+
+   
+   #make sowing dates white  
+   theme(strip.background = element_rect(colour = "black", fill = "white",size=1))+
+   
+  #label sizes 
+theme(text = element_text(size = 24))
+  
+
+#grid.arrange(g1, g2, g3,g4,g41)
+grid.arrange(g1)
+# Save
+ggsave("plot_Prjt11_PhotoThermalTime_Pp1Trifo.tiff", width=12, height=6, dpi=400)
+#ggsave("plot_Prjt10_Phyllochron_PpFirstTrifo.tiff", width=12, height=6, dpi=400)
+
+```
+
+
+
+
+
+Then fit PhotothermalTime against Pp First Trifo
+
+
+# Get linear coefficients of equations above
+##check what are these P values lonly for the decreasing Photoperiod 
+
+```{r}
+library(broom)
+options(scipen=999)
+
+#Select the Pp you want to regress against PT50
+
+
+# create the linear fits by groups o variables
+#dfregInc <- df_worked_A %>% group_by(Cultivar, Pp_dir) %>%
+ dfregCv <- df_worked_A %>% group_by(Cultivar) %>%
+ # dfregGroup <- df_worked_A %>% group_by(Group) %>%
+##For emergence use PpEmerg,
+  ##do(fitreg = lm(PhoTherm ~ meanPp50F, data = .))
+  do(fitreg = lm(PhoTherm ~ PpRunner, data = .))
+  ##do(fitreg = lm(PhoTherm ~ Pp1Trifo, data = .))
+  
+  ##For First Trifo use  Pp1Trifo_mean
+ #do(fitreg = lm(PhylC_mean ~ Pp1Trifo_mean, data = .))
+
+# get the linear coefficients by group in a tidy data_frame
+dfCoef <- tidy(dfregCv, fitreg)
+dfCoef
+
+#write.table(dfCoefInc, "CoefficientsregressionPT50AgainstPp1Trifo.csv")
+
+```
+
+
+
+```{r}
+
+
+dfCoefInc = glance(dfregCv, fitreg)
+dfCoefInc
+
+
+
+
+```
+
+

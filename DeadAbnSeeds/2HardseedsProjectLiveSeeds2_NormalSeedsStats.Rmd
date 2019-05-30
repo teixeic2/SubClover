@@ -143,7 +143,27 @@ dfMean_Germination<- df_SoftGerm %>%
   summarise_all(funs(mean,sd))
 
 write.table(dfMean_Germination, "MeanGermination.txt")
+
+
+
 ```
+
+
+this is to have germination by plot 
+
+```{r}
+
+
+PlotsGerm<-df_SoftGerm %>%
+    filter(Round == 119) %>%
+  group_by(Plot,Block,Cultivar,SowTreat) %>%
+  dplyr::select(SoftGerm_perc) %>%
+  summarise_all(funs(mean,sd))
+  
+write.table(PlotsGerm, "AllPlotsGermination.txt")
+
+```
+
 
 
 
@@ -256,7 +276,7 @@ file.subset <- file
 
 head(file.subset, 50)
 summary(file.subset)
-#my.anova <- aov(SoftGerm_perc~ Cultivar*SowTreat*Depth + Block, data = file.subset)
+my.anova <- aov(SoftGerm_perc~ Cultivar*SowTreat*Depth + Block, data = file.subset)
 #my.anova <- aov(SoftGerm_perc~ Cultivar + Block, data = file.subset)
 #my.anova <- aov(SoftGerm_perc~ Depth + Block, data = file.subset)
 #my.anova <- aov(SoftGerm_perc~ SowTreat + Block, data = file.subset)
@@ -272,8 +292,8 @@ summary(my.anova)
 Check means among sowing dates 
 ```{r}
 #Means separation 
-#(LSD.test(my.anova, c("Cultivar","SowTreat"), alpha= 0.05, p.adj="none"))
-(LSD.test(my.anova, c("SowTreat"), alpha= 0.05, p.adj="none"))
+(LSD.test(my.anova, c("Cultivar","SowTreat"), alpha= 0.05, p.adj="none"))
+#(LSD.test(my.anova, c("SowTreat"), alpha= 0.05, p.adj="none"))
 #(LSD.test(my.anova, c("Depth"), alpha= 0.05, p.adj="none"))
 #(LSD.test(my.anova, c("Cultivar"), alpha= 0.05, p.adj="none"))
 ```

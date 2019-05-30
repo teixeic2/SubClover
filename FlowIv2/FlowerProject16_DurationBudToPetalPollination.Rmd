@@ -35,14 +35,91 @@ head (df_raw)
 check formats
 ```{r}
 
-df_work<-df_raw %>%
-  mutate(SowingD=ymd(SowingD)) %>%
-  #rename(PhenoStage=Variable)%>%
-  mutate(Plot=factor(Plot), Block=factor(Block),Cultivar=factor(Cultivar))
+
+  
+  ##force format date 
+  df_raw$SowingD <- dmy(df_raw$SowingD)
          
-str(df_work)
+str(df_raw)
+
+##remove the NA
+
+subset<-df_raw %>%
+  subset(TT_fromPetalToBur >1) ##eliminate the NA
 
 ```
+
+Graph 
+
+
+
+```{r}
+
+#str(df_raw)
+
+
+
+MeanData<-subset%>%
+  dplyr::select(Plot:Block,TT_fromPetalToBur,SowingD)%>%
+  group_by(Cultivar,SowTreat,SowingD)%>%
+  dplyr::select(TT_fromPetalToBur)%>%
+  summarise_all(funs(mean,sd))
+  
+  
+  
+
+
+```
+
+
+
+```{r, fig.width=12, fig.height=7}
+
+
+str(MeanData)
+
+MeanData %>%
+      ggplot(aes(x=SowingD, y= mean)) +
+    geom_point(aes(shape = Cultivar),size=8, stroke=1.5) +
+    theme_bw(base_size = 18) +
+    #geom_smooth(method='lm',se=TRUE)+
+    #geom_line(aes())  +
+    labs(x="Sowing Month") +
+    ylab(expression(Thermal~time~R6-R11~"("^"o"*"Cd)")) + 
+    scale_x_date(date_breaks = "months" , date_labels = "%b")+
+    #facet_grid(.~Cultivar,scales ="free") +
+  
+  theme(axis.text.x=element_text(angle = 0, hjust = 0.5, size= 22))+
+  theme(axis.title.x=element_text(angle = 0, hjust = 0.5, size= 22))+
+  theme(axis.text.y=element_text(angle = 0, hjust = 0, size= 22))+
+  theme(axis.title.y=element_text(angle = 90, hjust = 0.5, size= 22))+
+  ylim(0,800)+
+  
+    #scale_shape_manual(values = c(0,1,2,3,4,5,6,7,8,9,10,11)) +
+    scale_shape_manual(values = c(1,2,0,4,7,8)) + 
+#remove grid lines 
+   theme(
+     panel.border = element_rect(colour = "black", size = 3), 
+     panel.grid.major = element_blank(),
+     panel.grid.minor = element_blank(),
+     axis.line = element_line(colour = "black"))+
+
+ ##thicks in axis
+  theme(axis.ticks.length=unit(.3, "cm"))+
+   
+   #make sowing dates white  
+   theme(strip.background = element_rect(colour = "black", fill = "white",size=2)) +
+    
+# theme(strip.text = element_text(face="bold", size=9))+
+   
+  #label sizes 
+theme(text = element_text(size = 24))
+
+ggsave("plot_Prj16_R6_R11_VsSowingMonth_AllCvs.tiff", width=14, height=8, dpi=600)
+  
+```
+
+
 
 ##Runa anova calendar Thermal time from visible bud to Petal (pollination)  
 
@@ -50,8 +127,14 @@ str(df_work)
 
 
 
+
 ```{r}
  
+
+df_work<-df_raw %>%
+  #rename(PhenoStage=Variable)%>%
+  mutate(Plot=factor(Plot), Block=factor(Block),Cultivar=factor(Cultivar))
+
   file <- df_work
 
 
@@ -73,9 +156,9 @@ summary(my.anova)
 
 ```{r}
 #(LSD.test(my.anova, c("SowTreat", "Cultivar"), alpha= 0.05, p.adj="none"))
-#(LSD.test(my.anova, c("Cultivar"), alpha= 0.05, p.adj="none"))
+(LSD.test(my.anova, c("Cultivar"), alpha= 0.05, p.adj="none"))
 
-(LSD.test(my.anova, c("SowTreat"), alpha= 0.05, p.adj="none"))
+#(LSD.test(my.anova, c("SowTreat"), alpha= 0.05, p.adj="none"))
 ```
 
 
@@ -158,11 +241,16 @@ summary(my.anova)
 
 
 ```{r}
-#(LSD.test(my.anova, c("SowTreat", "Cultivar"), alpha= 0.05, p.adj="none"))
+(LSD.test(my.anova, c("SowTreat", "Cultivar"), alpha= 0.05, p.adj="none"))
 #(LSD.test(my.anova, c("Cultivar"), alpha= 0.05, p.adj="none"))
 
-(LSD.test(my.anova, c("SowTreat"), alpha= 0.05, p.adj="none"))
+#(LSD.test(my.anova, c("SowTreat"), alpha= 0.05, p.adj="none"))
 ```
+
+
+
+
+
 
 
 
@@ -215,8 +303,8 @@ summary(file.subs)
 
 #ANOVA
 ##variable Days_fromPetalToBur
-my.anova <- aov(Days_fromPetalToBur  ~ SowTreat*Cultivar + Block, data = file.subs)
-#my.anova <- aov(TT_fromPetalToBur  ~ SowTreat*Cultivar + Block, data = file.subs)
+#my.anova <- aov(Days_fromPetalToBur  ~ SowTreat*Cultivar + Block, data = file.subs)
+my.anova <- aov(TT_fromPetalToBur  ~ SowTreat*Cultivar + Block, data = file.subs)
 #my.anova <- aov(DAS9T ~ Cultivar + Block, data = file.subs)
 
 summary(my.anova)

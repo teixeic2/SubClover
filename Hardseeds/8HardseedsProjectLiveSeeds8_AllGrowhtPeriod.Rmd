@@ -124,6 +124,7 @@ df_SowHvst1 <-df_SowHvst %>%
 # then merge 
 df_All <- merge(df_Slope, df_SowHvst1, by=c("Cultivar","SowTreat"))
 
+
 # then make slopes without minus sign 
 # df_All <-df_All %>%
 #   mutate (slope=-1*(slope))
@@ -304,13 +305,17 @@ overall correlation inspect for all 3 variables
 
 ```{r}
 
-#summary(lm(HardAccum ~ RainIrrig, df_All))
-#summary(lm(HardAccum ~ RH, df_All))
+#summary(lm(HardAccum ~ RainIrrig+RH+PET+Temp+SoilTemp, df_All))
+
+#summary(lm(HardAccum ~ SoilTemp+RH+Temp, df_All))
+summary(lm(HardAccum ~ RainIrrig+RH, df_All))
 #summary(lm(HardAccum ~ Temp, df_All))
 #summary(lm(HardAccum ~ SoilTemp, df_All))
-#summary(lm(HardAccum ~ PET, df_All))
-summary(lm(HardAccum ~ DiffRainPET, df_All))
+#summary(lm(HardAccum ~ RH, df_All))
+#summary(lm(HardAccum ~ DiffRainPET, df_All))
 
+
+#summary(lm(HardAccum ~ RainIrrig , df_All))
 
 ```
 
@@ -585,11 +590,164 @@ grid.arrange(g4, g5, g6, g7,g8)
 
 ```{r}
 
-#summary(lm(slope ~ RainIrrig, df_All))
+summary(lm(slope ~ RainIrrig+RH+PET+Temp+SoilTemp, df_All))
+#summary(lm(slope ~ RainIrrig+PET+RH, df_All))
+
 #summary(lm(slope ~ RH, df_All))
 #summary(lm(slope ~ Temp, df_All))
 #summary(lm(slope ~ SoilTemp, df_All))
-summary(lm(slope ~ PET, df_All))
+#summary(lm(slope ~ PET, df_All))
+
+
+```
+
+Look also Germination vs environment 
+
+
+```{r}
+
+## bring data germination 
+
+
+df_Germination <- read.table("MeanGermination.txt",header=TRUE)
+
+str(df_Germination)
+
+ # then merge 
+df_All5 <- merge(df_All, df_Germination , by=c("Cultivar","SowTreat"))%>%
+mutate(Germination=mean)
+ 
+str(df_All5)
+
+
+write.table(df_All5, "AllDataAllGrowth.txt")
+
+```
+
+```{r}
+
+#summary(lm(Germination ~ RainIrrig+RH+PET+Temp+SoilTemp, df_All5))
+summary(lm(Germination ~ RainIrrig+PET+Temp, df_All5))
+
+
+
+```
+
+Make graph SDmax vs RH 
+
+
+```{r}
+
+   df_All %>%
+  mutate (SowTreat= factor(SowTreat, levels=c("S1", "S2", "S3", "S4", "S6","S7"),labels=c("June", "July", "September", "November", "February","March")))%>%
+  ggplot(aes(x=RH, y= HardAccum))  +
+  geom_point(colour= "black", alpha=0.2) +
+  geom_point(aes(shape=SowTreat),size=6)+
+  #geom_point(aes(shape=SowTreat),size=4)+
+   geom_smooth(method='lm',formula=y~x, colour="grey",alpha=0.1)+
+  theme_bw() +
+  xlab(expression(RH~"("*"%"*")"))+ 
+  #ylab(expression(Maximum~Hardseeds~Percent~"("*"%"*")"))+
+  ylab(expression(SDmax~"("*"%"*")"))+
+  #ylab(expression(SDbreak~"( % /"^"o"*"Cd)"))+
+  theme(text = element_text(size=22))+
+  scale_x_continuous(limits = c(76,81),breaks=c(76,77,78,79,80,81,82))+
+  scale_y_continuous(limits = c(0,100),breaks=c(0,10,20,30,40,50,60,70,80,90,100))+
+  #facet_wrap(~Cultivar)+
+  #remove grid lines 
+   theme(
+     panel.border = element_rect(colour = "black", size = 1), 
+     panel.grid.major = element_blank(),
+     panel.grid.minor = element_blank(),
+     axis.line = element_line(colour = "black"))+
+   #scale_fill_manual("legend", values = c("Antas" = "#660066", "Denmark" = "lightgrey","Leura" = "darkgrey", "Monti" = "#FF9933","Narrikup" = "blue",  "Woogenellup" = "#033333"))+
+   
+   #make sowing dates white  
+   theme(strip.background = element_rect(colour = "black", fill = "white",size=1))
+  #theme(title =  element_text(size=14))
+  #theme(title =  element_text(size=14))
+
+  ggsave("plot_Prjt8_Regression_SDMaxVsRH_AllGrowth.tiff", width=12, height=6, dpi=400)
+
+```
+
+
+
+
+
+Sdbreak vs rain 
+
+```{r}
+
+   df_All %>%
+  mutate (SowTreat= factor(SowTreat, levels=c("S1", "S2", "S3", "S4", "S6","S7"),labels=c("June", "July", "September", "November", "February","March")))%>%
+  ggplot(aes(x=RainIrrig, y= slope))  +
+  geom_point(colour= "black", alpha=0.2) +
+  geom_point(aes(shape=SowTreat),size=6)+
+  #geom_point(aes(shape=SowTreat),size=4)+
+   geom_smooth(method='lm',formula=y~x, colour="grey",alpha=0.1)+
+  theme_bw() +
+  xlab(expression(Rain~Irrigation~"("*"mm"*")"))+ 
+  #ylab(expression(Maximum~Hardseeds~Percent~"("*"%"*")"))+
+  #ylab(expression(SDmax~"("*"%"*")"))+
+  ylab(expression(SDbreak~"( % /"^"o"*"Cd)"))+
+  theme(text = element_text(size=22))+
+   scale_x_continuous(limits = c(250,900),breaks=c(200,300,400,500, 600, 700,800))+
+  scale_y_continuous(limits = c(0,0.03),breaks=c(0,0.005,0.01,0.015,0.02,0.025,0.03))+
+  #facet_wrap(~Cultivar)+
+  #remove grid lines 
+   theme(
+     panel.border = element_rect(colour = "black", size = 1), 
+     panel.grid.major = element_blank(),
+     panel.grid.minor = element_blank(),
+     axis.line = element_line(colour = "black"))+
+   #scale_fill_manual("legend", values = c("Antas" = "#660066", "Denmark" = "lightgrey","Leura" = "darkgrey", "Monti" = "#FF9933","Narrikup" = "blue",  "Woogenellup" = "#033333"))+
+   
+   #make sowing dates white  
+   theme(strip.background = element_rect(colour = "black", fill = "white",size=1))
+  #theme(title =  element_text(size=14))
+  #theme(title =  element_text(size=14))
+
+  ggsave("plot_Prjt8_Regression_SDbreakVsRain_AllGrowth.tiff", width=12, height=6, dpi=400)
+
+```
+
+
+
+
+```{r}
+
+   df_All %>%
+  mutate (SowTreat= factor(SowTreat, levels=c("S1", "S2", "S3", "S4", "S6","S7"),labels=c("June", "July", "September", "November", "February","March")))%>%
+  ggplot(aes(x=PET, y= slope))  +
+  geom_point(colour= "black", alpha=0.2) +
+  geom_point(aes(shape=SowTreat),size=6)+
+  #geom_point(aes(shape=SowTreat),size=4)+
+   geom_smooth(method='lm',formula=y~x, colour="grey",alpha=0.1)+
+  theme_bw() +
+  xlab(expression(Evapotranspiration~"("*"mm"*")"))+ 
+  #ylab(expression(Maximum~Hardseeds~Percent~"("*"%"*")"))+
+  #ylab(expression(SDmax~"("*"%"*")"))+
+  ylab(expression(SDbreak~"( % /"^"o"*"Cd)"))+
+  theme(text = element_text(size=22))+
+   scale_x_continuous(limits = c(250,700),breaks=c(200,300,400,500, 600, 700,800))+
+  scale_y_continuous(limits = c(0,0.03),breaks=c(0,0.005,0.01,0.015,0.02,0.025,0.03))+
+  #facet_wrap(~Cultivar)+
+  #remove grid lines 
+   theme(
+     panel.border = element_rect(colour = "black", size = 1), 
+     panel.grid.major = element_blank(),
+     panel.grid.minor = element_blank(),
+     axis.line = element_line(colour = "black"))+
+   #scale_fill_manual("legend", values = c("Antas" = "#660066", "Denmark" = "lightgrey","Leura" = "darkgrey", "Monti" = "#FF9933","Narrikup" = "blue",  "Woogenellup" = "#033333"))+
+   
+   #make sowing dates white  
+   theme(strip.background = element_rect(colour = "black", fill = "white",size=1))
+  #theme(title =  element_text(size=14))
+  #theme(title =  element_text(size=14))
+
+  ggsave("plot_Prjt8_Regression_SDbreakVsPET_AllGrowth.tiff", width=12, height=6, dpi=400)
+
 ```
 
 

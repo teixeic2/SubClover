@@ -1,0 +1,160 @@
+---
+title: "Fitting Photothermal time relationship - increase decrease Pp "
+author: "CT"
+date: "12.07.2018"
+output:
+  pdf_document: default
+  html_document: default
+  word_document: default
+
+note: include Pp analysis using selected datasets from Reanalysis scripts but use
+  Iversen 2 collected data; this script is a continuation of script 9 and 10 and estimate linear fits for 
+  
+  y = Photorhemal time to Varialbe == flowering .
+but do it from sowing to coampare with re analysis 
+  
+ 
+  
+  This script use the thermal time from sowing 
+  
+! 
+---
+
+```{r loadLibraries, echo=FALSE, include=FALSE}
+#1
+library(tidyr)
+library (dplyr)
+library (ggplot2)
+library(agricolae)
+library(knitr)
+library (lubridate)
+library (segmented)
+library(hydroGOF)
+
+
+```
+ 
+AIM:
+- Estimate photothermal time to flowering TT from sowing  to 50% flowering in relation to mean Pp
+
+
+```{r   loadFile}
+#2
+setwd("C:\\GitHubRepos\\SubCloverPhD\\SubClover\\FlowIv2")
+
+getwd()
+
+
+```
+## Change formats 
+
+```{r}
+#3 get dataframe with TTFlo1T
+df_FloSow<- read.table("TT50FloAndMeanPhotoperiod .txt",header=TRUE) 
+
+#get the photperiods at phenophses 
+#df_tt_Pp <- read.table("PpSowEmer1TrifoRunner.txt",header=TRUE)
+
+
+str(df_FloSow )
+#str(df_tt_Pp)
+
+
+
+```
+
+##calculate Phothermaltime 
+ 
+
+```{r}
+
+temp<-df_FloSow %>%
+  filter(Variable=="Flowering")%>%
+  filter(SowTreat!="S1")%>%
+  filter(SowTreat!="S4")%>%
+  mutate(PhoTherm=((meanPp50F-10)/6.7)*TT50F )
+
+
+```
+
+
+##INclude photoperiod directions 
+
+```{r}
+
+
+
+## create indexes for increase Pp (ipp) and decrease Pp (dpp)
+ipp <- c("S1","S2","S3", "S4", "S5")
+dpp <- c("S6", "S7","S8")
+
+##create indexes for the maturity or sensgroup: early or late as per rea nalysis 
+early <- c("Monti","Narrikup")
+late <-  c("Antas", "Denmark","Leura","Woogenellup")
+
+
+##Include indexes
+
+temp_A<-temp%>%
+ mutate(Pp_dir = ifelse(SowTreat %in% ipp, "IncreasingPp", "DecreasingPp")) %>%
+mutate(Pp_dir = as.factor(Pp_dir))%>%
+  mutate(Pp_dir = ifelse(SowTreat %in% ipp, "IncreasingPp", "DecreasingPp")) %>%
+mutate(Pp_dir = as.factor(Pp_dir))%>%
+   mutate(Group = ifelse(Cultivar %in% early, "Early", "Late")) %>%
+  mutate(Group = as.factor(Group))
+
+
+
+
+```
+
+
+
+
+Then fit PhotothermalTime against Pp First Trifo
+
+
+# Get linear coefficients of equations above
+##check what are these P values lonly for the decreasing Photoperiod 
+
+```{r}
+library(broom)
+options(scipen=999)
+
+#Select the Pp you want to regress against PT50
+
+
+# create the linear fits by groups o variables
+
+  #dfregCv <- temp_A %>% group_by(Cultivar,Pp_dir) %>%
+  dfregGroup <- temp_A %>% group_by(Group,Pp_dir) %>%
+##For emergence use PpEmerg,
+  ##do(fitreg = lm(PhoTherm ~ meanPp50F, data = .))
+  do(fitreg = lm(PhoTherm ~  meanPp50F, data = .))
+  ##do(fitreg = lm(PhoTherm ~ Pp1Trifo, data = .))
+  
+  ##For First Trifo use  Pp1Trifo_mean
+ #do(fitreg = lm(PhylC_mean ~ Pp1Trifo_mean, data = .))
+
+# get the linear coefficients by group in a tidy data_frame
+dfCoef <- tidy(dfregGroup, fitreg)
+dfCoef
+
+#write.table(dfCoefInc, "CoefficientsregressionPT50AgainstPp1Trifo.csv")
+
+```
+
+
+
+```{r}
+
+
+dfCoefInc = glance(dfregGroup, fitreg)
+dfCoefInc
+
+
+
+
+```
+
+

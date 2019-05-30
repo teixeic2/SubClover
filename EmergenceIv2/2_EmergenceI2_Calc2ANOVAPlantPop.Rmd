@@ -79,7 +79,8 @@ file.subset <- file
 
 head(file.subset)
 summary(file.subset)
-my.anova <- aov(transf_no ~ SowTreat + Block, 
+my.anova <- aov(transf_no ~ SowTreat*Cultivar + 
+                  Block, 
                 data = file.subset)
 
 summary(my.anova)
@@ -102,7 +103,7 @@ file.subset <- file
 
 head(file.subset)
 summary(file.subset)
-my.anova <- aov(transf_no ~ Cultivar + Block, 
+my.anova <- aov(transf_no ~ SowTreat*Cultivar + Block, 
                 data = file.subset)
 
 summary(my.anova)

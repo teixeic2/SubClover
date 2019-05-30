@@ -1,0 +1,365 @@
+---
+title: "Hardseeds Live Max 6CV"
+author: "CT"
+date: "11.01.2018"
+output:
+  word_document: default
+  pdf_document: default
+  html_document: default
+---
+
+
+```{r loadLibraries}
+library(tidyr)
+library (dplyr)
+library (ggplot2)
+library(agricolae)
+library(knitr)
+library (lubridate)
+library(gridExtra)
+library(rpart)
+
+```
+sow
+-This script reads the weather conditions for the  seed filling period (R7-R12)   EnviroSeedFillingR7_R12.txt
+-Combines the info about the max hardness and slope hardseed breakdown 
+-Attempt to establish correlation between the different variates 
+- build a decision tree using rpart package 
+
+```{r loadFile}
+setwd("C:\\GitHubRepos\\SubCloverPhD\\SubClover\\Hardseeds")
+getwd()
+
+#create file
+#df_SowHvst <- read.table("EnviroSeedFillingR7_R12.txt",header=TRUE)
+df_All <- read.table("AllDataAllPeriodsSDandGerm.txt",header=TRUE)
+head(df_All)
+# change format 
+
+
+```
+
+
+
+
+
+
+```{r, fig.height=5, fig.width=10}
+
+#str(df_All)
+
+str(df_All)
+
+#pairs(~HardAccum+slope+RainIrrig+RH+Temp+SoilTemp+PET+DiffRainPET,data=df_AllPlotsR7_R12, main="Simple Scatterplot Matrix")
+pairs(~HardAccum+RainIrrig+RH+Temp+PET,data=df_All, main="Simple Scatterplot Matrix")
+  
+# dfD <- df_All%>%
+#   filter(Cultivar=="Denmark")
+# pairs(~HardAccum+slope+Rain+RH+Temp,data=dfD, main="Simple Scatterplot Matrix Denmark")
+
+```
+
+then select columns of interest : here stats for overall means (SowTreat and Cultivar)
+
+```{r}
+
+#find coefficients 
+
+cor (df_All[,-c(1,2)])
+# cor (dfD[,-c(1,2)])
+```
+ 
+##Test regressions with  df_AllPlotsR7_R12
+
+
+```{r}
+
+str(df_All)
+summary(lm(HardAccum ~ RainIrrig+RH+PET+SoilTemp, df_All))
+summary(lm(Germination ~ RainIrrig+RH+PET+SoilTemp, df_All))
+#summary(lm(HardAccum ~ RH, df_AllPlotsR7_R12))
+#summary(lm(HardAccum ~ Temp, df_AllPlotsR7_R12))
+#summary(lm(HardAccum ~ SoilTemp, df_AllPlotsR7_R12))
+#summary(lm(HardAccum ~ PET, df_AllPlotsR7_R12))
+#summary(lm(HardAccum ~ DiffRainPET, df_AllPlotsR7_R12))
+
+
+
+```
+
+
+##This loop checks the lm for all Periods first  for Hardcumm
+## (Sdmax)
+ 
+ 
+```{r}
+
+#create a vector that holds names of all possible cultivars
+cv.unique <- unique(df_All$Period)
+
+summary(cv.unique )
+
+
+for (i in 1:length(cv.unique)) {
+  
+ #print(i)
+ print(paste0(cv.unique[i],"--------------------------------"))
+  
+  #then make it subset 
+  
+  df_subset <- df_All %>%
+    subset(Period==cv.unique[i])
+  
+  #add the function or calculation required 
+  
+    #summary(lm(HardAccum ~ RainIrrig+RH+PET+SoilTemp, df_subset)) 
+     #summary(lm(Germination ~ RainIrrig+RH+PET+SoilTemp, df_subset))
+     summary(lm(Sqrtslope ~ RainIrrig+RH+PET+SoilTemp, df_subset))
+    #summary(lm(HardAccum ~ Temp, df_subset))
+  #print
+    
+#print(summary(lm(HardAccum ~ RainIrrig+RH+PET+SoilTemp, df_subset)))
+#print(summary(lm(Germination ~ RainIrrig+RH+PET+SoilTemp, df_subset)))
+print(summary(lm(Sqrtslope ~ RainIrrig+RH+PET+SoilTemp, df_subset)))
+   # print(summary(lm(HardAccum ~ Temp, df_subset)))
+
+  } 
+
+
+```
+
+
+
+
+```{r}
+
+AllGrw<-df_All %>%
+  filter(Period=="AllGrowth")
+
+  summary(lm(Sqrtslope ~ RainIrrig+PET, AllGrw))
+  
+  
+  
+  SeedFill<-df_All %>%
+  filter(Period=="SeedFill")
+
+  #summary(lm(Germination ~ PET+SoilTemp, SeedFill))
+  summary(lm(Sqrtslope ~ PET+SoilTemp, SeedFill))
+  
+  
+   BefHvst<-df_All %>%
+  filter(Period=="BeforeHvst")
+
+  #summary(lm(Germination ~ RH+RainIrrig+SoilTemp, BefHvst))
+  summary(lm(Sqrtslope ~ SoilTemp+RH, BefHvst))
+
+```
+
+
+
+```{r}
+
+BfHvst<-df_All %>%
+  filter(Period=="BeforeHvst")
+
+  summary(lm(Germination ~ RainIrrig+RH+PET+Temp+SoilTemp, BfHvst))
+
+```
+
+
+
+Decision tree analysis for SDbreak  with mean data 
+
+```{r}
+
+#str (df_AllPlotsR7_R12)
+#str (df_All)
+
+str (SeedFill)
+
+
+
+
+# grow tree 
+#fit <- rpart(Mileage~Price + Country + Reliability + Type, 
+   #method="anova", data=cu.summary)
+
+
+fit <- rpart(Sqrtslope~SoilTemp+PET,method="anova", SeedFill)
+#fit <- rpart(HardAccum~RainIrrig+RH+Temp+SoilTemp+PET,method="anova", data=df_AllPlotsR7_R12)
+#fit <- rpart(HardAccum~RainIrrig+Temp,method="anova", data=df_AllPlotsR7_R12)
+
+printcp(fit) # display the results
+
+
+plotcp(fit) # visualize cross-validation results 
+summary(fit) # detailed summary of splits
+
+# create additional plots 
+par(mfrow=c(1,2)) # two plots on one page 
+rsq.rpart(fit) # visualize cross-validation results   
+
+
+
+
+
+```
+
+```{r}
+# plot tree 
+ plot(fit, uniform=TRUE, 
+    main="Regression Tree for SDbreak ")
+ text(fit, use.n=TRUE, all=TRUE, cex=.8)
+
+
+
+##wrong code
+# plot tree 
+#plot( fit,main="Regression Tree for Hardseededness (SDbreak) ")
+#text( use.n=TRUE,all=TRUE, cex=.8)
+
+
+
+```
+
+Make one with germination data 
+
+
+```{r}
+
+#str (df_AllPlotsR7_R12)
+#str (df_All)
+
+str (SeedFill)
+
+
+
+
+# grow tree 
+#fit <- rpart(Mileage~Price + Country + Reliability + Type, 
+   #method="anova", data=cu.summary)
+
+
+fit2 <- rpart(Germination ~SoilTemp+PET,method="anova", SeedFill)
+#fit <- rpart(HardAccum~RainIrrig+RH+Temp+SoilTemp+PET,method="anova", data=df_AllPlotsR7_R12)
+#fit <- rpart(HardAccum~RainIrrig+Temp,method="anova", data=df_AllPlotsR7_R12)
+
+printcp(fit2) # display the results
+
+
+plotcp(fit2) # visualize cross-validation results 
+summary(fit2) # detailed summary of splits
+
+# create additional plots 
+par(mfrow=c(1,2)) # two plots on one page 
+rsq.rpart(fit2) # visualize cross-validation results   
+
+
+
+```
+
+
+
+```{r}
+# plot tree 
+ plot(fit2, uniform=TRUE, 
+    main="Regression Tree for Germination ")
+ text(fit, use.n=TRUE, all=TRUE, cex=.8)
+
+
+
+##wrong code
+# plot tree 
+#plot( fit,main="Regression Tree for Hardseededness (SDbreak) ")
+#text( use.n=TRUE,all=TRUE, cex=.8)
+
+
+
+```
+
+
+
+prune tree 
+
+
+```{r}
+# prune the tree 
+pfit<- prune(fit, cp=0.0518531) # from cptable   
+
+# plot the pruned tree 
+plot(pfit, uniform=TRUE, 
+   main="Pruned Regression Tree for SDMax")
+text(pfit, use.n=TRUE, all=TRUE, cex=.8)
+
+
+
+```
+
+
+
+Decision tree analysis for SDbreak with all data 
+
+```{r}
+
+#str (df_All)
+
+# grow tree 
+#fit <- rpart(Mileage~Price + Country + Reliability + Type, 
+   #method="anova", data=cu.summary)
+
+
+#fit <- rpart(HardAccum~slope+RainIrrig+RH+Temp+SoilTemp+PET+DiffRainPET,method="anova", data=df_All)
+fit <- rpart(slope~RainIrrig+RH+Temp+SoilTemp+PET,method="anova", control = rpart.control(minsplit = 20, minbucket = 1), data=df_AllPlotsR7_R12)
+
+printcp(fit) # display the results
+
+
+plotcp(fit) # visualize cross-validation results 
+summary(fit) # detailed summary of splits
+
+# create additional plots 
+par(mfrow=c(1,2)) # two plots on one page 
+rsq.rpart(fit) # visualize cross-validation results   
+
+
+
+
+
+```
+
+```{r}
+
+# plot tree 
+plot(fit, uniform=TRUE, 
+   main="Regression Tree for slope ")
+text(fit, use.n=TRUE, all=TRUE, cex=.8)
+
+# create attractive postcript plot of tree 
+#post(fit, file = "c:/tree2.ps",
+#post(fit, file = "c:/GitHubRepos/SubCloverPhD/SubClover/Hardseeds/treeSDbreak.tiff", 
+  # title = "Regression Tree for SDbreak ")
+
+##Path #C:\\GitHubRepos\\SubCloverPhD\\SubClover\\Hardseeds
+
+```
+
+
+```{r}
+
+# prune the tree 
+pfit<- prune(fit, cp=0.0560389) # from cptable   
+
+# plot the pruned tree 
+plot(pfit, uniform=TRUE, 
+   main="Pruned Regression Tree for SDbreak")
+text(pfit, use.n=TRUE, all=TRUE, cex=.8)
+
+
+
+
+
+```
+
+
+
+

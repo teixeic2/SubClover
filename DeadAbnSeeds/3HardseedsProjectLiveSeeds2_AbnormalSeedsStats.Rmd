@@ -136,10 +136,10 @@ df_Abn %>%
 
 ```{r}
 
-str(df_SoftGerm)
+str(df_Abn)
 ##rename dataframe 
 
-file <-df_SoftGerm
+file <-df_Abn
   #filter(SowTreat=="S1")
  #filter(SowTreat=="S2")
  #filter(SowTreat=="S3") 
@@ -151,11 +151,11 @@ file <-df_SoftGerm
 
 
 ##data transformation
-file$transf_sqr <- sqrt(file$SoftGerm_perc)
-file$transf_log <- log(file$SoftGerm_perc)
-file$transf_not <- 1*(file$SoftGerm_perc/1)
-file$transf_acos <- acos(file$SoftGerm_perc/100)
-file$transf_sqrx <- (file$SoftGerm_perc^2)
+file$transf_sqr <- sqrt(file$Abn_perc)
+file$transf_log <- log(file$Abn_perc)
+file$transf_not <- 1*(file$Abn_perc/1)
+file$transf_acos <- acos(file$Abn_perc/100)
+file$transf_sqrx <- (file$Abn_perc^2)
 #mutate(mydata, sqr.x = x^2)
 
 
@@ -206,8 +206,8 @@ shapiro.test(file$transf_sqrx)
 ##QQplot
 #var<-file$transf_acos
 
-var<-file$transf_not
-#var<-file$transf_sqr
+#var<-file$transf_not
+var<-file$transf_sqr
 #var<-file$transf_log
 #var<-file$transf_sqrx
 
@@ -222,17 +222,14 @@ qqplot(var, rt(300, df = 5))
 
 
 
-
-
-
-
-
 then select columns of interest : here stats for overall means (SowTreat and Cultivar)
 
 ```{r}
 
+str (file)
+
 file <- df_Abn %>%
-  dplyr::select(Block, Cultivar,SowTreat,Plot,Depth,Abn_perc)
+  dplyr::select(Block, Cultivar,SowTreat,Plot,Depth,Abn_perc,transf_sqr)
 
 #-------------------------------------------------
 
@@ -244,7 +241,11 @@ summary(file.subset)
 #my.anova <- aov(Abn_perc~ Cultivar*SowTreat*Depth + Block, data = file.subset)
 #my.anova <- aov(Abn_perc~ Cultivar + Block, data = file.subset)
 #my.anova <- aov(Abn_perc~ Depth + Block, data = file.subset)
-my.anova <- aov(Abn_perc~ SowTreat + Block, data = file.subset)
+#my.anova <- aov(Abn_perc~ SowTreat + Block, data = file.subset)
+##Use sqrt transformed data 
+
+my.anova <- aov(transf_sqr~ Cultivar*SowTreat*Depth + Block, data = file.subset)
+
 ```
 
 ```{r}
@@ -257,8 +258,8 @@ summary(my.anova)
 Check means among sowing dates 
 ```{r}
 #Means separation 
-#(LSD.test(my.anova, c("Cultivar","SowTreat"), alpha= 0.05, p.adj="none"))
- (LSD.test(my.anova, c("SowTreat"), alpha= 0.05, p.adj="none"))
+(LSD.test(my.anova, c("Cultivar","SowTreat"), alpha= 0.05, p.adj="none"))
+ #(LSD.test(my.anova, c("SowTreat"), alpha= 0.05, p.adj="none"))
 #(LSD.test(my.anova, c("Depth"), alpha= 0.05, p.adj="none"))
 #(LSD.test(my.anova, c("Cultivar"), alpha= 0.05, p.adj="none"))
 ```

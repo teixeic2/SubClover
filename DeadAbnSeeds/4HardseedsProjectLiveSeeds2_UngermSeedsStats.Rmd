@@ -90,7 +90,7 @@ for(i in 1:length(codesNames)) {
 summary(df_final)
 
 
-
+str(df_final)
 
 
 ```
@@ -128,6 +128,88 @@ df_SoftUngerm %>%
 ```
 
 
+Data Transformation df_SoftUngerm
+
+
+```{r}
+
+##rename dataframe 
+
+file <-df_SoftUngerm
+  #filter(SowTreat=="S1")
+ #filter(SowTreat=="S2")
+ #filter(SowTreat=="S3") 
+ #filter(SowTreat=="S4")
+ #filter(SowTreat=="S6")
+ #filter(SowTreat=="S7")
+
+
+
+
+#data transformation
+file$transf_sqr <- sqrt(file$SoftUngerm_perc)
+file$transf_log <- log(file$SoftUngerm_perc)
+file$transf_not <- 1*(file$SoftUngerm_perc/1)
+file$transf_acos <- acos(file$SoftUngerm_perc/100)
+file$transf_sqrx <- (file$SoftUngerm_perc^2)
+#mutate(mydata, sqr.x = x^2)
+
+
+head(file)
+
+x <- c("transf_sqr", "transf_log","transf_acos","transf_not", "transf_sqrx" )
+colsSelec <- match(x,colnames(file))
+
+
+
+
+```
+
+
+
+
+```{r, fig.height=7, fig.widht=8}
+
+
+file %>%
+  tidyr::gather("transformation","value",colsSelec) %>%
+  ggplot(aes(value)) + 
+  geom_histogram() +
+  facet_grid(.~transformation, scales="free")+
+  theme_bw()
+
+
+
+```
+check normality shapiro test +QQplots
+
+```{r}
+
+#normality test
+shapiro.test(file$transf_acos)
+shapiro.test(file$transf_not)
+shapiro.test(file$transf_sqr)
+shapiro.test(file$transf_log)
+shapiro.test(file$transf_sqrx)
+
+
+
+
+##QQplot
+#var<-file$transf_acos
+
+#var<-file$transf_not
+var<-file$transf_sqr
+#var<-file$transf_log
+#var<-file$transf_sqrx
+
+qqnorm(var)
+qqline(var, col = 2)
+qqplot(var, rt(300, df = 5))
+
+
+
+```
 
 
 
@@ -136,8 +218,8 @@ then select columns of interest : here stats for overall means (SowTreat and Cul
 
 ```{r}
 
-file <- df_SoftUngerm %>%
-  dplyr::select(Block, Cultivar,SowTreat,Plot,Depth,SoftUngerm_perc)
+file  %>%
+  dplyr::select(Block, Cultivar,SowTreat,Plot,Depth,SoftUngerm_perc,transf_sqr)
 
 #-------------------------------------------------
 
@@ -146,7 +228,8 @@ file.subset <- file
 
 head(file.subset, 50)
 summary(file.subset)
-my.anova <- aov(SoftUngerm_perc~ Cultivar*SowTreat*Depth + Block, data = file.subset)
+#my.anova <- aov(SoftUngerm_perc~ Cultivar*SowTreat*Depth + Block, data = file.subset)
+my.anova <- aov(transf_sqr~ Cultivar*SowTreat*Depth , data = file.subset)
 #my.anova <- aov(Abn_perc~ Cultivar + Block, data = file.subset)
 #my.anova <- aov(Abn_perc~ Depth + Block, data = file.subset)
 ```

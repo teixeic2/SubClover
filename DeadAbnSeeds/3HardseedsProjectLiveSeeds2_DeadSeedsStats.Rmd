@@ -136,10 +136,10 @@ Data Transformation :dead_perc
 
 ```{r}
 
-str(df_SoftGerm)
+str(df_dead)
 ##rename dataframe 
 
-file <-df_SoftGerm
+file <-df_dead
   #filter(SowTreat=="S1")
  #filter(SowTreat=="S2")
  #filter(SowTreat=="S3") 
@@ -151,11 +151,11 @@ file <-df_SoftGerm
 
 
 ##data transformation
-file$transf_sqr <- sqrt(file$SoftGerm_perc)
-file$transf_log <- log(file$SoftGerm_perc)
-file$transf_not <- 1*(file$SoftGerm_perc/1)
-file$transf_acos <- acos(file$SoftGerm_perc/100)
-file$transf_sqrx <- (file$SoftGerm_perc^2)
+file$transf_sqr <- sqrt(file$dead_perc)
+file$transf_log <- log(file$dead_perc)
+file$transf_not <- 1*(file$dead_perc/1)
+file$transf_acos <- acos(file$dead_perc/100)
+file$transf_sqrx <- (file$dead_perc^2)
 #mutate(mydata, sqr.x = x^2)
 
 
@@ -168,6 +168,41 @@ colsSelec <- match(x,colnames(file))
 
 
 ``` 
+
+
+check normality shapiro test +QQplots
+
+```{r}
+
+#normality test
+shapiro.test(file$transf_acos)
+shapiro.test(file$transf_not)
+shapiro.test(file$transf_sqr)
+shapiro.test(file$transf_log)
+shapiro.test(file$transf_sqrx)
+
+
+
+
+##QQplot
+var<-file$transf_acos
+
+#var<-file$transf_not
+#var<-file$transf_sqr
+#var<-file$transf_log
+#var<-file$transf_sqrx
+
+qqnorm(var)
+qqline(var, col = 2)
+qqplot(var, rt(300, df = 5))
+
+
+
+```
+
+
+
+
 
 
 

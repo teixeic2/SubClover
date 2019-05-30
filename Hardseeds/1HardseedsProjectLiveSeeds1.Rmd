@@ -395,7 +395,7 @@ df_cum_soft %>%
                     ymax=mean+sd/3.46))+
   theme_bw()+
   ylim(0,100)+
-  xlim(0,100)+
+  xlim(0,120)+
   ylab(expression(Percentage~of~Hardseeds~"(%)"))+
   #theme(text = element_text(size=12))+
   #xlab(expression(Days))+
@@ -416,6 +416,23 @@ write.table(df_cum_soft, "dfHard_break.txt") #this will be used in seed breakdow
 write.table(df_hard_live_max, "MaxHardness.txt") #this will be used in scripts which need max hardness 
 
 ```
+
+check - draft graph 
+
+```{r, fig.height=5, fig.width=12}
+
+#Graph the maximum percentage of Live hardseeds!!! Here graph already show SE sd/3,.46 n = 3.
+
+  HardsEndThermalTreat<-df_final2 %>%
+  mutate(SowingD = dmy(SowingD)) %>%
+  filter(Round == 98) 
+
+write.table(HardsEndThermalTreat, "HardSeedsEndTHermalTreat.txt") #this will be used in scripts which need max hardness
+
+
+
+```
+
 
 
 

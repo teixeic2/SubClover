@@ -65,9 +65,9 @@ shapiro.test(df_emerg1$TT50E)
 #data transformation
 file <- df_emerg1
 
-file$transf_sqr <- sqrt(df_emerg1$DAS50E)
-file$transf_log <- log(df_emerg1$DAS50E)
-file$transf_log1 <- log(df_emerg1$DAS50E+1)
+#file$transf_sqr <- sqrt(df_emerg1$DAS50E)
+#file$transf_log <- log(df_emerg1$DAS50E)
+#file$transf_log1 <- log(df_emerg1$DAS50E+1)
 #file$transf_no <- 1*(df_emerg1$DAS50E)
 file$transf_no <- 1*(df_emerg1$TT50E)
 head(file)

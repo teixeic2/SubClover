@@ -172,6 +172,17 @@ summary(my.anova)
 
 ```
 
+```{r}
+
+#(LSD.test(my.anova, c("SowTreat"), alpha= 0.05, p.adj="none"))
+(LSD.test(my.anova, c("Cultivar"), alpha= 0.05, p.adj="none")) 
+
+```
+
+
+
+
+
 
 
 ```{r}

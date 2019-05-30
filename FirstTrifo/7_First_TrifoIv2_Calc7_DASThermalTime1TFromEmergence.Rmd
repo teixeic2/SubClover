@@ -127,15 +127,17 @@ file.subset <- df
  
 head(file.subset, 50)
    summary(file.subset)
-my.anova <- aov( DAS1TFromEmerg ~ Cultivar*SowTreat + Block, data = file.subset)
+#my.anova <- aov( DAS1TFromEmerg ~ Cultivar*SowTreat + Block, data = file.subset)
+my.anova <- aov(  TT1TFromEmerg ~ Cultivar*SowTreat , data = file.subset)
+
 
 summary(my.anova)
   
   
   
-(LSD.test(my.anova, c("Cultivar"), alpha= 0.05, p.adj="none")) 
+#(LSD.test(my.anova, c("Cultivar"), alpha= 0.05, p.adj="none")) 
 (LSD.test(my.anova, c("SowTreat"), alpha= 0.05, p.adj="none"))
-$(LSD.test(my.anova, c("Cultivar","SowTreat"), alpha= 0.05, p.adj="none")) 
+#(LSD.test(my.anova, c("Cultivar","SowTreat"), alpha= 0.05, p.adj="none")) 
 ```
 
 

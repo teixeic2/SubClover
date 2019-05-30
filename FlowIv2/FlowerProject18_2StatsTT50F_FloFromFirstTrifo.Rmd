@@ -79,7 +79,15 @@ df_work2<-B
 write.table(df_work2, "TTDAysMergedFlowerFromFirstTrifo.txt")
 ```
 
+Create a graph TT to Flo against sowing month 
 
+```{r}
+
+
+
+
+
+```
 
 
 Do Stats for DAS50F for Bud first 
@@ -108,8 +116,8 @@ summary(file.subs)
 
 #ANOVA
 
-my.anova <- aov(TTFloFromFirstTrifo ~ SowTreat + Block, data = file.subs)
-#my.anova <- aov(TTFloFromFirstTrifo ~ SowTreat*Cultivar + Block, data = file.subs)
+#my.anova <- aov(TTFloFromFirstTrifo ~ SowTreat + Block, data = file.subs)
+my.anova <- aov(TTFloFromFirstTrifo ~ SowTreat*Cultivar + Block, data = file.subs)
 #my.anova <- aov(TTFloFromFirstTrifo ~ Cultivar + Block, data = file.subs)
 #my.anova <- aov(DAysFloFromFirstTrifo ~ SowTreat + Block, data = file.subs)
 
@@ -122,7 +130,8 @@ summary(my.anova)
 
 ```{r}
 
-(LSD.test(my.anova, c("SowTreat"), alpha= 0.05, p.adj="none"))
+(LSD.test(my.anova, c("Cultivar","SowTreat"), alpha= 0.05, p.adj="none"))
+#(LSD.test(my.anova, c("SowTreat"), alpha= 0.05, p.adj="none"))
 #(LSD.test(my.anova, c("Cultivar"), alpha= 0.05, p.adj="none"))
 
 
