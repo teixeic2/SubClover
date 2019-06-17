@@ -328,8 +328,7 @@ axis.line = element_line(colour = "black"))+
    
    #make sowing dates white  
    theme(strip.background = element_rect(colour = "black", fill = "white",size=2))+
-   
-   scale_y_continuous(expand = c(0, 0), limits = c(0,2000))+
+  
    
    #margin y axis
    theme (axis.title.y = element_text( margin = margin(t=0,r=20,b=10,l=0)))+
@@ -338,13 +337,17 @@ axis.line = element_line(colour = "black"))+
     scale_fill_brewer(palette="Greens")+
      #facet_grid(.~SowTreat, scales="free") +
     facet_grid(Depth~SowTreat, scales="free") +
+     
+   scale_y_continuous(expand = c(0, 0), limits = c(0,2100))+
+    
     labs(y= "Seed yield (kg/ha)")+
+    theme(text = element_text(size = 24))
 theme(axis.text.x=element_text(angle = +0, hjust = 0.5,vjust=0.2 ,size=24))+
-  theme(axis.text.y=element_text(angle = 0, hjust=0.5,vjust=0.2,size = 24)) +
-theme(text = element_text(size = 24))
+  theme(axis.text.y=element_text(angle = 0, hjust=0.5,vjust=0.2,size = 20)) 
 
 
-   ggsave("plot_seedyieldIversen2.tiff", width=16, height=6, dpi=500)
+
+   ggsave("plot_SeedYield_Prjct1_Iversen2.tiff", width=16, height=6, dpi=500)
   
   
 ```

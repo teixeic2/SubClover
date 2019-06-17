@@ -1,0 +1,202 @@
+---
+title: "Hardseeds Live Max 6CV"
+author: "CT"
+date: "11.01.2018"
+output:
+  word_document: default
+  pdf_document: default
+  html_document: default
+---
+
+
+```{r loadLibraries}
+library(tidyr)
+library (dplyr)
+library (ggplot2)
+library(agricolae)
+library(knitr)
+library (lubridate)
+library(gridExtra)
+library(rpart)
+
+```
+sow
+-This script reads the alldata set by plot in seed filling    AlldataByPlotR7_R11SeedFill.txt
+
+- build a decision tree using rpart package All dat points here 
+
+```{r loadFile}
+setwd("C:\\GitHubRepos\\SubCloverPhD\\SubClover\\Hardseeds")
+getwd()
+
+#create file
+#df_SowHvst <- read.table("EnviroSeedFillingR7_R12.txt",header=TRUE)
+df_All <- read.table("AlldataByPlotR7_R11SeedFill.txt",header=TRUE)
+head(df_All)
+# change format 
+
+
+```
+
+
+
+
+
+Decision tree analysis for SDsqrtSdbreak
+
+```{r}
+
+#str (df_AllPlotsR7_R12)
+str (df_All)
+
+head
+
+
+# grow tree 
+#fit <- rpart(Mileage~Price + Country + Reliability + Type, 
+   #method="anova", data=cu.summary)
+
+
+fit <- rpart(SqtSDbreak~SoilTemp+PET,method="anova", data=df_All)
+
+printcp(fit) # display the results
+
+
+plotcp(fit) # visualize cross-validation results 
+summary(fit) # detailed summary of splits
+
+# create additional plots 
+par(mfrow=c(1,2)) # two plots on one page 
+rsq.rpart(fit) # visualize cross-validation results   
+
+```
+
+```{r}
+# plot tree 
+ plot(fit, uniform=TRUE, 
+    main="Regression Tree for SqrtSdbreak ")
+ text(fit, use.n=TRUE, all=TRUE, cex=.8)
+
+
+## wrong plot tree 
+#plot( fit,main="Regression Tree for Hardseededness (SDmax) ")
+#text( use.n=TRUE,all=TRUE, cex=.8)
+
+
+
+```
+
+
+Do for Antas only 
+
+cision tree analysis for SDsqrtSdbreak
+
+```{r}
+
+
+str (df_All)
+
+Antas<-df_All%>%
+  filter(Cultivar=='Antas'|
+          Cultivar=='Denmark' )
+
+
+fit <- rpart(SqtSDbreak~SoilTemp+PET,method="anova", data=Antas)
+
+printcp(fit) # display the results
+
+
+plotcp(fit) # visualize cross-validation results 
+summary(fit) # detailed summary of splits
+
+# create additional plots 
+par(mfrow=c(1,2)) # two plots on one page 
+rsq.rpart(fit) # visualize cross-validation results   
+
+```
+
+
+
+
+
+```{r}
+# prune the tree 
+pfit<- prune(fit, cp=0.05) # from cptable   
+
+# plot the pruned tree 
+plot(pfit, uniform=TRUE, 
+   main="Pruned Regression Tree for SqrtSdbreak")
+text(pfit, use.n=TRUE, all=TRUE, cex=.8)
+
+
+
+```
+
+
+
+Decision tree analysis for SDbreak
+
+```{r}
+
+#str (df_All)
+
+# grow tree 
+#fit <- rpart(Mileage~Price + Country + Reliability + Type, 
+   #method="anova", data=cu.summary)
+
+
+#fit <- rpart(HardAccum~slope+RainIrrig+RH+Temp+SoilTemp+PET+DiffRainPET,method="anova", data=df_All)
+fit <- rpart(slope~RainIrrig+RH+Temp+SoilTemp+PET,method="anova", control = rpart.control(minsplit = 20, minbucket = 1), data=df_AllPlotsR7_R12)
+
+printcp(fit) # display the results
+
+
+plotcp(fit) # visualize cross-validation results 
+summary(fit) # detailed summary of splits
+
+# create additional plots 
+par(mfrow=c(1,2)) # two plots on one page 
+rsq.rpart(fit) # visualize cross-validation results   
+
+
+
+
+
+```
+
+```{r}
+
+# plot tree 
+plot(fit, uniform=TRUE, 
+   main="Regression Tree for slope ")
+text(fit, use.n=TRUE, all=TRUE, cex=.8)
+
+# create attractive postcript plot of tree 
+#post(fit, file = "c:/tree2.ps",
+#post(fit, file = "c:/GitHubRepos/SubCloverPhD/SubClover/Hardseeds/treeSDbreak.tiff", 
+  # title = "Regression Tree for SDbreak ")
+
+##Path #C:\\GitHubRepos\\SubCloverPhD\\SubClover\\Hardseeds
+
+```
+
+
+```{r}
+
+# prune the tree 
+pfit<- prune(fit, cp=0.0560389) # from cptable   
+
+# plot the pruned tree 
+plot(pfit, uniform=TRUE, 
+   main="Pruned Regression Tree for SDbreak")
+text(pfit, use.n=TRUE, all=TRUE, cex=.8)
+
+
+
+
+
+```
+
+
+
+

@@ -128,21 +128,29 @@ dfmerged <- merge(df2,file2, by=c("Plot"))
 str(dfmerged)
 ```
 
+Get mean values 
+
 
 ```{r}
 
 relationship<-dfmerged%>%
   dplyr::select(Plot,Cultivar,SowTreat,FinalPop,Seedskg_ha)%>%
   group_by(Plot,Cultivar,SowTreat)%>%
-  select(FinalPop,Seedskg_ha)%>%
+  dplyr::select(FinalPop,Seedskg_ha)%>%
   summarise_all(funs(mean))
 
 MeanData<-relationship%>%
   group_by(Cultivar,SowTreat)%>%
-  select(FinalPop,Seedskg_ha)%>%
-  summarise_all(funs(mean))
+  dplyr::select(FinalPop,Seedskg_ha)%>%
+  summarise_all(funs(mean))%>%
+  ##remove Monti at S4
 
 str(MeanData)
+
+
+  
+
+
 ```
 
 
@@ -200,6 +208,16 @@ grid.arrange(g1)
 ```
 
 
+```{r}
+
+NoS1<-MeanData %>%
+  filter(SowTreat!="S1")
+
+```
+
+
+
+
 # Get linear coefficients of equations above
 ##check what are these P values 
 
@@ -208,8 +226,9 @@ library(broom)
 options(scipen=999)
 
 # create the linear fits by groups o variables
-dfreg <- MeanData %>% group_by(Cultivar) %>%
+dfreg <- MeanData%>%  group_by(SowTreat) %>%
   do(fitreg = lm(FinalPop ~ Seedskg_ha, data = .))
+
 
 # get the linear coefficients by group in a tidy data_frame
 dfCoef <- tidy(dfreg, fitreg)
@@ -235,300 +254,3 @@ dfCoef
 
 
 
-
-```{r}
-
-#barplot for seed density  
-#The palette with grey:
-cbPalette <- c("#999999", "#666666", "#56B4E9", "#009E73", "#D55E00", "#0072B2","#999999", "#E69F00", "#56B4E9", "#009E73", "#D55E00", "#0072B2","#56B4E9", "#009E73")
-
-
-# define position of bar and errorbar
-dodge_x <- position_dodge(width = 0.9)
-
-# splitting and df due bug in tidyr (https://github.com/hadley/tidyr/issues/32)
-#use 3.46 as 2 x 1.73 to grph with SE instead of Sd
-  dfmerged %>%
-  #tidyr::spread(Depth,SeedsNo_m2) %>%
-  #mutate(SeedsNo_m2= Down/(Down+Up)*100) %>%
-  #mutate(Depth = factor(Depth,levels=c( "Above","Below"))) %>%
-group_by(Cultivar, SowTreat) %>%
-    #filter(SowTreat!="S6", SowTreat!="S7")%>%
-    dplyr::select(SeedperPlant)%>%
-    summarise_all(funs(mean,sd)) %>%
-    mutate(SE=sd/1.73)%>%
-  ggplot(aes(x=Cultivar, y=(mean), fill=Cultivar)) +
-  geom_bar(stat="identity",position = dodge_x) +
-  geom_errorbar(aes(ymin=mean-SE/2,     
-                    ymax=mean+SE/2),
-                width=0.25, size=0.3,position=dodge_x)   +
-  theme_grey(base_size = 16) +
-    theme_bw()+
-  facet_grid(.~SowTreat, scales="free") +
-    #labs(y= "Seed Number per m2")+
-    ylab(expression(Seed~number~per~1~plant))+
-theme(axis.text.x=element_text(angle = +90, hjust = 0))+
-  theme(text = element_text(size = 14))
-
-
-```
-
-Calculate seedyield grams per plant and not per ha 
-
-
-```{r, fig.height=5, fig.width=10}
-#Calculate Seed yield : number g seeds per m2 and then yield kg seeds per ha
-#head (file)
-
-df1<- file %>%
-  dplyr::select(Cultivar, Plot,SowingD, SowTreat,sample_area_m2,Block,
-                Depth,bur_total_weight_g,
-                bur_no_subSample,
-                bur_weight_subSample_g,seed_weight_g) %>%
- 
-   #stop here calculate g / m2
-  mutate(Seedsgperm2 = (((seed_weight_g/bur_weight_subSample_g)*
-           bur_total_weight_g)/sample_area_m2)*1 )%>%
-  
-  #calculate sum of ablove and below seeds  
-   group_by(SowTreat,Cultivar, Plot) %>%
-  dplyr::select(Seedsgperm2)%>%
-   summarise_all(funs(sum))
-
-  df1 <- as.data.frame(df1)
-str(df1)
-
-#write.table(df1, "SeedYieldIv2.txt", row.names=FALSE)
-
-```
-
-
-
-
-then merge the two dataframes by Plot
-
-```{r}
-dfmerged2 <- merge(df1,file2, by=c("Plot")) %>%
-  mutate(GramSeedperPlant=Seedsgperm2/FinalPop)
-  #dplyr::select(Plot:SowTreat, Hard_perc,slope)
-
-
-str(dfmerged2)
-```
-
-```{r}
-
-str(relationship)
-
-Se <-relationship %>%
-  dplyr::select(Plot,Seedskg_ha)
-
-str(Se)
-
-
-```
-
-```{r}
-
-
-dfMerge3 <- merge(dfmerged2, Se, by="Plot")%>%
-  mutate(Index=GramSeedperPlant*FinalPop)
-
-str(dfMerge3)
-
-```
-
-
-
-get means 
-
-```{r}
-MeanDataIndex<-dfMerge3%>%
- 
-  group_by(SowTreat)%>%
-  select(Index ,GramSeedperPlant,FinalPop,Seedsgperm2)%>%
-  summarise_all(funs(mean))
-
-
-
-```
-
-
-```{r,fig.height=5, fig.width=10}
-
-
-g1 <-MeanDataIndex %>%
-  ungroup() %>%
-  #mutate (SowTreat= factor(SowTreat, levels=c("S1", "S2", "S3", "S4","S5", "S6","S7","S8"),labels=c("June", #"July", "September", "November","December", "February","March","May")))%>%
-  mutate(SowMonth= factor(SowTreat, 
-                           levels=c("S1", "S2", "S3", "S4", "S5", "S6", "S7","S8"),
-                           labels=c("June", "July", "Sept.", "Nov.", "Dec.", "Feb.", "March", "May"))) %>%
-  #left_join(df_Photo_dir, by="SowTreat") %>%
-  ggplot(aes(x=FinalPop, y= Seedskg_ha))  +
-  geom_point(colour= "black", alpha=0.5) +
-  geom_point(aes(shape=SowMonth),size=4)+
-  scale_shape_manual(values = c(1,2,3,4,5,6,7,8)) +
-  geom_text(aes(label=SowMonth),hjust=0, vjust=0,size=7) +
-  #geom_errorbar(aes(ymin=PhylC_mean-PhylC_sd/2,
-                    #ymax=PhylC_mean+PhylC_sd/2), width=1.5)+
- 
-  #geom_smooth(method='lm',formula=y~x,alpha=0.1, aes(colour=Pp_dir, fill = Pp_dir)) +
-  geom_smooth(method='lm',formula=y~x,alpha=0.1)+
-  theme_bw() +
-  #xlab(expression(Plant~Population"("plants~/~m"*"^"2"*")")) + 
-  #ylab(expression(Maximum~Hardseeds~Percent~"("*"%"*")"))+
-  #ylab(expression(~Phyllochron~"("^"o"*"Cd/leaf)")) +
-  xlab(expression(Plant~Pop))+
-  ylab(expression(Seed~Yield~(kg/ha)))+
-  theme(text = element_text(size=24))+
-  facet_wrap(~Cultivar)+
- #remove grid lines 
-   theme(
-     panel.border = element_rect(colour = "black", size = 3), 
-     panel.grid.major = element_blank(),
-     panel.grid.minor = element_blank(),
-     axis.line = element_line(colour = "black"))+
-   #scale_fill_manual("legend", values = c("Antas" = "#660066", "Denmark" = "lightgrey","Leura" = "darkgrey", "Monti" = "#FF9933","Narrikup" = "blue",  "Woogenellup" = "#033333"))+
-   
-   #make sowing dates white  
-   theme(strip.background = element_rect(colour = "black", fill = "white",size=1))+
-   
-  #label sizes 
-theme(text = element_text(size = 24))
-  
-
-#grid.arrange(g1, g2, g3,g4,g41)
-grid.arrange(g1)
-# Save
-#ggsave("plot_Phyllochron_PpEmergence.tiff", width=12, height=6, dpi=400)
-
-```
-
-
-Ispect means gram seed per plant
-
-```{r}
-
-MeanGramperPlant<-dfmerged2%>%
-group_by(SowTreat)%>%
-  dplyr::select(GramSeedperPlant)%>%
-  summarise_all(funs(sum))
-
-
-
-```
-
-
-Graph the grams of seed per plant 
-
-
-
-```{r}
-
-#barplot for seed density  
-#The palette with grey:
-cbPalette <- c("#999999", "#666666", "#56B4E9", "#009E73", "#D55E00", "#0072B2","#999999", "#E69F00", "#56B4E9", "#009E73", "#D55E00", "#0072B2","#56B4E9", "#009E73")
-
-
-# define position of bar and errorbar
-dodge_x <- position_dodge(width = 0.9)
-
-# splitting and df due bug in tidyr (https://github.com/hadley/tidyr/issues/32)
-#use 3.46 as 2 x 1.73 to grph with SE instead of Sd
-  dfmerged2 %>%
-  #tidyr::spread(Depth,SeedsNo_m2) %>%
-  #mutate(SeedsNo_m2= Down/(Down+Up)*100) %>%
-  #mutate(Depth = factor(Depth,levels=c( "Above","Below"))) %>%
-group_by(Cultivar, SowTreat) %>%
-    dplyr::select(GramSeedperPlant)%>%
-    summarise_all(funs(mean,sd)) %>%
-    mutate(SE=sd/1.73)%>%
-  ggplot(aes(x=Cultivar, y=(mean), fill=Cultivar)) +
-  geom_bar(stat="identity",position = dodge_x) +
-  geom_errorbar(aes(ymin=mean-SE/2,     
-                    ymax=mean+SE/2),
-                width=0.25, size=0.3,position=dodge_x)   +
-  theme_grey(base_size = 16) +
-    theme_bw()+
-  facet_grid(.~SowTreat, scales="free") +
-    #labs(y= "Seed Number per m2")+
-    ylab(expression(Seed~grams~per~1~plant))+
-theme(axis.text.x=element_text(angle = +90, hjust = 0))+
-  theme(text = element_text(size = 14))
-
-
-```
-
-Variable Number Seeds per Plant
-
-Find mean for each sowTreat and cultivar to write abstract
-
-```{r}
-MeanSowTreat <-dfmerged %>%
-# group_by( SowTreat) %>%
-  group_by( Cultivar, SowTreat)%>%
-    filter(SowTreat!="S6", SowTreat!="S7")%>%
-    dplyr::select(SeedperPlant)%>%
-    summarise_all(funs(mean,sd)) %>%
-    mutate(SE=sd/1.73)
-
-
-#write a table to gather all data for finding the best Sowtreat for each cultivar 
-
-write.table(MeanSowTreat, "SeedNumberPerPlant.txt")
-```
-
-
-
-ANOVA and Means for number of seeds per plant in each sowTreat 
-
-## Create index to filter for loop ANOVA
-
-```{r}
-y <- c("S1","S2","S3","S4","S6","S7")
-
-sdIndex <- unique(dfmerged$SowTreat)
-
-sdIndex[order(match(sdIndex,y))]
-
-length(sdIndex)
-sdIndex
-```
-
-
-```{r}
-for (i in 1:length(sdIndex)) {
-  
- #print(i)
- print(paste0(sdIndex[i],"--------------------------------"))
-  
-  file.subset <- dfmerged %>%
-  filter(SowTreat==sdIndex[i])
-
-  #Variable = SeedperPlant
-  
-  head(file.subset, 50)
-   summary(file.subset)
-my.anova <- aov(SeedperPlant~ Cultivar + Block, data = file.subset)
-print(summary(my.anova))
-
- if ((summary(my.anova)[[1]][["Pr(>F)"]][1])<0.05) {
-   print("***Sig Cultivar***") 
- print((LSD.test(my.anova, c("Cultivar"), alpha= 0.05, p.adj="none"))) } # do if
-# 
-# # if ((summary(my.anova)[[1]][["Pr(>F)"]][2])<0.05) {print("***Sig SowTreat***")
-# #    print((LSD.test(my.anova, c("SowTreat"), alpha= 0.05, p.adj="none")))
-# #    } 
-# if ((summary(my.anova)[[1]][["Pr(>F)"]][3])<0.05) {print("***Sig Block***")
-#   print((LSD.test(my.anova, c("Block"), alpha= 0.05, p.adj="none")))
-#   } 
-# # if ((summary(my.anova)[[1]][["Pr(>F)"]][4])<0.05) {print("***Sig CV:Depth Int***")
-# #   print((LSD.test(my.anova, c("cv:depth"), alpha= 0.05, p.adj="none")))
-} 
-# 
-# # make mean separation if significant
-
-#(LSD.test(my.anova, c("Cultivar"), alpha= 0.05, p.adj="none"))
-  
-
-```

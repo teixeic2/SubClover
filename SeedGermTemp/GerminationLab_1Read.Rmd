@@ -275,7 +275,7 @@ theme(text = element_text(size = 26))
 Repeated graph with improvements                                                                                                                                                                                                                                                                                      
 
 
-```{r, fig.height=7, fig.width=15}
+```{r, fig.height=15, fig.width=12}
 #Here how to create the end error bar with max Sd 
 # find size of bar per month
 # find single position of x y to put the bar
@@ -316,7 +316,7 @@ ggplot(aes(x=DAS, y=mean)) +
   geom_errorbar(data=sd_df2, aes(ymin=mean-max_sd/2,
                     ymax=mean+max_sd/2), size=2)+
   #facet_wrap(~Cultivar,ncol=2, scales = "free")+
-   facet_wrap(~Cultivar,ncol=2)+
+   facet_wrap(~Cultivar,ncol=1)+
   theme_bw()+
   #scale_x_continuous(breaks = c(5,10,15,20,30))+
   #ylim(0, 145)+
@@ -348,7 +348,7 @@ theme(text = element_text(size = 26))
   #geom_abline(intercept = 50, slope = 0)
 
 
-ggsave("plot_CumulativeGermCv.tiff", width=12, height=10, dpi=600)
+ggsave("plot_CumulativeGermCv.tiff", width=14, height=20, dpi=600)
 
 ```
 

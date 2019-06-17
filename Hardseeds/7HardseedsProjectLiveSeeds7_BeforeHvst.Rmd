@@ -233,9 +233,20 @@ df_All5 <-df_All5 %>%
          slope=RateDecreasePerTTunit,
          Germination=mean)
 
+
+##Transform the data 
+#HSmax = asin(sqrt(file$Hard_perc/100))
+#HSbreak = sqrt(slope)
+
+df_All6 <-df_All5 %>%
+  mutate(HSmaxtrans=asin(sqrt(HardAccum/100)),
+         HSBreaktrans=sqrt(slope))
+      
+
+
+
+
 ```
-
-
 
 
 ##Now plot variates to find  ...any correlation? 
@@ -255,7 +266,7 @@ str(df_All5)
 
 ##this is for df All3
 
-pairs(~HardPerc_Initial14 +RateDecreasePerTTunit+Rain+RH+Temp+SoilTemp+DaysToSeedharvest+DaysBudDuration+DAS50F+SumRHSoiltemp,data=df_All5, main="Simple Scatterplot Matrix")
+pairs(~HSmaxtrans +RateDecreasePerTTunit+Rain+RH+Temp+SoilTemp+DaysToSeedharvest+DaysBudDuration+DAS50F+SumRHSoiltemp,data=df_All6, main="Simple Scatterplot Matrix")
 
 # dfD <- df_All%>%
 #   filter(Cultivar=="Denmark")
@@ -561,9 +572,9 @@ Inspect overall Lm for variable HardACcum (SDmax) and all weatehr variables!
 
 ```{r}
 
-str(df_All5)
+str(df_All6)
 
-#summary(lm(HardAccum ~ Rain+RH+ PET+Temp+SoilTemp,df_All5))
+summary(lm(HSmaxtrans ~ Rain+RH+ PET+ SoilTemp,df_All6))
 #summary(lm(HardAccum ~ RH+Rain,  df_All5))
 
 summary(lm(HardAccum ~ Rain, df_All5)) 
@@ -877,8 +888,10 @@ grid.arrange(g21, g22, g23,g24,g25)
 
 ```{r}
 
-#summary(lm(slope ~ Rain+RH+PET+Temp+SoilTemp, df_All5))
-summary(lm(slope ~ Rain+PET+SoilTemp, df_All5))
+str(df_All6)
+
+summary(lm(HSBreaktrans ~ Rain+RH+PET+SoilTemp, df_All6))
+#summary(lm(HSBreaktrans  ~ Rain+PET+SoilTemp, df_All5))
 #summary(lm(slope ~ Rain, df_All5)) 
 #summary(lm(slope ~ RH, df_All5)) 
 #summary(lm(slope ~ SoilTemp+PET, df_All5)) 
@@ -1079,7 +1092,7 @@ Plot Weather variables with SDmax  in R12 prior harvest  which were  significant
 
 ```{r}
 
-   df_All4 %>%
+   df_All6 %>%
   mutate (SowTreat= factor(SowTreat, levels=c("S1", "S2", "S3", "S4", "S6","S7"),labels=c("June", "July", "September", "November", "February","March")))%>%
   ggplot(aes(x=RH, y= slope))  +
   geom_point(colour= "black", alpha=0.2) +
@@ -1090,7 +1103,7 @@ Plot Weather variables with SDmax  in R12 prior harvest  which were  significant
   xlab(expression(RH~"("*"%"*")"))+ 
   #ylab(expression(Maximum~Hardseeds~Percent~"("*"%"*")"))+
   #ylab(expression(SDmax~"("*"%"*")"))+
-  ylab(expression(SDbreak~"( % /"^"o"*"Cd)"))+
+  ylab(expression(HSbreak~"( % /"^"o"*"Cd)"))+
   theme(text = element_text(size=22))+
    scale_x_continuous(limits = c(60,87),breaks=c(60,65,70,75, 80, 85))+
   scale_y_continuous(limits = c(0,0.03),breaks=c(0,0.01,0.015,0.02,0.025,0.03))+
@@ -1117,7 +1130,9 @@ Plot Weather variables with SDmax  in R12 prior harvest  which were  significant
 
 ```{r}
 
-   df_All4 %>%
+str(df_All6)
+
+   df_All6 %>%
   mutate (SowTreat= factor(SowTreat, levels=c("S1", "S2", "S3", "S4", "S6","S7"),labels=c("June", "July", "September", "November", "February","March")))%>%
   ggplot(aes(x=SoilTemp, y= slope))  +
   geom_point(colour= "black", alpha=0.2) +
@@ -1128,7 +1143,7 @@ Plot Weather variables with SDmax  in R12 prior harvest  which were  significant
   xlab(expression(Soil~temperature~"( "^"o"*"C)"))+ 
   #ylab(expression(Maximum~Hardseeds~Percent~"("*"%"*")"))+
   #ylab(expression(SDmax~"("*"%"*")"))+
-   ylab(expression(SDbreak~"( % /"^"o"*"Cd)"))+
+   ylab(expression(HSbreak~"( % /"^"o"*"Cd)"))+
   theme(text = element_text(size=22))+
    scale_x_continuous(limits = c(14,22),breaks=c(10,12,14,16,18,20,22))+
  scale_y_continuous(limits = c(0,0.03),breaks=c(0,0.01,0.015,0.02,0.025,0.03))+

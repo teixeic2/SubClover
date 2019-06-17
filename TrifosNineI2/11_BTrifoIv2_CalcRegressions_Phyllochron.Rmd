@@ -31,36 +31,36 @@ setwd("C:\\GitHubRepos\\SubCloverPhD\\SubClover\\TrifosNineI2")
 getwd()
 #create file
 #df_trifo <- read.table("TrifoCountall.txt",header=TRUE)
-df_trifo <- read.table("TrifoCountall.txt",header=TRUE) %>%
-  mutate(SowingDate = dmy(SowingDate), 
-         ReadingDate = dmy(ReadingDate),
-         Trifo = (s1+s2+s3+s4+s5+s6+s7+s8+s9+s10)/10)
-
-summary(df_trifo)
+df_trifo <- read.table("TrifoCountall.txt",header=TRUE)
+head(df_trifo)
 
 
 ```
 Define formats and calculate the mean number of trifoliates considering the sub samples (S1-S10)
 
 ```{r loadFile}
+
+
 # define factors for the ones that "look like" values
 df_trifo$Plot <- as.factor(df_trifo$Plot)
 df_trifo$Block <- as.factor(df_trifo$Block)
 df_trifo$Cultivar <- as.factor(df_trifo$Cultivar)
 df_trifo$SowTreat <- as.factor(df_trifo$SowTreat)
 
+ df_trifo <- df_trifo %>%
+  mutate(SowingDate = dmy(SowingDate), 
+         ReadingDate = dmy(ReadingDate),
+         Trifo = (s1+s2+s3+s4+s5+s6+s7+s8+s9+s10)/10)
+
 str(df_trifo)
 head(df_trifo)
 tail(df_trifo)
-```
 
 
-```{r loadFile}
 df_trifo %>% filter(Plot ==1) %>% summary()
-```
 
 
-```{r loadFile}
+
 ```
 
 Graph the results : DAS and number of trifoliates 
@@ -110,7 +110,7 @@ theme(text = element_text(size = 24))
 ```
 
 
-Graph the results: DAS and number of trifoliates 
+Graph the results : DAS and number of trifoliates 
 
 ```{r, fig.height=8, fig.width=15}
 #Graph 1        
@@ -153,6 +153,10 @@ theme(text = element_text(size = 24))
 
 ```
 
+
+
+
+
 Other graphics with same dat 
 ```{r, fig.height=5, fig.width=8}
 #Graph         
@@ -163,10 +167,12 @@ Other graphics with same dat
   ggplot(aes(x=DAS, y=Trifo)) + 
   geom_point(aes(colour=Cultivar, shape=Cultivar)) +
   geom_line(aes(colour=Cultivar)) +
-  facet_wrap (SowTreat~., scales = "free")+
+  facet_grid (SowTreat~., scales = "free")+
   labs(y="Number of trifoliates",x="Days after sowing")+
     #geom_abline(intercept = 6, slope = 0)
    geom_abline(intercept = 4:6, slope = 0)
+
+
 
 ```
 
@@ -175,14 +181,20 @@ get the standard  error values for the final trifoliate numbers
 
 
 ```{r}
-#str(df_trifo)
+str(df_trifo)
+
 dfMaxTrifo <- df_trifo %>% 
+
   group_by( Cultivar, SowTreat ) %>%
   dplyr::select(Trifo)%>%
   summarise_all(funs(max,sd))%>%
   mutate(SE=sd/1.73)
+ 
 
-summary(dfMaxTrifo)
+  
+
+
+
 ```
 
 
@@ -217,54 +229,94 @@ df_TTSum <- read.table("df_CumTTiv2.txt",header=TRUE)
 # remove extra columns
 df_TTSum <- df_TTSum %>%
 dplyr::select(Date,SumTTday) %>%
-mutate(Date = ymd(Date))
+  mutate(Date = ymd(Date))
  
 #check
+head(df_TTSum)
+
+```
+
+Check data 
+```{r}
 summary(df_TTSum)
-
-```
-
-```{r}
-df_TTEmerg <- read.table("DaysTT9TFromEmergence_v2.txt",header=TRUE) %>%
-  dplyr::select(Plot, TT50E)
-
-summary(df_TTEmerg)
 ```
 
 
-
-# Bring Pp 
-```{r}
-df_Photo <- read.table("Photoperiod.txt",header=TRUE) %>%
-  mutate(Date=dmy(Date))
-
-summary(df_Photo)
-```
 
 Merge dfs TTSum at Measurement and Sowing Date into Flowering df
 ```{r}
+
+str(df_trifo)
+df_trifo<-df_trifo%>%
+  mutate(Date=ymd(ReadingDate))
+str(df_trifo)
+
 # Add Tt at measurement date
-df_trifo2 <- df_trifo %>%
-  ungroup() %>%
-  dplyr::select(-s1,-s2,-s3,-s4,-s5,-s6,-s6,-s7,-s8,-s9,-s10) %>%
-  merge(df_TTSum, by.x = "ReadingDate", by.y = "Date") %>%
-  dplyr::rename(SumTT_Reading = SumTTday) %>%
-  merge(df_TTSum, by.x = "SowingDate", by.y = "Date") %>%
-  dplyr::rename(SumTT_Sowing = SumTTday) %>%
-  mutate(TTAS = SumTT_Reading-SumTT_Sowing) %>%
-  merge(df_Photo, by.x="SowingDate", by.y = "Date") %>%
-  dplyr::rename(Pp_Sowing = Pp)  %>%
-  merge(df_TTEmerg, by = "Plot")  %>%
-  mutate(TTAE = TTAS-TT50E)
-  
+df_trifo2 <- merge(df_trifo,df_TTSum, by="Date")
+
 summary(df_trifo2)
+
 ```
+
+
+Change column names and select only columns of interest (tidy up)
+
+```{r}
+
+
+# change name SumTTday to TT at measurement used mutate 1 x cause rename did not work 
+df_trifo2 <- df_trifo2 %>%
+mutate(TT_meas = 1*(SumTTday))
+#check the data 
+str(df_trifo2)
+
+#select only columns of interest 
+df_trifo3<- df_trifo2 %>%
+dplyr::select (-s1, -s2, -s3, -s4, -s5,-s6, -s7, -s8, -s9, -s10) 
+
+#check data 
+str(df_trifo3)
+```
+
+Need to modify the column name to be able to merge 
+```{r}
+# Add Tt at sowing date
+df_TTSum_mod <- df_TTSum %>%
+  mutate (SowingDate = Date) %>%
+  dplyr::select (-Date)
+
+ str(df_TTSum_mod)
+ str(df_trifo3)
+
+```
+
+
+Merge data frames 
+```{r}
+
+
+
+df_trifo4 <- merge(df_trifo3,df_TTSum_mod, by = "SowingDate")
+
+str(df_trifo4)
+
+# change name TT to TT at measurement
+df_trifo4 <- df_trifo4 %>%
+mutate(TT_sow = 1*(SumTTday.y))
+#check
+str(df_trifo4)
+
+```
+
 
 Graphic
 
 ```{r MergeTTSumDate}
 
-df_trifo2 %>%
+#aqi
+# TT from Bud to Bur 3 
+
+df_trifo4 %>%
   #filter(SowTreat != "S6" & SowTreat != "S7")%>%
   group_by(DAS,Cultivar,SowTreat) %>%
   summarise_each(funs(mean)) %>%
@@ -273,18 +325,70 @@ df_trifo2 %>%
   ggplot(aes(x=DAS, y=Trifo)) + 
   #geom_bar(shape=1, stat="identity")
   geom_line(aes(colour=Cultivar)) +
-  facet_wrap(SowTreat~., scales = "free") +
+  facet_grid(SowTreat~., scales = "free") +
   geom_abline(intercept = 50, slope = 0)+
+  
 theme(axis.text.x = element_text(angle = 90, hjust = 1))
 
 
 ```
 
+calculate TT after sowing 
+
+```{r Calc_TT_afterSow}
+
+df_trifo4$TTAS <- df_trifo4$TT_meas-df_trifo4$TT_sow
+head(df_trifo4)
+
+
+summary(df_trifo4)
+
+
+
+```
+
+
 Include Photoperiod at sowing date in main df 
 
+```{r mergePhotoperiod}
+
+# #create file
+df_Photo <- read.table("Photoperiod.txt",header=TRUE)
+
+# convert to date format
+df_Photo <- df_Photo %>%
+mutate(Date=dmy(Date))
+
+str(df_Photo)
+
+# rename date column for merge
+df_Photo <- df_Photo %>%
+mutate(SowingDate = Date)
+head(df_Photo)
+
+#Add Pp to df_flower (merge by SowinD)
+df_trifo4 <- merge(df_trifo4,df_Photo,by="SowingDate")
+head(df_trifo4)
+summary(df_trifo4)
+
+
+ # change name PP to PP at sowing date
+df_trifo4 <- df_trifo4 %>%
+mutate(Pp_sow = Pp)
+str(df_trifo4)
+
+
+
+```
+
+
+
 ```{r}
+
+str(df_trifo4)
+
 # save final DF"
-write.table(df_trifo2, "df_TrifoLeavesTT.txt")
+write.table(df_trifo4, "df_TrifoLeavesTT.txt")
 
 ```
 
@@ -292,7 +396,7 @@ Graphics
 
 ```{r}
 # graph
-df_trifo2 %>%
+df_trifo4 %>%
   # mutate(Variable = 
   # factor(Variable,levels = c("Bud","Early","Open",
   #         "Petal","Bur1","Bur2","Bur3","Bur4" ))) %>%
@@ -305,7 +409,7 @@ df_trifo2 %>%
   #ggplot(aes(x=TTAS, y=Percent)) + 
   ggplot(aes(x=TTAS, y=Trifo)) +
   geom_line(aes(colour=SowTreat)) +
-  facet_wrap(SowTreat~Cultivar, scales = "free") +
+  facet_grid(SowTreat~Cultivar, scales = "free") +
   geom_abline(intercept = 50, slope = 0)+
    theme_bw()+
 theme(axis.text.x = element_text(angle = 60, hjust = 1))+
@@ -320,7 +424,7 @@ Graph the results : DAS and number of trifoliates
 
 ```{r, fig.height=8, fig.width=15}
 #Graph 1        
-  df_trifo2 %>%
+  df_trifo4 %>%
   mutate (SowTreat= factor(SowTreat, levels=c("S1", "S2", "S3", "S4", "S5", "S6","S7", "S8"),labels=c("June", "July", "September", "November", "December", "February","March", "May")))%>%
   filter(Cultivar=="Monti"|Cultivar=="Narrikup"|Cultivar=="Woogenellup")%>%
   group_by(Cultivar, SowTreat, DAS,TTAS) %>%
@@ -359,94 +463,131 @@ theme(text = element_text(size = 24))
 
 ```
 
+
+
+
+
 bring dataframe with TTEmergence to calculate number leaves from emergence
 
+
+
+```{r}
+
+df_TTEmerg <- read.table("DaysTT9TFromEmergence_v2.txt",header=TRUE)
+
+str(df_TTEmerg) 
+
+
+df_TTEmerg <- df_TTEmerg%>%
+  dplyr::select(Plot,SowTreat,SowingDate,Cultivar,Block,TT50E,DAS50E)
+
+##merge 
+df_TTEmerg2<-merge(df_TTEmerg,df_trifo4, by="Plot")
+
+##subtract TT
+df_TTEmerg2$TTAEmer <- df_TTEmerg2$TTAS-df_TTEmerg2$TT50E
+head(df_TTEmerg2)
+
+
+summary(df_TTEmerg2)
+str(df_TTEmerg2)
+
+
+```
+
+tidy df 
+
+```{r}
+
+df_TTEmerg2<-df_TTEmerg2 %>%
+  mutate( SowTreat=SowTreat.x,
+          Cultivar=Cultivar.x, 
+          Block=Block.x,
+          SowingDate=SowingDate.x)%>%
+  select(-SowTreat.y,-Cultivar.y,- Block.y , -SumTTday.y)
+
+  
+
+```
 
 Select only data needed for regressions ans stats 
 ```{r}
 
 ##this will be used to calculate the slope (phyllochron)
 
-DataPhyllo <- df_trifo2 %>%
-  dplyr::select(Plot,Block,SowTreat,Cultivar,SowingDate,Pp_Sowing, TTAE, Trifo)%>%
-  ##use this subset to harmonise wwith the graphs !
-  subset(TTAE<=400)%>%
-  subset(Trifo>=1 )
-
-summary(DataPhyllo)
+DataPhyllo<-df_TTEmerg2%>%
+  dplyr::select(Plot,Block,SowTreat,Cultivar,SowingDate,Pp_sow, TTAEmer,Trifo)%>%
+  subset(TTAEmer>0)%>%
+  subset(Trifo>0.65 & Trifo<6)
 
 write.table(DataPhyllo, "DataPhyllo.txt")
 ```
 
-# Mean and sd for graph
-```{r, Warning=FALSE}
-df_trifo2_mean <- df_trifo2 %>%
-  dplyr::select(Cultivar, SowTreat, DAS, Trifo, TTAE) %>%
-  subset(TTAE>0) %>% 
-  group_by(Cultivar, SowTreat, DAS) %>%
-  summarise_all(funs(mean, sd)) %>%
-  na.omit() %>% 
-  mutate (SowTreat= factor(SowTreat, levels=c("S1", "S2", "S3", "S4", "S5", "S6","S7", "S8"),labels=c("June", "July", "September", "November", "December", "February","March", "May")))
 
-  summary(df_trifo2_mean)
+
+```{r, Warning=FALSE}
+
+df_1 <-df_TTEmerg2%>%
+  group_by(Cultivar, SowTreat,DAS)%>%
+  dplyr::select(Trifo,TTAEmer) %>%
+  summarise_all(funs(mean,sd))%>%
+  subset(TTAEmer_mean>0)
+
+
+#str(df_1)
+
+df_1select<-df_1%>%
+  select (Cultivar,SowTreat,TTAEmer_mean,Trifo_mean,Trifo_sd)%>%
+  mutate(TT=TTAEmer_mean,
+         mean=Trifo_mean,
+         sd=Trifo_sd)%>%
+  select(-TTAEmer_mean,-Trifo_mean,-Trifo_sd)
+  
+  str(df_1select)
+  
+ write.table(df_1select, "df_1select.txt")
+    
+  
 ```
 
 make graph with all cultivars 
-```{r}
-bar_x <- max(df_trifo2_mean$TTAE_mean)
-bar_y <- max(df_trifo2_mean$Trifo_mean)
-bar_x <- max(df_trifo2_mean$TTAE_mean)
-bar_y <- max(df_trifo2_mean$Trifo_mean)
 
 
-bar_x 
-bar_y
-```
 
+```{r, fig.height=8, fig.width=15}
 
-```{r}
-##Get sd at max trifo position
-dfError <- df_trifo2_mean %>%
-  group_by(SowTreat) %>%
-  filter(Trifo_mean==max(Trifo_mean)) %>%
-  ungroup() %>%
-  dplyr::select(SowTreat,Trifo_sd)
-
-summary(dfError)
-```
-
-Select points for phyllochron plot
-```{r}
-df_PhylloData <- df_trifo2 %>%
-  subset(Trifo>=1) %>%
-  subset(TTAE<=400)
-  
-summary(df_PhylloData)
-
-df_trifo2%>%filter(Trifo==11.4)
-  
-```
-
-FIXME check this 11.4 numbers 
-
-```{r, fig.height=20, fig.width=10}
-
+##Find the maximum SE 
+##Create datapoint for error bar for the final number leaves
+dfError<- df_1select %>%
+  subset(mean>8.5)%>%
+  #dplyr::select(SowTreat,sd)%>%
+  group_by(SowTreat)%>%
+  #dplyr::select(sd)%>%
+  summarise_all(funs(max(sd/1.73)))%>%
+  mutate(SE=sd, TT=650, mean=15)%>% 
+  mutate (SowTreat= factor(SowTreat, levels=c("S1", "S2", "S3", "S4", "S5", "S6","S7", "S8"),labels=c("June", "July", "September", "November", "December", "February","March", "May")))%>%
+  ungroup()
 
 
 ###########################################
+## create a dataframewitth values of trifo >0.8 and < 6
+TrifoSubset<-df_1select%>%
+  subset(mean>=0.8 & mean <= 7)%>%
+  mutate (SowTreat= factor(SowTreat, levels=c("S1", "S2", "S3", "S4", "S5", "S6","S7", "S8"),labels=c("June", "July", "September", "November", "December", "February","March", "May")))
+
 
 #Graph 1  
 #str(df_1select)
-  df_1 %>%
+  df_1select %>%
     ungroup()%>%
   mutate (SowTreat= factor(SowTreat, levels=c("S1", "S2", "S3", "S4", "S5", "S6","S7", "S8"),labels=c("June", "July", "September", "November", "December", "February","March", "May")))%>%
-    subset(mean>0.90)%>%
+    subset(mean>0.50)%>%
   #filter(Cultivar=="Antas"|Cultivar=="Denmark"|Cultivar=="Leura")%>%
   #group_by(Cultivar, SowTreat, DAS) %>%
   #summarise_each(funs(mean)) %>%
-  ggplot(aes(x=TTAE_mean, y=TTAE_mean)) + 
- # geom_smooth(data=TrifoSubset,method='lm',formula=y~x, colour="grey",alpha=0.1, size=2)+
-     geom_smooth(data=TrifoSubset,method='lm', size=2)+
+  ggplot(aes(x=TT, y=mean)) + 
+  geom_smooth(data=TrifoSubset,method='lm',formula=y~x, colour="grey",alpha=0.1)+
+    
   geom_point(aes(shape=Cultivar), size=5) +
   #scale_shape_manual(values = c(0,1,2, 3,4,5,6,7,8,9,10,11))+
   scale_shape_manual(values = c(0,1,2,4,7,8)) +
@@ -454,7 +595,7 @@ FIXME check this 11.4 numbers
   #geom_line(aes(colour=Cultivar)) +
   #geom_line()+
   #facet_wrap(~SowTreat,ncol=4, scales = "free") +
-  facet_wrap (~SowTreat,ncol=2, scale="free")+
+  facet_wrap (~SowTreat,ncol=4)+
   ylim(0,18)+
   xlim(0,700)+
   labs(y="Number of trifoliate leaves (n)")+
@@ -480,7 +621,7 @@ theme(text = element_text(size = 24))+
    theme(strip.background = element_rect(colour = "black", fill = "white",size=2))+
   
   #label sizes 
-theme(text = element_text(size = 26)) + theme(legend.position="top")
+theme(text = element_text(size = 26))
 
 #save
    
@@ -602,27 +743,6 @@ theme(text = element_text(size = 26))
 
 make the regressions 
 
-```{r}
-summary(DataPhyllo)
-```
-
-
-Calculate phyllochron
-```{r}
-library(broom)
-phylloReg <- df_TTEmerg2 %>%
-  filter()
- group_by(SowTreat, Cultivar, Block) %>%
- do(fit = lm(Trifo ~ TTAEmer, data = .))
-
-phylloRegTable <- tidy(phylloReg, fit) %>% filter(term=="TTAEmer") %>%
-mutate(Phyllocron=1/estimate)
-
-summary(phylloRegTable)
-
-```
-
-
 
 
 This loop checks the lm for all cultivars 
@@ -647,12 +767,15 @@ for (i in 1:length(cv.unique)) {
     subset(SowTreat==cv.unique[i])
   
   #add the function or calculation required 
-
+  
+    #summary(lm(HardAccum ~ RainIrrig, df_subset))  
+    #summary(lm(HardAccum ~ RH, df_subset))
     summary(lm(Trifo ~ TTAEmer, df_subset))
   #print
     
 print(summary(lm(Trifo ~ TTAEmer, df_subset)))
-
+#print(summary(lm(HardAccum ~ RH, df_subset)))
+   # print(summary(lm(HardAccum ~ Temp, df_subset)))
 
   } 
 

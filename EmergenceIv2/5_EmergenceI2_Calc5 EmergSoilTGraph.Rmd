@@ -168,12 +168,195 @@ fontSize <- 16.0
   
   g <-grid.arrange(g3, g4)
   
-  ggsave(file="plot_DAS50E_Rate_Iv.png", width=12, height=6, dpi=400,g)
+  #ggsave(file="plot_DAS50E_Rate_Iv.png", width=12, height=6, dpi=400,g)
 
 ```
  
 
+Graph only time 50% emergence and mean soil temp 
 
+```{r, fig.height=15, fig.width=15}
+
+
+df_seed1<-df_H%>%
+  mutate(SowMonth= factor(SowTreat, levels=c("S1", "S2", "S3", "S4", "S5", "S6","S7", "S8"),
+                           labels=c("June", "July", "September", "November", "December", "February","March", "May")))%>%
+  group_by(Cultivar,SowTreat,SowMonth)%>%
+  dplyr::select(DAS50E, meanTemp_Em)%>%
+   summarise_all(funs(mean,sd))
+
+str(df_seed1)
+
+##then rename for graphs
+
+
+#extraPos<- 1.10 # extra position for single error bar
+extraPos<- 1.1 # extra position for single error bar
+x_max<-max(df_seed1$meanTemp_Em_mean)
+y_max<-max(df_seed1$DAS50E_mean)
+
+# find largest standard error
+sd_df2 <- df_seed1 %>% 
+  #group_by(Temp) %>%
+  group_by(Cultivar) %>%
+  dplyr::select(DAS50E_sd)%>%
+  summarise_all(max)%>%
+#summarise(max_sd = max(sd)) %>% 
+  ungroup() %>%
+  rowwise() %>%
+  #rename variables
+  mutate(meanTemp_Em_mean = x_max*extraPos, DAS50E_mean = y_max*extraPos,max_sd=DAS50E_sd )
+
+summary(sd_df2)
+
+#divide sd/2 as number of replicates were 4 
+
+df_seed1%>%
+ggplot(aes(x=meanTemp_Em_mean, y=DAS50E_mean)) + 
+  geom_point(aes(shape= SowTreat), size=8)+
+  scale_shape_manual(values = c(0,1,2,3,4,5,6,7,8,9,10,11))+
+  geom_line(aes(width=SowTreat))+
+ 
+  geom_errorbar(data=sd_df2, aes(ymin=DAS50E_mean-max_sd/2,
+                    ymax=DAS50E_mean+max_sd/2), size=1.5)+
+  #facet_wrap(~Cultivar,ncol=2, scales = "free")+
+   facet_wrap(~Cultivar,ncol=2)+
+  theme_bw()+
+  #scale_x_continuous(breaks = c(5,10,15,20,30))+
+  #ylim(0, 145)+
+  scale_y_continuous(breaks = c(0,10,20,30,40,50))+
+  xlim(0, 24)+
+  ylab("Time to 50% emergence  (days)") + 
+  xlab(expression(Soil~temperature~~"("^"o"*"C)")) +
+  #theme(axis.title.x = element_text( size=24)) + scale_x_continuous(breaks = c(0:6))+
+  #theme(text=element_text(size=22 ))+
+  theme(axis.title.x=element_text(angle = 0, hjust = 0.5,size = 22,face="bold"))+
+  theme(axis.title.y=element_text(angle = 90, hjust = 0.5,size = 22,face="bold"))+
+  #theme(title=element_text(size=22, face="bold"))+
+  #theme(title=element_text(size=22,  face="bold"))+
+   #remove grid lines 
+     theme(
+     panel.border = element_rect(colour = "black"  , size = 2.0), 
+     panel.grid.major = element_blank(),
+     panel.grid.minor = element_blank(),
+     
+     axis.line = element_line(colour = "black", size= 1))+
+   ##thicks in axis
+  theme(axis.ticks.length=unit(.3, "cm"))+
+
+#make Cultivars  white  
+   theme(strip.background = element_rect(colour = "black", fill = "white",size=2))+
+  
+  #label sizes 
+theme(text = element_text(size = 26))
+  
+  #geom_abline(intercept = 50, slope = 0)
+
+
+ggsave("plot_5_DAS50Emerg_Vs_SoilTemp.tiff", width=14, height=16, dpi=600)
+
+
+
+```
+
+Graph only  emergence rate (1/das) and mean soil temp 
+
+```{r, fig.height=6, fig.width=8}
+
+
+df_seed2<-df_H%>%
+  mutate(SowMonth= factor(SowTreat, levels=c("S1", "S2", "S3", "S4", "S5", "S6","S7", "S8"),
+                           labels=c("June", "July", "September", "November", "December", "February","March", "May")))%>%
+  group_by(Cultivar,SowTreat,SowMonth)%>%
+  dplyr::select(InvDAS50E, meanTemp_Em)%>%
+   summarise_all(funs(mean,sd))
+
+#str(df_seed2)
+
+##then rename for graphs
+
+
+#extraPos<- 1.10 # extra position for single error bar
+extraPos<- 1.1 # extra position for single error bar
+x_max<-max(df_seed2$meanTemp_Em_mean)
+y_max<-max(df_seed2$InvDAS50E_mean)
+
+# find largest standard error
+sd_df2 <- df_seed2 %>% 
+  #group_by(Temp) %>%
+  #group_by(Cultivar) %>%
+  dplyr::select(InvDAS50E_sd,InvDAS50E_mean)%>%
+  #summarise_all(max)%>%
+summarise(max_sd = max(InvDAS50E_sd), InvDAS50E_mean=mean(InvDAS50E_mean)) %>%
+
+  #ungroup()
+  #rowwise() %>%
+  #rename variables
+  mutate(meanTemp_Em_mean = x_max*extraPos, InvDAS50E_mean = y_max*extraPos,max_sd=max_sd )
+
+
+summary(sd_df2)
+
+#######create one single error bar (no panel max SE= (0.10/2) = 0.05
+
+
+
+#divide sd/2 as number of replicates were 4 
+
+df_seed2%>%
+  
+  #filter(SowTreat!="S1")%>%
+ggplot(aes(x=meanTemp_Em_mean, y=InvDAS50E_mean)) + 
+  geom_point(aes(shape= SowTreat,colour=Cultivar), size=8)+
+  scale_shape_manual(values = c(0,1,2,3,4,5,6,7,8,9,10,11))+
+  #geom_line(aes(width=SowTreat))+
+ #geom_smooth(method = lm, fullrange=TRUE)+
+  #geom_smooth(method = lm, SE=FALSE, alpha=0.2, linetype= 2)+
+  geom_errorbar(data=sd_df2, aes(ymin=InvDAS50E_mean-max_sd/2,
+                    ymax=InvDAS50E_mean+max_sd/2), size=1.5)+
+
+  #facet_wrap(~Cultivar,ncol=2, scales = "free")+
+   #facet_wrap(~Cultivar,ncol=2)+
+  theme_bw()+
+  scale_y_continuous(breaks = c(0,0.05,0.10,0.15,0.20,0.25,0.30))+
+ # xlim(0, 24)+
+ # ylim(0,0.3)+
+  geom_abline(slope=0.01526,intercept = 0)+
+  geom_abline(slope=0.0086,intercept = 0, linetype=2)+
+  ylab("Emergence rate  (1/days)") + 
+  xlab(expression(Soil~temperature~~"("^"o"*"C)")) +
+  #theme(axis.title.x = element_text( size=24)) + scale_x_continuous(breaks = c(0:6))+
+  #theme(text=element_text(size=22 ))+
+  theme(axis.title.x=element_text(angle = 0, hjust = 0.5,size = 22))+
+  theme(axis.title.y=element_text(angle = 90, hjust = 0.5,size = 22))+
+  #theme(title=element_text(size=22, face="bold"))+
+  #theme(title=element_text(size=22,  face="bold"))+
+   #remove grid lines 
+     theme(
+     panel.border = element_rect(colour = "black"  , size = 2.0), 
+     panel.grid.major = element_blank(),
+     panel.grid.minor = element_blank(),
+     
+     axis.line = element_line(colour = "black", size= 1))+
+   ##thicks in axis
+  theme(axis.ticks.length=unit(.3, "cm"))+
+
+#make Cultivars  white  
+   theme(strip.background = element_rect(colour = "black", fill = "white",size=2))+
+  
+  #label sizes 
+theme(text = element_text(size = 22)) +
+  ylim(0,NA)+
+  xlim(0,NA)
+  
+  #geom_abline(intercept = 50, slope = 0)
+
+
+ggsave("plot_5_RateEmerg_Vs_SoilTemp.tiff", width=12, height=12, dpi=600)
+
+
+
+```
 
 
 Then get the equations from the whole temperature range   

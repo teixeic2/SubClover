@@ -58,7 +58,7 @@ df_emerg %>% filter(Plot ==1) %>% summary()
 
 ```{r, fig.height= 5, fig.width= 15}
 # Graph it 
-
+str(df_emerg)
 
 #Graph         
   df_emerg %>% 
@@ -113,13 +113,109 @@ Graph the percentage of seedlings were established based on max overall emergenc
   dplyr::select(-SowingDate, - ReadingDate) %>%
   summarise_each(funs(mean)) %>%
   ggplot(aes(x=DAS, y=PercEmerg)) + 
-  geom_point(aes(colour=Cultivar,shape=Cultivar)) +
-  geom_line(aes(colour=Cultivar)) +
+  geom_point(aes(colour=SowTreat,shape=SowTreat)) +
+  #geom_line(aes(colour=Cultivar)) +
      theme_bw()+
-  facet_wrap (~SowTreat,ncol=4, scales = "free")+
+  facet_wrap (~Cultivar,ncol=4, scales = "free")+
   labs(y="Percentage  of Seedling emergence",x="Days after sowing") 
   #geom_abline(intercept = 50, slope = 0)
 ```
+
+
+
+
+
+```{r , fig.height=15, fig.width=15}
+
+df_seed1<-df_emerg_perc %>%  
+  group_by(Cultivar, SowTreat, DAS) %>%
+  dplyr::select(PlantPop) %>%
+  summarise_each(funs(mean,sd))
+#Here how to create the end error bar with max Sd 
+# find size of bar per month
+# find single position of x y to put the bar
+
+write.table(df_seed1, "CumulativeEmergence.txt")
+
+
+str(df_seed1)
+
+#extraPos<- 1.10 # extra position for single error bar
+extraPos<- 1.0 # extra position for single error bar
+x_max<-max(df_seed1$DAS)
+y_max<-max(df_seed1$mean)
+
+# find largest standard error
+sd_df2 <- df_seed1 %>% 
+  #group_by(Temp) %>%
+  group_by(Cultivar) %>%
+  dplyr::select(sd)%>%
+  summarise_all(max)%>%
+#summarise(max_sd = max(sd)) %>% 
+  ungroup() %>%
+  rowwise() %>%
+  #rename variables
+  mutate(DAS = x_max*extraPos, mean = y_max*extraPos,max_sd=sd )
+
+summary(sd_df2)
+
+#divide sd/2 as number of replicates were 4 
+
+df_seed1%>%
+ggplot(aes(x=DAS, y=mean)) + 
+  geom_point(aes(shape= SowTreat), size=5)+
+  scale_shape_manual(values = c(0,1,2,3,4,5,6,7,8,9,10,11))+
+  geom_line(aes(width=SowTreat))+
+  #geom_point(aes(shape=Temp),size=4)+
+  #scale_shape_manu(al(values = c(0,1,2,3,4))+
+   #scale_shape_manual(values = c(0,1,2,3,4,5,6,7,8,9,10)) +
+  #scale_shape_manual(values = c(1,2,4,7))+
+  #geom_line()+
+  geom_errorbar(data=sd_df2, aes(ymin=mean-max_sd/2,
+                    ymax=mean+max_sd/2), size=1.5)+
+  #facet_wrap(~Cultivar,ncol=2, scales = "free")+
+   facet_wrap(~Cultivar,ncol=2)+
+  theme_bw()+
+  #scale_x_continuous(breaks = c(5,10,15,20,30))+
+  #ylim(0, 145)+
+  scale_y_continuous(breaks = c(0,500,1000,1500,2000,2500))+
+  xlim(0, 80)+
+  labs(y="Mean cumulative germination (%)",x="Days")+ 
+  #theme(axis.title.x = element_text( size=24)) + scale_x_continuous(breaks = c(0:6))+
+  #theme(text=element_text(size=22 ))+
+  theme(axis.title.x=element_text(angle = 0, hjust = 0.5,size = 22,face="bold"))+
+  theme(axis.title.y=element_text(angle = 90, hjust = 0.5,size = 22,face="bold"))+
+  #theme(title=element_text(size=22, face="bold"))+
+  #theme(title=element_text(size=22,  face="bold"))+
+   #remove grid lines 
+     theme(
+     panel.border = element_rect(colour = "black"  , size = 2.0), 
+     panel.grid.major = element_blank(),
+     panel.grid.minor = element_blank(),
+     
+     axis.line = element_line(colour = "black", size= 1))+
+   ##thicks in axis
+  theme(axis.ticks.length=unit(.3, "cm"))+
+
+#make Cultivars  white  
+   theme(strip.background = element_rect(colour = "black", fill = "white",size=2))+
+  
+  #label sizes 
+theme(text = element_text(size = 26))
+  
+  #geom_abline(intercept = 50, slope = 0)
+
+
+ggsave("plot_1_Emerg_CumulativeEmerg.tiff", width=12, height=10, dpi=600)
+
+
+
+
+```
+
+
+
+
 
 Now Calculate the Percentage of Emergence in relation to the final emergence. Need to calculate the final population first and then estimate the percentage. all  plots have to end up with 100% !! 
 
@@ -331,7 +427,9 @@ Bring data ThermalSumSoil
 ```{r SoilTemp}
 # include soil  temperature before 30 June_lysimeter  
 
-df_SoilTT <- read.table("ThermalSumSoil.txt",header=TRUE)
+#Accum Soil TT calculated in  folder Iver_weather (TTimeProjectSoil.Rmd)
+
+df_SoilTT <- read.table("df_CumSoil_TTiv.txt",header=TRUE)
 head(df_SoilTT)
 
 # convert to date format

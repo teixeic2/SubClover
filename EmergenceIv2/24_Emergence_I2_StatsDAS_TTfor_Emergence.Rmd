@@ -109,7 +109,8 @@ Spring<-df_TTEmer %>%
 
 ```{r}
  
-  file <- df_TTEmer
+  file <- df_TTEmer 
+  #filter(SowTreat!="S1",SowTreat!="S8")
 
 
 file.subs <- file 
@@ -119,9 +120,9 @@ summary(file.subs)
 
 #ANOVA
 
-#my.anova <- aov(DAS5TFromEmerg ~ SowTreat + Block, data = file.subs)
-#my.anova <- aov(TT50E ~ Cultivar + Block, data = file.subs)
-my.anova <- aov(TT50E ~ SowTreat , data = file.subs)
+my.anova <- aov(TT50E ~ SowTreat*Cultivar, data = file.subs)
+#my.anova <- aov(TT50E ~ Cultivar , data = file.subs)
+#my.anova <- aov(TT50E ~ SowTreat , data = file.subs)
 
 summary(my.anova)
 

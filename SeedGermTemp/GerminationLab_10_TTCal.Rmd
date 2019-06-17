@@ -71,7 +71,7 @@ Graph DAS 50 vs temperature
 a <- dfTT %>%
 #   #ungroup()%>%
 #   #mutate(Temp=as.numeric(Temp))%>%
-group_by( Cultivar) %>%
+#group_by( Cultivar) %>%
   dplyr::select(TT)%>%
   summarise_all(funs(mean,sd)) 
   
@@ -111,6 +111,11 @@ file.subset <- file
 
 head(file.subset)
 summary(file.subset)
+
+
+##############
+
+
 
 ```
 

@@ -135,7 +135,8 @@ then select columns of interest : here stats for overall means (SowTreat and Cul
 ```{r}
 
 file <- df_hard_live_max %>%
-  dplyr::select(Block, Cultivar,SowTreat,Plot,Depth,Hard_perc)
+  dplyr::select(Block, Cultivar,SowTreat,Plot,Depth,Hard_perc)%>%
+  dplyr::filter(SowTreat=="S2")
 
 #-------------------------------------------------
 
@@ -146,7 +147,8 @@ head(file.subset, 50)
 summary(file.subset)
 
 #my.anova <- aov(Hard_perc ~ Cultivar*SowTreat*Depth + Block, data = file.subset)
-my.anova <- aov(Hard_perc ~ Cultivar*SowTreat + Block, data = file.subset)
+#my.anova <- aov(Hard_perc ~ Cultivar*SowTreat + Block, data = file.subset)
+my.anova <- aov(Hard_perc ~ Cultivar + Block, data = file.subset)
 
 ```
 
@@ -161,8 +163,8 @@ Check means among sowing dates
 ```{r}
 #Means separation 
 #(LSD.test(my.anova, c("Cultivar","SowTreat"), alpha= 0.05, p.adj="none"))
-(LSD.test(my.anova, c("SowTreat"), alpha= 0.05, p.adj="none"))
-#(LSD.test(my.anova, c("Cultivar"), alpha= 0.05, p.adj="none"))
+#(LSD.test(my.anova, c("SowTreat"), alpha= 0.05, p.adj="none"))
+(LSD.test(my.anova, c("Cultivar"), alpha= 0.05, p.adj="none"))
 ```
 
 

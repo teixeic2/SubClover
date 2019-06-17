@@ -95,11 +95,14 @@ Check effect of cultivar
 
 file <- df_emerg_perc3
 file$transf_no <- 1*(df_emerg_perc3$FinalPop)
+  
+
 head(file)
 
 #-------------------------------------------------
 # ANOVA for Culltivar 
-file.subset <- file 
+file.subset <- file%>%
+  filter(SowTreat!="S1")
 
 head(file.subset)
 summary(file.subset)
@@ -119,8 +122,8 @@ summary(my.anova)
 
 #Means separation 
 #(LSD.test(my.anova, c( "Block", "Sowtreat"), alpha= 0.05, p.adj="none") )
-#(LSD.test(my.anova, c( "SowTreat"), alpha= 0.05, p.adj="none"))
-(LSD.test(my.anova, c( "Cultivar"), alpha= 0.05, p.adj="none"))
+(LSD.test(my.anova, c( "SowTreat"), alpha= 0.05, p.adj="none"))
+#(LSD.test(my.anova, c( "Cultivar"), alpha= 0.05, p.adj="none"))
 #(LSD.test(my.anova, "Block"))
 
 ```

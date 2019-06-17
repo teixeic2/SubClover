@@ -117,7 +117,7 @@ use consistent method as per re analysis tb=0, t opt range =15, 22, t max = 35 o
 #tt_card <- data.frame(temp=c(1,15,22,35),TT=c(0,15,15,0))
 
 #for TT at Tb=0 
-tt_card <- data.frame(temp=c(0,15,22,35),TT=c(0,15,15,0))
+tt_card <- data.frame(temp=c(0,18,22,35),TT=c(0,18,18,0))
 tt_card %>%
   ggplot(aes(x=temp, y=TT))+
   #labs(x="Temperature (degree Celsius)")+

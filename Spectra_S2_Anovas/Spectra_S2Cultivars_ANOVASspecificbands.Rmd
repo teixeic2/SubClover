@@ -81,13 +81,6 @@ summary(info_av_norm)
 
 ##Subset spectra for selected wavenumber 
 
-```{r}
-
-
-
-
-```
-
 
 
 
@@ -101,9 +94,13 @@ summary(info_av_norm)
 ```{r}
 
 
+##3330 cm-1
+  #df_sp3330 <-info_av_norm %>%
+   # subset(wavelength  <3332 & wavelength  >3328)
+
 ##2930 cm-1
- # df_sp2930 <-info_av_norm %>%
- #   subset(wavelength  <2932 & wavelength  >2929)
+  df_sp2930 <-info_av_norm %>%
+    subset(wavelength  <2932 & wavelength  >2929)
 
 ##2855 cm-1
  # df_sp2855 <-info_av_norm %>%
@@ -145,8 +142,8 @@ summary(info_av_norm)
    #df_sp1025 <-info_av_norm %>%
        #subset(wavelength  <1027 & wavelength  >1024)
 
- df_sp897 <-info_av_norm %>%
-      subset(wavelength  <898 & wavelength  >896)
+ #df_sp897 <-info_av_norm %>%
+      #subset(wavelength  <898 & wavelength  >896)
 
 
 
@@ -157,6 +154,7 @@ check
 
 ```{r}
 
+#str(df_sp3330)
 #str(df_sp2930)
 #str(df_sp2855)
 #str(df_sp1745)
@@ -186,8 +184,9 @@ check
 #-------------------------------------------------
 
 # Chosen transform log to do anova 
-
-#file.subset <- df_sp2930 
+#df_sp3330
+#file.subset <- df_sp3330
+file.subset <- df_sp2930 
 #file.subset <- df_sp2855
 #file.subset <- df_sp1745
 #file.subset <- df_sp1732
@@ -200,7 +199,7 @@ check
 #file.subset <- df_sp1150
 #file.subset <- df_sp1100
 #file.subset <- df_sp1025
-file.subset <- df_sp897
+#file.subset <- df_sp897
 
 head(file.subset, 50)
 summary(file.subset)

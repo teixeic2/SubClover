@@ -263,7 +263,8 @@ options(scipen=999)
 str(df_All)
 
 ##Remove outlier montis4
-MeanData <-df_All  # filter(codeID!="S4_Monti")
+MeanData <-df_All%>%
+  subset(RainIrrig>50, RainIrrig<100) # filter(codeID!="S4_Monti")
 
 
 # create the linear fits by groups o variables
@@ -302,9 +303,12 @@ options(scipen=999)
 str(df_All)
 
 ##keep monti
-MeanData <-df_All 
-  #filter(codeID!="S4_Monti")
+MeanData <-df_All %>%
+filter(SowTreat!="S4")%>%
+ filter(SowTreat!="S6") 
+ 
 
+str(MeanData)
 
 # create the linear fits by groups o variables
 #dfreg <- MeanData %>% group_by(Cultivar) %>%

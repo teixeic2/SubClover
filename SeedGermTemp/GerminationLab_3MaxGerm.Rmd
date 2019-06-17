@@ -223,7 +223,7 @@ dMax %>%
   scale_shape_manual(values = c(1,2,0,7)) +
   geom_errorbar(data=sd_df, aes(ymin=max-max_sd/2,
                     ymax=max+max_sd/2), width=5)+
-  facet_wrap (~Cultivar,ncol=2)+
+  facet_wrap (~Cultivar,ncol=1)+
   ylim(0,140 ) +
   ylab(expression(Maximum~Germination~"(%)"))+
   theme(text = element_text(size=20))+
@@ -250,7 +250,7 @@ theme(axis.text.x=element_text(angle = 0, hjust = 0))+
   #label sizes 
 theme(text = element_text(size = 22))
 
-#ggsave("plot_MaxGerm.png", width=12, height=6, dpi=400)
+ggsave("plot_GermLab3_MaxGermOneBar.png", width=14, height=16, dpi=400)
 
 ```
 

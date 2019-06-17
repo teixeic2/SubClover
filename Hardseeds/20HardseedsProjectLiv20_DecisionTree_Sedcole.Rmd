@@ -1,7 +1,7 @@
 ---
 title: "Hardseeds Live Max 6CV"
 author: "CT"
-date: "11.01.2018"
+date: "31.05.2019"
 output:
   word_document: default
   pdf_document: default
@@ -19,6 +19,9 @@ library (lubridate)
 library(gridExtra)
 library(rpart)
 
+
+
+
 ```
 sow
 -This script reads the alldata set by plot in seed filling    AlldataByPlotR7_R11SeedFill.txt
@@ -31,7 +34,7 @@ getwd()
 
 #create file
 #df_SowHvst <- read.table("EnviroSeedFillingR7_R12.txt",header=TRUE)
-df_All <- read.table("AlldataByPlotR7_R11SeedFill.txt",header=TRUE)
+df_All <- read.table("InfoDataTree.txt",header=TRUE)
 head(df_All)
 # change format 
 
@@ -49,7 +52,9 @@ Decision tree analysis for SDsqrtSdbreak
 #str (df_AllPlotsR7_R12)
 str (df_All)
 
-head
+#transform arcsin z= arcsin(sqrt(percent/100)). 
+A <-df_All %>%
+  mutate(SDmaxTrans= asin(sqrt(SDmax/100)))
 
 
 # grow tree 
@@ -57,7 +62,8 @@ head
    #method="anova", data=cu.summary)
 
 
-fit <- rpart(SqtSDbreak~SoilTemp+PET,method="anova", data=df_All)
+fit <- rpart(SDmax~RH,method="anova", data=df_All)
+fit <- rpart(SDmaxTrans~RH,method="anova", data=A)
 
 printcp(fit) # display the results
 
@@ -78,7 +84,7 @@ rsq.rpart(fit) # visualize cross-validation results
 ```{r}
 # plot tree 
  plot(fit, uniform=TRUE, 
-    main="Regression Tree for SqrtSdbreak ")
+    main="Regression Tree for SDmax")
  text(fit, use.n=TRUE, all=TRUE, cex=.8)
 
 

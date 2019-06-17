@@ -154,12 +154,14 @@ file$transf_log <- log(file$Hard_perc)
 file$transf_not <- 1*(file$Hard_perc/1)
 file$transf_acos <- acos(file$Hard_perc/100)
 file$transf_sqrx <- (file$Hard_perc^2)
+##
+file$transf_Asin <- asin(sqrt(file$Hard_perc/100))
 #mutate(mydata, sqr.x = x^2)
 
 
 head(file)
 
-x <- c("transf_sqr", "transf_log","transf_acos","transf_not", "transf_sqrx" )
+x <- c("transf_sqr", "transf_log","transf_acos","transf_not", "transf_sqrx", "transf_Asin" )
 colsSelec <- match(x,colnames(file))
 
 
@@ -193,17 +195,18 @@ shapiro.test(file$transf_not)
 shapiro.test(file$transf_sqr)
 shapiro.test(file$transf_log)
 shapiro.test(file$transf_sqrx)
-
+shapiro.test(file$transf_Asin)
 
 
 
 ##QQplot
-var<-file$transf_acos
+#var<-file$transf_acos
 
 #var<-file$transf_not
 #var<-file$transf_sqr
 #var<-file$transf_log
 #var<-file$transf_sqrx
+var<-file$transf_Asin
 
 qqnorm(var)
 qqline(var, col = 2)
@@ -218,8 +221,9 @@ then select columns of interest : here stats for overall means (SowTreat and Cul
 
 ```{r}
 
-file <- df_final %>%
-  dplyr::select(Block, Cultivar,SowTreat,Plot,Depth,Hard_perc)
+#file <- df_final %>%
+  file %>%
+  dplyr::select(Block, Cultivar,SowTreat,Plot,Depth,transf_Asin)
   #filter(SowTreat=="S1")
 
 #-------------------------------------------------
@@ -230,7 +234,7 @@ file.subset <- file
 head(file.subset, 50)
 summary(file.subset)
 
-my.anova <- aov(Hard_perc ~ Cultivar*SowTreat*Depth, data = file.subset)
+my.anova <- aov(transf_Asin ~ Cultivar*SowTreat*Depth, data = file.subset)
 #my.anova <- aov(Hard_perc ~ Cultivar*SowTreat + Block, data = file.subset)
 #my.anova <- aov(Hard_perc ~ SowTreat + Block, data = file.subset)
 #my.anova <- aov(Hard_perc ~ Cultivar + Block, data = file.subset)

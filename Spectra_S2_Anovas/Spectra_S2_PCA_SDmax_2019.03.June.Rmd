@@ -60,7 +60,10 @@ M843
 
 dftemp <- df_G %>%
 filter(Wavenumber %in% 852:3599) %>% # select only wavelengths of interest
-mutate(Wavenumber=factor(Wavenumber), Block=as.factor(Block)) #
+mutate(Wavenumber=factor(Wavenumber), Block=as.factor(Block))%>%
+group_by(Cultivar,Wavenumber)%>%
+dplyr::select(AbsorbanceNorm)%>%
+summarise_all(funs(mean))
 
 summary(dftemp)
 
@@ -91,8 +94,10 @@ cv_n <- c(1,2,3,4,5,6)
 df_U_pca <- df_U %>%
   ungroup() %>%
   mutate(Cultivar = factor(Cultivar, levels=cv,labels=cv_n)) %>%
-  mutate(Cultivar=as.numeric(as.character(Cultivar))) %>%
-  mutate(Block=as.numeric(as.character(Block)))
+  mutate(Cultivar=as.numeric(as.character(Cultivar)))# %>%
+  #mutate(Block=as.numeric(as.character(Block)))%>%
+ 
+  
 
 head(df_U_pca)[,1:5]
 
@@ -107,16 +112,17 @@ head(df_U_pca)[,1:5]
 
 
 #Re label row names per cultivar and block (replicate to make graph)
- row.names (df_U_pca) <-c("A_1","A_2","A_3",
- "D_1","D_2","D_3",
- "L_1","L_2","L_3",
-  "M_1","M_2","M_3",
-  "N_1","N_2","N_3",
-  "W_1","W_2","W_3")
+ # row.names (df_U_pca) <-c("68","32","72",
+ # "61","73","88",
+ # "89","53","74",
+ #  "91","89.1","88.1",
+ #  "59","58","40",
+ #  "79","60","32.1")
 
+##Here include the SDmaxvalues 
 
 #Re label row names per cultivar and block (replicate to make graph)
- # row.names (df_U_pca) <-c("A","A","A",
+  row.names (df_U_pca) <-c("57","74","72","89","52","56")
  # "D","D","D",
  # "L","L","L",
  #  "M","M","M",
@@ -187,18 +193,6 @@ B<-load.graph %>%
 ```
 
 
-Loadings must fluctuate between 0 -1 !! 
-
-```{r}
-
-
-
-``` 
-
-
-```{r}
-
-```
 
 
 
@@ -347,7 +341,7 @@ fviz_pca_ind(res.pca,
              label = "all", invisible = "none", labelsize = 6,pointsize = 4,)+
 
   #xlim(-60, 60)+
-  ylim(-30, 20)+
+  ylim(-30, 50)+
 #if need the axes labels 
   xlab(expression(PC1~"(59%)"))+ 
   ylab(expression(PC2~"(21%)")) 

@@ -74,18 +74,17 @@ Subset cultivars Monti between temperature 5 to max 15
 
 #subset Cultivar
 
-df_A <-df_G %>%
+df_M <-df_G %>%
 subset(Cultivar=="Monti")
 
 #subset Temperature range 
-df_A1 <-df_A %>%
-  subset (meanTemp_Em>5 & meanTemp_Em<15)
+df_M1 <-df_M %>%
+  subset (meanTemp_Em>5 & meanTemp_Em<25)
 
 
 #remove SowingDate 1and 8  from both locations 
-df_A2 <- df_A1 %>%
-   subset (SowTreat=="S2"| SowTreat=="S3"|SowTreat=="S3"|SowTreat=="S4"|  SowTreat=="S5"|
-             SowTreat=="S6"|SowTreat=="S7")
+df_M2 <- df_M1 %>%
+   subset (SowTreat!="S1"| SowTreat!="S4")
 
 ```
 
@@ -94,16 +93,34 @@ df_A2 <- df_A1 %>%
 ```{r}
 
 
-df_A3 <-df_A2 %>%
+df_M3 <-df_M2 %>%
   dplyr::select(SowTreat,Cultivar, Plot, meanTemp_Em, InvDAS50E) %>%
   group_by(SowTreat,Cultivar) %>%
   summarise_all(funs(mean)) %>%
   mutate(y=InvDAS50E,x=meanTemp_Em) %>%
   dplyr::select(-meanTemp_Em, -InvDAS50E, -Plot)
 
-str(df_A2)
+str(df_M2)
 
 ```
+
+
+```{r}
+
+summary(lm(InvDAS50E ~ meanTemp_Em, df_M2))
+
+
+```
+
+get the confidential interval 
+
+```{r}
+
+##confint(lm(y ~ x, df))
+confint(lm(InvDAS50E ~ meanTemp_Em, df_M2))
+
+```
+
 
 got the means here ... and graph it
 
@@ -177,7 +194,7 @@ p1
 summary(lm(y ~ x, df))
 ```
 
-Tb for Monti is - intercept / slope x = -0.026756/0.015915 = -1.73 (±0.05)
+Tb for Monti is - intercept / slope x = -0.026756/0.015915 = -1.73 (?0.05)
 
 ```{r}
 

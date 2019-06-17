@@ -74,18 +74,17 @@ Subset cultivars Woog between temperature 5 to max 15
 
 #subset Cultivar
 
-df_A <-df_G %>%
+df_W <-df_G %>%
 subset(Cultivar=="Woogenellup")
 
 #subset Temperature range 
-df_A1 <-df_A %>%
-  subset (meanTemp_Em>5 & meanTemp_Em<14.7)
+df_W1 <-df_W %>%
+  subset (meanTemp_Em>5 & meanTemp_Em<34.7)
 
 
 #remove SowingDate 1and 8  from both locations 
-df_A2 <- df_A1 %>%
-   subset (SowTreat=="S2"| SowTreat=="S3"|SowTreat=="S3"|SowTreat=="S4"|  SowTreat=="S5"|
-             SowTreat=="S6"|SowTreat=="S7")
+df_W2 <- df_W1 %>%
+   subset (SowTreat=="S1"| SowTreat=="S2"|SowTreat=="S3"|  SowTreat=="S5")
 
 ```
 
@@ -94,14 +93,14 @@ df_A2 <- df_A1 %>%
 ```{r}
 
 
-df_A3 <-df_A2 %>%
+df_W3 <-df_W2 %>%
   dplyr::select(SowTreat,Cultivar, Plot, meanTemp_Em, InvDAS50E) %>%
   group_by(SowTreat,Cultivar) %>%
   summarise_all(funs(mean)) %>%
   mutate(y=InvDAS50E,x=meanTemp_Em) %>%
   dplyr::select(-meanTemp_Em, -InvDAS50E, -Plot)
 
-str(df_A2)
+str(df_W2)
 
 ```
 
@@ -123,6 +122,25 @@ ggplot(aes(x=x, y=y, colour=SowTreat, shape=Cultivar))  +
 
 
 # 
+
+```
+
+
+
+```{r}
+
+summary(lm(InvDAS50E ~ meanTemp_Em, df_W2))
+
+
+```
+
+
+get the confidential interval 
+
+```{r}
+
+##confint(lm(y ~ x, df))
+confint(lm(InvDAS50E ~ meanTemp_Em, df_W2))
 
 ```
 
@@ -177,7 +195,7 @@ p1
 summary(lm(y ~ x, df))
 ```
 
-Tb for Wooge = - interc / slope = -(-0.0407811.02)/  0.018820 = 2.16 (±0.01)
+Tb for Wooge = - interc / slope = -(-0.0407811.02)/  0.018820 = 2.16 (?0.01)
 
 ```{r}
 

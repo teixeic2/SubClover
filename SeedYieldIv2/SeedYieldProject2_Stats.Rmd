@@ -73,7 +73,7 @@ summary(file.subset)
 
 ```{r}
 #ANOVA
-my.anova <- aov(Seedskg_ha ~ Cultivar*SowTreat + Block, data = file.subset)
+my.anova <- aov(Seedskg_ha ~ Cultivar*SowTreat + Depth, data = file.subset)
 #my.anova <- aov(Seedskg_ha ~ SowTreat + Block, data = file.subset)
 #my.anova <- aov(Seedskg_ha ~ Cultivar+ Block, data = file.subset)
 #my.anova <- aov(Seedskg_ha ~ Depth + Block, data = file.subset)
@@ -107,8 +107,8 @@ fogo
 Then use multiple comparisons of means and get the standard errors (std)
 ```{r}
 #Means separation after ANOVA
-(LSD.test(my.anova, c("Cultivar"), alpha= 0.05, p.adj="none"))
-#(LSD.test(my.anova, c("SowTreat"), alpha= 0.05, p.adj="none"))
+#(LSD.test(my.anova, c("Cultivar","SowTreat"), alpha= 0.05, p.adj="none"))
+(LSD.test(my.anova, c("SowTreat"), alpha= 0.05, p.adj="none"))
 #(LSD.test(my.anova, c("Depth"), alpha= 0.05, p.adj="none"))
 ```
 

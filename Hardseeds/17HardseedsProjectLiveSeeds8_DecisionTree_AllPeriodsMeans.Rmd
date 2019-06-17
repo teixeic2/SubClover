@@ -168,7 +168,7 @@ BfHvst<-df_All %>%
 
 
 
-Decision tree analysis for SDbreak  with mean data 
+Decision tree analysis for SDbreak  with mean data  Seed Fill
 
 ```{r}
 
@@ -222,15 +222,15 @@ rsq.rpart(fit) # visualize cross-validation results
 
 ```
 
-Make one with germination data 
 
+Decision tree analysis for SDbreak  with mean data  Before Harvest 
 
 ```{r}
 
 #str (df_AllPlotsR7_R12)
 #str (df_All)
 
-str (SeedFill)
+str (BefHvst)
 
 
 
@@ -240,19 +240,24 @@ str (SeedFill)
    #method="anova", data=cu.summary)
 
 
-fit2 <- rpart(Germination ~SoilTemp+PET,method="anova", SeedFill)
+fit <- rpart(Sqrtslope~SoilTemp+RH,method="anova", BefHvst)
 #fit <- rpart(HardAccum~RainIrrig+RH+Temp+SoilTemp+PET,method="anova", data=df_AllPlotsR7_R12)
 #fit <- rpart(HardAccum~RainIrrig+Temp,method="anova", data=df_AllPlotsR7_R12)
 
-printcp(fit2) # display the results
+printcp(fit) # display the results
 
 
-plotcp(fit2) # visualize cross-validation results 
-summary(fit2) # detailed summary of splits
+plotcp(fit) # visualize cross-validation results 
+summary(fit) # detailed summary of splits
 
 # create additional plots 
 par(mfrow=c(1,2)) # two plots on one page 
-rsq.rpart(fit2) # visualize cross-validation results   
+rsq.rpart(fit) # visualize cross-validation results   
+
+# plot tree 
+ plot(fit, uniform=TRUE, 
+    main="Regression Tree for SDbreak ")
+ text(fit, use.n=TRUE, all=TRUE, cex=.45)
 
 
 
@@ -260,18 +265,60 @@ rsq.rpart(fit2) # visualize cross-validation results
 
 
 
+
+
+
+
+
+
+
+
+
+Make one with germination data 
+
+
 ```{r}
+
+
+str (SeedFill)
+
+
+fit <- rpart(Germination ~SoilTemp+RH+PET,method="anova", SeedFill)
+#fit <- rpart(HardAccum~RainIrrig+RH+Temp+SoilTemp+PET,method="anova", data=df_AllPlotsR7_R12)
+#fit <- rpart(HardAccum~RainIrrig+Temp,method="anova", data=df_AllPlotsR7_R12)
+
+printcp(fit) # display the results
+
+
+plotcp(fit) # visualize cross-validation results 
+summary(fit) # detailed summary of splits
+
+# create additional plots 
+par(mfrow=c(1,2)) # two plots on one page 
+rsq.rpart(fit) # visualize cross-validation results   
+
 # plot tree 
- plot(fit2, uniform=TRUE, 
+ plot(fit, uniform=TRUE, 
     main="Regression Tree for Germination ")
- text(fit, use.n=TRUE, all=TRUE, cex=.8)
+ text(fit, use.n=TRUE, all=TRUE, cex=.5)
 
 
 
-##wrong code
-# plot tree 
-#plot( fit,main="Regression Tree for Hardseededness (SDbreak) ")
-#text( use.n=TRUE,all=TRUE, cex=.8)
+
+ 
+ 
+```
+
+make a tree only for antas at seed fill sdbreak
+
+
+
+
+
+
+```{r}
+
+
 
 
 

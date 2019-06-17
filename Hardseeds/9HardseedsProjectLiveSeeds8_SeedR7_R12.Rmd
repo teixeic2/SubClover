@@ -170,6 +170,20 @@ write.table (Selection, "MeanDataSelected.csv")
 ```
 
 
+```{r}
+
+
+##Transform the data 
+##HSmax = asin(sqrt(file$Hard_perc/100))
+##HSbreak = sqrt(slope)
+
+df_All6 <-df_All %>%
+  mutate(HSmaxtrans=asin(sqrt(HardAccum/100)),
+         HSBreaktrans=sqrt(slope))
+
+
+
+```
 
 
 
@@ -438,6 +452,9 @@ summary(lm(HardAccum ~ RainIrrig+RH+PET+Temp+SoilTemp, df_All))
 #summary(lm(HardAccum ~ DiffRainPET, df_All))
 
 #summary(lm(HardAccum ~ SumRainRH, df_All))
+
+
+
 
 
 ```
@@ -763,6 +780,17 @@ summary(lm(slope ~ PET+SoilTemp, df_All))
 #summary(lm(slope ~ PET, df_All))
 #summary(lm(slope ~ SumRHSoil, df_All))
 
+
+
+################ transformed data ####################
+
+##summary(lm(HardAccum ~ RainIrrig+RH+PET+Temp+SoilTemp, df_All))
+##HSmaxtrans=asin(sqrt(HardAccum/100)),
+         ##HSBreaktrans=sqrt(slope))
+
+summary(lm(HSBreaktrans ~ RainIrrig+RH+PET+SoilTemp, df_All6))
+#summary(lm(HSBreaktrans ~ SoilTemp, df_All6))
+
 ```
 
 
@@ -858,10 +886,10 @@ Plot Weather variables with SDbreak  in R12 prior harvest  which were  significa
   #geom_point(aes(shape=SowTreat),size=4)+
    geom_smooth(method='lm',formula=y~x, colour="grey",alpha=0.1)+
   theme_bw() +
-  xlab(expression(Evapotranspiration~"("*"mm"*")"))+ 
+  xlab(expression(PET~"("*"mm"*")"))+ 
   #ylab(expression(Maximum~Hardseeds~Percent~"("*"%"*")"))+
   #ylab(expression(SDmax~"("*"%"*")"))+
-  ylab(expression(SDbreak~"( % /"^"o"*"Cd)"))+
+  ylab(expression(HSbreak~"( % /"^"o"*"Cd)"))+
   theme(text = element_text(size=22))+
    #scale_x_continuous(limits = c(72,82),breaks=c(72,74,76,78, 80, 82))+
   scale_x_continuous(limits = c(120,300),breaks=c(150,175,200,225, 250, 275,300))+
@@ -902,7 +930,7 @@ Soil Temp
  xlab(expression(Soil~temperature~"( "^"o"*"C)"))+  
   #ylab(expression(Maximum~Hardseeds~Percent~"("*"%"*")"))+
   #ylab(expression(SDmax~"("*"%"*")"))+
-  ylab(expression(SDbreak~"( % /"^"o"*"Cd)"))+
+  ylab(expression(HSbreak~"( % /"^"o"*"Cd)"))+
   theme(text = element_text(size=22))+
    scale_x_continuous(limits = c(12,20),breaks=c(12,14,16,18, 20))+
   scale_y_continuous(limits = c(0,0.03),breaks=c(0,0.005, 0.01,0.015,0.02,0.025,0.03))+

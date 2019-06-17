@@ -116,11 +116,11 @@ OverallAverage<-Average %>%
 OverallAverage %>%
   ggplot(aes(x=RateDecreasePerTTunit, y= Germination))  +
   geom_point(colour= "black", alpha=0.2) +
-  geom_point(aes(shape=SowTreat),size=4)+
+  geom_point(aes(shape=SowTreat),size=8)+
   #geom_smooth(method='lm',formula=y~x, colour="grey",alpha=0.1, linetype=2)+
   theme_bw() +
   
-  scale_x_continuous(limits = c(0,0.03),breaks=c(0,0.005, 0.01,0.015, 0.02,0.025, 0.03))+
+  scale_x_continuous(limits = c(0,0.029),breaks=c(0,0.005, 0.01,0.015, 0.02,0.025))+
   scale_y_continuous(limits = c(0,100),breaks=c(0,20,40,60,80,100))+
   
   xlab(expression(Mean~hardseed~breakdown~"(%/"^"o"*"Cd)"))+ 
@@ -141,8 +141,8 @@ ylab(expression(Germination~"(%)"))+
   #ylim(0,1000)+
   #scale_y_continuous(breaks=c(0,25,50, 75, 100))+
   
-  theme(text = element_text(size=20))+
-  facet_wrap(~Cultivar)+
+  theme(text = element_text(size=22))+
+  facet_wrap(~Cultivar, ncol=2)+
 
 #remove grid lines 
    theme(
@@ -155,12 +155,14 @@ ylab(expression(Germination~"(%)"))+
    
    #make TT target labels  white  
    theme(strip.background = element_rect(colour = "black", fill = "white",size=2))+
-theme(axis.text.x = element_text(angle = 60, hjust = 1, size=18))
+theme(axis.text.x = element_text(26))
   
   
   #theme(title =  element_text(size=14))
   
-  ggsave("plot_CorrelationHardBreakdown_GErmination.tiff", width=12, height=6, dpi=400)
+  #ggsave("plot_CorrelationHardBreakdown_GErmination.tiff", width=12, height=6, dpi=400)
+  
+  ggsave("plot_16Hard_CorrelationHardBreakdown_GErmination.tiff", width=16, height=16, dpi=400)
 ```
 
 
@@ -365,7 +367,7 @@ mutate(Cultivar= factor(Cultivar,
                            geom_text(aes(label=Cultivar),hjust=0, vjust=0,size=7) +
 
 
-```{r, fig.height=7, fig.width=15}
+```{r, fig.height=15, fig.width=15}
 
 str(CorrelateRank)
 
@@ -378,15 +380,16 @@ CorrelateRank %>%
                            labels=c("A", "D", "L", "M", "N.", "W"))) %>%
   ggplot(aes(x=RateDecreasePerTTunit, y= HardSeedRanking))  +
   geom_point(colour= "black", alpha=0.2) +
-  geom_point(aes(shape=Cultivar),size=4)+
-  geom_text(aes(label=Cultivar),hjust=0, vjust=0,size=7) +
-  geom_smooth(method='lm',formula=y~x, colour="grey",alpha=0.2, linetype=2)+
+  geom_point(aes(shape=Cultivar),size=5)+
+  geom_text(aes(label=Cultivar),hjust=0, vjust=0,size=10) +
+  #geom_smooth(method='lm',formula=y~x, colour="grey",alpha=0.2, linetype=2)+
   theme_bw() +
- xlab(expression(Mean~SDbreak~"(%/"^"o"*"Cd)"))+ 
-  ylab(expression(HardSeed~Rank~"(%)"))+
+ xlab(expression(Mean~HSbreak~"(%/"^"o"*"Cd)"))+ 
+  ylab(expression(Hard~seed~Rank))+
   ylim(0,4)+
-  theme(text = element_text(size=20))+
-  facet_wrap(~SowTreat)+
+  theme(text = element_text(size=24))+
+  facet_wrap(~SowTreat, ncol=2)+
+  scale_x_continuous(limits = c(0,0.029),breaks=c(0,0.005, 0.01,0.015,0.02,0.025))+
 
 
 #remove grid lines 
@@ -395,7 +398,7 @@ CorrelateRank %>%
      panel.grid.major = element_blank(),
      panel.grid.minor = element_blank(),
      axis.line = element_line(colour = "black"))+
-  theme(text = element_text(size=26))+
+  theme(text = element_text(size=28))+
    
    
    #make TT target labels  white  
@@ -405,7 +408,7 @@ CorrelateRank %>%
   
   #theme(title =  element_text(size=14))
   
-  ggsave("plot_CorrelationRankAndBreakdown.tiff", width=15, height=6, dpi=500)
+  ggsave("plot_16_HardSeeds_CorrelationRankAndBreakdown.tiff", width=16, height=16, dpi=500)
 ```
 
 

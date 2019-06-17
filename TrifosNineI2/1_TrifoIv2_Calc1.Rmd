@@ -96,7 +96,13 @@ Graph the results : DAS and number of trifoliates
    geom_abline(intercept = 5,  slope = 0, linetype=2)+
    geom_abline(intercept = 9,  slope = 0, linetype=2)+
 theme(axis.text.x=element_text(angle = 0, hjust = 0))+
-theme(text = element_text(size = 24))
+theme(text = element_text(size = 24))+
+  #make Cultivars  white  
+   theme(strip.background = element_rect(colour = "black", fill = "white",size=2))+
+  
+  #label sizes 
+theme(text = element_text(size = 26))
+  
 
 
 #save

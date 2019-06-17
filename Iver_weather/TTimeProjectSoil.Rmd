@@ -18,10 +18,10 @@ Note: the file is called HistoricMeanTemp but actually contains the hobologger d
 
 ```{r, load file}
 
-setwd("C:\\GitHubRepos\\SubCloverPhD\\SubClover\\EmergenceIv2")
+setwd("C:\\GitHubRepos\\SubCloverPhD\\SubClover\\Iver_weather")
 getwd()
 
-df_file <- read.table("SoilTemp.txt", header=TRUE)
+df_file <- read.table("SoilTempMean.txt", header=TRUE)
 
 head(df_file)
 
@@ -122,7 +122,7 @@ REFS: MonksEtAl2009	,LonatiEtAl2009	,MootEtal2003, SilsburyetAl1984.
 
 #Create Thermal time cardinal temperatures need REF! 
 
-tt_card <- data.frame(temp=c(0,18,25,40),TT=c(0,18,18,0))
+tt_card <- data.frame(temp=c(0,18,22,37),TT=c(0,18,18,0))
 tt_card %>%
   ggplot(aes(x=temp, y=TT))+
   labs(x="Temperature (degree Celsius)")+

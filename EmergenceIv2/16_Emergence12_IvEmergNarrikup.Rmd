@@ -74,18 +74,17 @@ Subset cultivars Narrikup between temperature 5 to max 15
 
 #subset Cultivar
 
-df_A <-df_G %>%
+df_N <-df_G %>%
 subset(Cultivar=="Narrikup")
 
 #subset Temperature range 
-df_A1 <-df_A %>%
-  subset (meanTemp_Em>5 & meanTemp_Em<15)
+df_N1 <-df_N %>%
+  subset (meanTemp_Em>5 & meanTemp_Em<25)
 
 
 #remove SowingDate 1and 8  from both locations 
-df_A2 <- df_A1 %>%
-   subset (SowTreat=="S2"| SowTreat=="S3"|SowTreat=="S3"|SowTreat=="S4"|  SowTreat=="S5"|
-             SowTreat=="S6"|SowTreat=="S7")
+df_N2 <- df_N1 %>%
+   subset (SowTreat=="S2"| SowTreat=="S4"|SowTreat=="S5"|SowTreat=="S8")
 
 ```
 
@@ -94,21 +93,21 @@ df_A2 <- df_A1 %>%
 ```{r}
 
 
-df_A3 <-df_A2 %>%
+df_N3 <-df_N2 %>%
   dplyr::select(SowTreat,Cultivar, Plot, meanTemp_Em, InvDAS50E) %>%
   group_by(SowTreat,Cultivar) %>%
   summarise_all(funs(mean)) %>%
   mutate(y=InvDAS50E,x=meanTemp_Em) %>%
   dplyr::select(-meanTemp_Em, -InvDAS50E, -Plot)
 
-str(df_A2)
+str(df_N2)
 
 ```
 
 got the means here ... and graph it
 
 ```{r, fig.height=5, fig.width=10, echo = FALSE}
-df_A3%>%
+df_N3%>%
 ggplot(aes(x=x, y=y, colour=SowTreat, shape=Cultivar))  +
   geom_point(alpha=0.8, size= 3) +
   #geom_smooth(colour="red")+
@@ -127,6 +126,24 @@ ggplot(aes(x=x, y=y, colour=SowTreat, shape=Cultivar))  +
 ```
 
 
+
+
+```{r}
+
+summary(lm(InvDAS50E ~ meanTemp_Em, df_N2))
+
+
+```
+
+
+get the confidential interval 
+
+```{r}
+
+##confint(lm(y ~ x, df))
+confint(lm(InvDAS50E ~ meanTemp_Em, df_N2))
+
+```
 
 here get the equations for the Narrikup subset (min to optimum)  
 
@@ -183,7 +200,7 @@ confint(lm(y ~ x, df))
 #
 ```
 
-Tb for Narrikup is - intercept / slope x = -( -0.015654/0.015232 = 1.02 (±0.05)
+Tb for Narrikup is - intercept / slope x = -( -0.015654/0.015232 = 1.02 (?0.05)
 
 
 

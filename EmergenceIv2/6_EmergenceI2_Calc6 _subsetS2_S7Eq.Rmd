@@ -107,6 +107,56 @@ fontSize <- 12.0
 
 here get the equations from all temperatures  
 
+```{r}
+
+df_All<-df_H%>%
+  group_by(Cultivar,SowTreat)%>%
+  dplyr::select(InvDAS50E, meanTemp_Em)%>%
+   summarise_all(funs(mean))
+
+  #dplyr::select(-InvDAS50E,-meanTemp_Em)
+  
+#create a vector that holds names of all possible cultivars
+#cv.unique <- unique(df_All$Cultivar)
+cv.unique <- unique(df_All$Cultivar)
+
+summary(cv.unique )
+
+
+for (i in 1:length(cv.unique)) {
+  
+ #print(i)
+ print(paste0(cv.unique[i],"--------------------------------"))
+  
+  #then make it subset 
+  
+  df_subset <- df_All %>%
+    subset(Cultivar==cv.unique[i])
+  
+  #add the function or calculation required 
+  
+    summary(lm(InvDAS50E ~ meanTemp_Em, df_subset))
+  #print
+    
+    print(summary(lm(InvDAS50E ~ meanTemp_Em, df_subset)))
+
+
+  } 
+
+
+
+
+
+```
+
+
+
+
+
+
+
+
+
 ```{r, fig.height=7,fig.width=12}
 require(ggplot2)
 require(plyr)

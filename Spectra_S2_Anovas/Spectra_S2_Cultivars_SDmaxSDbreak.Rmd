@@ -1,5 +1,5 @@
 ---
-title: "Framework for PCA analysis "
+title: "Framework for multivariate lineaar analysis "
 author: "CT"
 date: "05.08.2017
 output: 
@@ -7,9 +7,8 @@ output:
   pdf_document: default
   html_document: default
 ---
-- This script is the PCA analysis of the spectra of the S2 six cultivars from S2. 
+- This script is the hardseedneds analysis with selected spectra of the S2 six cultivars based on PCA laodings  
 
--Used guidelines from : http://www.sthda.com/english/articles/31-principal-component-methods-in-r-practical-guide/118-principal-component-analysis-in-r-prcomp-vs-princomp/
 
 
 ```{r setup, include=FALSE, loadlibraires}
@@ -60,7 +59,10 @@ M843
 
 dftemp <- df_G %>%
 filter(Wavenumber %in% 852:3599) %>% # select only wavelengths of interest
-mutate(Wavenumber=factor(Wavenumber), Block=as.factor(Block)) #
+mutate(Wavenumber=factor(Wavenumber), Block=as.factor(Block)) %>%
+  group_by(Cultivar,Wavenumber)%>%
+  dplyr::select(AbsorbanceNorm)%>%
+  summarise_all(funs(mean))
 
 summary(dftemp)
 
@@ -77,78 +79,211 @@ head(df_U)[,1:5]
 
 
 
-## -------------here PCa starts
+## -------------here select key bands : 2930 2855 (lipids)
+##1770, 1745, 1732 (cutin/suberin)
+##1610
+##1441
+##1250
+##1025
+##897
 
-##Re label row names per replicate (or Block is the same)  
+  
 
 ```{r readData}
-# Transforming Cv to number
-cv   <- as.vector(unique(df_U$Cultivar))
-cv_n <- c(1,2,3,4,5,6)
 
-#rownames(df_U) <- NULL
 
-df_U_pca <- df_U %>%
-  ungroup() %>%
-  mutate(Cultivar = factor(Cultivar, levels=cv,labels=cv_n)) %>%
-  mutate(Cultivar=as.numeric(as.character(Cultivar))) %>%
-  mutate(Block=as.numeric(as.character(Block)))
-
-head(df_U_pca)[,1:5]
+df_U_select<-df_U%>%
+  dplyr:: select(Cultivar,"897", "1026","1250","1441","1610","1732","1745", "1770", "2854","2931")
 
 
 ```
 
 
-
+Then bring the dataframe with SDmax and Sdbreak:meanSDhardSDbreak.txt
 
 
 ```{r}
 
 
-#Re label row names per cultivar and block (replicate to make graph)
- row.names (df_U_pca) <-c("A_1","A_2","A_3",
- "D_1","D_2","D_3",
- "L_1","L_2","L_3",
-  "M_1","M_2","M_3",
-  "N_1","N_2","N_3",
-  "W_1","W_2","W_3")
+
+df_Hard <- read.table("meanSDhardSDbreak.txt",header=TRUE)
 
 
-#Re label row names per cultivar and block (replicate to make graph)
- # row.names (df_U_pca) <-c("A","A","A",
- # "D","D","D",
- # "L","L","L",
- #  "M","M","M",
- #  "N","N","N",
- #  "W","W","W")
+str(df_Hard)
 
-
-
-
-
-
-
-
-
+df_Hard_select <-df_Hard %>%
+  filter(SowTreat=="S2")%>%
+  dplyr::select(-HardPerc_Initial14, -slope )%>%
+  mutate(SDmax=HardAccum, SDbreak=RateDecreasePerTTunit)%>%
+  dplyr::select(-HardAccum, -RateDecreasePerTTunit, -SowTreat )
 
 ```
 
 
 
-
+##merge the dataframes
 
 
 ```{r}
-res.pca <- prcomp(df_U_pca, scale = TRUE)
-summary(res.pca)
+
+df_All<-merge(df_Hard_select, df_U_select, by="Cultivar")
+
+str(df_All)
+
+
+
+df_HardSpectra<- read.table("SDmax_SDbr_SelectBands.txt",header=TRUE)
+
+str(df_HardSpectra)
+
+##transform SDmax
+
+
+
+
 ```
 
-## Visualize eigenvalues (scree plot). Show the percentage of variances explained by each principal component. 
+##  check bands with SDmax
 
 ```{r, fig.height=5, fig.width=10}
- fviz_eig(res.pca)
+
+
+##general regression all cultivars
+##BA1026+BA1250+BA1441+BA1610+BA1732+BA1745+BA1770+BA2854+BA2931
+
+
+#summary(lm(SDmax ~ BA897+BA1026+BA1250+BA1441, df_HardSpectra))
+#summary(lm(SDmax ~ BA1610+BA1732+BA1745+BA1770, df_HardSpectra))
+#summary(lm(SDmax ~ BA2854+BA2931, df_HardSpectra))
+
+##summary(lm(HardAccum ~ RainIrrig+RH+PET+SoilTemp, df_All))
+
+
 ```
+
+
+Check with SDmax transformed 
+
+
+
+```{r}
+
+
+summary(lm(Sdmaxtrans ~ BA897+BA1026+BA1250+BA1441, df_HardSpectra))
+
+summary(lm(Sdmaxtrans ~ BA1610+BA1732+BA1745+BA1770, df_HardSpectra))
+
+
+summary(lm(Sdmaxtrans ~ BA2854+BA2931, df_HardSpectra))
+
+summary(lm(Sdmaxtrans ~ BA2854, df_HardSpectra))
+
+summary(lm(Sdmaxtrans ~   BA897 + BA1250 +BA1441, df_HardSpectra))
+
+
+summary(lm(Sdmaxtrans ~ BA897+BA1250+BA1441, df_HardSpectra))
+
+
+
+```
+```{r}
+
+
+
+summary(lm(SDbreak ~ BA897+BA1026+BA1250, Antas))
+summary(lm(SDbreak ~ BA1610+BA1732+BA1745+BA1770, df_HardSpectra))
+summary(lm(SDbreak ~ BA2854+BA2931, df_HardSpectra))
+
+summary(lm(SDbreak ~ BA1250 +BA2854+BA2931, df_HardSpectra))
+summary(lm(SDbreak ~ BA1250+BA897, df_HardSpectra))
+
+
+DLW<-df_HardSpectra%>%
+  filter(Cultivar=="Denmark"|Cultivar=="Leura"|Cultivar=="Woogenellup")
+summary(lm(SDbreak ~ BA2854, DLW))
+
+
+AMN<-df_HardSpectra%>%
+  filter(Cultivar=="Antas"|Cultivar=="Monti"|Cultivar=="Narrikup")
+summary(lm(SDbreak ~ BA2854+BA2931,AMN ))
+
+
+
+```
+############################
+
+```{r}
+
+df_HardSpectra%>%
+  
+  ggplot(aes(x=BA897,y=SDbreak)) +
+  geom_point(aes(colour=Cultivar, shape=Cultivar), size=5) +
+  #geom_text(aes(label=Cultivar, colour=Cultivar),hjust=0, vjust=-2, size=8) +
+  theme_bw()+
+  #xlim(-10,10) +
+  #ylim(-4,4) +
+  theme(text = element_text(size=20)) +
+  #remove grid lines 
+   theme(
+     panel.border = element_rect(colour = "black", size = 2), 
+     panel.grid.major = element_blank(),
+     panel.grid.minor = element_blank(),
+     axis.line = element_line(colour = "black"))+
+  geom_abline(slope = 0)
+
+
+
+
+
+```
+
+
+
+####################################
+
+##This loop checks the lm for all Periods first  for Hardcumm
+## (Sdmax)
+ 
+ 
+```{r}
+
+#create a vector that holds names of all possible cultivars
+cv.unique <- unique(df_HardSpectra$Cultivar)
+
+summary(cv.unique )
+
+
+for (i in 1:length(cv.unique)) {
+  
+ #print(i)
+ print(paste0(cv.unique[i],"--------------------------------"))
+  
+  #then make it subset 
+  
+  df_subset <- df_HardSpectra %>%
+    subset(Cultivar==cv.unique[i])
+  
+  #add the function or calculation required 
+  
+    
+    summary(lm(SDbreak ~ BA897+BA1026+BA1250+BA1441, df_HardSpectra))
+   
+  #print
+    
+
+print(summary(lm(SDbreak ~ BA897+BA1026+BA1250+BA1441, df_HardSpectra)))
+   
+
+  } 
+
+
+```
+
+
+
+
+
+
 
 ```{r}
 str(res.pca)
@@ -179,34 +314,20 @@ load.graph <- res.pca$rotation %>%
 
 summary(load.graph)
 
-##remove data after 3050
-B<-load.graph %>%
-  subset(WaveLength<3050)
+
 
   
 ```
 
 
-Loadings must fluctuate between 0 -1 !! 
-
-```{r}
-
-
-
-``` 
-
-
-```{r}
-
-```
 
 
 
 ```{r, fig.width=12}
-B %>%
+load.graph %>%
    
         mutate(Show_WL = ifelse(WaveLength <1799,"Region 2",
-                          ifelse( WaveLength > 2802,"Region 1","NotShow"))) %>%
+                          ifelse(WaveLength > 2802,"Region 1","NotShow"))) %>%
   
   filter(Show_WL != "NotShow") %>%
   ggplot(aes(x=WaveLength,y=PC_Value)) +
@@ -505,7 +626,7 @@ head(LDASpread)
 
 
 ```
-Least Discriminatn analysis
+
 
 source : https://rstudio-pubs-static.s3.amazonaws.com/35817_2552e05f1d4e4db8ba87b334101a43da.html
 

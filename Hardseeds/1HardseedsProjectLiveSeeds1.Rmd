@@ -142,7 +142,7 @@ check - draft graph
 RE graph 
 
 
-```{r, fig.height=8, fig.width=12}
+```{r, fig.height=16, fig.width=16}
 
 #Graph the maximum percentage of Live hardseeds!!! Here graph already show SE sd/3,.46 n = 3.
 
@@ -155,17 +155,17 @@ RE graph
   ggplot(aes(x=SowingD, y=mean, colour=Depth,linetype=Depth, shape=Depth)) +
   scale_color_manual(values = c("Above" = "black", "Below" = "grey"))+
   #scale_shape(solid = FALSE)+
-  geom_point(size=6) +
+  geom_point(size=8) +
   geom_line() +
- facet_wrap(~Cultivar,ncol=3) +
-  labs(x="Sowing date",y="Maximum hardseeds (%)") +
+ facet_wrap(~Cultivar,ncol=2) +
+  labs(x="Sowing date",y="HSmax (%)") +
   theme(axis.text.x = element_text(angle = 90, hjust = 1))+
                   geom_errorbar(aes(ymin=mean-sd/3.46,
                     ymax=mean+sd/3.46))+
   theme_bw()+
   ylim(0,100)+
-  theme(axis.text.x=element_text(angle = 0, hjust = 0.5, size= 18))+
-  theme(axis.text.y=element_text(angle = 0, hjust = 0, size= 18))+
+  theme(axis.text.x=element_text(angle = 0, hjust = 0.5, size= 22))+
+  theme(axis.text.y=element_text(angle = 0, hjust = 0, size= 22))+
   
   #remove grid lines 
    theme(
@@ -173,14 +173,14 @@ RE graph
      panel.grid.major = element_blank(),
      panel.grid.minor = element_blank(),
      axis.line = element_line(colour = "black"))+
-  theme(text = element_text(size=20))+
+  theme(text = element_text(size=26))+
    
    
    #make TT target labels  white  
    theme(strip.background = element_rect(colour = "black", fill = "white",size=2))
   
-ggsave("plots_MaxHardSeeds.tiff", width=15, height=8, dpi=500)
-
+#ggsave("plots_MaxHardSeeds.tiff", width=15, height=8, dpi=500)
+ggsave("plots_HardSeedsProjectLiveSeeds1_MaxHardSeeds.tiff", width=16, height=16, dpi=500)
 
 ```
 

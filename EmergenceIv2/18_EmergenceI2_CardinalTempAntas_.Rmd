@@ -162,12 +162,8 @@ Add the accumulation of of thermal time use reference as
 use the TB for emergence 
 
 
-'Antas'	-1.9 (±0.02)
-'Denmark'	 +1.0 (±0.03)
-'Leura'	-1.29 (±0.04)
-'Monti'	-1.73 (±0.05)
-'Narrikup'	+1.02 (±0.05) 
-'Woogenellup'	 +2.2 (±0.01)
+'Antas'	0.4 (?0.02)
+
 
 
 use consistent method as per re analysis tb=0, t opt range =15, 22, t max = 35 oC.
@@ -178,9 +174,9 @@ For Antas :
 #Create Thermal time cardinal temperatures see data above- TT = Topt - Tb ... 21.7 - (-1.85)= 23.55 ! 
 
 #For cardinal temperatures 
-tt_card <- data.frame(temp=c(-1.9,15,22,35),TT=c(0,15,15,0))
+#tt_card <- data.frame(temp=c(0.4,15,22,35),TT=c(0,15,15,0))
 #for Tb=0
-#tt_card <- data.frame(temp=c(0,15,22,35),TT=c(0,15,15,0))
+tt_card <- data.frame(temp=c(0,15,22,35),TT=c(0,15,15,0))
 tt_card %>%
   ggplot(aes(x=temp, y=TT))+
   #labs(x="Temperature (degree Celsius)")+
@@ -204,7 +200,7 @@ xlab(expression(Temperature~"("^"o"*"C)"))+
 
 #Create and test interpolation function - Test if works 
 
-temp_ref  <- 25 # x-axes reference
+temp_ref  <- 0.4 # x-axes reference
 temp <- tt_card$temp # x-axes
 TT <- tt_card$TT # y-axes
 
@@ -317,9 +313,12 @@ ggplot(aes(x=TTday_s, y= TTday)) +
  
 ```{r}
 
- df_AntasTT <-df_We_tt%>%
-    arrange(Date)%>%
-    mutate(SumTTday = cumsum(TTday))%>%
+##cumulative is now working!) 
+ df_AntasTT <- df_We_tt %>%
+  arrange(Date) %>%
+  ungroup() %>%
+  #mutate(CumSoftDead = cumsum(SoftDead)) %>%
+    mutate(SumTTday = cumsum(TTday)) %>%
   mutate(SUMTTday_s = cumsum(TTday_s)) %>%
   dplyr::select(-TempSoil10mm)
 
@@ -364,11 +363,11 @@ summary(df_merge)
  
 ```
 
-get the TT and SE for all cultivars. exclude S1 . Consider Tb=0 for all cultivars. 
+get the TT and SE for all cultivars. For antas exclude S1, S3, S4, S5 . Consider Tb=0 for all cultivars. 
 
 ```{r}
-df_TT <- df_merge%>%
-   filter(SowTreat!= "S1")
+df_TT <- df_merge %>%
+   filter(SowTreat!= "S1"|SowTreat!= "S3"|SowTreat!= "S4"|SowTreat!= "S5")
 
 #then select sow treat and means and se
 

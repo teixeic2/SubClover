@@ -133,6 +133,24 @@ df_All <- merge(df_Slope, df_SowHvst1, by=c("Cultivar","SowTreat"))
 ```
 
 
+
+```{r}
+
+str(df_All)
+
+##Transform the data 
+#HSmax = asin(sqrt(file$Hard_perc/100))
+#HSbreak = sqrt(slope)
+
+df_All6 <-df_All %>%
+  mutate(HSmaxtrans=asin(sqrt(HardAccum/100)),
+         HSBreaktrans=sqrt(slope))
+
+
+```
+
+
+
 Now plot variates to find  ...any correlation? 
 
 
@@ -305,10 +323,13 @@ overall correlation inspect for all 3 variables
 
 ```{r}
 
+
+
+
 #summary(lm(HardAccum ~ RainIrrig+RH+PET+Temp+SoilTemp, df_All))
 
 #summary(lm(HardAccum ~ SoilTemp+RH+Temp, df_All))
-summary(lm(HardAccum ~ RainIrrig+RH, df_All))
+#summary(lm(HardAccum ~ RainIrrig+RH, df_All))
 #summary(lm(HardAccum ~ Temp, df_All))
 #summary(lm(HardAccum ~ SoilTemp, df_All))
 #summary(lm(HardAccum ~ RH, df_All))
@@ -316,6 +337,15 @@ summary(lm(HardAccum ~ RainIrrig+RH, df_All))
 
 
 #summary(lm(HardAccum ~ RainIrrig , df_All))
+
+
+#df_All6 
+  #mutate(HSmaxtrans=asin(sqrt(HardAccum/100)),
+         #HSBreaktrans=sqrt(slope))
+
+summary(lm(HSmaxtrans ~ RainIrrig+RH+PET+SoilTemp, df_All6))
+
+summary(lm(HSmaxtrans ~ RH, df_All6))
 
 ```
 
@@ -325,7 +355,8 @@ This loop checks the lm for all cultivars
 ```{r}
 
 #create a vector that holds names of all possible cultivars
-cv.unique <- unique(df_All$Cultivar)
+#cv.unique <- unique(df_All$Cultivar)
+cv.unique <- unique(df_All6$Cultivar)
 
 summary(cv.unique )
 
@@ -590,15 +621,17 @@ grid.arrange(g4, g5, g6, g7,g8)
 
 ```{r}
 
-summary(lm(slope ~ RainIrrig+RH+PET+Temp+SoilTemp, df_All))
-#summary(lm(slope ~ RainIrrig+PET+RH, df_All))
+summary(lm(slope ~ RainIrrig+RH+PET+SoilTemp, df_All))
+summary(lm(slope ~ RainIrrig+PET, df_All))
 
 #summary(lm(slope ~ RH, df_All))
 #summary(lm(slope ~ Temp, df_All))
 #summary(lm(slope ~ SoilTemp, df_All))
 #summary(lm(slope ~ PET, df_All))
 
-
+str(df_All6)
+summary(lm(HSBreaktrans ~ RainIrrig+RH+PET+SoilTemp, df_All6))
+summary(lm(HSBreaktrans ~ RainIrrig, df_All6))
 ```
 
 Look also Germination vs environment 
@@ -648,7 +681,7 @@ Make graph SDmax vs RH
   theme_bw() +
   xlab(expression(RH~"("*"%"*")"))+ 
   #ylab(expression(Maximum~Hardseeds~Percent~"("*"%"*")"))+
-  ylab(expression(SDmax~"("*"%"*")"))+
+  ylab(expression(HSmax~"("*"%"*")"))+
   #ylab(expression(SDbreak~"( % /"^"o"*"Cd)"))+
   theme(text = element_text(size=22))+
   scale_x_continuous(limits = c(76,81),breaks=c(76,77,78,79,80,81,82))+
@@ -679,21 +712,25 @@ Sdbreak vs rain
 
 ```{r}
 
-   df_All %>%
+str(df_All6)
+
+
+   df_All6 %>%
   mutate (SowTreat= factor(SowTreat, levels=c("S1", "S2", "S3", "S4", "S6","S7"),labels=c("June", "July", "September", "November", "February","March")))%>%
-  ggplot(aes(x=RainIrrig, y= slope))  +
+  #ggplot(aes(x=RainIrrig, y= slope))  +
+  ggplot(aes(x=RainIrrig, y= HSBreaktrans ))  +
   geom_point(colour= "black", alpha=0.2) +
   geom_point(aes(shape=SowTreat),size=6)+
   #geom_point(aes(shape=SowTreat),size=4)+
    geom_smooth(method='lm',formula=y~x, colour="grey",alpha=0.1)+
   theme_bw() +
-  xlab(expression(Rain~Irrigation~"("*"mm"*")"))+ 
+  xlab(expression(Rain~"("*"mm"*")"))+ 
   #ylab(expression(Maximum~Hardseeds~Percent~"("*"%"*")"))+
   #ylab(expression(SDmax~"("*"%"*")"))+
-  ylab(expression(SDbreak~"( % /"^"o"*"Cd)"))+
+  ylab(expression(HSbreak~"( % /"^"o"*"Cd)"))+
   theme(text = element_text(size=22))+
    scale_x_continuous(limits = c(250,900),breaks=c(200,300,400,500, 600, 700,800))+
-  scale_y_continuous(limits = c(0,0.03),breaks=c(0,0.005,0.01,0.015,0.02,0.025,0.03))+
+  #scale_y_continuous(limits = c(0,0.03),breaks=c(0,0.005,0.01,0.015,0.02,0.025,0.03))+
   #facet_wrap(~Cultivar)+
   #remove grid lines 
    theme(
@@ -708,7 +745,7 @@ Sdbreak vs rain
   #theme(title =  element_text(size=14))
   #theme(title =  element_text(size=14))
 
-  ggsave("plot_Prjt8_Regression_SDbreakVsRain_AllGrowth.tiff", width=12, height=6, dpi=400)
+  #ggsave("plot_Prjt8_Regression_SDbreakVsRain_AllGrowth.tiff", width=12, height=6, dpi=400)
 
 ```
 

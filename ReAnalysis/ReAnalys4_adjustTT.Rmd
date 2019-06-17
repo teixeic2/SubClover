@@ -143,13 +143,25 @@ df_Rea4 %>%
   #theme(legend.position="none")+
   labs(x="Experiment location", y="Time to flower")+
   theme(axis.text.x=element_text(angle = 0, hjust = 0, size= 9))+
-  theme(axis.text.y=element_text(size= 18))+
-  theme_bw(base_size=18)+
-    facet_grid(.~VarName, scales="free") +
+  theme(axis.text.y=element_text(size= 20))+
+  theme_bw(base_size=20)+
+    facet_grid(Country~VarName, scales="free") +
  # facet_wrap(~VarName, scales="free") +
-  coord_flip() + theme(legend.position="top") + guides(colour=guide_legend(title="Sowing month"))
+  coord_flip() + theme(legend.position="top") + guides(colour=guide_legend(title="Sowing month"))+
+  #remove grid lines 
+   theme(
+     panel.border = element_rect(colour = "black", size = 2), 
+     panel.grid.major = element_blank(),
+     panel.grid.minor = element_blank(),
+     axis.line = element_line(colour = "black"))+
+  theme(text = element_text(size=26))+
+   
+   
+   #make TT target labels  white  
+   theme(strip.background = element_rect(colour = "black", fill = "white",size=2))+
+theme(axis.text.x = element_text(26))
   
-ggsave("plot_DaysTTFlowerLocation.png", width=12, height=6, dpi=400)
+ggsave("plot_DaysTTFlowerLocation.png", width=16, height=8, dpi=500)
 ```
 
 

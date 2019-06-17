@@ -174,7 +174,7 @@ AllGrw %>%
   xlab(expression(Soil~temperature~"( "^"o"*"C)"))+ 
   #ylab(expression(Maximum~Hardseeds~Percent~"("*"%"*")"))+
   #ylab(expression(SDmax~"("*"%"*")"))+
-  ylab(expression(Germinatio~percentage~"("*"%"*")"))+
+  ylab(expression(Germination~"("*"%"*")"))+
   theme(text = element_text(size=22))+
   scale_x_continuous(limits = c(10,18),breaks=c(10,12,14,16, 18))+
   scale_y_continuous(limits = c(0,100),breaks=c(0,20,40,60,80, 100))+
@@ -234,5 +234,47 @@ SeedFill %>%
   #theme(title =  element_text(size=14))
 
   ggsave("plot_Prjt18_Regression_Germination_SoilTemp_SeedFillPeriod.tiff", width=12, height=6, dpi=400)
+
+```
+
+
+graph Germination and RH 
+
+
+```{r}
+
+
+str( SeedFill)
+
+  SeedFill %>%
+  mutate (SowTreat= factor(SowTreat, levels=c("S1", "S2", "S3", "S4", "S6","S7"),labels=c("June", "July", "September", "November", "February","March")))%>%
+  ggplot(aes(x=RH, y= Germination))  +
+  geom_point(colour= "black", alpha=0.2) +
+  geom_point(aes(shape=SowTreat),size=6)+
+  #geom_point(aes(shape=SowTreat),size=4)+
+   geom_smooth(method='lm',formula=y~x, colour="grey",alpha=0.1)+
+  theme_bw() +
+  xlab(expression(RH~"("*"%"*")"))+ 
+  #ylab(expression(Maximum~Hardseeds~Percent~"("*"%"*")"))+
+  ylab(expression(Germination~"("*"%"*")"))+
+  theme(text = element_text(size=22))+
+   scale_x_continuous(limits = c(73,82),breaks=c(70,72,74,76, 78, 80,82))+
+  scale_y_continuous(limits = c(0,100),breaks=c(0,20,40,60,80,100))+
+  #facet_wrap(~Cultivar)+
+  #remove grid lines 
+   theme(
+     panel.border = element_rect(colour = "black", size = 1), 
+     panel.grid.major = element_blank(),
+     panel.grid.minor = element_blank(),
+     axis.line = element_line(colour = "black"))+
+   #scale_fill_manual("legend", values = c("Antas" = "#660066", "Denmark" = "lightgrey","Leura" = "darkgrey", "Monti" = "#FF9933","Narrikup" = "blue",  "Woogenellup" = "#033333"))+
+   
+   #make sowing dates white  
+   theme(strip.background = element_rect(colour = "black", fill = "white",size=1))
+  #theme(title =  element_text(size=14))
+  #theme(title =  element_text(size=14))
+
+  ggsave("plot_18_Hardseed_GerminationVsRH_R7_R11.tiff", width=12, height=6, dpi=400)
+
 
 ```
