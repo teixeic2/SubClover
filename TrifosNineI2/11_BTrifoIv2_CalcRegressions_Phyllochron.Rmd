@@ -10,8 +10,8 @@ output:
 
 Purpose:
 
--Analysis of trifoliates expansion for Iversen with focus on first Trifoliate 
-- Graph the main dataset 
+-Analysis of phyllochron  
+- Get regressions form Dataphyllol
  
 ```{r loadLibraries}
 library(tidyr)
@@ -31,7 +31,7 @@ setwd("C:\\GitHubRepos\\SubCloverPhD\\SubClover\\TrifosNineI2")
 getwd()
 #create file
 #df_trifo <- read.table("TrifoCountall.txt",header=TRUE)
-df_trifo <- read.table("TrifoCountall.txt",header=TRUE)
+#df_trifo <- read.table("TrifoCountall.txt",header=TRUE)
 head(df_trifo)
 
 

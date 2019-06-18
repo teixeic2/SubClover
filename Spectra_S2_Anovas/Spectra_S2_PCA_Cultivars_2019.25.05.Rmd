@@ -60,6 +60,7 @@ M843
 
 dftemp <- df_G %>%
 filter(Wavenumber %in% 852:3599) %>% # select only wavelengths of interest
+#filter(Wavenumber %in% 1600:1800) %>% # select only wavelengths of interest
 mutate(Wavenumber=factor(Wavenumber), Block=as.factor(Block)) #
 
 summary(dftemp)
@@ -116,12 +117,12 @@ head(df_U_pca)[,1:5]
 
 
 #Re label row names per cultivar and block (replicate to make graph)
- # row.names (df_U_pca) <-c("A","A","A",
- # "D","D","D",
- # "L","L","L",
- #  "M","M","M",
- #  "N","N","N",
- #  "W","W","W")
+  # row.names (df_U_pca) <-c("A","A","A",
+  # "D","D","D",
+  # "L","L","L",
+  #  "M","M","M",
+  #  "N","N","N",
+  #  "W","W","W")
 
 
 
@@ -418,6 +419,50 @@ theme(axis.title.x = element_text( face="bold", size=26))+
 
 ```
 
+Clustering 
+
+
+```{r}
+
+#res.pca <- prcomp(df_sp.activeU ,scale = TRUE)
+
+res.pca2 <-PCA(df_U_pca, ncp = 2, graph = FALSE)
+
+res.hcpc <- HCPC(res.pca2, graph = FALSE)
+
+
+fviz_cluster(res.hcpc,
+             repel = TRUE,            # Avoid label overlapping
+             show.clust.cent = TRUE, # Show cluster centers
+             palette = "jco",         # Color palette see ?ggpubr::ggpar
+             ggtheme = theme_minimal(),
+             main = "Factor map"
+             ) +
+   theme_bw()+
+   theme(axis.text.y = element_text( size = 24))+
+theme(axis.title.y = element_text(face="bold", size=24))+
+theme(axis.text.x=element_text(angle = 0, hjust=0.5,vjust=0,size = 24,face="bold"))+
+theme(axis.title.x = element_text( face="bold", size=24))+
+  
+  
+  #remove grid lines 
+   theme(
+     panel.border = element_rect(colour = "black", size = 2), 
+     #panel.grid.major = element_blank(),
+     #panel.grid.minor = element_blank(),
+     axis.line = element_line(colour = "black"))+
+  
+#if need the axes labels 
+  xlab(expression(PC1~"(59%)"))+ 
+  ylab(expression(PC2~"(21%)")) 
+  #xlim(-50, 50)
+  #ylim(-30, 20)
+
+
+
+
+```
+
 
 
 
@@ -426,7 +471,9 @@ PC contributions
 
 ```{r, fig.height=5 , fig.width=30}
 
-# Contributions of variables to PC1
+# Contributions of variab
+
+les to PC1
 fviz_contrib(res.pca, choice = "var", axes = 1, top = 20)
 # Contributions of variables to PC2
 fviz_contrib(res.pca, choice = "var", axes = 2, top = 20)
