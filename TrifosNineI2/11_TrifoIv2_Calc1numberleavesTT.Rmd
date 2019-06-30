@@ -400,6 +400,18 @@ df_trifo_mean <- df_trifo %>%
 
   summary(df_trifo_mean)
 ```
+Just check the values for V11 and write on text 
+```{r}
+
+NineTrif<-df_trifo_mean %>%
+ subset(Trifo_mean>8.9,Trifo_mean<10 )%>%
+  group_by(Cultivar)%>%
+  dplyr::select(TTAE_mean, TTAE_sd )%>%
+  summarise_all(funs(mean))
+  
+
+```
+
 
 
 ```{r}
@@ -411,8 +423,8 @@ df_phyllo_mean <- df_trifo_mean %>%
 ```
 Prepare graphic elements
 ```{r}
-bar_x <- max(df_trifo_mean$TTAE_mean)
-bar_y <- max(df_trifo_mean$Trifo_mean)
+bar_x <- max(df_trifo_mean$TTAE_mean) *1.1
+bar_y <- max(df_trifo_mean$Trifo_mean) *1.1
 
 bar_x 
 bar_y
@@ -456,9 +468,10 @@ df_trifo_mean %>%
   #summarise_each(funs(mean)) %>%
   ggplot(aes(x=TTAE_mean, y=Trifo_mean)) + 
  # geom_smooth(data=TrifoSubset,method='lm',formula=y~x, colour="grey",alpha=0.1, size=2)+
-  geom_smooth(data=p1, method='lm', size=2, fill="grey", colour="grey", alpha=0.2) +
-  geom_smooth(data=p2, method='lm', size=2, fill="darkgrey",colour="grey", alpha=0.2) +
-  geom_point(aes(shape=Cultivar), size=5) +
+  geom_smooth(data=p1, method='lm', linetype=1,
+              size=2, fill="grey", colour="black", alpha=0.2) +
+ # geom_smooth(data=p2, method='lm', size=2, fill="darkgrey",colour="grey", alpha=0.2) +
+  geom_point(aes(shape=Cultivar), size=8, alpha=0.5, stroke= 1.5) +
   #scale_shape_manual(values = c(0,1,2, 3,4,5,6,7,8,9,10,11))+
   scale_shape_manual(values = c(0,1,2,4,7,8)) +
   geom_errorbar(data=dfError, aes(ymin=Trifo_mean-SE,
@@ -472,7 +485,7 @@ df_trifo_mean %>%
   labs(y="Number of trifoliate leaves (n)")+
   #xlab(expression(Thermal~time~Emergence~"("^"o"*"Cd)"))+
   xlab(expression(Thermal~time~"("^"o"*"Cd)"))+
-  theme_bw(base_size = 24)+
+  theme_bw(base_size = 30)+
    #remove grid lines 
      theme(
      panel.border = element_rect(colour = "black", size = 2), 
@@ -484,17 +497,17 @@ df_trifo_mean %>%
   # geom_abline(intercept = 5,  slope = 0, linetype=2)+
    #geom_abline(intercept = 9,  slope = 0, linetype=2)+
 theme(axis.text.x=element_text(angle = 0, hjust = 0.5))+
-theme(text = element_text(size = 24))+
+theme(text = element_text(size = 30))+
     ##thicks in axis
   theme(axis.ticks.length=unit(.3, "cm"))+
     #make Cultivars  white  
    theme(strip.background = element_rect(colour = "black", fill = "white",size=2))+
   #label sizes 
-theme(text = element_text(size = 26)) + theme(legend.position="top")
+theme(text = element_text(size = 30)) + theme(legend.position="top")
 
 #save
    
-   #ggsave("plot_11_AllCVS_NumberOfTrifoliateLeavesThermalT.tiff", width=24, height=12, dpi=400)
+   ggsave("plot_11_AllCVS_Number_TrifoliateLeavesThermalT.tiff", width=20, height=24, dpi=400)
  
 
 ```
@@ -502,12 +515,17 @@ theme(text = element_text(size = 26)) + theme(legend.position="top")
 #Calculate phyllochron
 ```{r}
 library(broom)
-phylloReg <- DataPhyllo %>%
-  na.omit()  %>%
+
+p1<-DataPhyllo %>% filter(phylloStage=="P1")  %>% na.omit() %>% ungroup() 
+#dplyr::select(-phylloStage)
+
+phylloReg <- p1 %>%
  group_by(phylloStage, SowTreat, Cultivar, Block) %>%
+    group_by(SowTreat, Cultivar,Block) %>%
  do(fit = lm(Trifo ~ TTAE, data = .))
 
 head(phylloReg)
+summary(phylloReg)
 ```
 
 
@@ -516,29 +534,57 @@ phylloRegTable <- tidy(phylloReg, fit) %>% filter(term=="TTAE") %>%
 mutate(Phyllocron=1/estimate)
 
 summary(phylloRegTable)
+
+dfCoef = glance(phylloReg, fit)
+dfCoef
+
+write.table(phylloRegTable, "Phyllochron.txt")
+
 ```
 
-```{r, fig.height=10}
+Get the means to build table (by SowTreat as per ANOVA )
 
+```{r}
+phylloRegTableMean <- phylloRegTable %>%
+#filter(phylloStage=="P1")%>%
+group_by(SowTreat) %>%
+  dplyr::select(SowTreat, estimate, std.error, p.value)%>%
+  summarise_all(funs(mean))
+
+head(phylloRegTableMean)
+```
+
+
+```{r}
+dfCoefMean<-dfCoef %>%
+  #filter(phylloStage=="P1")%>%
+  group_by(SowTreat)%>%
+  dplyr::select(SowTreat, r.squared)%>%
+  summarise_all(funs(mean))
+
+
+head(dfCoefMean)
+```
+#Compare cultivars
+```{r, fig.height=10}
 phylloRegTable %>%
   ungroup() %>%
   #filter(Phyllocron==max(Phyllocron)) %>%
   ggplot(aes(x=SowTreat,y=Phyllocron)) +
   geom_point(aes(colour=Block)) +
   geom_boxplot(alpha=0.2) +
-  facet_wrap(phylloStage~Cultivar, scales='free')
+  facet_wrap(.~Cultivar, scales='free')
 ```
 
-
+# Compare sowing dates
 ```{r, fig.height=10}
-
 phylloRegTable %>%
   ungroup() %>%
   #filter(Phyllocron==max(Phyllocron)) %>%
   ggplot(aes(x=Cultivar,y=Phyllocron)) +
   geom_point(aes(colour=Block)) +
   geom_boxplot(alpha=0.2) +
-  facet_wrap(phylloStage~SowTreat, scales='free')
+  facet_wrap(.~SowTreat, scales='free')
 ```
 
 ##ANOVA Phyllochron
@@ -549,16 +595,60 @@ my.anova <- aov(Phyllocron ~ SowTreat*Cultivar, data = phylloRegTable)
 summary(my.anova)
 ```
 
-
 ## Mean separation 
 
 ```{r}
-
-(LSD.test(my.anova, c("SowTreat"), alpha= 0.05, p.adj="none"))
-
-
+#(LSD.test(my.anova, c("SowTreat"), alpha= 0.05, p.adj="none"))
+(LSD.test(my.anova, c("Cultivar", "SowTreat"), alpha= 0.05, p.adj="none"))
 ```
 
 
+Do by SowTreat
 
+
+
+## Create index to filter for loop ANOVA
+
+```{r}
+y <- c("S1","S2","S3","S4","S5","S6","S7","S8")
+
+sdIndex <- unique(phylloRegTable$SowTreat)
+
+sdIndex[order(match(sdIndex,y))]
+
+length(sdIndex)
+sdIndex
+```
+## Then loop anova for each individual sowing date 
+```{r}
+for (i in 1:length(sdIndex)) {
+  
+ #print(i)
+ print(paste0(sdIndex[i],"--------------------------------"))
+  
+  file.subset <- phylloRegTable %>%
+  filter(SowTreat==sdIndex[i])
+  
+ 
+head(file.subset, 50)
+   summary(file.subset)
+my.anova <- aov(Phyllocron ~ Cultivar + Block, data = file.subset)
+print(summary(my.anova))
+
+if ((summary(my.anova)[[1]][["Pr(>F)"]][1])<0.05) {
+  print("***Sig Cultivar***") 
+  print((LSD.test(my.anova, c("Cultivar"), alpha= 0.05, p.adj="none"))) } 
+
+
+if ((summary(my.anova)[[1]][["Pr(>F)"]][1])>0.05) {
+  print("***Sig Cultivar***") 
+  print((LSD.test(my.anova, c("Cultivar"), alpha= 0.05, p.adj="none"))) } 
+
+# make mean separation if significant
+
+(LSD.test(my.anova, c("Cultivar"), alpha= 0.05, p.adj="none"))
+  
+}
+
+```
 

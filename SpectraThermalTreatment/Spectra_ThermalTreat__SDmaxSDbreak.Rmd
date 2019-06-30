@@ -144,7 +144,7 @@ df_Break_select <-df_Break %>%
 ##BA1026+BA1250+BA1441+BA1610+BA1732+BA1745+BA1770+BA2854+BA2931
 
 
-summary(lm(SDbreak ~ X2855+ X2932, df_Break_select))
+#summary(lm(SDbreak ~ X2855+ X2932, df_Break_select))
 summary(lm(SDbreak ~  X2855, df_Break_select))
 
 #summary(lm(SDmax ~ BA1610+BA1732+BA1745+BA1770, df_HardSpectra))

@@ -22,7 +22,9 @@ library(markdown)
 Here calculate the total percentage of normal seeds for cultivars and sow treat 
 
 ```{r loadFile}
-setwd("C:\\GitHubRepos\\SubCloverPhD\\SubClover\\DeadAbnSeeds")
+#setwd("C:\\GitHubRepos\\SubCloverPhD\\SubClover\\DeadAbnSeeds")
+#setwd("D:\\Ed Teixe\\GitHubRepos\\SubCloverPhD\\SubClover\\DeadAbnSeeds")
+
 getwd()
 
 #create file

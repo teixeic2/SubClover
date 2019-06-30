@@ -65,7 +65,7 @@ then select columns of interest : here stats for overall means (SowTreat and Cul
 
 #find coefficients 
 
-cor (df_All[,-c(1,2)])
+#cor (df_All[,-c(1,2)])
 # cor (dfD[,-c(1,2)])
 ```
  
@@ -150,8 +150,8 @@ AllGrw<-df_All %>%
    BefHvst<-df_All %>%
   filter(Period=="BeforeHvst")
 
-  #summary(lm(Germination ~ RH+RainIrrig+SoilTemp, BefHvst))
-  summary(lm(Sqrtslope ~ SoilTemp+RH, BefHvst))
+  summary(lm(Germination ~ RH+RainIrrig+SoilTemp, BefHvst))
+ # summary(lm(Sqrtslope ~ SoilTemp+RH, BefHvst))
 
 ```
 
@@ -215,7 +215,7 @@ SeedFill %>%
   xlab(expression(Soil~temperature~"( "^"o"*"C)"))+ 
   #ylab(expression(Maximum~Hardseeds~Percent~"("*"%"*")"))+
   #ylab(expression(SDmax~"("*"%"*")"))+
-  ylab(expression(Germinatio~percentage~"("*"%"*")"))+
+  ylab(expression(Germination~percentage~"("*"%"*")"))+
   theme(text = element_text(size=22))+
   scale_x_continuous(limits = c(14,20),breaks=c(14,15,16,17,18))+
   scale_y_continuous(limits = c(0,100),breaks=c(0,20,40,60,80, 100))+
@@ -236,6 +236,49 @@ SeedFill %>%
   ggsave("plot_Prjt18_Regression_Germination_SoilTemp_SeedFillPeriod.tiff", width=12, height=6, dpi=400)
 
 ```
+
+Do a quadratic
+
+
+```{r}
+
+  str(SeedFill )
+
+
+SeedFill %>%
+  mutate (SowTreat= factor(SowTreat, levels=c("S1", "S2", "S3", "S4", "S6","S7"),labels=c("June", "July", "September", "November", "February","March")))%>%
+  ggplot(aes(x=SoilTemp , y= Germination))  +
+  geom_point(colour= "black", alpha=0.2) +
+  geom_point(aes(shape=SowTreat),size=6)+
+  #geom_point(aes(shape=SowTreat),size=4)+
+  # geom_smooth(method='lm',formula=y~x, colour="grey",alpha=0.1)+
+  stat_smooth(aes(y = Germination),method = "lm", formula = y ~ x + I(x^2), size = 1, color = "darkgrey")+
+  theme_bw() +
+  xlab(expression(Soil~temperature~"( "^"o"*"C)"))+ 
+  #ylab(expression(Maximum~Hardseeds~Percent~"("*"%"*")"))+
+  #ylab(expression(SDmax~"("*"%"*")"))+
+  ylab(expression(Germination~percentage~"("*"%"*")"))+
+  theme(text = element_text(size=22))+
+  scale_x_continuous(limits = c(14,20),breaks=c(14,15,16,17,18))+
+  scale_y_continuous(limits = c(0,100),breaks=c(0,20,40,60,80, 100))+
+  #facet_wrap(~Cultivar)+
+  #remove grid lines 
+   theme(
+     panel.border = element_rect(colour = "black", size = 1), 
+     panel.grid.major = element_blank(),
+     panel.grid.minor = element_blank(),
+     axis.line = element_line(colour = "black"))+
+   #scale_fill_manual("legend", values = c("Antas" = "#660066", "Denmark" = "lightgrey","Leura" = "darkgrey", "Monti" = "#FF9933","Narrikup" = "blue",  "Woogenellup" = "#033333"))+
+   
+   #make sowing dates white  
+   theme(strip.background = element_rect(colour = "black", fill = "white",size=1))
+  #theme(title =  element_text(size=14))
+  #theme(title =  element_text(size=14))
+
+  ggsave("plot_Prjt18_QuadratRegression_Germination_SoilTemp_SeedFillPeriod.tiff", width=12, height=6, dpi=400)
+
+```
+
 
 
 graph Germination and RH 
@@ -278,3 +321,158 @@ str( SeedFill)
 
 
 ```
+
+Create a breaking point and split in two regressions 
+
+
+# select
+p1 <- df_phyllo_mean %>% filter(phylloStage=="P1") 
+p2 <- df_phyllo_mean %>% filter(phylloStage=="P2")
+
+
+```{r, figh.width=12,fig.height=10}
+
+##Need to subset the data according to RH 
+
+p1 <- SeedFill %>% subset(RH<=77.2) 
+p2 <- SeedFill  %>% subset(RH>=77.2)
+
+str( SeedFill)
+
+  SeedFill %>%
+  mutate (SowTreat= factor(SowTreat, levels=c("S1", "S2", "S3", "S4", "S6","S7"),labels=c("June", "July", "September", "November", "February","March")))%>%
+  ggplot(aes(x=RH, y= Germination))  +
+  geom_point(colour= "black", alpha=0.2) +
+  geom_point(aes(shape=SowTreat),size=6)+
+  #geom_point(aes(shape=SowTreat),size=4)+
+  # geom_smooth(method='lm',formula=y~x, colour="grey",alpha=0.1)+
+    geom_smooth(data=p1, method='lm', linetype=1,
+              size=2, fill="grey", colour="black", alpha=0.2) +
+   geom_smooth(data=p2, method='lm', size=2, fill="darkgrey",colour="grey", alpha=0.2) +
+  theme_bw() +
+  xlab(expression(RH~"("*"%"*")"))+ 
+  #ylab(expression(Maximum~Hardseeds~Percent~"("*"%"*")"))+
+  ylab(expression(Germination~"("*"%"*")"))+
+  theme(text = element_text(size=22))+
+   scale_x_continuous(limits = c(73,82),breaks=c(70,72,74,76, 78, 80,82))+
+  scale_y_continuous(limits = c(0,100),breaks=c(0,20,40,60,80,100))+
+  #facet_wrap(~Cultivar)+
+  #remove grid lines 
+   theme(
+     panel.border = element_rect(colour = "black", size = 1), 
+     panel.grid.major = element_blank(),
+     panel.grid.minor = element_blank(),
+     axis.line = element_line(colour = "black"))+
+   #scale_fill_manual("legend", values = c("Antas" = "#660066", "Denmark" = "lightgrey","Leura" = "darkgrey", "Monti" = "#FF9933","Narrikup" = "blue",  "Woogenellup" = "#033333"))+
+   
+   #make sowing dates white  
+   theme(strip.background = element_rect(colour = "black", fill = "white",size=1))
+  #theme(title =  element_text(size=14))
+  #theme(title =  element_text(size=14))
+
+  ##ggsave("plot_18_BrokenStick_Hardseed_GerminationVsRH_R7_R11.tiff", width=12, height=6, dpi=400)
+
+
+```
+
+
+```{r}
+GermRH <-SeedFill %>%
+  dplyr::select(RH,Germination)
+
+plot(GermRH)
+```
+
+
+```{r}
+library(segmented)
+
+  
+out.lm <- lm(Germination ~ RH, data = GermRH)
+
+o <- segmented(out.lm, seg.Z = ~RH, psi = list(RH = 76),
+  control = seg.control(display = FALSE)
+)
+
+dat2 = data.frame(x=GermRH$RH, y = broken.line(o)$fit)
+
+```
+
+
+```{r}
+GermRH %>% ggplot(aes(x = RH, y = Germination)) +
+  geom_point() +
+  geom_line(data = dat2, color = 'blue', aes(x = x, y = y))
+```
+
+
+```{r}
+out.lm <-lm(Germination~RH,data=GermRH)
+
+o <- segmented(out.lm, seg.Z=~RH, psi=list(RH=c(75)), control=seg.control(display=FALSE))
+
+# show stats
+print(summary(o))
+
+     
+# find slopes
+s = slope(o)
+print(s)
+
+# find breaks
+b = o$psi[,2]
+print(b)
+
+# get fitted broken stick
+my.fitted <- fitted(o)
+my.model <- data.frame(RH = GermRH$RH, Germination = my.fitted)
+```
+
+
+```{r}
+# plot
+GermRH %>%
+  ggplot(aes(x=RH,y=Germination)) +
+  geom_point() +
+  geom_line(data=my.model, aes(x=RH,y=Germination))
+```
+
+
+```{r}
+```
+
+
+```{r}
+GermRH %>% ggplot(aes(x = RH, y = Germination)) +
+geom_point() +
+geom_line(data = Data, color = 'blue', aes(x = x, y = y))
+```
+
+
+```{r}
+```
+
+
+#Calculate lm
+```{r}
+library(broom)
+
+#p1<-p1 <- SeedFill %>% subset(RH<=76.3)   %>% na.omit() %>% ungroup() %>% dplyr::select(-phylloStage)
+
+GermReg <- p1 %>%
+ #group_by(phylloStage, SowTreat, Cultivar, Block) %>%
+  group_by(SowTreat,Cultivar) %>%
+ do(fit = lm(Germination ~ SoilTemp, data = .))
+
+head(GermReg)
+```
+
+
+```{r}
+
+#summary(lm(Germination ~ RH,p1))
+summary(lm(Germination ~ RH,p2 ))
+
+
+```
+

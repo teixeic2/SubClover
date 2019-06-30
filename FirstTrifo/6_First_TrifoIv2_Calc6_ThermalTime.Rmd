@@ -46,7 +46,7 @@ Create df_MD to workout dates to % trifoliates
 ```{r}
 
   df_MD <- df_trif %>%
-  select(-DAS50E)%>%
+  dplyr::select(-DAS50E)%>%
   mutate(Date50FirstTrif=SowingDate+DAS1T) %>%
   group_by(Plot, DAS1T) %>% 
   dplyr::filter(row_number() == 1)
@@ -404,8 +404,11 @@ Prepare dataframe 2 with DAS and TT of First trifo (df_merge). Need to select co
 str(df_merge)
 
 
-df_mergeSelect <- df_merge %>%
-dplyr::select(SowTreat ,Cultivar,Plot,Block,DAS1T,Date50FirstTrif,SummTTFirstTrifo)
+df_mergedSelect <- df_merge %>%
+dplyr::select(SowTreat ,Cultivar,Plot,Block,DAS1T, Date50FirstTrif,SummTTFirstTrifo)
+
+
+df_mergedFirstTrifo<-merge(df_mergedSelect,df_Emergence, by="Plot" )
 
 
 ```

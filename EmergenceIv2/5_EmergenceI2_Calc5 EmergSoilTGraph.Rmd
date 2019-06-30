@@ -261,7 +261,7 @@ ggsave("plot_5_DAS50Emerg_Vs_SoilTemp.tiff", width=14, height=16, dpi=600)
 
 Graph only  emergence rate (1/das) and mean soil temp 
 
-```{r, fig.height=6, fig.width=8}
+```{r, fig.height=8, fig.width=10}
 
 
 df_seed2<-df_H%>%
@@ -307,7 +307,7 @@ df_seed2%>%
   
   #filter(SowTreat!="S1")%>%
 ggplot(aes(x=meanTemp_Em_mean, y=InvDAS50E_mean)) + 
-  geom_point(aes(shape= SowTreat,colour=Cultivar), size=8)+
+  geom_point(aes(shape= SowTreat,colour=Cultivar), size=6)+
   scale_shape_manual(values = c(0,1,2,3,4,5,6,7,8,9,10,11))+
   #geom_line(aes(width=SowTreat))+
  #geom_smooth(method = lm, fullrange=TRUE)+
@@ -318,36 +318,36 @@ ggplot(aes(x=meanTemp_Em_mean, y=InvDAS50E_mean)) +
   #facet_wrap(~Cultivar,ncol=2, scales = "free")+
    #facet_wrap(~Cultivar,ncol=2)+
   theme_bw()+
-  scale_y_continuous(breaks = c(0,0.05,0.10,0.15,0.20,0.25,0.30))+
- # xlim(0, 24)+
- # ylim(0,0.3)+
+  #scale_y_continuous(breaks = c(0,0.05,0.10,0.15,0.20,0.25,0.30))+
+  xlim(0, 25)+
+  ylim(0,0.35)+
   geom_abline(slope=0.01526,intercept = 0)+
   geom_abline(slope=0.0086,intercept = 0, linetype=2)+
   ylab("Emergence rate  (1/days)") + 
   xlab(expression(Soil~temperature~~"("^"o"*"C)")) +
   #theme(axis.title.x = element_text( size=24)) + scale_x_continuous(breaks = c(0:6))+
   #theme(text=element_text(size=22 ))+
-  theme(axis.title.x=element_text(angle = 0, hjust = 0.5,size = 22))+
-  theme(axis.title.y=element_text(angle = 90, hjust = 0.5,size = 22))+
+ # theme(axis.title.x=element_text(angle = 0, hjust = 0.5,size = 22))+
+ # theme(axis.title.y=element_text(angle = 90, hjust = 0.5,size = 22))+
   #theme(title=element_text(size=22, face="bold"))+
   #theme(title=element_text(size=22,  face="bold"))+
    #remove grid lines 
-     theme(
-     panel.border = element_rect(colour = "black"  , size = 2.0), 
-     panel.grid.major = element_blank(),
-     panel.grid.minor = element_blank(),
+#     theme(
+ #    panel.border = element_rect(colour = "black"  , size = 2.0), 
+  #   panel.grid.major = element_blank(),
+   #  panel.grid.minor = element_blank(),
      
-     axis.line = element_line(colour = "black", size= 1))+
+    # axis.line = element_line(colour = "black", size= 1))+
    ##thicks in axis
-  theme(axis.ticks.length=unit(.3, "cm"))+
+ # theme(axis.ticks.length=unit(.3, "cm"))+
 
 #make Cultivars  white  
-   theme(strip.background = element_rect(colour = "black", fill = "white",size=2))+
+ #  theme(strip.background = element_rect(colour = "black", fill = "white",size=2))+
   
   #label sizes 
-theme(text = element_text(size = 22)) +
-  ylim(0,NA)+
-  xlim(0,NA)
+theme(text = element_text(size = 18)) 
+ # ylim(0,NA)+
+ # xlim(0,NA)
   
   #geom_abline(intercept = 50, slope = 0)
 

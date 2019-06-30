@@ -50,6 +50,17 @@ str (df_Hard84)
 ```
 
 
+calculate the SDBreak
+
+```{r}
+A <-df_Hard84 %>%
+  spread(PercentHard, value, fill = NA, convert = FALSE)
+ 
+
+
+
+```
+
 
 
 

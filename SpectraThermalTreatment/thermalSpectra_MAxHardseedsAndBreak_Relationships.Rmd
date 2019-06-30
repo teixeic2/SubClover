@@ -28,33 +28,22 @@ library(gridExtra)
 C:\GitHubRepos\SubCloverPhD\SubClover\Spectra_S2_Anovas
 
 ```{r loadFile}
-setwd("C:\\GitHubRepos\\SubCloverPhD\\SubClover\\Spectra_S2_Anovas")
+setwd("C:\\GitHubRepos\\SubCloverPhD\\SubClover\\SpectraThermalTreatment")
 getwd()
 
 #create file
-df_S2 <- read.table("S2_MaxHardBreakSpectra.txt",header=TRUE)
-head(df_S2)
+df_Thermal <- read.table("HSbreak_Vs1610_2855_2932.txt",header=TRUE)
+
+## Bring the data with HSmax and HsBreak for the Incub 0 and 84 
+##Bring data of Wavenumber reduction  1610 2855 and 2932 (the ones which reduced with thermal treatment )
+
+
+
+head(df_Thermal)
 # change format 
 
 
 ```
-
-now
-
-
-create the hardindex (SDmax + 1-SDbreak)
-
-```{r}
-df_S2<-df_S2 %>%
-mutate(Inverse=10-(100*SDBreak))%>%
- mutate(HardIndex= SDMax+Inverse)
-
-
-```
-
-
-
-
 
 ##Now plot variates to find  ...any correlation? 
 
@@ -64,22 +53,13 @@ mutate(Inverse=10-(100*SDBreak))%>%
 ```{r, fig.height=10, fig.width=10}
 
 #str(df_All4)
-str (df_S2)
+str (df_Thermal)
 
 #pairs(~HardAccum+slope+Rain+RH+Temp,data=df_All, main="Simple Scatterplot Matrix")
-  #pairs(~HardAccum+slope+Rain+RH+Temp+DaysToSeedharvest,data=df_All2, main="Simple Scatterplot Matrix")
- ##this is for df All2 
-#pairs(~HardPerc_Initial14 +RateDecreasePerTTunit+Rain+RH+Temp+DaysToSeedharvest,data=df_All2, main="Simple Scatterplot Matrix")
+  
 
-##this is for df All3
+pairs(~Hsbreak+RedAbs1610+RedAbs2855+RedAbs2932,data=df_Thermal, main="Simple Scatterplot Matrix")
 
-# pairs(~HardPerc_Initial14 +RateDecreasePerTTunit+Rain+RH+Temp+SoilTemp+DaysToSeedharvest+DaysBudDuration+DAS50F,data=df_All4, main="Simple Scatterplot Matrix")
-
-pairs(~SDMax+SDBreak+HardIndex+ABS2930+ABS2855+ABS1745+ABS1732+ABS1610+ABS1441+ABS1425+ABS1377+ABS1337+ABS1250+ABS1150+ABS1100+ABS1025+ABS897,data=df_S2, main="Simple Scatterplot Matrix")
-
-# dfD <- df_All%>%
-#   filter(Cultivar=="Denmark")
-# pairs(~HardAccum+slope+Rain+RH+Temp,data=dfD, main="Simple Scatterplot Matrix Denmark")
 
 ```
 
@@ -91,8 +71,8 @@ then select columns of interest : here stats for overall means (SDMax and specif
 
 #find coefficients 
 
-#cor (df_All[,-c(1,2)])
-cor (df_S2[,-c(1,2)])
+
+cor (df_Thermal[,-c(1,2)])
 # cor (dfD[,-c(1,2)])
 
 #just change variable name to keep graphs same 
@@ -105,19 +85,19 @@ cor (df_S2[,-c(1,2)])
 
 ```{r, fig.height=5, fig.width=10}
 
-g1 <-df_S2 %>%
-  #ggplot(aes(x=ABS1745, y= SDMax))  +
-  ggplot(aes(x=ABS1745, y= HardIndex))  +
-  geom_point(colour= "black", alpha=0.2) +
-  geom_point(aes(shape=Cultivar),size=6)+
-   geom_smooth(method='lm',formula=y~x, colour="grey",alpha=0.1)+
-  theme_bw() +
-  xlab(expression(Absorbance~1745~"(cm-1)"))+ 
-  ylab(expression(Maximum~Hardseeds~Percent~"(%)"))+
-  theme(text = element_text(size=20))
-  #facet_wrap(~Cultivar)
-
-grid.arrange(g1)
+# g1 <-df_S2 %>%
+#   #ggplot(aes(x=ABS1745, y= SDMax))  +
+#   ggplot(aes(x=ABS1745, y= HardIndex))  +
+#   geom_point(colour= "black", alpha=0.2) +
+#   geom_point(aes(shape=Cultivar),size=6)+
+#    geom_smooth(method='lm',formula=y~x, colour="grey",alpha=0.1)+
+#   theme_bw() +
+#   xlab(expression(Absorbance~1745~"(cm-1)"))+ 
+#   ylab(expression(Maximum~Hardseeds~Percent~"(%)"))+
+#   theme(text = element_text(size=20))
+#   #facet_wrap(~Cultivar)
+# 
+# grid.arrange(g1)
 
 ```
 
@@ -128,14 +108,37 @@ Plot with the sum of the 2930 and 2855 or other sums
 
 ```{r}
 
-SumUP<-df_S2 %>%
-mutate(ABSSum=ABS2930+ABS2855+ABS1745+ABS1732)
-
-#then asses
-#summary(lm(SDMax ~ ABSSum, SumUP))
-
+str(df_Thermal)
 #Break
-summary(lm(SDBreak ~ ABSSum, SumUP))
+#summary(lm(Hsbreak ~ RedAbs2855, df_Thermal))
+summary(lm(Hsbreak ~ RedAbs2932, df_Thermal))
+
+```
+
+##Then the equation is : 
+
+##HSbreak = 0.003(+-0.0006) + 0.09 (+-0.02)[DA2855]
+##where DA = ABs2855 untreated - Abs 2855 treated 
+##p=0.03; R2 = 0.51
+
+##Then do for 2932 
+
+##HSbreak = 0.003(+-0.0005) + 0.06 (+-0.011)[DA2932]
+##where DA = ABs2932 untreated - Abs 2932 treated 
+##p=0.02; R2 = 0.54
+
+
+##Now do one lm only for Narrikup and Monti and decrease in band 1610
+
+
+
+```{r}
+
+df_MN <-df_Thermal%>%
+  filter(Cultivar=="M")
+#Break
+summary(lm(Hsbreak ~ RedAbs1610, df_Thermal))
+#summary(lm(Hsbreak ~ RedAbs1610, df_MN))
 
 ```
 
@@ -250,7 +253,7 @@ Inspect overall Lm with SDMAx
 ```{r}
 
 #summary(lm(SDMax ~ ABS2930, df_S2))
-#summary(lm(SDMax ~ ABS2855, df_S2))
+summary(lm(SDMax ~ ABS2855, df_S2))
 #summary(lm(SDMax ~ ABS1745, df_S2)) 
 #summary(lm(SDMax ~ ABS1732, df_S2)) 
 #summary(lm(SDMax ~ ABS1610, df_S2))  
@@ -275,7 +278,7 @@ Then check for SDBreak
 ```{r}
 
 #summary(lm(SDBreak ~ ABS2930, df_S2))
-#summary(lm(SDBreak ~ ABS2855, df_S2))
+summary(lm(SDBreak ~ ABS2855, df_S2))
 #summary(lm(SDBreak ~ ABS1745, df_S2)) 
 #summary(lm(SDBreak ~ ABS1732, df_S2)) 
 #summary(lm(SDBreak ~ ABS1610, df_S2))  
