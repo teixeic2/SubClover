@@ -71,21 +71,14 @@ Then select only woogenellup and include rate of emergence (1/DAS50)
 ```{r}
 
 dfW <- df_emerg_perc3 %>%
-filter(Cultivar=="Woogenellup")%>%
-filter (SowTreat== "S2"| SowTreat== "S3"|SowTreat== "S4"|SowTreat== "S6")%>%
+#filter(Cultivar=="Woogenellup")%>%
+#filter (SowTreat== "S2"| SowTreat== "S3"|SowTreat== "S4"|SowTreat== "S6")%>%
   mutate(Inv50 = (1/DAS50E))
   
 str(dfW)
 
 ```
 
-
-
-
-```{r}
-
-  
-```
 
 
 
@@ -106,7 +99,7 @@ file.subset <- file
 
 head(file.subset, 50)
 summary(file.subset)
-my.anova <- aov(transf_no ~ SowTreat + Block, 
+my.anova <- aov(transf_no ~ SowTreat*Cultivar + Block, 
                 data = file.subset)
 
 summary(my.anova)
@@ -122,6 +115,9 @@ summary(my.anova)
 (LSD.test(my.anova, c("SowTreat"), alpha= 0.05, p.adj="none") )
 #(LSD.test(my.anova, "Cultivar"))
 ```
+
+
+
 
 
 

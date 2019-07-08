@@ -721,7 +721,7 @@ av_break<-median(Average$RateDecreasePerTTunit_mean) #= 0.013 # median = 0.12
   #    panel.grid.major = element_blank(),
   #    panel.grid.minor = element_blank(),
       axis.line = element_line(colour = "black"))+
-   theme(text = element_text(size=24))+
+   theme(text = element_text(size=26))+
     
   geom_abline(slope=0, intercept=av_shx, linetype=2) +
   geom_vline(slope=0, xintercept=av_break,linetype=2) + 
@@ -729,10 +729,10 @@ av_break<-median(Average$RateDecreasePerTTunit_mean) #= 0.013 # median = 0.12
   ylim(0,115)+
    scale_x_continuous(breaks = c(0.01,0.02,0.03))+
    
-  annotate("text", x = 0.005, y = 110, label = "Hard",size=6)+
-  annotate("text", x = 0.025, y = 15, label = "Soft",size=6 )+
-  annotate("text", x = 0.005, y = 15, label = "Medium",size=6)+
-  annotate("text", x = 0.025, y = 110, label = "Medium",size=6 )+
+  annotate("text", x = 0.005, y = 110, label = "Hard",size=8)+
+  annotate("text", x = 0.025, y = 15, label = "Soft",size=8 )+
+  annotate("text", x = 0.005, y = 15, label = "Medium",size=8)+
+  annotate("text", x = 0.025, y = 110, label = "Medium",size=8 )+
     
   
    #make TT target labels  white  

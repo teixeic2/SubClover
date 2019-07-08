@@ -177,7 +177,7 @@ df_gather2%>%
   #label sizes 
 theme(text = element_text(size = 22))
     
- ggsave("plot_AirSoilTemp_SoilIv2_BlackWhite.png", width=12, height=6, dpi=400)
+ #ggsave("plot_AirSoilTemp_SoilIv2_BlackWhite.png", width=12, height=6, dpi=400)
 
 ```
 
@@ -226,10 +226,6 @@ theme(text = element_text(size = 22))
 ggsave("plot_SoilTempPpIversen.png", width=12, height=6, dpi=400)
 
 ```
-
-
-```
-
 
 
 

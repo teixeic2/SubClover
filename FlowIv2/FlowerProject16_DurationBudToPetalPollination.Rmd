@@ -49,6 +49,23 @@ subset<-df_raw %>%
 
 ```
 
+
+write table to calculate the total thermal time to R11 from First trifoliate
+
+```{r}
+
+""
+
+df_raw <- read.table("TTDAysMergedFlowerFromFirstTrifo.txt ",header=TRUE)
+
+write.table()
+
+
+```
+
+
+
+
 Graph 
 
 

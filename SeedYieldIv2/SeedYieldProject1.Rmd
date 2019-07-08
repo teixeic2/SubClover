@@ -193,7 +193,7 @@ theme(axis.text.x=element_text(angle = +90, hjust = 0))+
 head (file)
 
 df1<- file %>%
-  dplyr::select(Cultivar, SowingD, SowTreat,sample_area_m2,Block,
+  dplyr::select(Plot,Cultivar, SowingD, SowTreat,sample_area_m2,Block,
                 Depth,bur_total_weight_g,
                 bur_no_subSample,
                 bur_weight_subSample_g,seed_weight_g) %>%
@@ -207,6 +207,10 @@ summary(df1)
 write.table(df1, "SeedYieldIv2.txt", row.names=FALSE)
 
 ```
+
+Calculate total yield (Above+Below)
+
+
 
 ```{r, fig.heigt=5, fig.width=10}
 # Graph Seed kg ha
@@ -281,7 +285,7 @@ make a new graph as per poster ESA
 
 
 
-```{r,fig.heigt=5, fig.width=14}
+```{r, fig.width=10, fig.height=16}
 
 # Graph Seed kg ha
 
@@ -289,65 +293,57 @@ make a new graph as per poster ESA
 #The palette with grey:
 #cbPalette <- c("#999999", "#666666", "#56B4E9", "#009E73", "#D55E00", "#0072B2","#999999", "#E69F00", "#56B4E9", "#009E73", "#D55E00", "#0072B2","#56B4E9", "#009E73")
 
-
 # define position of bar and errorbar
 dodge_x <- position_dodge(width = 0.9)
-
-
-#barplot for seed density  
+fs<-28
 
 # splitting and df due bug in tidyr (https://github.com/hadley/tidyr/issues/32)
-  dfB <-df1 %>%
+  dfB <- df1 %>%
   #tidyr::spread(Depth,SeedsNo_m2) %>%
   #mutate(SeedsNo_m2= Down/(Down+Up)*100) %>%
   group_by(Cultivar, SowTreat,Depth) %>%
+  dplyr::select(Seedskg_ha, Cultivar, SowTreat,Depth)%>%
   summarise_each(funs(mean,sd)) %>%
-    mutate(SE=Seedskg_ha_sd/1.73)
+    mutate(SE=sd/1.73)
   
-  dfB %>%
-    ungroup()%>%
-    mutate (SowTreat= factor(SowTreat, levels=c("S1", "S2", "S3", "S4", "S6", "S7"),labels=c("June", "July", "Sept.", "Nov.", "Feb.","March")))%>%
-     #added ....here mutate cultivar labels for poster  
-   mutate (Cultivar= factor(Cultivar, levels=c("Antas", "Denmark", "Leura", "Monti", "Narrikup", "Woogenellup"),labels=c("A", "D", "L", "M", "N","W")))%>%
-  ggplot(aes(x= Cultivar, y=(Seedskg_ha_mean),fill= Cultivar)) +
-  geom_bar(aes(fill=Cultivar), colour="black",stat="identity",position = dodge_x)+
-  geom_errorbar(aes(ymin=Seedskg_ha_mean-SE/2,
-                    ymax=Seedskg_ha_mean+SE/2),
-                width=0.25, size=0.3,position=dodge_x)   +
-  theme_grey(base_size = 24) +
-    
-  theme_bw()+
-#remove grid lines 
-   theme(
-     panel.border = element_rect(colour = "black", size = 2), 
-     panel.grid.major = element_blank(),
-     panel.grid.minor = element_blank(),
-
-axis.line = element_line(colour = "black"))+
-   #scale_fill_manual("legend", values = c("Antas" = "#660066", "Denmark" = "lightgrey","Leura" = "darkgrey", "Monti" = "#FF9933","Narrikup" = "blue",  "Woogenellup" = "#033333"))+
-   
-   #make sowing dates white  
-   theme(strip.background = element_rect(colour = "black", fill = "white",size=2))+
+  dfB_g <- dfB %>%
+    ungroup() %>%
+    group_by(SowTreat,Cultivar) %>%
+    mutate(Depth=Depth, levels=c("Below","Above"))  %>%
+    mutate(Mean_sum=cumsum(mean)) %>%
+    mutate(SD_sum_down=Mean_sum-sd/2, 
+           SD_sum_up=Mean_sum+sd/2) %>%
+    ungroup() %>%
+    mutate(SowTreat= factor(SowTreat, 
+                             levels=c("S1", "S2", "S3", "S4", "S6", "S7"),
+                             labels=c("June", "July", "September", "November", "February","March"))) 
   
+  
+ dfB_g %>%
+ # mutate(Depth=factor(Depth, levels=c("Above","Below"))) %>% 
+  ggplot(aes(x= SowTreat, y=mean, fill= rev(Depth))) +
+  geom_bar(stat="identity")+
+  geom_errorbar(aes(ymin=SD_sum_down,
+                    ymax=SD_sum_up),
+                width=0.25, size=0.3)  +
+  facet_wrap(.~Cultivar, ncol=2) +
+    theme(text = element_text(size = 15)) +
+   theme(axis.text.x=element_text(angle = 45, hjust=1.0)) +
+ #  theme(text = element_text(size= fs))+
+   scale_fill_manual("legend", values = c("Below" = "#666666", "Above"   = "#CCCCCC")) +
+theme(
+     panel.background = element_rect(fill = "white", colour = "black", size = 2, linetype = "solid"), 
+     panel.grid.major = element_line(size = 0.5, linetype = 'solid', colour = "grey"), 
+     panel.grid.minor = element_line(size = 0.25, linetype = 'solid', colour = "grey"),
+     axis.line = element_line(colour = "black"))+
+     theme(strip.background = element_rect(colour = "black", fill = "white",size=1)) +
+     ylab("Seed yield (kg/ha)") +
+     xlab("Sowing month")
    
-   #margin y axis
-   theme (axis.title.y = element_text( margin = margin(t=0,r=20,b=10,l=0)))+
-   
-      #scale_fill_brewer(palette="Blues")+
-    scale_fill_brewer(palette="Greens")+
-     #facet_grid(.~SowTreat, scales="free") +
-    facet_grid(Depth~SowTreat, scales="free") +
-     
-   scale_y_continuous(expand = c(0, 0), limits = c(0,2100))+
     
-    labs(y= "Seed yield (kg/ha)")+
-    theme(text = element_text(size = 24))
-theme(axis.text.x=element_text(angle = +0, hjust = 0.5,vjust=0.2 ,size=24))+
-  theme(axis.text.y=element_text(angle = 0, hjust=0.5,vjust=0.2,size = 20)) 
+# 
 
-
-
-   ggsave("plot_SeedYield_Prjct1_Iversen2.tiff", width=16, height=6, dpi=500)
+  ggsave("plot_SeedYield_Prjct1_Iversen2.tiff", width=14, height=16, dpi=500)
   
   
 ```
@@ -363,9 +359,12 @@ then make the graph with total seed yield sum up above and blow seeds and graph 
 
 #Calculate the sum of above and below seeds kg /ha
 dfC <-df1 %>%
-  group_by(Cultivar, SowTreat,Block) %>%
+  group_by(Cultivar, SowTreat,Block,Plot) %>%
   dplyr::select(Seedskg_ha)%>%
   summarise_all(funs(sum)) 
+
+
+write.table(dfC, "Project1_Total_SeedYieldIv2.txt", row.names=FALSE)
   
   #calculate the mean per cultivars vzs. sowing date 
 dfC1<- dfC %>% 
