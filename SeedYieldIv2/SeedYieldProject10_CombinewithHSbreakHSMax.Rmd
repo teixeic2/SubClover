@@ -1,0 +1,284 @@
+---
+title: "Seed Yield Analysis"
+author: "CT"
+date: "18.03.2016"
+output: 
+  word_document: default
+  pdf_document: default
+  html_document: default
+---
+This script :
+reads the file with total seed yield and combine with HSmax and HSbreak to calculate amount of seeds readly germinable (risk fals strike), germinated in the coming 120 days (or 2400 oCd) and finally potential seeds in seed bank 
+2400 is the accumulated TT in 120days 
+
+
+
+```{r}
+#Load libraries 
+library(tidyr)
+library (dplyr)
+library (ggplot2)
+library(agricolae)
+library(lubridate)
+library(knitr)
+```
+
+Read File 
+
+```{r, echo=FALSE}
+
+#olde folder setwd("C:\\GitHubRepos\\SubCloverPhD\\SubClover\\SeedYieldIv2")
+##old path : 
+  
+  setwd("C:\\GitHubRepos\\SubcloverPhD\\Subclover\\SeedYieldIv2")
+##setwd("C:\\github\\SubClover\\SeedYieldIv2")
+getwd()
+file <- read.table("Project1_Total_SeedYieldIv2.txt",header=TRUE)
+head(file)
+summary(file)
+```
+
+Define formats 
+```{r}
+
+# define factors and formats
+file <- file %>%
+  mutate(
+    Plot = as.factor(Plot),
+    Block = as.factor(Block),
+    Cultivar = as.factor(Cultivar),
+    #Depth = as.factor (Depth),
+    #Date = dmy(Date),
+    #SowingD = dmy(SowingD)
+  )
+
+str(file)
+summary(file)
+head(file)
+
+```
+Merge with HSmax and HSbreak data per plot 
+use this file : HSmax_HSbreakByPlot.txt
+
+```{r}
+getwd()
+HS <- read.table("HSmax_HSbreakByPlot.txt",header=TRUE)
+
+str(HS)
+
+HS<- HS %>%
+  mutate(Plot = as.factor(Plot))
+```
+
+merge by plot 
+
+```{r}
+
+
+df_SeedAll <- merge (file, HS, by="Plot")
+
+
+##then Clean dataframe 
+
+df_SeedAll <- df_SeedAll%>%
+  rename(HSmax=HardPerc_Initial14_mean,
+         HSbreak=RateDecreasePerTTunit_mean)%>%
+  dplyr::select(-HardPerc_Initial14_sd , - RateDecreasePerTTunit_sd)
+
+
+str(df_SeedAll)
+
+```
+
+Now bring germination data to calculate yield of seeds which will produce a normal seedling (discount the abnormal ungerminated)
+use : AllPlotsGermination.txt
+
+```{r}
+getwd()
+Germ <- read.table("AllPlotsGermination.txt",header=TRUE)
+
+str(Germ)
+
+Germ<- Germ %>%
+  mutate(Plot = as.factor(Plot))%>%
+  dplyr::select(Plot, mean)%>%
+  rename(Germination=mean)
+str(Germ)
+##then merge 
+
+df_SeedAllWork<-merge(df_SeedAll,Germ, by="Plot")
+
+
+```
+
+
+
+
+
+
+Now make all calculations :
+NormalSeedsKg_ha = Yield of normalSeedlings (discount the abnormals and ungerminated seeds portion ) do as Seedskg_ha x Germ/100
+Percent of seeds readly germinated (HSmax-100)
+Percent of seeds which will germinate in the 120days (2400 oCd)= HSbreakx2400
+Percent of seeds hardseedbank (100-PercReady + Perc120days)
+
+then multiply by the seed yield to know the quantities in kgseed/ha 
+
+
+```{r}
+
+dfSeedCalculated <-df_SeedAllWork %>%
+  mutate(Seedskg_haNormal=Seedskg_ha*(Germination/100),
+         PercReady= 100-HSmax,
+         Perc120days=HSbreak*2400,
+         PercSeedBank=100-(PercReady+Perc120days),
+         QtySeedReady=Seedskg_haNormal*(PercReady/100),
+         QtySeed120=Seedskg_haNormal*(Perc120days/100),
+         QtySeedBank=Seedskg_haNormal*(PercSeedBank/100), 
+         QtyCheck= (QtySeedReady+QtySeed120+QtySeedBank)-Seedskg_haNormal)
+         
+
+
+```
+
+
+stack the Qty Seeds
+
+```{r}
+dfSeed_Stack <- dfSeedCalculated %>%
+  dplyr::select(Plot, Block,Cultivar, SowTreat,QtySeedReady,QtySeed120,QtySeedBank)%>%
+  gather(key= "status" , value = "KgSeeds" , QtySeedReady:QtySeedBank)%>%
+  group_by(Cultivar, SowTreat,status)%>%
+  dplyr::select(KgSeeds)%>%
+  summarise_all(mean)
+
+
+```
+Do graph for Feb March June 
+
+
+```{r,fig.height=6, fig.width=6}
+
+dfSeed_Stack%>%
+  ungroup(status)%>%
+  filter(SowTreat=="S1"|SowTreat=="S6"|SowTreat=="S7") %>%
+  mutate(status = factor(status, levels = c("QtySeedReady",
+                                          "QtySeed120",
+                                  "QtySeedBank"),
+
+
+                          labels = c("Soft",
+                                 "Soften_In_120days",
+                                 "SeedBank")
+                          )) %>%
+   mutate (SowTreat= factor(SowTreat, levels=c("S1", "S2", "S3", "S4", "S6","S7"),labels=c("June", "July", "September", "November", "February","March")))%>%
+  mutate (Cultivar= factor(Cultivar, levels=c("Antas", "Denmark", "Leura", "Monti", "Narrikup", "Woogenellup"),labels=c("A", "D", "L", "M", "N","W")))%>%
+  ggplot(aes(x=Cultivar, y=KgSeeds, fill=factor(status))) +
+  #geom_bar(stat="identity") +
+  geom_bar(aes(fill=status), colour="black",stat="identity")+
+ # geom_bar(stat="identity",fill = "#FF6666")+
+   #colour
+      #scale_fill_brewer(palette="Greys")+
+  #scale_fill_brewer(palette="Blues")+
+  #scale_fill_manual("legend", values = c("Antas" = "#660066", "Denmark" = "lightgrey","Leura" = "darkgrey", "Monti" = "#FF9933","Narrikup" = "blue",  "Woogenellup" = "#033333"))+
+  scale_fill_manual("legend", values = c("Soft" = "olivedrab", "Soften_In_120days" = "ivory","SeedBank" = "darkgrey"))+
+  
+  facet_wrap(.~SowTreat, ncol=1) +
+  theme_bw()+
+  ylab("Seed quantity (kg/ha)") +
+  xlab("Cultivar") +
+  theme(axis.text.x = element_text(angle = 0, hjust=1)) + theme(legend.title=element_blank()) +
+  theme(text = element_text(size=18))+
+  #remove grid lines 
+   theme(
+     panel.border = element_rect(colour = "black", size = 2), 
+     panel.grid.major = element_blank(),
+     panel.grid.minor = element_blank(),
+     axis.line = element_line(colour = "black"))+
+   
+   
+   #make sowing dates white  
+   theme(strip.background = element_rect(colour = "black", fill = "white",size=2))
+
+ggsave("plot_SeedYieldProject10_Combine.tiff", width=8, height=12, dpi=600)
+```
+
+
+
+make a new graph as per poster ESA
+
+
+
+```{r, fig.width=10, fig.height=10}
+
+# Graph Seed kg ha
+
+#barplot 
+#The palette with grey:
+#cbPalette <- c("#999999", "#666666", "#56B4E9", "#009E73", "#D55E00", "#0072B2","#999999", "#E69F00", "#56B4E9", "#009E73", "#D55E00", "#0072B2","#56B4E9", "#009E73")
+
+# define position of bar and errorbar
+dodge_x <- position_dodge(width = 0.9)
+fs<-28
+
+inv<-c("Above","Below")
+
+# splitting and df due bug in tidyr (https://github.com/hadley/tidyr/issues/32)
+  dfB <- df1 %>%
+  #tidyr::spread(Depth,SeedsNo_m2) %>%
+  #mutate(SeedsNo_m2= Down/(Down+Up)*100) %>%
+  group_by(Cultivar, SowTreat,Depth) %>%
+  dplyr::select(Seedskg_ha, Cultivar, SowTreat,Depth)%>%
+  summarise_each(funs(mean,sd)) %>%
+    mutate(SE=sd/1.73)
+  
+  dfB_g <- dfB %>%
+    ungroup() %>%
+    group_by(SowTreat,Cultivar) %>%
+ #  mutate(Depth=Depth, levels=c("Below","Above"))  %>%
+    mutate(Depth=Depth, levels=c("Above","Below"))  %>%
+    arrange(rev(Depth)) %>%
+    mutate(Mean_sum=cumsum(mean)) %>%
+    mutate(SD_sum_down=Mean_sum-sd/2, 
+           SD_sum_up=Mean_sum+sd/2) %>%
+    ungroup() %>%
+    mutate(SowTreat= factor(SowTreat, 
+                             levels=c("S1", "S2", "S3", "S4", "S6", "S7"),
+                             labels=c("June", "July", "September", "November", "February","March"))) # %>%
+   # ungroup() %>%
+  #  mutate(Depth = reorder(Depth,inv)) 
+  
+  
+ dfB_g %>%
+ # mutate(Depth=factor(Depth, levels=c("Above","Below"))) %>% 
+ # ggplot(aes(x= SowTreat, y=mean, fill= rev(Depth))) +
+  ggplot(aes(x= SowTreat, y=mean, fill= (Depth))) +
+  geom_bar(stat="identity")+
+  geom_errorbar(aes(ymin=SD_sum_down,
+                    ymax=SD_sum_up),
+                width=0.25, size=0.3)  +
+  facet_wrap(.~Cultivar, ncol=2) +
+    theme(text = element_text(size = 15)) +
+   theme(axis.text.x=element_text(angle = 45, hjust=1.0)) +
+ #  theme(text = element_text(size= fs))+
+   scale_fill_manual("legend", values = c("Above"   = "#CCCCCC", "Below" = "#666666" )) +
+theme(
+     panel.background = element_rect(fill = "white", colour = "black", size = 2, linetype = "solid"), 
+     panel.grid.major = element_line(size = 0.5, linetype = 'solid', colour = "grey"), 
+     panel.grid.minor = element_line(size = 0.25, linetype = 'solid', colour = "grey"),
+     axis.line = element_line(colour = "black"))+
+     theme(strip.background = element_rect(colour = "black", fill = "white",size=1)) +
+     ylab("Seed yield (kg/ha)") +
+     xlab("Sowing month")
+   
+    
+# 
+
+ # ggsave("plot_SeedYield_Prjct1_Iversen2.tiff", width=14, height=16, dpi=500)
+  
+  
+```
+
+
+
+

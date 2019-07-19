@@ -154,7 +154,6 @@ file$transf_log <- log(file$Hard_perc)
 file$transf_not <- 1*(file$Hard_perc/1)
 file$transf_acos <- acos(file$Hard_perc/100)
 file$transf_sqrx <- (file$Hard_perc^2)
-##
 file$transf_Asin <- asin(sqrt(file$Hard_perc/100))
 #mutate(mydata, sqr.x = x^2)
 

@@ -21,8 +21,8 @@ library(agricolae)
 library(knitr)
 library (lubridate)
 library(scales)
-library(calibrate)
-library(factoextra)
+#library(calibrate)
+#library(factoextra)
 ```
 
 # Get the segmented spectra  and continue here 

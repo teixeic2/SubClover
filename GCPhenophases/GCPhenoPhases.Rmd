@@ -45,24 +45,22 @@ us <- unique(rawData$Stage)
 
 workData <- rawData %>%  
   mutate(SowingDate=dmy(SowingDate)) %>%
-  #dplyr::select(-TTAS) %>%
-  #mutate(SowMonth=factor(SowTreat, 
-        #levels= c("S1", "S2", "S3", "S4", "S5", "S6", "S7", "S8") ,
-        #labels = c("Jun","July", "Sep", "Nov", "Dec", "Feb", "Mar", "May"))) %>%
+  mutate(DateStage=round(SowingDate+DAS,0)) %>%
+  mutate(Block=factor(Block)) %>%
+  group_by(Cultivar,Block, Stage) %>%
+  summarise(DAS=mean(DAS), DateStage=mean(DateStage), SowingDate=mean(SowingDate)) %>%
+  mutate(DateStage=round(DateStage,0)) %>%
+  arrange(DAS, .by_group = TRUE) %>%
   mutate(Stage=factor(Stage, 
         levels= c("R11", "R6", "R3", "R1", "VR", "V3", "V1", "V0"))) %>%
-  
-  mutate(DateStage=round(SowingDate+DAS,0)) %>%
   left_join(tt_work, by = c("SowingDate" = "Date"))  %>%
   dplyr::rename(TTsum_sow=SumTTday) %>%
   left_join(tt_work, by = c("DateStage" = "Date"))  %>%
   dplyr::rename(TTsum_stage=SumTTday) %>%
   mutate(TTAS=TTsum_stage-TTsum_sow) %>%
-  dplyr::select(-Plot, -SowingDate) %>%
+  dplyr::select(-SowingDate) %>%
   mutate(Stage=factor(Stage,levels=us)) %>%
-  mutate(Block=factor(Block)) %>%
- # mutate(SowingDate=dmy(SowingDate)) %>%
-  group_by( Cultivar, Block) %>%
+  group_by(Cultivar, Block) %>%
   arrange(DAS, .by_group = TRUE) %>%
   mutate(DFS = DAS  - lag(DAS , default = first(DAS))) %>%
   mutate(TTFS = TTAS  - lag(TTAS , default = first(TTAS))) %>%
@@ -106,46 +104,39 @@ Overview all stages
 
 ust<-unique(workData_mean$Cultivar)
 
-fs<-24
+fs<-26
 
 g <- workData_mean %>%
   ungroup() %>%
   group_by(Cultivar,Diff_Type) %>%
   mutate(SummedError=cumsum(Diff_Mean)) %>%
-  mutate(StackError_u=SummedError+Diff_SD) %>%
-  mutate(StackError_l=SummedError-Diff_SD) %>%
+  mutate(StackError_u=SummedError+Diff_SD/1.73) %>%
+  mutate(StackError_l=SummedError-Diff_SD/1.73) %>%
   ungroup() %>%
   mutate(Stage=factor(Stage,labels=(unique(workData_mean$Stage)))) %>%
-  #filter(Stage!="V0")%>%
   ungroup() %>%
   mutate(Stage=factor(Stage, 
         levels= c("R11", "R6", "R3", "R1", "VR", "V3", "V1", "V0"),
    labels= c("R6-R11", "R3-R6", "R1-R3", "VR-R1", "V3-VR", "V1-V3", "V0-V1", "V0"))) %>%
-#   mutate (Cultivar= factor(Cultivar, levels=c("Antas", "Denmark", "Leura", "Monti", "Narrikup", "Woogenellup"),labels=c("A", "D", "L", "M", "N","W")))%>%
- # mutate(SowTreat=factor(SowTreat,levels=(ust))) %>%
-#  ggplot(aes(x=SowTreat, y=Diff_Mean, fill=factor((Stage)))) +
-    #ggplot(aes(x=Cultivar, y=Diff_Mean, fill=factor(Stage))) +
-  #ggplot(aes(x=Cultivar, y=Diff_Mean, fill=factor(Stage))) +
+   mutate(Cultivar=factor(Cultivar, 
+        levels= c("Narrikup", "Antas", "Denmark"))) %>%
   ggplot(aes(x=Cultivar, y=Diff_Mean, fill=factor(Stage))) +
   scale_fill_manual("legend", values = c("R6-R11" = "#993300", 
                                          "R3-R6" = "#FF6600","R1-R3" = "#CC6666", "VR-R1" = "#FFCC99",
                                          "V3-VR" = "#003300", "V1-V3" = "#339900","V0-V1" = "#CCFF66", 
                                          "V0" = "#CCCCCC" )) +
-  # scale_fill_manual("legend", values = c("R11" = "#993300", 
-  #                                        "R6" = "#FF6600","R3" = "#CC6666", "R1" = "#FFCC99",
-  #                                        "VR" = "#003300", "V3" = "#339900","V1" = "#CCFF66", 
-  #                                        "V0" = "#CCCCCC" )) +
   facet_grid(.~Diff_Type, scales = "free") +
   theme_bw()+
-  xlab("Sowing date") +
-  ylab("(Days from sowing)                                             (Thermal time from sowing)") +
+  xlab("Cultivar") +
+  ylab("Days                  Thermal time \nfrom sowing") +
   theme(legend.title=element_blank()) +
-  theme(text = element_text(size=16)) + coord_flip() +
-  geom_bar(stat="identity", aes(fill=Stage)) +
+  #theme(text = element_text(size=16)) + 
+  coord_flip() +
+  geom_bar(stat="identity", aes(fill=Stage),width = 0.4) +
   geom_errorbar(aes(ymin=StackError_l, ymax=StackError_u), width=.2, colour='black', position="identity")+
-   #remove grid lines 
+ #  remove grid lines
    theme(
-     panel.border = element_rect(colour = "black", size = 3), 
+   #  panel.border = element_rect(colour = "black", size = 3),
      panel.grid.major = element_blank(),
      panel.grid.minor = element_blank(),
      axis.line = element_line(colour = "black"))+
@@ -158,7 +149,7 @@ g <- workData_mean %>%
   
 g
 
-ggsave("plot_GC_Phenophases.tiff", width=20, height=18, dpi=400)
+ggsave("plot_GC_Phenophases.tiff", width=20, height=12, dpi=400)
 ```
 
 
@@ -178,7 +169,7 @@ h <- workData_mean %>%
    labels= c("V0-V1","V1-V3","V3-VR", "VR-R1", "R1-R3","R3-R6","R6-R11"))) %>%
   filter(Diff_Type=="TTFS")%>%
   # recreate dates as months
-  mutate(a = factor(SowMonth, levels = usm, labels=c(6,7,9,11,12,2,3,5))) %>%
+ # mutate(a = factor(SowMonth, levels = usm, labels=c(6,7,9,11,12,2,3,5))) %>%
   mutate(b=as.numeric(as.character(a))) %>%
   mutate(SowDateMid = dmy(as.character(paste0("15/",b,"/2000")))) %>%
   dplyr::select(-a,-b) %>%

@@ -22,7 +22,7 @@ library (ggplot2)
 library(agricolae)
 library(knitr)
 library (lubridate)
-library(mosaic)
+#library(mosaic)
 library(lattice)
 ```
 
@@ -97,7 +97,7 @@ file.subset <- file
 
 head(file.subset, 50)
 summary(file.subset)
-my.anova <- aov(DAS50E ~ SowTreat + Block, 
+my.anova <- aov(DAS50E ~ SowTreat*Cultivar + Block, 
                 data = file.subset)
 
 

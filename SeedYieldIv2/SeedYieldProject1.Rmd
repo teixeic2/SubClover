@@ -27,8 +27,10 @@ Read File
 ```{r, echo=FALSE}
 
 #olde folder setwd("C:\\GitHubRepos\\SubCloverPhD\\SubClover\\SeedYieldIv2")
-setwd("C:\\GitHubRepos\\SubcloverPhD\\Subclover\\SeedYieldIv2")
-
+##old path : 
+  
+  setwd("C:\\GitHubRepos\\SubcloverPhD\\Subclover\\SeedYieldIv2")
+##setwd("C:\\github\\SubClover\\SeedYieldIv2")
 getwd()
 file <- read.table("SeedBurrYield.txt",header=TRUE)
 head(file)
@@ -262,14 +264,16 @@ dodge_x <- position_dodge(width = 0.9)
   #tidyr::spread(Depth,SeedsNo_m2) %>%
   #mutate(SeedsNo_m2= Down/(Down+Up)*100) %>%
   group_by(Cultivar, SowTreat,Depth) %>%
+ # group_by(Cultivar, SowTreat) %>%
+    dplyr::select(Seedskg_ha)%>%
   summarise_each(funs(mean,sd)) %>%
-    mutate(SE=Seedskg_ha_sd/1.73)
+    mutate(SE=sd/1.73)
   
   dfB %>%
-  ggplot(aes(x= Cultivar, y=(Seedskg_ha_mean),fill= Cultivar)) +
+  ggplot(aes(x= Cultivar, y=(mean),fill= Cultivar)) +
   geom_bar(stat="identity",position = dodge_x) +
-  geom_errorbar(aes(ymin=Seedskg_ha_mean-SE/2,
-                    ymax=Seedskg_ha_mean+SE/2),
+  geom_errorbar(aes(ymin=mean-SE/2,
+                    ymax=mean+SE/2),
                 width=0.25, size=0.3,position=dodge_x)   +
   theme_grey(base_size = 16) +
   theme_bw()+
@@ -285,7 +289,7 @@ make a new graph as per poster ESA
 
 
 
-```{r, fig.width=10, fig.height=16}
+```{r, fig.width=10, fig.height=10}
 
 # Graph Seed kg ha
 
@@ -296,6 +300,8 @@ make a new graph as per poster ESA
 # define position of bar and errorbar
 dodge_x <- position_dodge(width = 0.9)
 fs<-28
+
+inv<-c("Above","Below")
 
 # splitting and df due bug in tidyr (https://github.com/hadley/tidyr/issues/32)
   dfB <- df1 %>%
@@ -309,19 +315,24 @@ fs<-28
   dfB_g <- dfB %>%
     ungroup() %>%
     group_by(SowTreat,Cultivar) %>%
-    mutate(Depth=Depth, levels=c("Below","Above"))  %>%
+ #  mutate(Depth=Depth, levels=c("Below","Above"))  %>%
+    mutate(Depth=Depth, levels=c("Above","Below"))  %>%
+    arrange(rev(Depth)) %>%
     mutate(Mean_sum=cumsum(mean)) %>%
     mutate(SD_sum_down=Mean_sum-sd/2, 
            SD_sum_up=Mean_sum+sd/2) %>%
     ungroup() %>%
     mutate(SowTreat= factor(SowTreat, 
                              levels=c("S1", "S2", "S3", "S4", "S6", "S7"),
-                             labels=c("June", "July", "September", "November", "February","March"))) 
+                             labels=c("June", "July", "September", "November", "February","March"))) # %>%
+   # ungroup() %>%
+  #  mutate(Depth = reorder(Depth,inv)) 
   
   
  dfB_g %>%
  # mutate(Depth=factor(Depth, levels=c("Above","Below"))) %>% 
-  ggplot(aes(x= SowTreat, y=mean, fill= rev(Depth))) +
+ # ggplot(aes(x= SowTreat, y=mean, fill= rev(Depth))) +
+  ggplot(aes(x= SowTreat, y=mean, fill= (Depth))) +
   geom_bar(stat="identity")+
   geom_errorbar(aes(ymin=SD_sum_down,
                     ymax=SD_sum_up),
@@ -330,7 +341,7 @@ fs<-28
     theme(text = element_text(size = 15)) +
    theme(axis.text.x=element_text(angle = 45, hjust=1.0)) +
  #  theme(text = element_text(size= fs))+
-   scale_fill_manual("legend", values = c("Below" = "#666666", "Above"   = "#CCCCCC")) +
+   scale_fill_manual("legend", values = c("Above"   = "#CCCCCC", "Below" = "#666666" )) +
 theme(
      panel.background = element_rect(fill = "white", colour = "black", size = 2, linetype = "solid"), 
      panel.grid.major = element_line(size = 0.5, linetype = 'solid', colour = "grey"), 

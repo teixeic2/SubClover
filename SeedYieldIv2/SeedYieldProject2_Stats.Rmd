@@ -17,13 +17,14 @@ library (ggplot2)
 library(agricolae)
 library(knitr)
 library (lubridate)
-library(rgr)
+#library(rgr)
 ```
-
+##New directory
 
 ```{r loadFile}
-#setwd("C:\\GitHubRepos\\SubCloverPhD\\SubClover\\SeedYieldIv2")
-setwd("C:\\GitHubRepos\\SubcloverPhD\\Subclover\\SeedYieldIv2")
+setwd("C:\\GitHubRepos\\SubCloverPhD\\SubClover\\SeedYieldIv2")
+#setwd("C:\\github\\SubClover\\SeedYieldIv2")
+
 
 getwd()
 
@@ -59,8 +60,9 @@ df_seedYS6 <- df_seedY
 
 #-------------------------------------------------
 # anova 
-file <- df_seedYS6%>%
-  filter(SowTreat!="S1")
+file <- df_seedYS6
+##%>%
+  ##filter(SowTreat!="S1")
 
 
 file.subset <- file 
@@ -73,7 +75,7 @@ summary(file.subset)
 
 ```{r}
 #ANOVA
-my.anova <- aov(Seedskg_ha ~ Cultivar*SowTreat + Depth, data = file.subset)
+my.anova <- aov(Seedskg_ha ~ Cultivar*SowTreat* Depth +Block, data = file.subset)
 #my.anova <- aov(Seedskg_ha ~ SowTreat + Block, data = file.subset)
 #my.anova <- aov(Seedskg_ha ~ Cultivar+ Block, data = file.subset)
 #my.anova <- aov(Seedskg_ha ~ Depth + Block, data = file.subset)

@@ -23,8 +23,8 @@ library (ggplot2)
 library(agricolae)
 library(knitr)
 library (lubridate)
-library (segmented)
-library(hydroGOF)
+#library (segmented)
+#library(hydroGOF)
 
 
 ```
@@ -531,7 +531,7 @@ df_Panelwork %>%
 
 #+ theme(legend.position = "top") 
 
-#ggsave("plot_Proj8a_Days_ThermalTimeFlo_vs_MeanPp_AllCvs.tiff", width=14, height=8, dpi=600)
+ggsave("plot_Proj8a_Days_ThermalTimeFlo_vs_MeanPp_AllCvs.tiff", width=14, height=8, dpi=600)
 
 ```
 

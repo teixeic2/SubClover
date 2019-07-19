@@ -16,7 +16,7 @@ library (ggplot2)
 library(agricolae)
 library(knitr)
 library (lubridate)
-library(gridExtra)
+#library(gridExtra)
 
 ```
 
@@ -890,14 +890,14 @@ grid.arrange(g21, g22, g23,g24,g25)
 
 str(df_All6)
 
-summary(lm(HSBreaktrans ~ Rain+RH+PET+SoilTemp, df_All6))
+#summary(lm(HSBreaktrans ~ Rain+RH+PET+SoilTemp, df_All6))
 #summary(lm(HSBreaktrans  ~ Rain+PET+SoilTemp, df_All5))
 #summary(lm(slope ~ Rain, df_All5)) 
 #summary(lm(slope ~ RH, df_All5)) 
 #summary(lm(slope ~ SoilTemp+PET, df_All5)) 
 #summary(lm(slope ~ DaysToSeedharvest, df_All2))
 
-#summary(lm(slope ~ SoilTemp, df_All4))
+summary(lm(HSBreaktrans  ~ SoilTemp, df_All6))
 
 
 ##DaysBudDuration
@@ -1128,9 +1128,9 @@ Plot Weather variables with SDmax  in R12 prior harvest  which were  significant
 
 
 
-```{r}
+```{r, fig.width=12}
 
-str(df_All6)
+#str(df_All6)
 
    df_All6 %>%
   mutate (SowTreat= factor(SowTreat, levels=c("S1", "S2", "S3", "S4", "S6","S7"),labels=c("June", "July", "September", "November", "February","March")))%>%
@@ -1145,8 +1145,8 @@ str(df_All6)
   #ylab(expression(SDmax~"("*"%"*")"))+
    ylab(expression(HSbreak~"( % /"^"o"*"Cd)"))+
   theme(text = element_text(size=22))+
-   scale_x_continuous(limits = c(14,22),breaks=c(10,12,14,16,18,20,22))+
- scale_y_continuous(limits = c(0,0.03),breaks=c(0,0.01,0.015,0.02,0.025,0.03))+
+#   scale_x_continuous(limits = c(14,25),breaks=c(10,12,14,16,18,20,22))+
+# scale_y_continuous(limits = c(0,0.08),breaks=c(0,0.005,0.01,0.015,0.02,0.025,0.03))+
   #facet_wrap(~Cultivar)+
   #remove grid lines 
    theme(
@@ -1161,7 +1161,7 @@ str(df_All6)
   #theme(title =  element_text(size=14))
   #theme(title =  element_text(size=14))
 
-  ggsave("plot_Prjt7_Regression_SDbreakVsSoilTemp_BeforeHarvest.tiff", width=12, height=6, dpi=400)
+ # ggsave("plot_Prjt7_Regression_SDbreakVsSoilTemp_BeforeHarvest.tiff", width=12, height=6, dpi=400)
 
 ```
 

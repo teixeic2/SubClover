@@ -24,7 +24,7 @@ library(agricolae)
 library(knitr)
 library (lubridate)
 library (segmented)
-library(hydroGOF)
+#library(hydroGOF)
 
 
 ```
@@ -281,6 +281,30 @@ theme(text = element_text(size = 26))
   ggsave("plot_Proj8b_Evans_ThermalTimeFloweringVsPpMean_AllCvs.tiff", width=16, height=14, dpi=600)
 ```
 
+## Needed to install packages for new version 3.6
+```{r}
+
+
+# to get the development version from GitHub:
+#install.packages("Rtools")
+
+
+# we recommend installing the entire tidyverse, which includes broom:
+#install.packages("tidyverse")
+
+# alternatively, to install just broom:
+#install.packages("broom")
+
+# to get the development version from GitHub:
+#install.packages("devtools")
+#devtools::install_github("tidyverse/broom")
+
+
+
+```
+
+
+
 test equations 
 
 
@@ -290,6 +314,8 @@ test equations
 ```{r}
 
 
+
+
 library(broom)
 options(scipen=999)
 
@@ -297,8 +323,9 @@ options(scipen=999)
 
 # create the linear fits by groups o variables
 dfreg <- df_FP_all_mean %>% group_by(Cultivar) %>%
-  #filter(SowTreat!="S1")%>%
+  ##filter(SowTreat!="S1")%>%
   do(fitreg = lm(TTFlo1T_mean ~ meanPp50F_mean, data = .))
+
   #do(fitreg = lm(PhylC_mean ~ Pp1Trifo_mean, data = .))
   #Pp1Trifo_mean
 
@@ -1355,8 +1382,8 @@ options(scipen=999)
 # create the linear fits by groups o variables
 dfregMeanPp <- df_Panelwork2 %>% 
  filter(VariableName=="Thermal-time (degree days)")%>%
-  #filter(Pp_dir=="Increase")%>%
-    filter(Pp_dir=="Decreasing")%>%
+  filter(Pp_dir=="Increase")%>%
+    #filter(Pp_dir=="Decreasing")%>%
   
   #group_by(Cultivar) %>%
   group_by(Group) %>%

@@ -146,9 +146,9 @@ file.subset <- file
 head(file.subset, 50)
 summary(file.subset)
 
-#my.anova <- aov(Hard_perc ~ Cultivar*SowTreat*Depth + Block, data = file.subset)
+my.anova <- aov(Hard_perc ~ Cultivar*SowTreat*Depth + Block, data = file.subset)
 #my.anova <- aov(Hard_perc ~ Cultivar*SowTreat + Block, data = file.subset)
-my.anova <- aov(Hard_perc ~ Cultivar + Block, data = file.subset)
+#my.anova <- aov(Hard_perc ~ Cultivar + Block, data = file.subset)
 
 ```
 

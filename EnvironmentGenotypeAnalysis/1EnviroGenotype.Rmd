@@ -1,0 +1,90 @@
+---
+title: "Hardseeds Live Max 6CV"
+author: "CT"
+date: "22.09.2016"
+output:
+  word_document: default
+  pdf_document: default
+  html_document: default
+---
+
+
+```{r loadLibraries}
+library(tidyr)
+library (dplyr)
+library (ggplot2)
+library(agricolae)
+library(knitr)
+library (lubridate)
+
+```
+
+
+```{r}
+setwd("C:\\GitHubRepos\\SubCloverPhD\\SubClover\\EnvironmentGenotypeAnalysis")
+getwd()
+```
+
+
+
+This script reads the summary table of the ANOVA outputs in excel. Build a graph of the enviro and genotype interactions. 
+
+```{r loadFile}
+#create file
+df_Enviro <- read.csv("EnviroGenotypeTable.csv",header=TRUE)
+head(df_Enviro)
+
+
+```
+
+
+```{r, fig.height=10, fig.width=10}
+
+q <- as.vector(unique(df_Enviro$Variable))
+
+df_Enviro %>%
+  mutate(Variable=factor(Variable, levels=rev(q))) %>%
+  gather(varname, varvalue, Environment:Interaction)%>%
+  mutate(varname=factor(varname)) %>%
+  ggplot(aes(x=Variable, y=(varvalue*100), fill=varname))+
+  geom_bar(stat = "identity")+
+  coord_flip() +
+  
+  scale_fill_manual("legend", values = c("Environment" = "black", "Genotype" = "olivedrab","Interaction" = "darkgrey"))+
+  
+  theme_bw()+
+  xlab("Variable") +
+  ylab("Share of total variability (%)") +
+  theme(axis.text.x = element_text(angle = 0, hjust=1)) + theme(legend.title=element_blank()) +
+  theme(text = element_text(size=20))+
+  #remove grid lines 
+   theme(
+     panel.border = element_rect(colour = "black", size = 2), 
+     panel.grid.major = element_blank(),
+     panel.grid.minor = element_blank(),
+     axis.line = element_line(colour = "black"))+
+   
+   
+   #make sowing dates white  
+   theme(strip.background = element_rect(colour = "black", fill = "white",size=2))
+  
+  
+  
+ggsave("plot_1EnviroGenotype.tiff", width=6, height=10, dpi=400)
+
+```
+
+```{r}
+
+```
+
+
+
+```{r}
+
+
+
+
+```
+
+

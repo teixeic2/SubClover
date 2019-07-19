@@ -18,8 +18,8 @@ library(agricolae)
 library(knitr)
 library (lubridate)
 
+#rawData <- read.table("PhenoPhasesWorked2.txt", header = TRUE, stringsAsFactors = TRUE)
 rawData <- read.table("PhenoPhasesWorked.txt", header = TRUE, stringsAsFactors = TRUE)
-#rawData <- read.table("AllPhenoPhases2.txt", header = TRUE, stringsAsFactors = TRUE)
 summary(rawData)
 
 ```
@@ -28,6 +28,7 @@ summary(rawData)
 ```{r}
 workDataANOVA <-rawData%>%
    filter(Diff_Type== "TTFS") %>%
+   #filter(Diff_Type== "DFS") %>%
   filter(Stage!="V0") %>%
   mutate(Stage=factor(Stage, 
         levels= c("V1","V3","VR","R1","R3", "R6","R11"),
@@ -42,7 +43,7 @@ Get means and SE to write in text
 ```{r}
 
 MeanSE<-workDataANOVA %>%
-  filter(Stage=="VR-R1")%>%
+  #filter(Stage=="R1-R3")%>%
  group_by(SowTreat,Cultivar)%>%
   #dplyr::select(DAS)%>%
   dplyr::select(TTAS)%>%
@@ -51,9 +52,25 @@ MeanSE<-workDataANOVA %>%
 
 
 
-
 ```
 
+
+```{r}
+
+## 
+##get means to compare with GC ddata
+MeanField<-workDataANOVA %>%
+filter(Cultivar=="Antas"|Cultivar=="Denmark"|Cultivar=="Narrikup")%>%filter (SowTreat=="S5")%>%
+#filter(Diff_Type=="T"
+ group_by(SowTreat,Cultivar,Stage)%>%
+  #dplyr::select(DAS)%>%
+  dplyr::select(TTAS, Diff_Value)%>%
+  summarise_all(funs(mean,sd))
+  #mutate(SE=sd/1.73)
+
+write.table(MeanField, "MeanField.txt")
+
+```
 
 
 Create an index to loop ANOVA 
@@ -83,7 +100,8 @@ for (i in 1:length(sdIndex)) {
 
 head(file.subset, 50)
 summary(file.subset)
-my.anova <- aov(Diff_Value~ Cultivar*SowTreat + Block, data = file.subset)
+#my.anova <- aov(Diff_Value~ Cultivar*SowTreat + Block, data = file.subset)
+my.anova <- aov(TTAS~ Cultivar*SowTreat + Block, data = file.subset)
 print(summary(my.anova))
 
 if ((summary(my.anova)[[1]][["Pr(>F)"]][1])<0.05) {
@@ -181,139 +199,19 @@ print(summary(my.anova))
 
 
 
-Overview all stages 
-
-```{r, fig.width=12, fig.width=20}
-
-ust<-unique(workData_mean$SowTreat)
-
-fs<-24
-
-g <- workData_mean %>%
-  ungroup() %>%
-  group_by(Cultivar,SowMonth, Diff_Type) %>%
-  mutate(SummedError=cumsum(Diff_Mean)) %>%
-  mutate(StackError_u=SummedError+Diff_SD) %>%
-  mutate(StackError_l=SummedError-Diff_SD) %>%
-  ungroup() %>%
-  mutate(Stage=factor(Stage,labels=(unique(workData_mean$Stage)))) %>%
-  filter(Stage!="V0")%>%
-  ungroup() %>%
-  mutate(Stage=factor(Stage, 
-        levels= c("R11", "R6", "R3", "R1", "VR", "V3", "V1", "V0"),
-   labels= c("R6-R11", "R3-R6", "R1-R3", "VR-R1", "V3-VR", "V1-V3", "V0-V1", "V0"))) %>%
-#   mutate (Cultivar= factor(Cultivar, levels=c("Antas", "Denmark", "Leura", "Monti", "Narrikup", "Woogenellup"),labels=c("A", "D", "L", "M", "N","W")))%>%
- # mutate(SowTreat=factor(SowTreat,levels=(ust))) %>%
-#  ggplot(aes(x=SowTreat, y=Diff_Mean, fill=factor((Stage)))) +
-    #ggplot(aes(x=Cultivar, y=Diff_Mean, fill=factor(Stage))) +
-  #ggplot(aes(x=Cultivar, y=Diff_Mean, fill=factor(Stage))) +
-  ggplot(aes(x=Cultivar, y=Diff_Mean, fill=factor(Stage))) +
-  scale_fill_manual("legend", values = c("R6-R11" = "#993300", 
-                                         "R3-R6" = "#FF6600","R1-R3" = "#CC6666", "VR-R1" = "#FFCC99",
-                                         "V3-VR" = "#003300", "V1-V3" = "#339900","V0-V1" = "#CCFF66", 
-                                         "V0" = "#CCCCCC" )) +
-  # scale_fill_manual("legend", values = c("R11" = "#993300", 
-  #                                        "R6" = "#FF6600","R3" = "#CC6666", "R1" = "#FFCC99",
-  #                                        "VR" = "#003300", "V3" = "#339900","V1" = "#CCFF66", 
-  #                                        "V0" = "#CCCCCC" )) +
-  facet_grid(SowMonth~Diff_Type, scales = "free") +
-  theme_bw()+
-  xlab("Sowing date") +
-  ylab("(Days from sowing)                                                                        (Thermal time from sowing)") +
-  theme(legend.title=element_blank()) +
-  theme(text = element_text(size=16)) + coord_flip() +
-  geom_bar(stat="identity", aes(fill=Stage)) +
-  geom_errorbar(aes(ymin=StackError_l, ymax=StackError_u), width=.2, colour='black', position="identity")+
-   #remove grid lines 
-   theme(
-     panel.border = element_rect(colour = "black", size = 3), 
-     panel.grid.major = element_blank(),
-     panel.grid.minor = element_blank(),
-     axis.line = element_line(colour = "black"))+
-  theme(text = element_text(size= fs))+
-  
-   
-   #make sowing dates white  
-   theme(strip.background = element_rect(colour = "black", fill = "white",size=1))
-  
-  
-g
-
-#ggsave("plot_Phenophases.tiff", width=20, height=18, dpi=400)
-```
-
-
-
-```{r, fig.width=12, fig.width=20}
-
-ust<-unique(workData_mean$SowTreat)
-usm<-unique(workData_mean$SowMonth)
-
-fs<-24
-
-h <- workData_mean %>%
-  ungroup()%>%
-  filter(Stage!="V0")%>%
-  mutate(Stage=factor(Stage, 
-        levels= c("V1","V3","VR","R1","R3", "R6","R11"),
-   labels= c("V0-V1","V1-V3","V3-VR", "VR-R1", "R1-R3","R3-R6","R6-R11"))) %>%
-  filter(Diff_Type=="TTFS")%>%
-  # recreate dates as months
-  mutate(a = factor(SowMonth, levels = usm, labels=c(6,7,9,11,12,2,3,5))) %>%
-  mutate(b=as.numeric(as.character(a))) %>%
-  mutate(SowDateMid = dmy(as.character(paste0("15/",b,"/2000")))) %>%
-  dplyr::select(-a,-b) %>%
-  ggplot(aes(x=SowDateMid, y=Diff_Mean, colour=Cultivar, shape=Cultivar)) +
-  geom_point (size=3)+
-  geom_line() +
-  facet_wrap(Stage~., ncol=3) +
-  scale_x_date(labels = date_format("%b")) +
-  geom_errorbar(aes(ymin=Diff_Mean-Diff_SD/2, ymax=Diff_Mean+Diff_SD/2, width=0.2), 
-                width=.2, colour='black', position="identity") +
-  xlab("Sowing date") +
-  ylab("Thermal time (oCd)") +
-  theme(text = element_text(size= fs))
-
-  
-  
-  
-  
-  
-  
-  #theme_bw()+
- # theme_grey()+
- #  theme(legend.title=element_blank()) +
- #   theme(
- #     panel.border = element_rect(colour = "black", size = 3), 
- #   #  panel.grid.major = element_blank(),
- #   #  panel.grid.minor = element_blank(),
- #     axis.line = element_line(colour = "black"))+
-# +
- #   theme(strip.background = element_rect(colour = "black", fill = "white",size=1))  
-
-h
-  
-
-
-#ggsave("plot_Phenophases.tiff", width=20, height=18, dpi=400)
-```
-
+Calculate the minimum amount of days and TT to early and late cultivars to complete the life cycle 
 
 
 ```{r}
 
-df_graph <- workData_mean %>%
-  filter(SowTreat=="S5")%>%
-  filter(Stage=="R11")%>%
-  #ungroup()+
- # mutate(Stage=factor(Stage,labels=(unique(workData_mean$Stage)))) %>%
-  ggplot(aes(x=Cultivar, y=Diff_Mean, fill=factor(Stage)))+
-  facet_grid(SowMonth~Diff_Type, scales = "free") +
-geom_bar(stat="identity")
-  
-
-df_graph
-
+df_minTTDAS <- rawData %>%
+  #filter(Cultivar=="Monti"|Cultivar=="Narrikup")%>%
+  #filter(Cultivar=="Antas"|Cultivar=="Denmark"|Cultivar=="Leura"|Cultivar=="Woogenellup")%>%
+  group_by(Cultivar,Stage)%>%
+  #filter(Stage=="R11")%>%
+  dplyr::select(DAS,TTAS)%>%
+  summarise_all(funs(min,sd))
+ 
 
 ```
 

@@ -228,7 +228,7 @@ then select columns of interest : here stats for overall means (SowTreat and Cul
 
 str (file)
 
-file <- df_Abn %>%
+file <- file %>%
   dplyr::select(Block, Cultivar,SowTreat,Plot,Depth,Abn_perc,transf_sqr)
 
 #-------------------------------------------------
