@@ -23,9 +23,9 @@ library(ggplot2)
 library(agricolae)
 library(knitr)
 library(lubridate)
-library(mosaic)
+#library(mosaic)
 library(lattice)
-library (gridExtra)
+#library (gridExtra)
 ```
 
 Read file and correct formats 
@@ -261,7 +261,7 @@ ggsave("plot_5_DAS50Emerg_Vs_SoilTemp.tiff", width=14, height=16, dpi=600)
 
 Graph only  emergence rate (1/das) and mean soil temp 
 
-```{r, fig.height=8, fig.width=10}
+```{r, fig.height=5, fig.width=10}
 
 
 df_seed2<-df_H%>%
@@ -307,13 +307,13 @@ df_seed2%>%
   
   #filter(SowTreat!="S1")%>%
 ggplot(aes(x=meanTemp_Em_mean, y=InvDAS50E_mean)) + 
-  geom_point(aes(shape= SowTreat,colour=Cultivar), size=6)+
+  geom_point(aes(shape= SowTreat,colour=Cultivar), size=6, stroke=1.5)+
   scale_shape_manual(values = c(0,1,2,3,4,5,6,7,8,9,10,11))+
   #geom_line(aes(width=SowTreat))+
  #geom_smooth(method = lm, fullrange=TRUE)+
   #geom_smooth(method = lm, SE=FALSE, alpha=0.2, linetype= 2)+
   geom_errorbar(data=sd_df2, aes(ymin=InvDAS50E_mean-max_sd/2,
-                    ymax=InvDAS50E_mean+max_sd/2), size=1.5)+
+                    ymax=InvDAS50E_mean+max_sd/2), size=1.2)+
 
   #facet_wrap(~Cultivar,ncol=2, scales = "free")+
    #facet_wrap(~Cultivar,ncol=2)+
@@ -352,7 +352,7 @@ theme(text = element_text(size = 18))
   #geom_abline(intercept = 50, slope = 0)
 
 
-ggsave("plot_5_RateEmerg_Vs_SoilTemp.tiff", width=12, height=12, dpi=600)
+ggsave("plot_5_RateEmerg_Vs_SoilTemp.tiff", width=12, height=10, dpi=600)
 
 
 

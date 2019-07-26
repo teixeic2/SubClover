@@ -248,41 +248,41 @@ graph as sowing date in the X axis and thermal time at y axis  (parei aqui)
 
 ```{r, fig.width=15, fig.height=10}
 
-  df_FP_all_mean %>%
-  ungroup() %>%
-    mutate (SowTreat= factor(SowTreat, 
-    levels=c("S1", "S2", "S3", "S4", "S5", "S6", "S7","S8"),
-    #labels=c("June", "July", "Sept.", "Nov.", "Dec.", "Feb.", "March", "May"))) %>%
-    labels=c("Jun", "Jul", "Sep", "Nov", "Dec", "Feb", "Mar", "May"))) %>%
-  # ggplot(aes(x=as.numeric(month(SowingD)),y=TT50FromEmerg))   +
- ggplot(aes(x=SowingD_mean,y=TT50FromEmerg_mean, colour=Cultivar))   +
-  #geom_text(aes(label=SowTreat),hjust=0, vjust=0,size=5) +
- # geom_text(aes(label=SowTreat),hjust=0, vjust=0,size=5) +
-  ylab(expression(Thermal~time~flowering~"("^"o"*"Cd)")) + 
-  xlab(" Sowing month ") +
- # facet_wrap(~Cultivar, scales="free", ncol=2)+
-  theme_bw()+
-  theme(text = element_text(size=18))+
- # theme(axis.text.x=element_text(angle = 90, hjust = 0.5))+
-  scale_x_date(date_breaks = "3 month", 
-                 labels=date_format("%b-%Y"),
-                 limits = as.Date(c('2015-05-01','2016-08-01')))+
-  #xlim(0,20)+
-  ylim(0,3000) + 
-  #geom_smooth(stat='lm', fill='grey', alpha=0.2) + 
-#  geom_smooth(method ='lm', colour="black") +
-  geom_point(size=2,alpha=0.5)+
-  geom_line(aes(colour=Cultivar)) # +
-#make sowing dates white  
-  #  theme(strip.background = element_rect(colour = "black", fill = "white",size=1))+
-  # #remove grid lines 
-  #   theme(
-  #    panel.border = element_rect(colour = "black", size = 3), 
-  #    panel.grid.major = element_blank(),
-  #    panel.grid.minor = element_blank(),
-  #    axis.line = element_line(colour = "black"))
-    
-     #ggsave("plot_PhotoThermalTimeFloweringVsSowingMonth_AllCvs.tiff", width=16, height=14, dpi=600)
+#   df_FP_all_mean %>%
+#   ungroup() %>%
+#     mutate (SowTreat= factor(SowTreat, 
+#     levels=c("S1", "S2", "S3", "S4", "S5", "S6", "S7","S8"),
+#     #labels=c("June", "July", "Sept.", "Nov.", "Dec.", "Feb.", "March", "May"))) %>%
+#     labels=c("Jun", "Jul", "Sep", "Nov", "Dec", "Feb", "Mar", "May"))) %>%
+#   # ggplot(aes(x=as.numeric(month(SowingD)),y=TT50FromEmerg))   +
+#  ggplot(aes(x=SowingD_mean,y=TT50FromEmerg_mean, colour=Cultivar))   +
+#   #geom_text(aes(label=SowTreat),hjust=0, vjust=0,size=5) +
+#  # geom_text(aes(label=SowTreat),hjust=0, vjust=0,size=5) +
+#   ylab(expression(Thermal~time~flowering~"("^"o"*"Cd)")) + 
+#   xlab(" Sowing month ") +
+#  # facet_wrap(~Cultivar, scales="free", ncol=2)+
+#   theme_bw()+
+#   theme(text = element_text(size=18))+
+#  # theme(axis.text.x=element_text(angle = 90, hjust = 0.5))+
+#   scale_x_date(date_breaks = "3 month", 
+#                  labels=date_format("%b-%Y"),
+#                  limits = as.Date(c('2015-05-01','2016-08-01')))+
+#   #xlim(0,20)+
+#   ylim(0,3000) + 
+#   #geom_smooth(stat='lm', fill='grey', alpha=0.2) + 
+# #  geom_smooth(method ='lm', colour="black") +
+#   geom_point(size=2,alpha=0.5)+
+#   geom_line(aes(colour=Cultivar)) # +
+# #make sowing dates white  
+#   #  theme(strip.background = element_rect(colour = "black", fill = "white",size=1))+
+#   # #remove grid lines 
+#   #   theme(
+#   #    panel.border = element_rect(colour = "black", size = 3), 
+#   #    panel.grid.major = element_blank(),
+#   #    panel.grid.minor = element_blank(),
+#   #    axis.line = element_line(colour = "black"))
+#     
+#      #ggsave("plot_PhotoThermalTimeFloweringVsSowingMonth_AllCvs.tiff", width=16, height=14, dpi=600)
 
 ```
 
@@ -511,27 +511,30 @@ df_Panelwork %>%
              linetype= Pp_direction,
              fill=interaction(Group, Pp_direction))) +
     geom_point(size=5, aes(shape = Cultivar,)) +
-    theme_bw(base_size = 18) +
+    theme_bw(base_size = 22) +
     geom_smooth(method='lm',se=TRUE)+
     labs(x="Mean photoperiod (hours)", y="Time to 50% flowering ") +
     facet_grid(VariableName~.,scales ="free") +
     #scale_shape_manual(values = c(0,1,2,3,4,5,6,7,8,9,10,11)) +
     scale_shape_manual(values = c(1,2,0,4,7,8)) + 
     scale_fill_manual(name="Interactions",
-        values=c(Early.Decreasing="black", 
-                 Late.Decreasing="darkgrey", 
-                 Late.Increase= "darkgrey",
-                 Early.Increase="black")) +
+        values=c(Early.Decreasing="red", 
+                 Late.Decreasing="blue", 
+                 Late.Increase= "blue",
+                 Early.Increase="red")) +
     scale_color_manual(name="Interactions",
-        values=c(Early.Decreasing="black", 
-                 Late.Decreasing="darkgrey", 
-                 Late.Increase= "darkgrey",
-                 Early.Increase="black")) +
-  ylim(0,NA)
+        values=c(Early.Decreasing="red", 
+                 Late.Decreasing="blue", 
+                 Late.Increase= "blue",
+                 Early.Increase="red")) +
+  ylim(0,NA)+
+  #make sowing dates white  
+  theme(strip.background = element_rect(colour = "black", fill = "white",size=1.5))
 
-#+ theme(legend.position = "top") 
 
-ggsave("plot_Proj8a_Days_ThermalTimeFlo_vs_MeanPp_AllCvs.tiff", width=14, height=8, dpi=600)
+
+#ggsave("plot_Proj8a_Days_ThermalTimeFlo_vs_MeanPp_AllCvs.tiff", width=14, height=8, dpi=600)
+ggsave("plot_Proj8a_Days_ThermalTimeFlo_vs_MeanPp_AllCvs_Colour.tiff", width=14, height=12, dpi=600)
 
 ```
 

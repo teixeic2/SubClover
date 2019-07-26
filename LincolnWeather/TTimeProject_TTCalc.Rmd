@@ -19,15 +19,15 @@ library (lubridate)
 
 ```
 
-
+Use :LincolnHistWeather.txt
 
 ```{r readData}
-setwd("C:\\GitHubRepos\\SubCloverPhD\\SubClover\\Iver_weather")
+setwd("C:\\GitHubRepos\\SubCloverPhD\\SubClover\\LincolnWeather")
 getwd()
 
 #create file
-df_Weiv <- read.table("RawWeaIv2.txt", header=TRUE)
-
+#df_Weiv <- read.table("RawWeaIv2.txt", header=TRUE)
+df_Weiv <- read.table("LincolnHistWeather.txt", header=TRUE)
 #head(df_We)
 
 summary(df_Weiv)
@@ -229,7 +229,7 @@ ggplot(aes(x=Date, y= SumTTday)) +
 
 ```{r}
 
-write.table(df_CumTTiv, "df_CumTTiv.txt")
+write.table(df_CumTTiv, "df_CumTT_LincolnHistorical.txt")
 
 ```
 

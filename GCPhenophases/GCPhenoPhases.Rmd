@@ -104,7 +104,7 @@ Overview all stages
 
 ust<-unique(workData_mean$Cultivar)
 
-fs<-26
+fs<-36
 
 g <- workData_mean %>%
   ungroup() %>%
@@ -127,10 +127,10 @@ g <- workData_mean %>%
                                          "V0" = "#CCCCCC" )) +
   facet_grid(.~Diff_Type, scales = "free") +
   theme_bw()+
-  xlab("Cultivar") +
-  ylab("Days                  Thermal time \nfrom sowing") +
+  xlab("Cultivar") + 
+  ylab("Days                               Thermal time from sowing") +
   theme(legend.title=element_blank()) +
-  #theme(text = element_text(size=16)) + 
+  #theme(text = element_text(size=fs)) + 
   coord_flip() +
   geom_bar(stat="identity", aes(fill=Stage),width = 0.4) +
   geom_errorbar(aes(ymin=StackError_l, ymax=StackError_u), width=.2, colour='black', position="identity")+

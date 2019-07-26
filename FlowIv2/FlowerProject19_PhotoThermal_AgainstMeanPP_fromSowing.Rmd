@@ -28,7 +28,7 @@ library (ggplot2)
 library(agricolae)
 library(knitr)
 library (lubridate)
-library (segmented)
+#library (segmented)
 library(hydroGOF)
 
 

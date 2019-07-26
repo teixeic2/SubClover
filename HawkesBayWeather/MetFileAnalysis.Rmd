@@ -1,0 +1,492 @@
+---
+title: "MetFileAnalysis"
+author: "edmar.teixeira@me.com"
+date: "Friday, March 27, 2015"
+output: 
+  word_document: default
+  pdf_document: default
+  html_document: default
+---
+
+## Reads met files from apsim (based on MapOutApsimFiles.R)
+## Creates a dataframe with column row
+
+```{r Libs, echo = FALSE, include=FALSE}
+#library(data.table)
+library(dplyr)
+library(ggplot2)
+#library(gridExtra)
+library(knitr)
+```
+
+## The weather file
+
+> That's how the data looks like
+
+```{r DirSet, echo=FALSE}
+
+#Set paths
+setwd("C:\\GitHubRepos\\SubCloverPhD\\SubClover")
+
+# Get file
+metFile <- read.table(paste0("lincoln.met"), skip = 5, header = TRUE, comment.char = "(", blank.lines.skip = TRUE)
+head(metFile)
+tail(metFile)
+summary(metFile)
+```
+
+
+```{r}
+
+write.table(metFile, "HistWeather.csv")
+
+```
+
+
+
+# Graph historical averages
+
+> Daily temperaure and radiation
+
+> Monthly rainfall
+
+> Pooled for 30 years
+
+```{r GraphMet, echo = FALSE}
+
+
+metFile <- data.table(metFile)
+
+fontSize <- 9.0
+
+#mint
+g1 <- metFile %>%
+  filter(year %in% 1960:2000) %>%
+  group_by(day) %>%
+ #summarise_each(funs(mean)) %>%
+  ggplot(aes(x=day, y=mint))  +
+  geom_point(colour= "darkblue", alpha=0.2) +
+  stat_smooth(level = 0.9, size = 1, colour="white") + 
+  theme_bw() +
+ xlab("Day of the year (1-365)") + 
+  ylab("Daily minimum temperature (oC)") +
+  theme(text = element_text(size=fontSize))
+
+# maxt
+g2 <- metFile %>%
+  filter(year %in% 1960:2000) %>%
+  group_by(day) %>%
+ #summarise_each(funs(mean)) %>%
+  ggplot(aes(x=day, y=maxt))  +
+  geom_point(colour= "red", alpha=0.2) +
+  stat_smooth(level = 0.9, size = 1, colour="white") + 
+  theme_bw() +
+ xlab("Day of the year (1-365)") + 
+  ylab("Daily maximum temperature (oC)") +
+  theme(text = element_text(size=fontSize))
+
+
+#radn
+g3 <- metFile %>%
+  filter(year %in% 1960:2000) %>%
+  group_by(day) %>%
+ # summarise_each(funs(mean)) %>%
+  ggplot(aes(x=day, y=radn))  +
+  geom_point(colour= "darkblue", alpha=0.2) +
+  stat_smooth(level = 0.9, size = 1, colour="white") + 
+ theme_bw() +
+  xlab("Day of the year (1-365)") + 
+ # ylab("Daily solar radiation (MJ/m2)" ) +
+   ylab(expression(Daily~solar~radiation~~"(MJ "*m^"-2"*")")) +
+  theme(text = element_text(size=fontSize))
+
+# rain
+#http://www.cookbook-r.com/Graphs/Colors_(ggplot2)/
+
+metFile$month <- with(metFile, strptime(paste(year, day), format="%Y %j")$mon+1)
+
+g4 <- metFile %>%
+  filter(year %in% 1960:2000) %>%
+  group_by(year, month) %>%
+  summarise_each(funs(sum)) %>%
+  group_by(month) %>%
+  select(month, rain) %>%
+  summarise(rainMean = mean(rain), rainSd = sd(rain)/2) %>%
+  ggplot(aes(x=month, y=rainMean)) + 
+  #geom_bar(stat ='identity') +
+  geom_bar(stat="identity", fill="#0072B2", colour="black")+
+  theme_bw() +
+ xlab("Month") + 
+  ylab("Monthly rainfall (mm)") +
+  scale_x_continuous(breaks=1:12) +
+  geom_errorbar(aes(ymax = rainMean + rainSd, ymin=rainMean - rainSd), 
+                position=position_dodge(width=0.9), width=0.25)+
+  theme(text = element_text(size=fontSize))
+
+
+grid.arrange(g1, g2, g3, g4)
+# Save
+# ggsave(file="Fig_weather.tiff", dpi = 300)
+
+
+```
+
+make graph as means and exclude daily radiation 
+
+
+
+```{r GraphMet, echo = FALSE}
+
+metFile <- data.table(metFile)
+
+fontSize <- 9.0
+
+#mint
+g1 <- metFile %>%
+  filter(year %in% 1960:2000) %>%
+  group_by(day) %>%
+ summarise_all(funs(mean)) %>%
+  ggplot(aes(x=day, y=mint))  +
+  geom_point(colour= "darkblue", alpha=0.2) +
+  stat_smooth(level = 0.9, size = 1, colour="white") + 
+  theme_bw() +
+ xlab("Day of the year (1-365)") + 
+  ylab("Daily minimum temperature (oC)") +
+  theme(text = element_text(size=fontSize))
+ggsave("plot_MinHistoricWeather.png", width=10, height=5, dpi=400)
+# maxt
+g2 <- metFile %>%
+  filter(year %in% 1960:2000) %>%
+  group_by(day) %>%
+ summarise_all(funs(mean)) %>%
+  ggplot(aes(x=day, y=maxt))  +
+  geom_point(colour= "red", alpha=0.2) +
+  stat_smooth(level = 0.9, size = 1, colour="white") + 
+  theme_bw() +
+ xlab("Day of the year (1-365)") + 
+  ylab("Daily maximum temperature (oC)") +
+  theme(text = element_text(size=fontSize))
+
+ggsave("plot_mAXHistoricWeather.png", width=10, height=5, dpi=400)
+
+#radn
+g3 <- metFile %>%
+  filter(year %in% 1960:2000) %>%
+  group_by(day) %>%
+ # summarise_each(funs(mean)) %>%
+  ggplot(aes(x=day, y=radn))  +
+  geom_point(colour= "darkblue", alpha=0.2) +
+  stat_smooth(level = 0.9, size = 1, colour="white") +
+ theme_bw() +
+  xlab("Day of the year (1-365)") +
+ # ylab("Daily solar radiation (MJ/m2)" ) +
+   ylab(expression(Daily~solar~radiation~~"(MJ "*m^"-2"*")")) +
+  theme(text = element_text(size=fontSize))
+
+# rain
+#http://www.cookbook-r.com/Graphs/Colors_(ggplot2)/
+
+metFile$month <- with(metFile, strptime(paste(year, day), format="%Y %j")$mon+1)
+
+g4 <- metFile %>%
+  filter(year %in% 1960:2000) %>%
+  mutate (month= factor(month, levels=c("1", "2", "3", "4", "5","6","7","8","9","10","11","12"),labels=c("Jan","Feb", "Mar",  "Ap", "May","Jun", "Jul", "Aug", "Sept","Oct", "Nov", "Dec")))%>%
+  group_by(year, month) %>%
+  summarise_all(funs(sum)) %>%
+  group_by(month) %>%
+  select(month, rain) %>%
+  summarise(rainMean = mean(rain), rainSd = sd(rain)/2) %>%
+  ggplot(aes(x=month , y=rainMean)) + 
+  #geom_bar(stat ='identity') +
+  geom_bar(stat="identity", fill="#0072B2", colour="black")+
+  theme_bw() +
+  #scale_x_discrete(labels=month.abb) +
+ xlab("Month") + 
+  ylab("Monthly rainfall (mm)") +
+  #scale_x_continuous(breaks=1:12) +
+    geom_errorbar(aes(ymax = rainMean + rainSd, ymin=rainMean - rainSd), 
+                position=position_dodge(width=0.9), width=0.25)+
+  theme(text = element_text(size=14))+
+  theme(axis.text.x=element_text(angle = +0, hjust = 0, size= 12))+
+  theme(axis.text.y=element_text(angle = +0, hjust = 0, size= 12))
+
+
+grid.arrange(g1, g2, g3, g4)
+#grid.arrange(g1, g2, g4)
+# Save
+#ggsave(file="Fig_HistoricWeather.tiff", dpi = 400)
+ggsave("plot_RainHistoricWeather.png", width=10, height=5, dpi=400)
+
+```
+
+```{r, fig.height=5, fig.width=10}
+
+#combine Min and Max temps 
+
+metfilegather<-metFile%>%
+  group_by(day) %>%
+ summarise_all(funs(mean)) %>%
+ gather(key= "Temperature" , value = "Degrees", maxt,mint)
+
+metfilegather%>%
+  #filter(year %in% 1960:2000) %>%
+  #group_by(day) %>%
+ #summarise_all(funs(mean)) %>%
+  ggplot(aes(x=day, y=Degrees))  +
+  #geom_point(aes(colour= Temperature,shape=Temperature), alpha=0.2, size =5 ) +
+  geom_point(aes(colour= Temperature,shape=Temperature), alpha=0.2, size =5 ) +
+  scale_fill_manual(name="Temperature",
+        values=c(maxt="#008B00", mint="salmon4"))+
+  #geom_smooth(aes(colour=Temperature))+ 
+  #geom_smooth()+ 
+  
+  theme_bw() +
+ xlab("Day of the year (1-365)") + 
+    ylab(expression(Mean~Daily~Temperature~"("^"o"*"C)"))+
+  theme(text = element_text(size=18))+
+  theme(axis.text.x=element_text(angle = +0, hjust = 0, size= 14))+
+  theme(axis.text.y=element_text(angle = +0, hjust = 0, size= 14))
+ 
+ 
+
+#ggsave("plot_MinMaxTemp_Historic.png", width=10, height=5, dpi=400)
+
+```
+
+Graph simple black and white 
+
+
+
+```{r, fig.height=5, fig.width=10}
+
+#combine Min and Max temps 
+
+metfilegather<-metFile%>%
+  group_by(day) %>%
+ summarise_all(funs(mean)) %>%
+ gather(key= "Temperature" , value = "Degrees", maxt,mint)
+
+metfilegather%>%
+  #filter(year %in% 1960:2000) %>%
+  #group_by(day) %>%
+ #summarise_all(funs(mean)) %>%
+  ggplot(aes(x=day, y=Degrees))  +
+  #geom_point(aes(colour= Temperature,shape=Temperature), alpha=0.2, size =5 ) +
+  geom_point(aes(shape=Temperature), alpha=0.2, size =5 ) +
+ # geom_point(aes(colour= Temperature,shape=Temperature), alpha=0.2, size =5 ) +
+  #scale_fill_manual(name="Temperature",
+        #values=c(maxt="lightgray", mint="black"))+
+        #values=c(maxt="#008B00", mint="salmon4"))+
+  #geom_smooth(aes(colour=Temperature))+ 
+  #geom_smooth()+ 
+  
+  theme_bw() +
+ xlab("Day of the year (1-365)") + 
+    ylab(expression(Mean~Daily~Temperature~"("^"o"*"C)"))+
+  theme(text = element_text(size=18))+
+  theme(axis.text.x=element_text(angle = +0, hjust = 0, size= 14))+
+  theme(axis.text.y=element_text(angle = +0, hjust = 0, size= 14))+
+  
+   #remove grid lines 
+   theme(
+     panel.border = element_rect(colour = "black", size = 3), 
+     panel.grid.major = element_blank(),
+     panel.grid.minor = element_blank(),
+     axis.line = element_line(colour = "black"))+
+   #scale_fill_manual("legend", values = c("Antas" = "#660066", "Denmark" = "lightgrey","Leura" = "darkgrey", "Monti" = "#FF9933","Narrikup" = "blue",  "Woogenellup" = "#033333"))+
+   
+   #make sowing dates white  
+   theme(strip.background = element_rect(colour = "black", fill = "white",size=1))+
+   
+  #label sizes 
+theme(text = element_text(size = 22))
+ 
+ 
+
+ggsave("plot_MinMaxTemp_Historic_BlackWhite.png", width=10, height=5, dpi=400)
+
+```
+
+
+
+```{r,fig.height=5, fig.width=10}
+
+
+metFile %>%
+  filter(year %in% 1960:2000) %>%
+  group_by(year, month) %>%
+  summarise_each(funs(sum)) %>%
+  group_by(month) %>%
+  select(month, rain) %>%
+  summarise(rainMean = mean(rain), rainSd = sd(rain)/2) %>%
+  ggplot(aes(x=month, y=rainMean)) + 
+  #geom_bar(stat ='identity') +
+  geom_bar(stat="identity", fill="lightgrey", colour="black")+
+  theme_bw() +
+ xlab("Month") + 
+  ylab("Monthly rainfall (mm)") +
+  scale_x_continuous(breaks=1:12) +
+  geom_errorbar(aes(ymax = rainMean + rainSd, ymin=rainMean - rainSd), 
+                position=position_dodge(width=0.9), width=0.25)+
+  theme(text = element_text(size=fontSize))+
+
+#remove grid lines 
+   theme(
+     panel.border = element_rect(colour = "black", size = 3), 
+     panel.grid.major = element_blank(),
+     panel.grid.minor = element_blank(),
+     axis.line = element_line(colour = "black"))+
+   #scale_fill_manual("legend", values = c("Antas" = "#660066", "Denmark" = "lightgrey","Leura" = "darkgrey", "Monti" = "#FF9933","Narrikup" = "blue",  "Woogenellup" = "#033333"))+
+   
+   #make sowing dates white  
+   theme(strip.background = element_rect(colour = "black", fill = "white",size=1))+
+   
+  #label sizes 
+theme(text = element_text(size = 22))
+
+
+ggsave("plot_Rainfall_Historic_BlackWhite.png", width=10, height=5, dpi=400)
+
+
+```
+
+
+bring PET data monthly 
+
+
+```{r}
+
+# Get file
+Petfile <- read.table(paste0("MeanHistoricPet.txt"),  header = TRUE)
+
+Petfile<-Petfile%>%
+  mutate(month=as.numeric(month),
+         HistoricPET=as.numeric(HistoricPET))
+
+
+```
+
+build mean rain per month
+
+```{r}
+
+Rain <-metFile %>%
+  filter(year %in% 1960:2000) %>%
+  group_by(year, month) %>%
+  summarise_all(funs(sum)) %>%
+  group_by(month) %>%
+  select(month, rain) %>%
+  summarise(rainMean = mean(rain), rainSd = sd(rain)/2) 
+
+
+str(Rain)
+str(Petfile)
+## merge
+
+RainPet <- merge(Rain, Petfile,  by="month")
+
+```
+
+build multiple graph
+
+
+
+```{r,fig.height=5, fig.width=10}
+
+str(RainPet)
+
+ RainPet%>%
+   #mutate(month=as.factor(month))%>%
+  #mutate (month= factor(month, levels=c("1", "2", "3", "4", "5","6","7","8","9","10","11","12"),labels=c("Jan","Feb", "Mar",  "Ap", "May","Jun", "Jul", "Aug", "Sept","Oct", "Nov", "Dec")))%>%
+  ggplot(aes(x=month, y=rainMean))+ 
+  #geom_bar(stat ='identity') +
+  geom_bar(stat="identity", fill="lightgrey", colour="black")+
+ # geom_bar(aes(x=month, y=rainMean),stat="identity", fill="tan1", colour="sienna3")+
+  geom_line(aes(x=month, y=HistoricPET,stat="identity"),linetype=2)+
+   geom_point(aes(x=month, y=HistoricPET,stat="identity"),size=6)+
+  
+ theme_bw() +
+ xlab("Month") + 
+  ylab("Monthly rainfall and PET (mm)") +
+  scale_x_continuous(breaks=1:12) +
+   #scale_y_continuous()+
+  geom_errorbar(aes(ymax = rainMean + rainSd, ymin=rainMean - rainSd), 
+                position=position_dodge(width=0.9), width=0.25)+
+  theme(text = element_text(size=fontSize))+
+
+#remove grid lines 
+   theme(
+     panel.border = element_rect(colour = "black", size = 3), 
+     panel.grid.major = element_blank(),
+     panel.grid.minor = element_blank(),
+     axis.line = element_line(colour = "black"))+
+   #scale_fill_manual("legend", values = c("Antas" = "#660066", "Denmark" = "lightgrey","Leura" = "darkgrey", "Monti" = "#FF9933","Narrikup" = "blue",  "Woogenellup" = "#033333"))+
+   
+   #make sowing dates white  
+   theme(strip.background = element_rect(colour = "black", fill = "white",size=1))+
+   
+  #label sizes 
+theme(text = element_text(size = 22))
+
+
+ggsave("plot_PETRain_Historic_BlackWhite.png", width=10, height=5, dpi=400)
+
+
+```
+
+
+
+
+
+```{r PotEvap_graph}
+
+# # Get file (simulated eo by APSIM - Pot ET for modsim paper)
+# theFile <- "C:\\Apsim_dev\\Projects\\Forage_MBIE(FRNL)\\ModelStudies\\05_CoverCropPaperSoils\\LightSoil EarlyCover ETPdaily.out"
+# 
+# etpFile <- read.table(theFile, skip = 3, header = TRUE, comment.char = "(", blank.lines.skip = TRUE)
+# head(etpFile)
+# tail(etpFile)
+# summary(etpFile)
+# 
+# 
+# #etpFile$Date <- as.Date(etpFile$Dat, format="%dd-%mm-%YYYY")
+# 
+# #etpFile$day <- yday(etpFile$Date)
+# 
+# #write.csv(etpFile, file = "test.csv")
+# 
+# summary(etpFile)
+# 
+# g5 <- etpFile %>%
+#   filter(year %in% 1960:2000) %>%
+#    group_by(day_of_year) %>%
+#  # summarise_each(funs(mean)) %>%
+#   ggplot(aes(x=day_of_year, y=eo))  +
+#   geom_point(colour= "darkblue", alpha=0.2) +
+#   stat_smooth(level = 0.9, size = 1, colour="white") + 
+#   xlab("Day of the year (1-365)") + 
+#   ylab("Potential evapo-transpiration (mm)") +
+#   theme(text = element_text(size=fontSize))
+# 
+# 
+# g5 <- etpFile %>%
+#   filter(year %in% 1960:2000) %>%
+#   group_by(year, month) %>%
+#   summarise_each(funs(sum)) %>%
+#   group_by(month) %>%
+#   select(month, eo) %>%
+#   summarise(rainMean = mean(eo), rainSd = sd(eo)/2) %>%
+#   ggplot(aes(x=month, y=rainMean)) + 
+#   geom_bar(stat ='identity') +
+#   xlab("Month") + 
+#   ylab("Potential evapo-transpiration (mm)") +
+#   scale_x_continuous(breaks=1:12) +
+#   geom_errorbar(aes(ymax = rainMean + rainSd, ymin=rainMean - rainSd), 
+#                 position=position_dodge(width=0.9), width=0.25)+
+#   theme(text = element_text(size=fontSize))
+# 
+# grid.arrange(g1, g3, g4, g5)
+
+```
+
+

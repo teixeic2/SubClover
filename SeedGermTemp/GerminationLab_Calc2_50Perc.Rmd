@@ -23,9 +23,9 @@ library(ggplot2)
 library(agricolae)
 library(knitr)
 library(lubridate)
-library(mosaic)
+#library(mosaic)
 library(lattice)
-library(gridExtra)
+#library(gridExtra)
 ```
 
 
@@ -571,7 +571,7 @@ df_Rate_MeanD %>%
   #select( Variable, Cultivar, Temp, mean,sd) %>%
   ggplot(aes(x= ActTemp, y=mean)) + 
 #  geom_point(data=sd_df,aes(x=DAS,y=NumberRun_mean)) +
-  geom_point(aes(shape=Cultivar), size=6) +
+  geom_point(aes(shape=Cultivar), size=6, stroke=1.2) +
   scale_shape_manual(values = c(1,2,0,7)) +
   geom_errorbar(data=sd_df, aes(ymin=mean-max_sd/2,
                     ymax=mean+max_sd/2), width=3, size=1.5)+

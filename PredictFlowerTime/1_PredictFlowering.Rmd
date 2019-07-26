@@ -1,0 +1,191 @@
+---
+title: "TPredict time to flower in Lincoln and H Bay"
+author: "CT"
+date: "01 Jan 2016"
+output: 
+  word_document: default
+  pdf_document: default
+  html_document: default
+---
+
+```{r setup, include=FALSE, loadlibraires}
+#knitr::opts_chunk$set(echo = TRUE)
+library(tidyr)
+library (dplyr)
+library (ggplot2)
+library(agricolae)
+library(knitr)
+library (lubridate)
+
+```
+
+C:\GitHubRepos\SubcloverPhD\SubClover\PredictFlowerTime
+
+```{r readData}
+setwd("C:\\GitHubRepos\\SubCloverPhD\\SubClover\\PredictFlowerTime")
+getwd()
+
+#create file
+df_HBay <- read.table("df_CumTT_HBay_Hastings.txt", header=TRUE)
+
+df_Lincoln <- read.table("df_CumTT_LincolnHistorical.txt", header=TRUE)
+#head(df_We)
+
+#summary(df_Weiv)
+```
+
+
+Format dates 
+
+```{r}
+
+
+df_HBay$Date<-ymd(df_HBay$Date)
+str(df_HBay)
+
+
+df_Lincoln$Date<-ymd(df_Lincoln$Date)
+str(df_HBay)
+
+
+str(df_Lincoln)
+
+
+
+
+
+
+```
+
+
+
+
+```{r}
+
+dfLocations<- rbind(df_Lincoln,df_HBay )
+summary(dfLocations)
+
+```
+
+
+
+
+
+GEt the day of the year from date 
+remove the SumTTday to recalculate by location
+
+
+Use equations 
+chpater 4
+Group	PpDir	intercept	slope
+E	Dec	-5498	545
+E	Inc	2263	-104.3
+L	Dec	-4831	458
+L	Inc	1814	-64.6
+
+Chapter 3 
+Group	PpDir	intercept	slope
+E Dec -8739 831
+E	Inc	1275	41
+L	Dec	-10721	977
+L	Inc	722	27
+
+
+
+```{r}
+
+df_flow_date <- dfLocations %>%
+    mutate(DOY=yday(Date)) %>%
+  mutate(TT_sum_window = ifelse(DOY >91,"PostSow","BeforeSow")) %>%  
+  dplyr::rename(Location=LocationYear) %>%
+
+  dplyr::select(-SumTTday) %>%
+  mutate(Year=year(Date)) %>%
+  mutate(LocationYear=paste0(Location,"_",Year)) %>%
+  mutate(LocationYear=factor(LocationYear)) %>%
+  mutate(PeriodLabel=paste0(LocationYear,"_",TT_sum_window)) %>%
+  group_by(PeriodLabel) %>%
+  arrange(Date) %>%
+  mutate(AcumTTday = cumsum(TTday)) %>%
+  mutate(Pp_sum = cumsum(Pp)) %>%
+  mutate(Pp_mean=Pp_sum/(DOY-91)) %>%
+  # mutate(Ppmean=Pp) %>%
+  # mutate(lag_Pp_mean=lag(Ppmean),
+  #                 Pp_mean=(Pp+lag_Pp_mean)/2) %>%
+  ##Use for chapter 4# mutate(
+    mutate(TT50_I_E = 2263 + (-104.3)*Pp_mean,
+    TT50_I_L = 1814 + (-64.6)*Pp_mean,
+    TT50_D_E = -5498 + 545*Pp_mean,
+    TT50_D_L =  -4831 + 458*Pp_mean)  %>%
+ ##Use equatios chapter 3 
+   # mutate(
+   #   TT50_I_E = 1275 + (-41)*Pp_mean,
+   #   TT50_I_L = 722 + (27)*Pp_mean,
+   #   TT50_D_E = -8739 + 831*Pp_mean,
+   #   TT50_D_L =  -10721 + 977*Pp_mean)  %>%
+  
+  filter(TT_sum_window == "PostSow") %>%
+  mutate(
+    DateTT50_I_E = ifelse(AcumTTday>TT50_I_E,"F","V"),
+    DateTT50_I_L =ifelse(AcumTTday>TT50_I_L,"F","V"),
+    DateTT50_D_E = ifelse(AcumTTday>TT50_D_E,"F","V"),
+    DateTT50_D_L =  ifelse(AcumTTday>TT50_D_L,"F","V")) %>%
+    mutate(Pp_diff = Pp - lag(Pp, default = Pp[1])) %>%
+    ungroup()
+
+summary(df_flow_date)
+```
+
+group by location 
+
+```{r, fig.width=12}
+
+  df_flow_date%>%
+  ggplot(aes(x=Date, y=AcumTTday)) +
+  geom_line()+
+  facet_grid(Location~.)
+  
+  
+```
+
+Do for early in decreasing Pp
+
+```{r}
+df_flow_date_D_E <- df_flow_date %>%
+  filter(DateTT50_D_E =="F") %>%
+  group_by(LocationYear) %>%
+  filter(Date==min(Date))
+```
+
+
+```{r}
+ref<-ymd("2000-01-01")
+
+df_flow_date_D_E %>%
+  ggplot(aes(x=DOY+ref, y=..scaled..,fill=Location)) +
+  geom_density(alpha=0.2) 
+```
+
+
+```{r}
+df_gather <- df_flow_date %>%
+ gather(VarName,VarValue,DateTT50_I_E:DateTT50_D_L) %>%
+ mutate(VarName=factor(VarName), VarValue=factor(VarValue)) %>%
+ group_by(VarName, LocationYear) %>%
+  filter(VarValue=="F") %>%
+  filter(DOY==min(DOY)) %>%
+  ungroup() 
+
+summary(df_gather)
+```
+
+```{r, fig.width=12}
+ref<-ymd("2000-01-01")
+
+df_gather %>%
+  ggplot(aes(x=DOY+ref, fill=VarName)) +
+  geom_density() +
+ # facet_grid(Location~., scales='free')+
+   facet_grid(VarName~., scales='free')
+```
+

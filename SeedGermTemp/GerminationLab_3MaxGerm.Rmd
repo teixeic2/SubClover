@@ -219,13 +219,13 @@ dMax %>%
   ggplot(aes(x=Temp, y=max)) + 
   #ggplot(aes(x=ActTemp, y=max)) + 
 #  geom_point(data=sd_df,aes(x=DAS,y=NumberRun_mean)) +
-  geom_point(aes(shape=Cultivar), size=6) +
+  geom_point(aes(shape=Cultivar), size=6,stroke=1.2) +
   scale_shape_manual(values = c(1,2,0,7)) +
   geom_errorbar(data=sd_df, aes(ymin=max-max_sd/2,
                     ymax=max+max_sd/2), width=5)+
   facet_wrap (~Cultivar,ncol=1)+
   ylim(0,140 ) +
-  ylab(expression(Maximum~Germination~"(%)"))+
+  ylab(expression(Maximum~germination~"(%)"))+
   theme(text = element_text(size=20))+
   xlab(expression(Temperature~"("^"o"*"C)"))+
   #labs(y="Maximum ",x="Temperature")+

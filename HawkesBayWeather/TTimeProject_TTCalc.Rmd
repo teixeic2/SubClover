@@ -1,5 +1,5 @@
 ---
-title: "Thermal Time Calculation Iversen 2 Weather data"
+title: "Thermal Time Calculation H Bat-Hastings Weather data"
 author: "CT"
 date: "01 Jan 2016"
 output: 
@@ -19,14 +19,14 @@ library (lubridate)
 
 ```
 
-
+C:\GitHubRepos\SubcloverPhD\SubClover\HawkesBayWeather
 
 ```{r readData}
-setwd("C:\\GitHubRepos\\SubCloverPhD\\SubClover\\Iver_weather")
+setwd("C:\\GitHubRepos\\SubCloverPhD\\SubClover\\HawkesBayWeather")
 getwd()
 
 #create file
-df_Weiv <- read.table("RawWeaIv2.txt", header=TRUE)
+df_Weiv <- read.table("HawkesBayHistoricalWeather.txt", header=TRUE)
 
 #head(df_We)
 
@@ -229,7 +229,7 @@ ggplot(aes(x=Date, y= SumTTday)) +
 
 ```{r}
 
-write.table(df_CumTTiv, "df_CumTTiv.txt")
+write.table(df_CumTTiv, "df_CumTT_HBay_Hastings.txt")
 
 ```
 

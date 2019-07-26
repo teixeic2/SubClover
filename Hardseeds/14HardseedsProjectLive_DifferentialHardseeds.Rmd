@@ -173,7 +173,7 @@ dfError<- Graphic%>%
   Graphic %>%
   ggplot(aes(x=TtSum, y=mean)) +
   #ggplot(aes(x=TtSum, y=mean, shape=Cultivar)) +
-  geom_point(size=6, aes(colour=Cultivar, shape=Cultivar)) +
+  geom_point(size=8, aes(colour=Cultivar, shape=Cultivar),stroke =1.2) +
   #geom_text(aes(label=Cultivar),hjust=0, vjust=0,size=7) +
   geom_line(aes(colour=Cultivar)) +
    # geom_point(data = dfError,aes(x=2000,y=100))+
@@ -628,7 +628,7 @@ str( df_graf2)
   ggplot(aes(x=SowingD, y=mean, colour=Depth,linetype=Depth, shape=Depth)) +
   scale_color_manual(values = c("Above" = "black", "Below" = "grey"))+
   #scale_shape(solid = FALSE)+
-  geom_point(size=6) +
+  geom_point(size=8) +
   geom_line() +
  facet_wrap(~Cultivar,ncol=2) +
   labs(x="Sowing date") +

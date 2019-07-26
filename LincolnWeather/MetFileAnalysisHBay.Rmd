@@ -1,5 +1,5 @@
 ---
-title: "MetFileAnalysis"
+title: "MetFileAnalysis HBay"
 author: "edmar.teixeira@me.com"
 date: "Friday, March 27, 2015"
 output: 
@@ -12,28 +12,42 @@ output:
 ## Creates a dataframe with column row
 
 ```{r Libs, echo = FALSE, include=FALSE}
-library(data.table)
+#library(data.table)
 library(dplyr)
 library(ggplot2)
-library(gridExtra)
+#library(gridExtra)
 library(knitr)
+
 ```
 
 ## The weather file
 
 > That's how the data looks like
 
+C:\GitHubRepos\SubcloverPhD\SubClover\HawkesBayWeather
+
 ```{r DirSet, echo=FALSE}
 
 #Set paths
-setwd("C:\\GitHubRepos\\SubCloverPhD\\SubClover")
+setwd("C:\\GitHubRepos\\SubCloverPhD\\SubClover\\HawkesBayWeather")
 
 # Get file
-metFile <- read.table(paste0("lincoln.met"), skip = 5, header = TRUE, comment.char = "(", blank.lines.skip = TRUE)
+metFile <- read.table(paste0("LawnRoad.met"), skip = 5, header = TRUE, comment.char = "(", blank.lines.skip = TRUE)
 head(metFile)
 tail(metFile)
 summary(metFile)
 ```
+
+
+```{r}
+str(metFile)
+
+
+write.table(metFile, "HBayWeather.txt")
+
+```
+
+
 
 # Graph historical averages
 

@@ -299,7 +299,7 @@ make a new graph as per poster ESA
 
 # define position of bar and errorbar
 dodge_x <- position_dodge(width = 0.9)
-fs<-28
+fs<-24
 
 inv<-c("Above","Below")
 
@@ -338,7 +338,7 @@ inv<-c("Above","Below")
                     ymax=SD_sum_up),
                 width=0.25, size=0.3)  +
   facet_wrap(.~Cultivar, ncol=2) +
-    theme(text = element_text(size = 15)) +
+    theme(text = element_text(size = fs)) +
    theme(axis.text.x=element_text(angle = 45, hjust=1.0)) +
  #  theme(text = element_text(size= fs))+
    scale_fill_manual("legend", values = c("Above"   = "#CCCCCC", "Below" = "#666666" )) +
@@ -354,7 +354,7 @@ theme(
     
 # 
 
-  ggsave("plot_SeedYield_Prjct1_Iversen2.tiff", width=14, height=16, dpi=500)
+  ggsave("plot_SeedYield_Prjct1_Iversen2.tiff", width=10, height=14, dpi=600)
   
   
 ```
