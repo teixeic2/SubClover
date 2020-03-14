@@ -332,27 +332,27 @@ ggplot(aes(x=meanTemp_Em_mean, y=InvDAS50E_mean)) +
   #theme(title=element_text(size=22, face="bold"))+
   #theme(title=element_text(size=22,  face="bold"))+
    #remove grid lines 
-#     theme(
- #    panel.border = element_rect(colour = "black"  , size = 2.0), 
-  #   panel.grid.major = element_blank(),
-   #  panel.grid.minor = element_blank(),
+     theme(
+     panel.border = element_rect(colour = "black"  , size = 2.0), 
+     panel.grid.major = element_blank(),
+     panel.grid.minor = element_blank(),
      
-    # axis.line = element_line(colour = "black", size= 1))+
+     axis.line = element_line(colour = "black", size= 1))+
    ##thicks in axis
- # theme(axis.ticks.length=unit(.3, "cm"))+
+  theme(axis.ticks.length=unit(.3, "cm"))+
 
 #make Cultivars  white  
  #  theme(strip.background = element_rect(colour = "black", fill = "white",size=2))+
   
   #label sizes 
-theme(text = element_text(size = 18)) 
+theme(text = element_text(size = 20)) 
  # ylim(0,NA)+
  # xlim(0,NA)
   
   #geom_abline(intercept = 50, slope = 0)
 
 
-ggsave("plot_5_RateEmerg_Vs_SoilTemp.tiff", width=12, height=10, dpi=600)
+ggsave("plot_5_RateEmerg_Vs_SoilTemp.tiff", width=10, height=6, dpi=600)
 
 
 

@@ -213,8 +213,64 @@ dfSeed_Stack%>%
    theme(strip.background = element_rect(colour = "black", fill = "white",size=2))
 
 ggsave("plot_SeedYieldProject10_Combine.tiff", width=8, height=12, dpi=600)
+
+
+
 ```
 
+ppt graph 
+
+```{r,fig.height=8, fig.width=14}
+
+dfSeed_Stack%>%
+  ungroup(status)%>%
+  #filter(SowTreat=="S1"|SowTreat=="S6"|SowTreat=="S7") %>%
+  mutate(status = factor(status, levels = c("QtySeedReady",
+                                          "QtySeed120",
+                                  "QtySeedBank"),
+
+
+                          labels = c("Soft",
+                                 "Medium",
+                                 "Hard")
+                          )) %>%
+   mutate (SowTreat= factor(SowTreat, levels=c("S1", "S2", "S3", "S4", "S6","S7"),labels=c("June", "July", "September", "November", "February","March")))%>%
+  mutate (Cultivar= factor(Cultivar, levels=c("Antas", "Denmark", "Leura", "Monti", "Narrikup", "Woogenellup"),labels=c("A", "D", "L", "M", "N","W")))%>%
+  filter(SowTreat=="July"|SowTreat=="November" ) %>%
+  ggplot(aes(x=Cultivar, y=KgSeeds, fill=factor(status))) +
+  #geom_bar(stat="identity") +
+  geom_bar(aes(fill=status), colour="black",stat="identity")+
+ # geom_bar(stat="identity",fill = "#FF6666")+
+   #colour
+      #scale_fill_brewer(palette="Greys")+
+  #scale_fill_brewer(palette="Blues")+
+  #scale_fill_manual("legend", values = c("Antas" = "#660066", "Denmark" = "lightgrey","Leura" = "darkgrey", "Monti" = "#FF9933","Narrikup" = "blue",  "Woogenellup" = "#033333"))+
+  #scale_fill_manual("legend", values = c("Soft" = "darkgrey", "Medium" = "darkgrey","Hard" = "darkgrey"))+
+  scale_fill_manual("legend", values = c("Soft" = "olivedrab", "Medium" = "ivory","Hard" = "darkgrey"))+
+  
+  facet_wrap(.~SowTreat,scales = "free",  ncol=3) +
+  theme_bw()+
+  ylab("Seed quantity (kg/ha)") +
+  xlab("Cultivar") +
+  theme(axis.text.x = element_text(angle = 0, hjust=1)) + theme(legend.title=element_blank()) +
+  theme(text = element_text(size=24))+
+  ##add treshold suggested by Smteham 2003
+  geom_hline(yintercept=260, linetype=2)+ 
+  #remove grid lines 
+   theme(
+     panel.border = element_rect(colour = "black", size = 3), 
+     panel.grid.major = element_blank(),
+     panel.grid.minor = element_blank(),
+     axis.line = element_line(colour = "black"))+
+   
+   
+   #make sowing dates white  
+   theme(strip.background = element_rect(colour = "black", fill = "white",size=2))
+
+#ggsave("plot_SeedYieldProject10_CombinePPT.tiff", width=14, height=8, dpi=600)
+
+ggsave("plot_SeedYieldProject10_JulyNov_Combine.tiff", width=14, height=8, dpi=600)
+```
 
 
 make a new graph as per poster ESA

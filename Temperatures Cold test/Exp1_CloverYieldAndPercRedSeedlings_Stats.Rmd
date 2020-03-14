@@ -1,0 +1,213 @@
+---
+title: "Percent red leaves and red scoring  Experiment 1 - correlation  "
+author: "CT"
+date: "31.10.2017"
+output:
+  word_document: default
+  pdf_document: default
+  html_document: default
+---
+
+```{r loadLibraries}
+library(tidyr)
+library (dplyr)
+library (ggplot2)
+library(agricolae)
+library(knitr)
+library (lubridate)
+library(markdown)
+#install.packages(markdown)
+
+```
+
+
+Use this pathC:\GitHubRepos\SubcloverPhD\SubClover\Temperatures Cold test
+
+GEt thsi file : DataCloverYield_Expt1.txt
+
+variables are : 
+Cloverkg/ha
+
+
+```{r loadFile}
+setwd("C:\\GitHubRepos\\SubCloverPhD\\SubClover\\Temperatures Cold test")
+getwd()
+
+#create file
+df_Exp1 <- read.table("DataCloverYield_Expt1.txt",header=TRUE)
+head(df_Exp1)
+
+
+# change format 
+#df_seed$Date <- dmy(df_seed$Date)
+
+# jeito 2 de trocar formato (usando dplyr)
+df_Exp1 <- df_Exp1 %>%
+  mutate(Plot = as.factor(Plot), 
+    Block = as.factor(Block),
+        
+        AverageRedLeaves = as.numeric(Cloverkg.ha)) 
+  
+
+#summary(df_seed) # explore values
+str(df_Exp1) # check formats
+#head(df_seed) # see to rows
+#tail(df_seed)
+
+
+
+```
+
+
+
+
+Work first with the Cloverkg/ha
+
+```{r}
+
+str(df_Exp1)
+##rename dataframe 
+
+file <-df_Exp1
+  
+##data transformation
+file$transf_sqr <- sqrt(file$Cloverkg.ha )
+file$transf_log <- log(file$Cloverkg.ha )
+file$transf_not <- 1*(file$Cloverkg.ha /1)
+file$transf_acos <- acos(file$Cloverkg.ha /100)
+file$transf_sqrx <- (file$Cloverkg.ha ^2)
+#mutate(mydata, sqr.x = x^2)
+
+
+head(file)
+
+x <- c("transf_sqr", "transf_log","transf_acos","transf_not", "transf_sqrx" )
+colsSelec <- match(x,colnames(file))
+
+
+
+
+``` 
+
+
+
+
+```{r, fig.height=7, fig.widht=8}
+
+
+file %>%
+  tidyr::gather("transformation","value",colsSelec) %>%
+  ggplot(aes(value)) + 
+  geom_histogram() +
+  facet_grid(.~transformation, scales="free")+
+  theme_bw()
+
+
+
+```
+
+
+
+
+check normality shapiro test +QQplots
+
+```{r}
+
+#normality test
+shapiro.test(file$transf_acos)
+shapiro.test(file$transf_not)
+shapiro.test(file$transf_sqr)
+shapiro.test(file$transf_log)
+shapiro.test(file$transf_sqrx)
+
+
+
+
+##QQplot
+#var<-file$transf_acos
+
+#var<-file$transf_not
+var<-file$transf_sqr
+#var<-file$transf_log
+#var<-file$transf_sqrx
+
+qqnorm(var)
+qqline(var, col = 2)
+qqplot(var, rt(300, df = 5))
+
+
+
+```
+
+
+
+
+then select columns of interest : here stats for overall means (SowTreat and Cultivar)
+
+```{r}
+
+str (file)
+
+file <- file %>%
+  dplyr::select(Block, Cultivar,transf_sqr)%>%
+  filter(Cultivar!="Nomad_Wc")
+
+#-------------------------------------------------
+
+# Chosen transform log to do anova 
+file.subset <- file 
+
+head(file.subset, 50)
+summary(file.subset)
+#my.anova <- aov(Abn_perc~ Cultivar*SowTreat*Depth + Block, data = file.subset)
+#my.anova <- aov(Abn_perc~ Cultivar + Block, data = file.subset)
+#my.anova <- aov(Abn_perc~ Depth + Block, data = file.subset)
+#my.anova <- aov(Abn_perc~ SowTreat + Block, data = file.subset)
+##Use sqrt transformed data 
+
+my.anova <- aov(transf_sqr~ Cultivar + Block, data = file.subset)
+
+```
+
+```{r}
+summary(my.anova)
+#TukeyHSD(my.anova)
+
+
+```
+
+Check means among sowing dates 
+```{r}
+#Means separation 
+(LSD.test(my.anova, c("Cultivar"), alpha= 0.05, p.adj="none"))
+
+```
+
+then perfomr Tukeys test 
+
+This is Tukeys test for mean comparison 
+
+```{r}
+posthoc <- TukeyHSD(x=my.anova, 'Cultivar', conf.level=0.95)
+
+posthoc
+
+```
+
+and 
+
+
+```{r}
+
+fogo <-HSD.test(my.anova, 'Cultivar', group=TRUE)
+fogo
+
+```
+
+Now explore the correlation between reddening and yield in another script 
+
+
+
+end of this script 
+
+

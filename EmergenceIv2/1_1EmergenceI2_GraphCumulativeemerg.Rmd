@@ -21,7 +21,7 @@ library (ggplot2)
 library(agricolae)
 library(knitr)
 library (lubridate)
-library(mosaic)
+#library(mosaic)
 library(lattice)
 ```
 
@@ -88,7 +88,7 @@ summary(sd_df2)
 
 df_seed1%>%
 ggplot(aes(x=DAS, y=mean)) + 
-  geom_point(aes(shape= Cultivar, colour=Cultivar), size=3)+
+  geom_point(aes(shape= Cultivar, colour=Cultivar), size=4, stroke=1.2)+
  # geom_point(aes(shape= SowTreat, colour=SowTreat), size=3)+
   scale_shape_manual(values = c(0,1,2,3,4,5,6,7,8,9,10,11))+
   geom_line(aes(linetype=Cultivar))+
@@ -101,10 +101,12 @@ ggplot(aes(x=DAS, y=mean)) +
   geom_errorbar(data=sd_df2, aes(ymin=mean-max_sd/1.73,
                     ymax=mean+max_sd/1.73), size=1.5)+
  # facet_wrap(~Cultivar,ncol=2, scales = "free")+
-  facet_wrap(~SowTreat,ncol=2,scale="free")+
+  #facet_wrap(~SowTreat,ncol=2,scale="free")+
+   facet_wrap(~SowTreat,ncol=2)+
   theme_bw()+
-  #scale_x_continuous(breaks = c(5,10,15,20,30))+
-  #ylim(0, 145)+
+  scale_x_continuous(breaks = c(0,10,20,30,40,50,60))+
+  scale_y_continuous(breaks = c(0,500,1000,1500,2000,2500))+
+  xlim(0, 60)+
   ##scale_y_continuous(breaks = c(0,500,1000,1500,2000,2500))+
   #xlim(0, 60)+
  xlab(expression(Days))+ 
@@ -134,9 +136,9 @@ theme(text = element_text(size = 26))
   #geom_abline(intercept = 50, slope = 0)
 
 
-ggsave("plot_1_Emerg_CumulativePlantPopVsDAS.tiff", width=14, height=18, dpi=600)
+#ggsave("plot_1_Emerg_CumulativePlantPopVsDAS.tiff", width=14, height=18, dpi=600)
 
-
+ggsave("plot_1_Emerg_CumulativePlantPopVsDAS_new .tiff", width=14, height=18, dpi=600)
 
 ```
 

@@ -1,0 +1,400 @@
+---
+title: "thermal time to flower versus Mean Photoperiod analysis "
+author: "CT"
+date: "09.07.2018"
+output:
+  pdf_document: default
+  html_document: default
+  word_document: default
+
+note: include Pp analysis using the mean photoperiod to compare with the results from the re analysis. 
+  Iversen 2 collected data; this script is a continuation of script 9 .
+  This script use the thermal time from emergence (TT50FromEmerg)
+  
+  Next scrip 8b contains all the Photoperiods!!! 
+  
+---
+
+```{r loadLibraries, echo=FALSE, include=FALSE}
+#1
+library(tidyr)
+library (dplyr)
+library (ggplot2)
+library(agricolae)
+library(knitr)
+library (lubridate)
+#library (segmented)
+#library(hydroGOF)
+
+```
+ 
+AIM:
+- Plot the thermal time to flower against the mean photoperiod (as per Evans and re analysis)
+
+
+```{r   loadFile}
+#2
+setwd("C:\\GitHubRepos\\SubCloverPhD\\SubClover\\PredictFlowerTime")
+
+getwd()
+
+
+```
+## Change formats
+
+##file is : TT50FloAndMeanPhotoperiod 
+
+```{r}
+#3 get dataframe created similar to ReAnalysis4 which contains the mean photoperiod 
+df_tt_MeanPp <- read.table("FlowerAll.txt",header=TRUE) 
+
+
+# force date format
+#df_tt_MeanPp$SowingD <- dmy(df_tt_MeanPp$SowingD)
+str(df_tt_MeanPp)
+
+
+```
+
+```{r}
+#4
+summary(df_tt_MeanPp)
+```
+
+
+
+simply plot the TT50FromEmerg in y and Mean Pp in x 
+
+
+
+```{r}
+
+df_FP_all_mean <- df_tt_MeanPp  %>%
+  mutate(Variable2=factor(Variable, level=c("DAS50F","TT50F"),
+                         labels=c("Days to flower","Thermal-time (degree days)"))) %>%
+  mutate(SensGroup2=factor(SensGroup, level=c("E","L"),
+                         labels=c("Early","Late"))) %>%
+  mutate(Pp_direction=factor(PpDir, level=c("D","I"),
+                         labels=c("Decreasing","Increasing")))  %>%
+  mutate(Trial=factor(Experiment, level=c("ReAnalysis","Iversen","GC"),
+                         labels=c("ReAnalysis","Field","GrowthChamber")))  %>%
+  group_by(Experiment,Trial, Cultivar, Variable,Variable2, SensGroup,SensGroup2, PpMean, PpDir,Pp_direction) %>%
+   dplyr::select(Experiment,Trial, Cultivar, Variable,Variable2, SensGroup,SensGroup2, PpMean, PpDir,Pp_direction, Value) %>%
+   summarise_all(funs(mean,sd))  %>%
+  ungroup()
+# 
+ summary (df_FP_all_mean)
+
+```
+Make draft graph 
+```{r, fig.width=15, fig.height=10}
+
+ df_FP_all_mean %>%
+  filter(Experiment!="GC") %>%
+  filter(Variable=="TT50F") %>%
+    #filter(Experiment!="ReAnalysis") %>%
+ ggplot(aes(x=PpMean,y=mean, colour=SensGroup2, fill=SensGroup2, linetype=Pp_direction) )+
+# ggplot(aes(x=PpMean,y=mean, colour=Pp_direction, fill=Pp_direction) )+
+  geom_point(size=4, aes(shape=Trial)) +
+  ylim(0,NA) +
+  geom_vline(xintercept = 13.5, linetype=2, colour='darkgrey') +
+ geom_smooth(method = "lm",se=TRUE, alpha=0.2) 
+
+```
+
+
+Make a final  graph  as per reanalysis
+
+```{r, fig.width=15, fig.height=10}
+
+ df_FP_all_mean %>%
+  filter(Experiment!="GC") %>%
+  filter(Variable=="TT50F") %>%
+  
+ ggplot(aes(x=PpMean,y=mean, colour=SensGroup2, fill=SensGroup2, linetype=Pp_direction) )+
+# ggplot(aes(x=PpMean,y=mean, colour=Pp_direction, fill=Pp_direction) )+
+  geom_point(size=6, aes(shape=Trial)) +
+  ylim(0,NA) +
+  geom_vline(xintercept = 13.5, linetype=2, colour='darkgrey') +
+ geom_smooth(method = "lm",se=TRUE, alpha=0.2) +
+theme_bw(base_size = 26) +
+  labs(x="Mean photoperiod (hours)", y="Time to 50% flowering ") +
+ ylim(0,NA)+
+theme(
+   #  panel.border = element_rect(colour = "black", size = 3),
+     panel.grid.major = element_blank(),
+     panel.grid.minor = element_blank(),
+     axis.line = element_line(colour = "black"))+
+  
+
+  
+  #make sowing dates white  
+  theme(strip.background = element_rect(colour = "black", fill = "white",size=1.5))
+
+
+ggsave("plot_2_TT50FlowversusMeanPp_ThermalTimeFlo_FieldReanalysis.tiff", width=14, height=12, dpi=600)
+
+```
+
+for the whole dataset REalsysis + field
+```{r}
+library(broom)
+options(scipen=999)
+
+#Select the Pp you want to regress against PT50
+
+
+# create the linear fits by groups o variables
+
+  #dfregCv <- temp_A %>% group_by(Cultivar,Pp_dir) %>%
+  dfregGroup <- df_FP_all_mean %>% group_by(SensGroup, PpDir) %>%
+##For emergence use PpEmerg,
+  ##do(fitreg = lm(PhoTherm ~ meanPp50F, data = .))
+  do(fitreg = lm(mean  ~  PpMean , data = .))
+  ##do(fitreg = lm(PhoTherm ~ Pp1Trifo, data = .))
+  
+  ##For First Trifo use  Pp1Trifo_mean
+ #do(fitreg = lm(PhylC_mean ~ Pp1Trifo_mean, data = .))
+
+## get the linear coefficients by group in a tidy data_frame
+dfCoef <- tidy(dfregGroup, fitreg)
+dfCoef
+
+
+
+
+
+
+#write.table(dfCoefInc, "CoefficientsregressionPT50AgainstPp1Trifo.csv")
+
+```
+
+
+
+
+```{r}
+
+dfCoefInc = glance(dfregGroup, fitreg)
+dfCoefInc
+
+
+
+```
+
+###################################################################################################################################
+
+Do fit only for Iversen
+
+```{r}
+
+Iversen <- df_FP_all_mean %>%
+  filter(Experiment=="Iversen") 
+  #filter(Variable=="TT50F")
+
+
+```
+
+
+
+
+Just for Iversen
+```{r}
+library(broom)
+options(scipen=999)
+
+#Select the Pp you want to regress against PT50
+
+
+# create the linear fits by groups o variables
+
+  #dfregCv <- temp_A %>% group_by(Cultivar,Pp_dir) %>%
+  dfregGroup <-Iversen  %>% group_by(SensGroup, PpDir) %>%
+##For emergence use PpEmerg,
+  ##do(fitreg = lm(PhoTherm ~ meanPp50F, data = .))
+  do(fitreg = lm(mean  ~  PpMean , data = .))
+  ##do(fitreg = lm(PhoTherm ~ Pp1Trifo, data = .))
+  
+  ##For First Trifo use  Pp1Trifo_mean
+ #do(fitreg = lm(PhylC_mean ~ Pp1Trifo_mean, data = .))
+
+## get the linear coefficients by group in a tidy data_frame
+dfCoef <- tidy(dfregGroup, fitreg)
+dfCoef
+
+
+
+#write.table(dfCoefInc, "CoefficientsregressionPT50AgainstPp1Trifo.csv")
+
+```
+
+
+
+
+```{r}
+
+dfCoefInc = glance(dfregGroup, fitreg)
+dfCoefInc
+
+
+
+```
+
+
+###################################################################################################################################
+
+Do fit only for REanalysis
+
+```{r}
+
+ReAnalysis <- df_FP_all_mean %>%
+  filter(Experiment=="ReAnalysis")
+  #filter(Variable=="TT50F")
+
+
+```
+
+
+
+
+Just for Iversen
+```{r}
+library(broom)
+options(scipen=999)
+
+#Select the Pp you want to regress against PT50
+
+
+# create the linear fits by groups o variables
+
+  #dfregCv <- temp_A %>% group_by(Cultivar,Pp_dir) %>%
+  dfregGroup <-ReAnalysis  %>% group_by(SensGroup, PpDir) %>%
+##For emergence use PpEmerg,
+  ##do(fitreg = lm(PhoTherm ~ meanPp50F, data = .))
+  do(fitreg = lm(mean  ~  PpMean , data = .))
+  ##do(fitreg = lm(PhoTherm ~ Pp1Trifo, data = .))
+  
+  ##For First Trifo use  Pp1Trifo_mean
+ #do(fitreg = lm(PhylC_mean ~ Pp1Trifo_mean, data = .))
+
+## get the linear coefficients by group in a tidy data_frame
+dfCoef <- tidy(dfregGroup, fitreg)
+dfCoef
+
+
+
+#write.table(dfCoefInc, "CoefficientsregressionPT50AgainstPp1Trifo.csv")
+
+```
+
+
+
+
+```{r}
+
+dfCoefInc = glance(dfregGroup, fitreg)
+dfCoefInc
+
+
+
+```
+
+
+
+
+
+
+######################################################################################################################################
+
+
+Make a final  graph  for Woogenellup
+
+```{r, fig.width=15, fig.height=10}
+
+ Wooge <-df_FP_all_mean %>%
+  filter(Experiment!="GC") %>%
+  filter(Variable=="TT50F") %>%
+  filter(Cultivar=="Woogenellup") 
+filter(Cultivar=="Woogenellup")
+Wooge%>%
+
+ ggplot(aes(x=PpMean,y=mean, colour=SensGroup2, fill=SensGroup2, linetype=Pp_direction) )+
+# ggplot(aes(x=PpMean,y=mean, colour=Pp_direction, fill=Pp_direction) )+
+  geom_point(size=6, aes(shape=Trial)) +
+ #ylim(0,NA) +
+  geom_vline(xintercept = 13.5, linetype=2, colour='black') +
+ geom_smooth(method = "lm",se=TRUE, alpha=0.2) +
+theme_bw(base_size = 26) +
+  labs(x="Mean photoperiod (hours)", y="Time to 50% flowering ") +
+ ylim(0,NA)+
+theme(
+   #  panel.border = element_rect(colour = "black", size = 3),
+     panel.grid.major = element_blank(),
+     panel.grid.minor = element_blank(),
+     axis.line = element_line(colour = "black"))+
+  
+
+  #make sowing dates white  
+  theme(strip.background = element_rect(colour = "black", fill = "white",size=1.5))
+
+
+##ggsave("plot_2_TT50FlowversusMeanPp_ThermalTimeFlo_FieldReanalysis.tiff", width=14, height=12, dpi=600)
+
+```
+
+```{r}
+
+str(Wooge)
+```
+
+equations for woogenellup
+
+
+# Get linear coefficients of equations above
+##check what are these P values lonly for the decreasing Photoperiod 
+
+Just for woogenellup
+```{r}
+library(broom)
+options(scipen=999)
+
+#Select the Pp you want to regress against PT50
+
+
+# create the linear fits by groups o variables
+
+  #dfregCv <- temp_A %>% group_by(Cultivar,Pp_dir) %>%
+  dfregGroup <- Wooge %>% group_by(PpDir) %>%
+##For emergence use PpEmerg,
+  ##do(fitreg = lm(PhoTherm ~ meanPp50F, data = .))
+  do(fitreg = lm(mean  ~  PpMean , data = .))
+  ##do(fitreg = lm(PhoTherm ~ Pp1Trifo, data = .))
+  
+  ##For First Trifo use  Pp1Trifo_mean
+ #do(fitreg = lm(PhylC_mean ~ Pp1Trifo_mean, data = .))
+
+## get the linear coefficients by group in a tidy data_frame
+dfCoef <- tidy(dfregGroup, fitreg)
+dfCoef
+
+
+
+
+
+
+#write.table(dfCoefInc, "CoefficientsregressionPT50AgainstPp1Trifo.csv")
+
+```
+
+
+
+
+```{r}
+
+dfCoefInc = glance(dfregGroup, fitreg)
+dfCoefInc
+
+
+
+```
+
+

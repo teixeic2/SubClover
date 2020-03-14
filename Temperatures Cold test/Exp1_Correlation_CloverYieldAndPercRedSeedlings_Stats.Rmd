@@ -1,0 +1,72 @@
+---
+title: "Percent red leaves and red scoring  Experiment 1 - correlation  "
+author: "CT"
+date: "31.10.2017"
+output:
+  word_document: default
+  pdf_document: default
+  html_document: default
+---
+
+```{r loadLibraries}
+library(tidyr)
+library (dplyr)
+library (ggplot2)
+library(agricolae)
+library(knitr)
+library (lubridate)
+library(markdown)
+#install.packages(markdown)
+
+```
+
+
+Use this pathC:\GitHubRepos\SubcloverPhD\SubClover\Temperatures Cold test
+
+GEt thsi file : DataCorrelation_CloverYield_Reddening_Expt1
+
+variables are : 
+SQRTRed
+SQRTCloverkg/ha
+
+
+```{r loadFile}
+setwd("C:\\GitHubRepos\\SubCloverPhD\\SubClover\\Temperatures Cold test")
+getwd()
+
+#create file
+df_Exp1 <- read.table("DataCorrelation_CloverYield_Reddening_Expt1.txt",header=TRUE)
+head(df_Exp1)
+
+
+# change format 
+#df_seed$Date <- dmy(df_seed$Date)
+
+
+##summary(df_seed) # explore values
+str(df_Exp1) # check formats
+#head(df_seed) # see to rows
+#tail(df_seed)
+
+
+
+```
+
+
+
+```{r}
+
+  
+summary(lm(SQRTCloverYield ~ SQRTRedSeedlings, df_Exp1))
+
+
+
+
+
+```
+
+
+
+end of this script 
+
+

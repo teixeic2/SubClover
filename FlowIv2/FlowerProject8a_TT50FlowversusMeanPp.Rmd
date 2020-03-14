@@ -91,7 +91,7 @@ simply plot the TT50FromEmerg in y and Mean Pp in x
 ```{r}
 
 ## create indexes for increase Pp (ipp) and decrease Pp (dpp)
-ipp <- c("S1","S2","S3", "S4", "S5")
+ipp <- c("S1","S2","S3", "S4","S5" )
 dpp <- c("S6", "S7","S8")
 
 ##create indexes for the maturity or sensgroup: early or late as per rea nalysis 
@@ -100,7 +100,7 @@ late <-  c("Antas", "Denmark","Leura","Woogenellup")
 
 
 df_FP_all_mean <- df_tt_MeanPp  %>%
-    dplyr::select(Cultivar,Variable,SowTreat,TT50FromEmerg, meanPp50F,SowingD) %>%
+    dplyr::select(Cultivar,Variable,SowTreat,TT50FromEmerg, DAS50E, meanPp50F,SowingD) %>%
     group_by(Cultivar,SowTreat, Variable) %>%
     summarise_all(funs(mean,sd))  %>%
   ungroup() %>%
@@ -116,6 +116,14 @@ summary (df_FP_all_mean)
 ```
 
 
+```{r}
+
+
+
+write.table(df_FP_all_mean, "MeanCV_TTDAS50F_Iversen.txt") 
+
+
+```
 
 
 

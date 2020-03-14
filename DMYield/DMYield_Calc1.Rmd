@@ -21,7 +21,7 @@ library (ggplot2)
 library(agricolae)
 library(knitr)
 library (lubridate)
-library(mosaic)
+#library(mosaic)
 library(lattice)
 library(reshape2)
 ```
@@ -33,6 +33,7 @@ getwd()
 
 #create file
 df_y <- read.table("DMYield.txt",header=TRUE)
+
 
 # define factors for the ones that "look like" values
 df_y$Plot <- as.factor(df_y$Plot)
