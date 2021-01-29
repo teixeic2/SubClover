@@ -12,10 +12,10 @@ output:
 ## Creates a dataframe with column row
 
 ```{r Libs, echo = FALSE, include=FALSE}
-#library(data.table)
+library(data.table)
 library(dplyr)
 library(ggplot2)
-#library(gridExtra)
+library(gridExtra)
 library(knitr)
 
 ```
@@ -64,6 +64,7 @@ str(metFile)
 
 
 metFile <- data.table(metFile)
+#metFile <- data.frame(metFile)
 
 fontSize <- 9.0
 

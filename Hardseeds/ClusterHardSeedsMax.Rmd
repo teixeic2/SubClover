@@ -19,9 +19,21 @@ library (lubridate)
 
 
 ```{r}
+
+```
+
+```{r}
+
 setwd("C:\\GitHubRepos\\SubCloverPhD\\SubClover\\Hardseeds")
 getwd()
+
+
+
+
+
 ```
+
+
 
 
 
@@ -34,11 +46,14 @@ This script reads the HardseedsLiveData (from raw data excel) with all catergori
 ##  use this file "MaxHardAndRate_Diff.txt" contains the SDmax and SD break!!
 
 df_raw <- read.table("MaxHardAndRate_Diff.txt",header=TRUE)
+#df_raw <- read.table("GermCopy.txt",header=TRUE)
+
 
 head(df_raw)
 ```
 ```{r}
-df_work<-df_raw %>% dplyr::select(Cultivar,SowTreat,SowingD, Hard_perc) %>% group_by(Cultivar,SowTreat,SowingD) %>%
+
+df_work<-df_raw %>% dplyr::select(Cultivar,SowTreat,SowingD, HardPerc_End98) %>% group_by(Cultivar,SowTreat,SowingD) %>%
   summarise_all(funs(mean,sd))
 
 summary(df_work)
@@ -57,10 +72,16 @@ dftemp1 <- cbind(df_work, clusterNo = factor(clusterClass))
 
 summary(dftemp1)
 
+
+
+
 ```
 
 ```{r, fig.width=12}
-theme_set(theme_gray(base_size = 20))
+
+
+#theme_set(theme_gray(base_size = 20))
+
 dftemp1 %>%
   
   mutate(Cluster = factor(clusterNo,levels=c(2,3,1),labels=c("Hard","Medium", "Soft")))  %>%

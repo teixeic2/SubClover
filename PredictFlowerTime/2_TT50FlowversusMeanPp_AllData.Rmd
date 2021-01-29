@@ -86,6 +86,14 @@ df_FP_all_mean <- df_tt_MeanPp  %>%
  summary (df_FP_all_mean)
 
 ```
+
+
+
+
+
+
+
+
 Make draft graph 
 ```{r, fig.width=15, fig.height=10}
 
@@ -139,6 +147,135 @@ ggsave("plot_2_TT50FlowversusMeanPp_ThermalTimeFlo_FieldReanalysis.tiff", width=
 
 
 
+Make a final  graph  as per reanalysis
+
+```{r, fig.width=15, fig.height=10}
+
+ FncJing<- df_FP_all_mean %>%
+  filter(Experiment!="GC") %>%
+  filter(Variable=="TT50F") %>%
+  mutate(Group=paste0(PpDir,"_",SensGroup)) %>%
+  mutate(Group=factor(Group, levels=c("I_E","I_L","D_E","D_L"), 
+                      labels=c("Increasing/Early","Increasing/Late","Decreasing","Decreasing"))) %>%
+  filter(Group=="Decreasing")%>%
+  
+
+
+ #ggplot(aes(x=PpMean,y=mean, colour=MaturityGroup, fill=MaturityGroup, linetype=Pp_direction) )+
+ ggplot(aes(x=PpMean,y=mean, colour=Group, fill=Group, linetype=Pp_direction) )+
+
+    geom_point(size=4, aes(shape=interaction(MaturityGroup,Trial))) +
+  ylim(0,NA) +
+  geom_vline(xintercept = 13.5, linetype=2, colour='darkgrey') +
+  geom_smooth(method = "lm",se=TRUE, alpha=0.2) +
+  theme_bw(base_size = 26) +
+  labs(x="Mean photoperiod (hours)", y="Thermal time to 50% flowering (oCd)") +
+  theme(
+   #  panel.border = element_rect(colour = "black", size = 3),
+     panel.grid.major = element_blank(),
+     panel.grid.minor = element_blank(),
+     axis.line = element_line(colour = "black"))+
+   #  geom_abline(slope=369.2, intercept=-3237, size=3) +
+    theme(strip.background = element_rect(colour = "black", fill = "white",size=1.5))+
+  theme(legend.title=element_blank())
+
+
+ggsave("plot_2_TT50FlowversusMeanPp_ThermalTimeFlo_FieldReanalysis.tiff", width=14, height=12, dpi=600)
+
+```
+
+
+
+check
+
+
+```{r}
+cvs <-df_FP_all_mean %>%
+   filter(Experiment=="Iversen")%>%
+  #filter(Experiment!="GC"|Experiment!="ReAnalysis")%>%
+  filter(Variable=="TT50F") %>%
+  mutate(Group=paste0(PpDir,"_",SensGroup)) %>%
+  mutate(Group=factor(Group, levels=c("I_E","I_L","D_E","D_L"), 
+                      labels=c("Increasing/Early","Increasing/Late","Decreasing","Decreasing"))) %>%
+  filter(PpDir=="D")%>%
+  filter(SensGroup=="L")
+summary(cvs)
+
+```
+
+
+
+Find overall mean :1807.488667	stedv425.2076613	SE:245.7847753
+
+
+```{r}
+
+field <-cvs %>%
+  filter(Experiment=="GC"|Experiment!="Iversen") %>%
+  filter(Variable=="TT50F") %>%
+  filter(Trial=="Field")%>%
+
+summary(cvs)
+
+
+
+```
+
+
+
+
+Do graph for paper only with decreasing Pp and only for Iversen Field 
+ 
+ 
+ 
+ Make a final  graph  as per reanalysis
+
+```{r, fig.width=16, fig.height=7}
+
+df_FP_all_mean %>%
+  filter(Experiment!="GC"|Experiment!="Iversen") %>%
+  filter(Variable=="TT50F") %>%
+  filter(Trial=="Field")%>%
+  mutate(Group=paste0(PpDir,"_",SensGroup)) %>%
+  mutate(Group=factor(Group, levels=c("I_E","I_L","D_E","D_L"), 
+                      labels=c("Increasing/Early","Increasing/Late","Decreasing","Decreasing"))) %>%
+  filter(PpDir=="D")%>%
+  filter(SensGroup=="L")%>%
+ #ggplot(aes(x=PpMean,y=mean, colour=MaturityGroup, fill=MaturityGroup, linetype=Pp_direction) )+
+ ggplot(aes(x=PpMean,y=mean,  fill=Group, linetype=Pp_direction) )+
+
+    #geom_point(size=5, aes(shape=interaction(MaturityGroup,Trial))) 
+   #geom_point(size=7, aes(shape=interaction(MaturityGroup,Trial))) +
+  geom_point(size=8, shape=16) +
+ # geom_point(shape=18)
+  scale_shape_manual(values = c(1,16,2,17))+
+  ylim(0,NA) +
+  #geom_vline(xintercept = 13.5, linetype=2, colour='darkgrey') +
+  geom_smooth(method = "lm",se=TRUE, alpha=0.2) +
+  theme_bw(base_size = 26) +
+  labs(x="Mean photoperiod (hours)", y="Thermal time to 50% flowering (oCd)") +
+  theme(
+   #  panel.border = element_rect(colour = "black", size = 3),
+     panel.grid.major = element_blank(),
+     panel.grid.minor = element_blank(),
+     axis.line = element_line(colour = "black"))+
+   #  geom_abline(slope=369.2, intercept=-3237, size=3) +
+    theme(strip.background = element_rect(colour = "black", fill = "white",size=1.5))+
+  theme(legend.title=element_blank())
+
+
+#ggsave("plot_2_TT50FlowversusMeanPp_ThermalTimeFlo_FieldReanalysisDecreasingPp.tiff", width=16, height=12, dpi=600)
+
+##This selection was made for the ACC paper with only field data as suggested 
+#write.table(  Selection, "Selection.csv")
+
+```
+
+
+
+
+
+
 
 
 ```{r}
@@ -161,8 +298,13 @@ options(scipen=999)
 
 dfregGroup <- df_FP_all_mean %>% 
       filter(Variable=="TT50F") %>%
-      filter(Experiment != "GC") %>%
-    group_by(SensGroup, PpDir) %>%
+      ##fieldAndReanalysis Data
+  #filter(Experiment != "GC") %>%
+  #FieldData only
+  filter(Experiment!="GC"|Experiment!="Iversen") %>%
+  filter(SensGroup=="L")%>%
+    #(SensGroup, PpDir) %>%
+  group_by(PpDir) %>%
     do(fitreg = lm(mean  ~  PpMean , data = .))
 
 dfCoef <- tidy(dfregGroup, fitreg)
@@ -176,7 +318,9 @@ dfCoef
 ```{r}
 dfregGroup <- df_FP_all_mean %>% 
       filter(Variable=="TT50F") %>%
-      filter(Experiment != "GC") %>%
+      #filter(Experiment != "GC") %>%
+  filter(Experiment!="GC"|Experiment!="Iversen") %>%
+   filter(SensGroup=="L")%>%
     group_by(PpDir) %>%
     do(fitreg = lm(mean  ~  PpMean , data = .))
 
@@ -211,7 +355,7 @@ Iversen <- df_FP_all_mean %>%
 
 
 
-Just for Iversen
+Just for Iversen (For AAc paper !)
 ```{r}
 library(broom)
 options(scipen=999)

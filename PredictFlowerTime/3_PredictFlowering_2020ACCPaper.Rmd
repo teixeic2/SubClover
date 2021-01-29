@@ -1,7 +1,7 @@
 ---
 title: "TPredict time to flower in Lincoln and H Bay"
 author: "CT"
-date: "01 Jan 2016"
+date: "14 Oct 2020"
 output: 
   word_document: default
   pdf_document: default
@@ -73,77 +73,86 @@ summary(dfLocations)
 
 
 
-GEt the day of the year from date 
+Get the day of the year from date 
 remove the SumTTday to recalculate by location
 
 
-Use equations 
-chpater 4
-Group	PpDir	intercept	slope
-E	Dec	-5498	545
-E	Inc	2263	-104.3
-L	Dec	-4831	458
-L	Inc	1814	-64.6
+Use equation from chapter 7 only for the Decreasing Pp 
 
-Chapter 3 
-Group	PpDir	intercept	slope
-E Dec -8739 831
-E	Inc	1275	41
-L	Dec	-10721	977
-L	Inc	722	27
+Chapter 7 
+TT50F = -3237(±275.8)+369(±22.1)Pp, R2=0.8,
 
+Chapter 4 dsubdata : Updated after Derricks review: use only Iversen equation - late cvs 
+
+TT50F = -5040(±225.9.8) + 487(±16.0Pp, R2=0.99 p<0.001. 
 
 
 ```{r}
 
 ##(Indicate the sowing date inDOY)
-##Sow 01.03
-#DOY_sow <-60
-##Sow 01.04 
-DOY_sow <- 75
 
-df_flow_date <- dfLocations %>%
-    mutate(DOY=yday(Date)) %>%
-  mutate(TT_sum_window = ifelse(DOY >DOY_sow,"PostSow","BeforeSow")) %>%  
-  dplyr::rename(Location=LocationYear) %>%
+##Sow (sow in February 1)
+#DOY_sow <-32
 
-  dplyr::select(-SumTTday) %>%
-  mutate(Year=year(Date)) %>%
-  mutate(LocationYear=paste0(Location,"_",Year)) %>%
-  mutate(LocationYear=factor(LocationYear)) %>%
-  mutate(PeriodLabel=paste0(LocationYear,"_",TT_sum_window)) %>%
-  group_by(PeriodLabel) %>%
-  arrange(Date) %>%
-  mutate(AcumTTday = cumsum(TTday)) %>%
-  mutate(Pp_sum = cumsum(Pp)) %>%
-  mutate(Pp_mean=Pp_sum/(DOY-DOY_sow)) %>%
-  # mutate(Ppmean=Pp) %>%
-  # mutate(lag_Pp_mean=lag(Ppmean),
-  #                 Pp_mean=(Pp+lag_Pp_mean)/2) %>%
-  ##Use for chapter 4# mutate(
-    mutate(TT50_I_E = max(2263 + (-104.3)*Pp_mean, 800),
-    TT50_I_L = max(1814 + (-64.6)*Pp_mean,800),
-    TT50_D_E = max(-5498 + 545*Pp_mean,1200),
-    TT50_D_L = max(-4831 + 458*Pp_mean,1200))  %>%
- ##Use equatios chapter 3 
-   # mutate(
-   #   TT50_I_E = 1275 + (-41)*Pp_mean,
-   #   TT50_I_L = 722 + (27)*Pp_mean,
-   #   TT50_D_E = -8739 + 831*Pp_mean,
-   #   TT50_D_L =  -10721 + 977*Pp_mean)  %>%
-  
-  filter(TT_sum_window == "PostSow") %>%
-  mutate(
-    DateTT50_I_E = ifelse(AcumTTday>TT50_I_E,"F","V"),
-    DateTT50_I_L =ifelse(AcumTTday>TT50_I_L,"F","V"),
-    DateTT50_D_E = ifelse(AcumTTday>TT50_D_E,"F","V"),
-    DateTT50_D_L =  ifelse(AcumTTday>TT50_D_L,"F","V")) %>%
-    mutate(Pp_diff = Pp - lag(Pp, default = Pp[1])) %>%
-    ungroup()
+##Sow (sow in February 15)
+#DOY_sow <-46
 
-summary(df_flow_date)
+##Sow (sow in March 1)
+#DOY_sow <-61 
+
+## Sow in March 15
+#DOY_sow <-75
+
+##Sow in 01 April 
+#DOY_sow <- 92
+
+##Sow in 15 April 
+#DOY_sow <- 106
+
+##Sow in 01 May
+DOY_sow <- 122
+
+##Sow in 15 May
+#DOY_sow <- 137
+
+# df_flow_date <- dfLocations %>%
+#     mutate(DOY=yday(Date)) %>%
+#   mutate(TT_sum_window = ifelse(DOY >DOY_sow,"PostSow","BeforeSow")) %>%  
+#   dplyr::rename(Location=LocationYear) %>%
+# 
+#   dplyr::select(-SumTTday) %>%
+#   mutate(Year=year(Date)) %>%
+#   mutate(LocationYear=paste0(Location,"_",Year)) %>%
+#   mutate(LocationYear=factor(LocationYear)) %>%
+#   mutate(PeriodLabel=paste0(LocationYear,"_",TT_sum_window)) %>%
+#   group_by(PeriodLabel) %>%
+#   arrange(Date) %>%
+#   mutate(AcumTTday = cumsum(TTday)) %>%
+#   mutate(Pp_sum = cumsum(Pp)) %>%
+#   mutate(Pp_mean=Pp_sum/(DOY-DOY_sow)) %>%
+#   # mutate(Ppmean=Pp) %>%
+#   # mutate(lag_Pp_mean=lag(Ppmean),
+#   #                 Pp_mean=(Pp+lag_Pp_mean)/2) %>%
+#   ##Use for chapter 7# mutate(
+#     mutate(TT50_D_E = max(-3237 + 369*Pp_mean,565),
+#     TT50_D_L = max(-4831 + 458*Pp_mean,770))  %>%
+#  ##Use equatios chapter 3 
+#    # mutate(
+#    #   TT50_I_E = 1275 + (-41)*Pp_mean,
+#    #   TT50_I_L = 722 + (27)*Pp_mean,
+#    #   TT50_D_E = -8739 + 831*Pp_mean,
+#    #   TT50_D_L =  -10721 + 977*Pp_mean)  %>%
+#   
+#   filter(TT_sum_window == "PostSow") %>%
+#   mutate(DateTT50_D_E = ifelse(AcumTTday>TT50_D_E,"F","V"),
+#     DateTT50_D_L =  ifelse(AcumTTday>TT50_D_L,"F","V")) %>%
+#     mutate(Pp_diff = Pp - lag(Pp, default = Pp[1])) %>%
+#     ungroup()
+# 
+# summary(df_flow_date)
+
 ```
-Use data for combining equations reanalysis and field 
+Use data for combining equations reanalysis and field (Chapter 7)
 
 ```{r}
 
@@ -166,10 +175,18 @@ df_flow_date <- dfLocations %>%
   # mutate(lag_Pp_mean=lag(Ppmean),
   #                 Pp_mean=(Pp+lag_Pp_mean)/2) %>%
   ##Use for chapter 4# mutate(
+    # mutate(TT50_I_E = 774,
+    # TT50_I_L = 1090,
+    # TT50_D_E = min(max(-3237 + 369*Pp_mean,808),1716),
+    # TT50_D_L = min(max(-3237 + 369*Pp_mean,1062)),2328)  %>%
+  ##Use for chapter 4 only field experiment and late cvs # 
+  ##TT50F = -5040(±225.9.8) + 487(±16.0Pp, R2=0.99 p<0.001
     mutate(TT50_I_E = 774,
     TT50_I_L = 1090,
-    TT50_D_E = min(max(-3237 + 369*Pp_mean,808),1716),
-    TT50_D_L = min(max(-3237 + 369*Pp_mean,1062)),2328)  %>%
+    TT50_D_E = min(max(-5040 +487*Pp_mean,800),1750),
+    TT50_D_L = min(max(-5040 + 487*Pp_mean,1000)),2400)  %>%
+  
+  
  ##Use equatios chapter 3 
    # mutate(
    #   TT50_I_E = 1275 + (-41)*Pp_mean,
@@ -230,7 +247,7 @@ df_flow_date_D_E %>%
 
 ```{r}
 df_gather <- df_flow_date %>%
- gather(VarName,VarValue,DateTT50_I_E:DateTT50_D_L) %>%
+ gather(VarName,VarValue,DateTT50_D_E:DateTT50_D_L) %>%
  mutate(VarName=factor(VarName), VarValue=factor(VarValue)) %>%
  group_by(VarName, LocationYear) %>%
   filter(VarValue=="F") %>%
@@ -248,8 +265,10 @@ library(scales)
 df_gather %>%
   filter(VarName!="DateTT50_I_E") %>%
   filter(VarName!="DateTT50_I_L") %>%
+  filter(VarName!="DateTT50_D_E") %>%
 #  mutate(VarName=factor(VarName,levels=c(,labels=c()))) %>%
   ggplot(aes(x=DOY+ref, y=..scaled.., fill=VarName)) +
+  
  #  ggplot(aes(x=DOY+ref, fill=VarName)) +
   geom_density(alpha=0.3)  +
   facet_grid(Location~., scales='free') +
@@ -258,7 +277,7 @@ df_gather %>%
   theme(text = element_text(size=20)) + 
     scale_x_date(date_breaks = "1 month", 
                  labels=date_format("%b"),
-                 limits = as.Date(c('2000-06-01','2000-11-01')))+
+                 limits = as.Date(c('2000-06-01','2000-11-15')))+
   
   
   theme(
@@ -270,7 +289,7 @@ df_gather %>%
   
   #theme(strip.background = element_rect(colour = "black", fill = "white",size=1)) 
 
- ggsave("plot_1_PredictFlowering.tiff", width=12, height=10, dpi=600)
+ #ggsave("plot_1_PredictFlowering.tiff", width=12, height=10, dpi=600)
  
 ```
 
@@ -284,17 +303,19 @@ library(scales)
 df_gather %>%
   filter(VarName!="DateTT50_I_E") %>%
   filter(VarName!="DateTT50_I_L") %>%
+   filter(VarName!="DateTT50_D_E") %>%
 #  mutate(VarName=factor(VarName,levels=c(,labels=c()))) %>%
   ggplot(aes(x=DOY+ref, y=..scaled.., fill=VarName)) +
  #  ggplot(aes(x=DOY+ref, fill=VarName)) +
   geom_density(alpha=0.3)  +
   facet_grid(Location~., scales='free') +
+   geom_abline(xintercept = 0.5, linetype=2, colour='darkgrey') +
   ylab("Probability of flowering (dimentionsless)") +
   xlab("Flowering month") + theme_bw()+
   theme(text = element_text(size=20)) + 
     scale_x_date(date_breaks = "1 month", 
                  labels=date_format("%b"),
-                 limits = as.Date(c('2000-06-01','2000-11-01')))+
+                 limits = as.Date(c('2000-06-01','2000-11-15')))+
   
   
   theme(
@@ -306,9 +327,11 @@ df_gather %>%
   
   #theme(strip.background = element_rect(colour = "black", fill = "white",size=1)) 
 
- ggsave("plot_1_PredictFlowering_Version2.tiff", width=12, height=10, dpi=600)
+ #ggsave("plot_1_PredictFlowering_Version2.tiff", width=12, height=10, dpi=600)
  
 ```
+
+
 
 
 

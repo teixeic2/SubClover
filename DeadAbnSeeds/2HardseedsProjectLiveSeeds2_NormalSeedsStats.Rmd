@@ -104,6 +104,17 @@ summary(df_final)
 #Rename dataframe and columns
 df_SoftGerm <- df_final%>%
   mutate(SoftGerm_perc=NormCumProp)
+
+
+## get the SD for the Crop Pasture paper 
+df_SoftGerm2<-df_SoftGerm %>%
+  mutate (SowTreat= factor(SowTreat, levels=c("S1", "S2", "S3", "S4", "S6","S7"),labels=c("June", "July", "September", "November", "February","March")))%>%
+  filter(Round == 119) %>%
+  group_by(Cultivar,SowTreat, Depth) %>%
+  dplyr::select(SoftGerm_perc) %>%
+  summarise_all(funs(mean,sd)) 
+
+
 ```
 
 

@@ -177,7 +177,7 @@ dfError<- Graphic%>%
   #geom_text(aes(label=Cultivar),hjust=0, vjust=0,size=7) +
   geom_line(aes(colour=Cultivar)) +
    # geom_point(data = dfError,aes(x=2000,y=100))+
-  geom_errorbar(data=dfError, aes(ymin=mean-SE,ymax=mean+SE),width=150)+
+  geom_errorbar(data=dfError, aes(ymin=mean-SE,ymax=mean+SE),width=150) +
    
  #facet_grid(.~SowTreat) +
   facet_wrap(~SowTreat, ncol=2) +
@@ -185,9 +185,10 @@ dfError<- Graphic%>%
 
   labs(y=" Percentage of Hardseeds (%)") +
   
-  theme_bw()+
-  ylim(0,130)+
+  theme_bw() +
+  #ylim(0,130)+
    xlim(0,2400)+
+   scale_y_continuous(limits = c(0, 130), breaks = seq(0, 150, by = 25)) +
   
   xlab(expression(Accumulated~Thermal~time~"("^"o"*"Cd)"))+
     geom_abline(intercept = 50,  slope = 0, linetype=2)+
@@ -209,6 +210,171 @@ dfError<- Graphic%>%
 #ggsave("plots_14HardPrjt_New_OverTtSum_PercentHard.tiff", width=12, height=8, dpi=500)
 
 ggsave("plots_14HardPrjt_ReNew_OverTtSum_PercentHard.tiff", width=16, height=16, dpi=500)
+
+
+```
+
+
+Do one without border 
+
+
+```{r, fig.height= 14, fig.width=14}
+#change data frame name and Graph Breakdown live hard seeds 
+
+#df_cum_soft<- df_Dif2
+
+
+Graphic<- dfSubSet%>%
+  mutate(SowingD = dmy(SowingD)) %>%
+  mutate (SowTreat= factor(SowTreat, levels=c("S1", "S2", "S3", "S4", "S6","S7"),labels=c("June", "July", "September", "November", "February","March")))%>%
+  #mutate(Cultivar= factor(Cultivar, 
+                           #levels=c("Antas", "Denmark", "Leura", "Monti", "Narrikup", "Woogenellup"),
+                           #labels=c("A", "D", "L", "M", "N.", "W"))) %>%
+  #filter(Round == 14) %>%
+  
+  group_by(Cultivar, SowTreat,TtSum) %>%
+  
+  dplyr::select(HardAccum) %>%
+
+  summarise_all(funs(mean,sd))
+
+
+
+
+dfError<- Graphic%>%
+  group_by(SowTreat)%>%
+  summarise(SE=max(sd)/3.46)%>%
+  mutate(TtSum=2000,mean=100) %>%
+  ungroup()
+
+##x=2000
+##y=100
+  
+ 
+  Graphic %>%
+  ggplot(aes(x=TtSum, y=mean)) +
+  #ggplot(aes(x=TtSum, y=mean, shape=Cultivar)) +
+  geom_point(size=8, aes(colour=Cultivar, shape=Cultivar),stroke =1.2) +
+  #geom_text(aes(label=Cultivar),hjust=0, vjust=0,size=7) +
+  geom_line(aes(colour=Cultivar)) +
+   # geom_point(data = dfError,aes(x=2000,y=100))+
+  geom_errorbar(data=dfError, aes(ymin=mean-SE,ymax=mean+SE),width=150)+
+   
+ #facet_grid(.~SowTreat) +
+  facet_wrap(~SowTreat, ncol=2) +
+  
+
+  labs(y=" Percentage of Hardseeds (%)") +
+  
+  theme_bw()+
+ # ylim(0,130)+
+     scale_y_continuous(limits = c(0, 130), breaks = seq(0, 120, by = 25)) +
+   xlim(0,2100)+
+  
+  xlab(expression(Accumulated~Thermal~time~"("^"o"*"Cd)"))+
+    geom_abline(intercept = 50,  slope = 0, linetype=2)+
+    geom_abline(intercept = 75,  slope = 0, linetype=2)+
+# #remove grid lines 
+   theme(panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(),
+        strip.background = element_blank(),
+        panel.border = element_rect(colour = "black"))+
+    theme(text = element_text(size=26))+
+    theme(axis.text.x = element_text(angle = 60, hjust = 1, size=22))
+#    
+#    
+#    #make TT target labels  white  
+   #theme(strip.background = element_rect(colour = "black", fill = "white",size=2))
+  
+#ggsave("plots_14HardPrjt_New_OverTtSum_PercentHard.tiff", width=12, height=8, dpi=500)
+
+#ggsave("plots_14HardPrjt_ReNew_OverTtSum_PercentHard_Version2.tiff", width=16, height=16, dpi=500)
+ggsave("plots_14HardPrjt_ReNew_OverTtSum_PercentHard_Version2_a.tiff", width=12, height=12, dpi=300)
+
+
+```
+
+
+
+
+
+
+Do one without border and with days in the x axis. note Round refers to days of incubation!!! 
+
+
+```{r, fig.height= 14, fig.width=14}
+#change data frame name and Graph Breakdown live hard seeds 
+
+#df_cum_soft<- df_Dif2
+
+
+Graphic2<- dfSubSet%>%
+  mutate(SowingD = dmy(SowingD)) %>%
+  mutate (SowTreat= factor(SowTreat, levels=c("S1", "S2", "S3", "S4", "S6","S7"),labels=c("June", "July", "September", "November", "February","March")))%>%
+  #mutate(Cultivar= factor(Cultivar, 
+                           #levels=c("Antas", "Denmark", "Leura", "Monti", "Narrikup", "Woogenellup"),
+                           #labels=c("A", "D", "L", "M", "N.", "W"))) %>%
+  #filter(Round == 14) %>%
+  
+  group_by(Cultivar, SowTreat,TtSum, Round ) %>%
+  
+  dplyr::select(HardAccum) %>%
+
+  summarise_all(funs(mean,sd))
+
+
+
+
+dfError1<- Graphic2%>%
+  group_by(SowTreat)%>%
+  summarise(SE=max(sd)/3.46)%>%
+  #mutate(TtSum=2000,mean=100) %>%
+   mutate(Round=140,mean=90) %>%
+  ungroup()
+
+##x=2000
+##y=100
+  
+ 
+  Graphic2 %>%
+  ggplot(aes(x=Round, y=mean)) +
+  #ggplot(aes(x=TtSum, y=mean, shape=Cultivar)) +
+  geom_point(size=8, aes(colour=Cultivar, shape=Cultivar),stroke =1.2) +
+  #geom_text(aes(label=Cultivar),hjust=0, vjust=0,size=7) +
+  geom_line(aes(colour=Cultivar)) +
+   # geom_point(data = dfError,aes(x=2000,y=100))+
+  geom_errorbar(data=dfError1, aes(ymin=mean-SE,ymax=mean+SE),width=9, size =1)+
+   
+ #facet_grid(.~SowTreat) +
+  facet_wrap(~SowTreat, ncol=2) +
+  
+
+  labs(y=" Percentage of Hardseeds (%)") +
+  
+  theme_bw()+
+ # ylim(0,130)+
+     scale_y_continuous(limits = c(0, 130), breaks = seq(0, 120, by = 25)) +
+   #xlim(0,150)+
+    scale_x_continuous(limits = c(0, 150), breaks = seq(0, 150, by = 25)) +
+  
+  xlab(expression(Incubation~Days~("days")))+
+    geom_abline(intercept = 50,  slope = 0, linetype=2)+
+    geom_abline(intercept = 75,  slope = 0, linetype=2)+
+# #remove grid lines 
+   theme(panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(),
+        strip.background = element_blank(),
+        panel.border = element_rect(colour = "black"))+
+    theme(text = element_text(size=26))+
+    theme(axis.text.x = element_text(angle = 60, hjust = 1, size=22))
+#    
+#    
+#    #make TT target labels  white  
+   #theme(strip.background = element_rect(colour = "black", fill = "white",size=2))
+  
+#ggsave("plots_14HardPrjt_New_OverTtSum_PercentHard.tiff", width=12, height=8, dpi=500)
+
+ggsave("plots_14HardPrjt_ReNew_Days_PercentHard.tiff", width=16, height=16, dpi=500)
 
 
 ```
@@ -659,6 +825,106 @@ ggsave("plots_Prjct14_HardSeedBreakdown_Tt.tiff", width=16, height=16, dpi=500)
 
 ```
 
+
+
+```{r, fig.height=8, fig.width=12}
+
+#Graph the maximum percentage of Live hardseeds!!! Here graph already show SE sd/3,.46 n = 3.
+
+str( df_graf2)
+
+  df_graf2 %>%
+  mutate(SowingD = dmy(SowingD)) %>%
+  group_by(Cultivar, SowTreat, Depth, SowingD)%>%
+  dplyr::select(RateDecreasePerTTunit) %>%
+  #dplyr::select(  RateDecreasePerDay) %>%
+  summarise_all(funs(mean,sd))%>%
+  ungroup %>%
+  mutate (SowTreat= factor(SowTreat, levels=c("S1", "S2", "S3", "S4", "S6", "S7"),labels=c("Jun", "Jul", "Sept", "Nov", "Feb", "Mar")))%>%
+  ggplot(aes(x=SowingD, y=mean, colour=Depth,linetype=Depth, shape=Depth)) +
+  scale_color_manual(values = c("Above" = "black", "Below" = "grey"))+
+  #scale_shape(solid = FALSE)+
+  geom_point(size=8) +
+  geom_line() +
+ facet_wrap(~Cultivar,ncol=2) +
+  labs(x="Sowing date") +
+  ylab(expression(Average~breakdown~rate~"( % units per "^"o"*"Cd)"))+
+  theme(axis.text.x = element_text(angle = 90, hjust = 1))+
+                  geom_errorbar(aes(ymin=mean-sd/3.46,
+                    ymax=mean+sd/3.46))+
+  theme_bw()+
+  ylim(0,0.038)+
+  #scale_x_date(breaks = "3 month")+
+  theme(axis.text.x=element_text(angle = 0, hjust = 0.5, size= 22))+
+  theme(axis.text.y=element_text(angle = 0, hjust = 0, size= 22))+
+  
+  #remove grid lines 
+  theme(panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(),
+        strip.background = element_blank(),
+        panel.border = element_rect(colour = "black"))+
+   theme(text = element_text(size=28))
+   
+   
+   #make TT target labels  white  
+   #theme(strip.background = element_rect(colour = "black", fill = "white",size=2))
+  
+#ggsave("plots_HardSeedBreakdown_Tt.tiff", width=15, height=8, dpi=500)
+ggsave("plots_Prjct14_HardSeedBreakdown_Tt_Version2.tiff", width=16, height=16, dpi=500)
+
+```
+
+
+Version 3 not considering above below (crop pasture paper) 
+
+```{r, fig.height=8, fig.width=12}
+
+#Graph the maximum percentage of Live hardseeds!!! Here graph already show SE sd/3,.46 n = 3.
+
+str( df_graf2)
+
+  df_graf2 %>%
+  mutate(SowingD = dmy(SowingD)) %>%
+  group_by(Cultivar, SowTreat, SowingD)%>%
+  dplyr::select(RateDecreasePerTTunit) %>%
+  #dplyr::select(  RateDecreasePerDay) %>%
+  summarise_all(funs(mean,sd))%>%
+  ungroup %>%
+  mutate (SowTreat= factor(SowTreat, levels=c("S1", "S2", "S3", "S4", "S6", "S7"),labels=c("Jun", "Jul", "Sept", "Nov", "Feb", "Mar")))%>%
+  ggplot(aes(x=SowingD, y=mean,  shape=Cultivar)) +
+  scale_color_manual(values = c("Above" = "black", "Below" = "grey"))+
+  #scale_shape(solid = FALSE)+
+  geom_point(size=8) +
+  geom_line() +
+ facet_wrap(~Cultivar,ncol=2) +
+  labs(x="Sowing date") +
+  ylab(expression(Average~breakdown~rate~"( % units per "^"o"*"Cd)"))+
+  theme(axis.text.x = element_text(angle = 90, hjust = 1))+
+                  geom_errorbar(aes(ymin=mean-sd/3.46,
+                    ymax=mean+sd/3.46))+
+  theme_bw()+
+  ylim(0,0.038)+
+  #scale_x_date(breaks = "3 month")+
+  theme(axis.text.x=element_text(angle = 0, hjust = 0.5, size= 22))+
+  theme(axis.text.y=element_text(angle = 0, hjust = 0, size= 22))+
+  
+  #remove grid lines 
+  theme(panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(),
+        strip.background = element_blank(),
+        panel.border = element_rect(colour = "black"))+
+   theme(text = element_text(size=28))
+   
+   
+   #make TT target labels  white  
+   #theme(strip.background = element_rect(colour = "black", fill = "white",size=2))
+  
+#ggsave("plots_HardSeedBreakdown_Tt.tiff", width=15, height=8, dpi=500)
+ggsave("plots_Prjct14_HardSeedBreakdown_Tt_Version3.tiff", width=16, height=16, dpi=500)
+
+```
+
+
 ##Graph the quadrant scheme with HardMax and Breakdown 
 
 
@@ -746,6 +1012,66 @@ ggsave("plots_Prjt14_HSmaxPlottedHSbreak_Quadrant.tiff", width=18, height=22, dp
 ```
 
 
+
+
+```{r, fig.width=12, fig.height= 20, warning=FALSE}
+
+fs<-30
+
+ss<-2
+
+av_shx<-median(Average$HardPerc_Initial14_mean) #= 76 #; mediam = 82
+
+av_break<-median(Average$RateDecreasePerTTunit_mean) #= 0.013 # median = 0.12
+  
+  Average %>%
+  ungroup %>%
+  mutate (SowTreat= factor(SowTreat, levels=c("S1", "S2", "S3", "S4", "S6", "S7"),
+                           labels=c("Jun", "Jul", "Sept", "Nov", "Feb", "Mar")))%>%
+    mutate(Cultivar_letter= factor(Cultivar, 
+                           levels=c("Antas", "Denmark", "Leura", "Monti", "Narrikup", "Woogenellup"),
+                           labels=c("A", "D", "L", "M", "N.", "W"))) %>%
+                           
+  
+  ggplot(aes(x=RateDecreasePerTTunit_mean, y=HardPerc_Initial14_mean, colour=Cultivar, shape=Cultivar)) +
+  geom_point(fill = "white", size = 0.1, alpha=0.1) +
+  geom_text(aes(label=Cultivar_letter),hjust=0, vjust=0,size=fs*0.3) +
+  geom_line() +
+  ylab(HS[max]~" (%)") +
+  xlab(expression(HS["break"]~"(% units per "^"o"*"Cd)"))+
+  theme(axis.text.x = element_text(angle = 90, hjust = 1))+
+                  geom_errorbar(aes(ymin=HardPerc_Initial14_mean-HardPerc_Initial14_sd/3.46,
+                    ymax=HardPerc_Initial14_mean+HardPerc_Initial14_sd/3.46))+
+    
+    geom_errorbarh(aes(xmin=RateDecreasePerTTunit_mean-RateDecreasePerTTunit_sd/3.46,
+                    xmax=RateDecreasePerTTunit_mean+RateDecreasePerTTunit_sd/3.46))+
+  theme_bw()+
+
+  #remove grid lines 
+   theme(panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(),
+        strip.background = element_blank(),
+        panel.border = element_rect(colour = "black"))+
+    
+  geom_abline(slope=0, intercept=av_shx, linetype=2) +
+  geom_vline(slope=0, xintercept=av_break,linetype=2) + 
+  xlim(0,0.028)+
+  ylim(0,115)+
+  scale_x_continuous(breaks = c(0.01,0.02,0.03))+
+   
+  annotate("text", x = 0.004, y = 110, label = "High max \nLow break",size=fs*0.3, colour='black')+
+  annotate("text", x = 0.026, y = 15, label = "Low max \nHigh break",size=fs*0.3, colour='black')+
+  annotate("text", x = 0.004, y = 15, label = "Low max \nLow break",size=fs*0.3, colour='black')+
+  annotate("text", x = 0.026, y = 110, label = "High max \nHigh break",size=fs*0.3, colour='black')+
+    
+   #make TT target labels  white  
+   #theme(strip.background = element_rect(colour = "black", fill = "white",size=1)) +
+  facet_wrap(~SowTreat,ncol=2) +theme(text=element_text(size=fs))
+  
+#ggsave("plots_SDmaxPlottedSDbreak_Quadrant.tiff", width=12, height=8, dpi=500)
+ggsave("plots_Prjt14_HSmaxPlottedHSbreak_Quadrant-Version2.tiff", width=18, height=22, dpi=500)
+
+```
 
 
 

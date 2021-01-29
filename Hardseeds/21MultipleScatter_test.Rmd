@@ -1,0 +1,125 @@
+---
+title: "Multiple scatter plots regressions"
+author: "CT"
+date: "17.04.2020"
+output:
+  word_document: default
+  pdf_document: default
+  html_document: default
+---
+
+
+```{r loadLibraries}
+library(tidyr)
+library (dplyr)
+library (ggplot2)
+library(agricolae)
+library(knitr)
+library (lubridate)
+library(gridExtra)
+
+```
+Objective 
+_Create a fake data frame for Xiumei test her own dataset 
+-Attempt to establish correlation between the different variates 
+
+```{r loadFile}
+setwd("C:\\GitHubRepos\\SubCloverPhD\\SubClover\\Hardseeds")
+getwd()
+
+#create file
+df_all <- read.table("TestRawData.txt",header=TRUE)
+head(df_all)
+# change format 
+
+
+```
+
+
+
+
+Now plot variates to find  ...any correlation? 
+
+
+
+
+```{r, fig.height=5, fig.width=10}
+
+str(df_all)
+
+pairs(~Percent+Rain+RH+SoilTemp+PET+AirTemp,data=df_all, main="Simple Scatterplot Matrix")
+  
+
+
+```
+
+## then select columns of interest : here stats for overall means 
+
+```{r}
+
+#find coefficients 
+
+cor (df_all[,-c(1,2)])
+# cor (dfD[,-c(1,2)])
+```
+
+
+
+
+## Overall correlation:  inspect for all  variables 
+
+##note lm= linear model
+
+
+```{r}
+
+summary(lm(Percent ~ Rain+RH+PET+AirTemp+SoilTemp, df_all))
+
+
+```
+
+## Select significant variables PR= *,**...in this case only AirTemp and SoilTEmp
+
+```{r}
+
+summary(lm(Percent ~ AirTemp+SoilTemp, df_all))
+
+```
+
+
+
+If needed : subset for individual cultivars  
+
+```{r}
+
+#create a vector that holds names of all possible cultivars
+cv.unique <- unique(df_all$Cultivar)
+
+summary(cv.unique )
+
+
+for (i in 1:length(cv.unique)) {
+  
+ #print(i)
+ print(paste0(cv.unique[i],"--------------------------------"))
+  
+  #then make it subset 
+  
+  df_subset <- df_all %>%
+    subset(Cultivar==cv.unique[i])
+  
+  #add the function or calculation required based on previous chunk (select Pr **, * )
+  
+   
+    summary(lm(Percent ~ AirTemp, df_subset))
+  #print
+    
+print(summary(lm(Percent ~ SoilTemp, df_subset)))
+
+
+  } 
+
+
+```
+
+

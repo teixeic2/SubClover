@@ -126,10 +126,68 @@ ggplot(aes(x=x, y=y))  +
    geom_abline(intercept = 0,  slope = 1, linetype=2)
 
 
-ggsave("plot_GermLab_12_GompertzApprox.tiff", width=12, height=6, dpi=600)
+#ggsave("plot_GermLab_12_GompertzApprox.tiff", width=12, height=6, dpi=600)
 
 ```
 
+RE make version 2 
+
+
+```{r, fig.height=7, fig.width=14, echo = FALSE}
+df_graph%>%
+  
+ggplot(aes(x=x, y=y))  +
+  #geom_point(aes(shape=Cultivar), size=4) +
+  geom_point(aes(shape=Temperature), size=5) +
+  #for cultivars #scale_shape_manual(values = c(1,2,0,7)) +
+   scale_shape_manual(values = c(0,1,2,3,4,5,6,7,8,9,10)) +
+  #geom_line(colour="grey", linetype=2)+
+  stat_smooth(level = 0.95, size = 2, colour="lightgrey") + 
+
+  theme_grey(base_size = 28) +
+   theme_bw()+
+  
+ # xlab(expression(Gompertz~estimated~days"("*"DAS50"*")")) + 
+  #ylab("  Days to T50 Gompertz ")+
+  labs(y=expression(Days~to~T["50"]~Gompertz))+
+  labs(x=expression(Days~to~T["50"]~Approx))+
+  #xlab(" Days to T50 Approx") +
+  #facet_grid(.~Cultivar, scales="free")+
+  facet_wrap(~Cultivar, ncol=2, scales="free")+
+  theme(text = element_text(size=28))+
+  #scale_x_continuous(limits = c(0,16),breaks=c(0,2,4,6,8,10,12,14,16))+
+
+ # scale_x_continuous(breaks = seq(0,16,1), labels = labs) +
+ # theme(axis.ticks.length=unit(1, "pt"))+
+
+  scale_x_continuous(limits = c(0,16),breaks=c(0,4,8,12,16))+
+  scale_y_continuous(limits = c(0,16),breaks=c(0,4,8,12,16))+
+  theme(axis.title.x=element_text(angle = 0, hjust = 0.5,size = 22))+
+  theme(axis.text.x=element_text(angle = 0, hjust = 0.5,size = 18))+
+  theme(axis.title.y=element_text(angle = 90, hjust = 0.5,size = 22))+
+  theme(axis.text.y=element_text(angle = 0, hjust = 0.5,size = 18))+
+  ##thicks in axis
+  theme(axis.ticks.length=unit(.1, "cm"))+
+ 
+  #remove grid lines 
+   theme(
+     panel.border = element_rect(colour = "black", size = 1), 
+     panel.grid.major = element_blank(),
+     panel.grid.minor = element_blank(),
+     axis.line = element_line(colour = "black"))+
+   #scale_fill_manual("legend", values = c("Antas" = "#660066", "Denmark" = "lightgrey","Leura" = "darkgrey", "Monti" = "#FF9933","Narrikup" = "blue",  "Woogenellup" = "#033333"))+
+  
+  #make sowing dates white  
+   theme(strip.background = element_rect(colour = "black", fill = "white",size=1))+
+   
+  #add the 1:1 slope (45 degrees )
+  
+   geom_abline(intercept = 0,  slope = 1, linetype=2)
+
+
+ggsave("plot_GermLab_12_GompertzApprox_Version2.tiff", width=16, height=8, dpi=600)
+
+```
 
 
 

@@ -128,7 +128,7 @@ g <- workData_mean %>%
   facet_grid(.~Diff_Type, scales = "free") +
   theme_bw()+
   xlab("Cultivar") + 
-  ylab("Days                               Thermal time from sowing") +
+  ylab("Daysfrom sowing                               Thermal time from sowing") +
   theme(legend.title=element_blank()) +
   #theme(text = element_text(size=fs)) + 
   coord_flip() +
@@ -136,7 +136,7 @@ g <- workData_mean %>%
   geom_errorbar(aes(ymin=StackError_l, ymax=StackError_u), width=.2, colour='black', position="identity")+
  #  remove grid lines
    theme(
-   #  panel.border = element_rect(colour = "black", size = 3),
+   panel.border = element_rect(colour = "black", size = 0.9),
      panel.grid.major = element_blank(),
      panel.grid.minor = element_blank(),
      axis.line = element_line(colour = "black"))+
@@ -150,6 +150,58 @@ g <- workData_mean %>%
 g
 
 ggsave("plot_GC_Phenophases.tiff", width=20, height=12, dpi=400)
+```
+
+
+re graph wothout border 
+
+```{r, fig.height=5, fig.width=10}
+
+ust<-unique(workData_mean$Cultivar)
+
+fs<-36
+
+g <- workData_mean %>%
+  ungroup() %>%
+  group_by(Cultivar,Diff_Type) %>%
+  mutate(SummedError=cumsum(Diff_Mean)) %>%
+  mutate(StackError_u=SummedError+Diff_SD/1.73) %>%
+  mutate(StackError_l=SummedError-Diff_SD/1.73) %>%
+  ungroup() %>%
+  mutate(Stage=factor(Stage,labels=(unique(workData_mean$Stage)))) %>%
+  ungroup() %>%
+  mutate(Stage=factor(Stage, 
+        levels= c("R11", "R6", "R3", "R1", "VR", "V3", "V1", "V0"),
+   labels= c("R6-R11", "R3-R6", "R1-R3", "VR-R1", "V3-VR", "V1-V3", "V0-V1", "V0"))) %>%
+   mutate(Cultivar=factor(Cultivar, 
+        levels= c("Narrikup", "Antas", "Denmark"))) %>%
+  ggplot(aes(x=Cultivar, y=Diff_Mean, fill=factor(Stage))) +
+  scale_fill_manual("legend", values = c("R6-R11" = "#993300", 
+                                         "R3-R6" = "#FF6600","R1-R3" = "#CC6666", "VR-R1" = "#FFCC99",
+                                         "V3-VR" = "#003300", "V1-V3" = "#339900","V0-V1" = "#CCFF66", 
+                                         "V0" = "#CCCCCC" )) +
+  facet_grid(.~Diff_Type, scales = "free") +
+  theme_bw()+
+  xlab("Cultivar") + 
+  ylab("Daysfrom sowing                               Thermal time from sowing") +
+  theme(legend.title=element_blank()) +
+  #theme(text = element_text(size=fs)) + 
+  coord_flip() +
+  geom_bar(stat="identity", aes(fill=Stage),width = 0.4) +
+  geom_errorbar(aes(ymin=StackError_l, ymax=StackError_u), width=.2, colour='black', position="identity")+
+ #  blank panel borders
+  theme(panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(),
+        strip.background = element_blank(),
+        axis.line = element_line(colour = "black"),
+        panel.border = element_rect(colour = "black"))+
+  
+  theme(text = element_text(size= fs))
+  
+  
+g
+
+ggsave("plot_GC_Phenophases_Version2.tiff", width=20, height=12, dpi=500)
 ```
 
 

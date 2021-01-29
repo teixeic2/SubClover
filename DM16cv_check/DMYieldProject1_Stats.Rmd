@@ -1,0 +1,450 @@
+---
+title: "Seed Number and yield   "
+author: "CT"
+date: "19.02.2016"
+output:
+  word_document: default
+  pdf_document: default
+  html_document: default
+  
+  #This script  reads the SeedBurrYield and tests Data first anaylsed in SeedYieldProject1
+---
+
+```{r loadLibraries}
+library(tidyr)
+library (dplyr)
+library (ggplot2)
+library(agricolae)
+library(knitr)
+library (lubridate)
+#library(rgr)
+```
+##New directory
+
+```{r loadFile}
+setwd("C:\\GitHubRepos\\SubCloverPhD\\SubClover\\DM16cv_check")
+#setwd("C:\\github\\SubClover\\SeedYieldIv2")
+
+
+getwd()
+
+
+
+#df_seedY <- read.table("SeedYieldIv2.txt",header=TRUE)
+df_Y <- read.table("DataCheck.txt",header=TRUE)
+(df_Y)
+summary(df_Y)
+
+
+```
+
+
+adjust formats 
+
+```{r}
+
+# define factors and formats
+info_work <- df_Y%>%
+  mutate(
+    Plot = as.factor(Plot),
+    Block = as.factor(Block),
+    Cultivar = as.factor(Cultivar),
+    Plotside = as.factor (Plotside),
+     Treat = as.factor (Treat),
+    HvstSept = as.numeric(HvstSept),
+    HvstOct = as.numeric(HvstOct)
+  )
+
+str(info_work)
+summary(info_work)
+head(info_work)
+
+
+
+
+```
+
+
+
+
+Here ANOVA according S. Saville advice : LSD test unprotected by sowing date individually
+Report values in chapter whcih are the sum of the Above and below seed yields.'
+
+Here overall SowTreat and Cultivar exploration of means 
+
+```{r}
+#Filter  S1, S2, S3, S6 , S7 
+#summary(info_work)
+
+#df_YSept<- inf 
+  #filter(SowingD=="2015-06-24")
+  #filter(SowingD=="2015-07-28")
+  #filter(SowingD=="2015-09-15")
+  #filter(SowingD=="2015-11-05")
+  #filter(SowingD=="2016-02-17")
+  #filter(SowingD=="2016-03-15")
+  
+
+#data transformation many possibilities but logit worked well, however little difference between real and transformed numbers 
+
+#-------------------------------------------------
+# anova 
+file <- info_work
+##%>%
+  ##filter(SowTreat!="S1")
+
+
+file.subset <- file 
+
+head(file.subset)
+summary(file.subset)
+
+
+```
+
+```{r}
+#ANOVA
+#my.anova <- aov(HvstSept ~ Cultivar*Treat* Plotside +Block, data = file.subset)
+my.anova <- aov(HvstSept ~ Cultivar*Treat +Block, data = file.subset)
+
+my.anova <- aov(HvstSept ~  Plotside +Block, data = file.subset)
+#my.anova <- aov(Seedskg_ha ~ SowTreat + Block, data = file.subset)
+#my.anova <- aov(Seedskg_ha ~ Cultivar+ Block, data = file.subset)
+#my.anova <- aov(Seedskg_ha ~ Depth + Block, data = file.subset)
+summary(my.anova)
+```
+```{r}
+#plot(my.anova)
+```
+
+This is Tukeys test for mean comparison 
+
+```{r}
+posthoc <- TukeyHSD(x=my.anova, 'Plotside', conf.level=0.95)
+
+posthoc
+
+```
+
+This is the mean separation using Tukey 
+
+
+```{r}
+
+fogo <-HSD.test(my.anova, 'Plotside', group=TRUE)
+fogo
+
+```
+
+
+
+Then use multiple comparisons of means and get the standard errors (std)
+```{r}
+#Means separation after ANOVA
+#(LSD.test(my.anova, c("Cultivar","SowTreat"), alpha= 0.05, p.adj="none"))
+(LSD.test(my.anova, c("SowTreat"), alpha= 0.05, p.adj="none"))
+#(LSD.test(my.anova, c("Depth"), alpha= 0.05, p.adj="none"))
+```
+
+Now run the Tukeys Honest test 
+
+```{r}
+
+#Means separation after ANOVA
+#(LSD.test(my.anova, c("Cultivar"), alpha= 0.05, p.adj="none"))
+(LSD.test(my.anova, c("SowTreat"), alpha= 0.05, p.adj="none"))
+
+
+```
+
+
+
+
+
+
+
+S1
+
+
+```{r}
+#Filter  S1, S2, S3, S6 , S7 
+summary(df_seedY)
+
+df_seedYS6 <- df_seedY %>%
+  filter(SowingD=="2015-06-24")
+  #filter(SowingD=="2015-07-28")
+  #filter(SowingD=="2015-09-15")
+  #filter(SowingD=="2015-11-05")
+  #filter(SowingD=="2016-02-17")
+  #filter(SowingD=="2016-03-15")
+
+#data transformation many possibilities but logit worked well, however little difference between real and transformed numbers 
+
+#-------------------------------------------------
+# anova 
+file <- df_seedYS6
+
+
+file.subset <- file 
+
+head(file.subset)
+summary(file.subset)
+
+
+```
+
+```{r}
+#ANOVA
+#my.anova <- aov(Seedskg_ha ~ Cultivar*Depth + Block, data = file.subset)
+my.anova <- aov(Seedskg_ha ~ Cultivar + Block, data = file.subset)
+#my.anova <- aov(Seedskg_ha ~ Depth + Block, data = file.subset)
+summary(my.anova)
+```
+
+Then use multiple comparisons of means and get the standard errors (std)
+```{r}
+#Means separation after ANOVA
+(LSD.test(my.anova, c("Cultivar"), alpha= 0.05, p.adj="none"))
+#(LSD.test(my.anova, c("SowTreat"), alpha= 0.05, p.adj="none"))
+#(LSD.test(my.anova, c("Depth"), alpha= 0.05, p.adj="none"))
+```
+
+
+S2
+
+```{r}
+#Filter  S1, S2, S3, S6 , S7 
+summary(df_seedY)
+
+df_seedYS6 <- df_seedY %>%
+  #filter(SowingD=="2015-06-24")
+  filter(SowingD=="2015-07-28")
+  #filter(SowingD=="2015-09-15")
+  #filter(SowingD=="2015-11-05")
+  #filter(SowingD=="2016-02-17")
+  #filter(SowingD=="2016-03-15")
+
+#data transformation many possibilities but logit worked well, however little difference between real and transformed numbers 
+
+#-------------------------------------------------
+# anova 
+file <- df_seedYS6
+
+
+file.subset <- file 
+
+head(file.subset)
+summary(file.subset)
+
+
+```
+
+```{r}
+#ANOVA
+my.anova <- aov(Seedskg_ha ~ Cultivar*Depth + Block, data = file.subset)
+#my.anova <- aov(Seedskg_ha ~ Cultivar + Block, data = file.subset)
+#my.anova <- aov(Seedskg_ha ~ Depth + Block, data = file.subset)
+summary(my.anova)
+```
+
+Then use multiple comparisons of means and get the standard errors (std)
+```{r}
+#Means separation after ANOVA
+(LSD.test(my.anova, c("Cultivar", "Depth"), alpha= 0.05, p.adj="none"))
+#(LSD.test(my.anova, c("SowTreat"), alpha= 0.05, p.adj="none"))
+#(LSD.test(my.anova, c("Depth"), alpha= 0.05, p.adj="none"))
+```
+
+S3
+
+
+```{r}
+#Filter  S1, S2, S3, S6 , S7 
+summary(df_seedY)
+
+df_seedYS6 <- df_seedY %>%
+  #filter(SowingD=="2015-06-24")
+  #filter(SowingD=="2015-07-28")
+  filter(SowingD=="2015-09-15")
+  #filter(SowingD=="2015-11-05")
+  #filter(SowingD=="2016-02-17")
+  #filter(SowingD=="2016-03-15")
+
+#data transformation many possibilities but logit worked well, however little difference between real and transformed numbers 
+
+#-------------------------------------------------
+# anova 
+file <- df_seedYS6
+
+
+file.subset <- file 
+
+head(file.subset)
+summary(file.subset)
+
+
+```
+
+```{r}
+#ANOVA
+my.anova <- aov(Seedskg_ha ~ Cultivar*Depth + Block, data = file.subset)
+#my.anova <- aov(Seedskg_ha ~ Cultivar + Block, data = file.subset)
+#my.anova <- aov(Seedskg_ha ~ Depth + Block, data = file.subset)
+
+summary(my.anova)
+```
+
+Then use multiple comparisons of means and get the standard errors (std)
+```{r}
+#Means separation after ANOVA
+#(LSD.test(my.anova, c("Cultivar"), alpha= 0.05, p.adj="none"))
+#(LSD.test(my.anova, c("SowTreat"), alpha= 0.05, p.adj="none"))
+#(LSD.test(my.anova, c("Depth"), alpha= 0.05, p.adj="none"))
+(LSD.test(my.anova, c("Cultivar", "Depth"), alpha= 0.05, p.adj="none"))
+```
+
+s4
+
+
+```{r}
+#Filter  S1, S2, S3, S6 , S7 
+summary(df_seedY)
+
+df_seedYS6 <- df_seedY %>%
+  #filter(SowingD=="2015-06-24")
+  #filter(SowingD=="2015-07-28")
+  #filter(SowingD=="2015-09-15")
+  filter(SowingD=="2015-11-05")
+  #filter(SowingD=="2016-02-17")
+  #filter(SowingD=="2016-03-15")
+
+#data transformation many possibilities but logit worked well, however little difference between real and transformed numbers 
+
+#-------------------------------------------------
+# anova 
+file <- df_seedYS6
+
+
+file.subset <- file 
+
+head(file.subset)
+summary(file.subset)
+
+
+```
+
+```{r}
+#ANOVA
+my.anova <- aov(Seedskg_ha ~ Cultivar + Block, data = file.subset)
+#my.anova <- aov(Seedskg_ha ~ SowTreat + Block, data = file.subset)
+#my.anova <- aov(Seedskg_ha ~ Cultivar*Depth + Block, data = file.subset)
+summary(my.anova)
+```
+
+Then use multiple comparisons of means and get the standard errors (std)
+```{r}
+#Means separation after ANOVA
+(LSD.test(my.anova, c("Cultivar"), alpha= 0.05, p.adj="none"))
+#(LSD.test(my.anova, c("SowTreat"), alpha= 0.05, p.adj="none"))
+#(LSD.test(my.anova, c("Depth"), alpha= 0.05, p.adj="none"))
+```
+
+s6
+
+```{r}
+#Filter  S1, S2, S3, S6 , S7 
+summary(df_seedY)
+
+df_seedYS6 <- df_seedY %>%
+  #filter(SowingD=="2015-06-24")
+  #filter(SowingD=="2015-07-28")
+  #filter(SowingD=="2015-09-15")
+  #filter(SowingD=="2015-11-05")
+  filter(SowingD=="2016-02-17")
+  #filter(SowingD=="2016-03-15")
+
+#data transformation many possibilities but logit worked well, however little difference between real and transformed numbers 
+
+#-------------------------------------------------
+# anova 
+file <- df_seedYS6
+
+
+file.subset <- file 
+
+head(file.subset)
+summary(file.subset)
+
+
+```
+
+```{r}
+#ANOVA
+#my.anova <- aov(Seedskg_ha ~ Cultivar + Block, data = file.subset)
+#my.anova <- aov(Seedskg_ha ~ SowTreat + Block, data = file.subset)
+my.anova <- aov(Seedskg_ha ~ Cultivar*Depth + Block, data = file.subset)
+summary(my.anova)
+```
+
+Then use multiple comparisons of means and get the standard errors (std)
+```{r}
+#Means separation after ANOVA
+#(LSD.test(my.anova, c("Cultivar"), alpha= 0.05, p.adj="none"))
+#(LSD.test(my.anova, c("SowTreat"), alpha= 0.05, p.adj="none"))
+(LSD.test(my.anova, c( "Cultivar", "Depth"), alpha= 0.05, p.adj="none"))
+#(LSD.test(my.anova, c("Depth"), alpha= 0.05, p.adj="none"))
+```
+
+s7
+
+```{r}
+#Filter  S1, S2, S3, S6 , S7 
+summary(df_seedY)
+
+df_seedYS6 <- df_seedY %>%
+  #filter(SowingD=="2015-06-24")
+  #filter(SowingD=="2015-07-28")
+  #filter(SowingD=="2015-09-15")
+  #filter(SowingD=="2015-11-05")
+  #filter(SowingD=="2016-02-17")
+  filter(SowingD=="2016-03-15")
+
+#data transformation many possibilities but logit worked well, however little difference between real and transformed numbers 
+
+#-------------------------------------------------
+# anova 
+file <- df_seedYS6
+
+
+file.subset <- file 
+
+head(file.subset)
+summary(file.subset)
+
+
+```
+
+```{r}
+#ANOVA
+#my.anova <- aov(Seedskg_ha ~ Cultivar + Block, data = file.subset)
+#my.anova <- aov(Seedskg_ha ~ SowTreat + Block, data = file.subset)
+my.anova <- aov(Seedskg_ha ~ Cultivar*Depth + Block, data = file.subset)
+summary(my.anova)
+```
+
+Then use multiple comparisons of means and get the standard errors (std)
+```{r}
+#Means separation after ANOVA
+(LSD.test(my.anova, c("Cultivar"), alpha= 0.05, p.adj="none"))
+#(LSD.test(my.anova, c("SowTreat"), alpha= 0.05, p.adj="none"))
+#(LSD.test(my.anova, c("Depth"), alpha= 0.05, p.adj="none"))
+```
+
+
+
+
+
+
+
+
+

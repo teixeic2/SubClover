@@ -1,0 +1,237 @@
+---
+title: "ReadMe_Database1 : compilation  Test Database"
+author: "Teixeira C.& TEixeira E.I. "
+date: "19 sept 2020"
+
+output: html_document. This script was created to graph  th files within the NFD workflow. 
+
+---
+
+```{r setup, include=FALSE, loadlibraires}
+library (dplyr)
+library(data.table)
+library(ggplot2)
+```
+
+Read csv file ot txt file created in script 1 with all data  
+
+
+
+
+```{r readData}
+# 
+# ##NRetrieve file created with all data 
+ filePath <- (".\\Data")
+
+getwd()
+
+
+temp <- read.table("1_NFDataBase.txt",header=TRUE)
+#temp <- read.table("1_NFDataBaseCsv.csv",header=TRUE)
+##temp <- read.table("1_SmethamDear.txt",header=TRUE)
+
+summary(temp)
+
+
+```
+
+```{r}
+
+library(lubridate)
+
+NFD <- temp %>%
+  mutate(SowingDate =dmy(SowingDate) ) %>%
+  mutate(MeasurementStartDate =dmy(MeasurementStartDate))%>%
+  mutate(SowingDate =dmy(SowingDate))%>%
+  mutate(MeasurementEndDate =dmy(MeasurementEndDate))  %>%
+  mutate (DMYield  = as.numeric(DMYield ))
+
+```
+
+
+```{r}
+str(NFD)
+```
+
+## fILTER OUT aSUTRALIAN daTA filter empty rows (NA's)
+
+```{r}
+NFD1<-NFD%>%
+  filter(Region != "New South Wales")%>%
+  filter(ID!="")
+
+
+summary(NFD1)
+```
+
+
+```{r, fig.width=25}
+NFD1 %>%
+  filter(Region!="")%>%
+  group_by(Species) %>%
+  ggplot(aes(x=factor(1), fill=Species)) +
+  geom_bar(width = 0.1)+
+  coord_polar("y", start=0) +
+  facet_wrap(~Region)+
+   ylab("Number of Datapoints (u)") +
+   theme_bw(base_size = 24)
+  
+
+ #ggsave("plot_GraphMe_Species.tiff", width=12, height=10, dpi=300)
+  
+```
+
+
+
+
+```{r, fig.width=25}
+NFD1 %>%
+  #group_by(Species) %>%
+   
+  ##RainfedIrrigated
+group_by(RainfedIrrigated) %>%
+filter(Region!="")%>%
+  ggplot(aes(x=factor(1), fill=RainfedIrrigated)) +
+  geom_bar(width = 0.1)+
+  coord_polar("y", start=0) +
+  facet_wrap(~Region)+
+   ylab("Number of Datapoints (u)") +
+   theme_bw(base_size = 14) 
+
+ #ggsave("plot_GraphMe_RainfedIrrig.tiff", width=12, height=10, dpi=300)
+  
+```
+
+
+
+```{r, fig.width=15}
+
+NFD %>%
+  group_by(PastureType) %>%
+  ggplot(aes(x=factor(1), fill=PastureType)) +
+  geom_bar(width = 0.1)+
+  coord_polar("y", start=0) +
+  facet_wrap(~Region)
+
+
+
+```
+
+
+##GRaph total pasture yield by region and species 
+
+```{r, fig.width=20,fig.height=15}
+NFD %>%
+filter(YieldPeriod =="Annual pasture yield")  %>%
+ggplot(aes(x=Region, y=DMYield/1000))+
+   geom_jitter(size=4 ,alpha=0.4,width = 0.1, stroke= 1.5,aes(colour=rev(RainfedIrrigated) )) +
+  
+   geom_boxplot(alpha=0.2)+
+   scale_shape_manual(values = c(0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20))+
+   labs(x="Species", y="DM Yield t/ha")+
+   theme(axis.text.x=element_text(angle = 45, hjust = 1))+
+   theme(text=element_text(size= 21))+
+   facet_wrap(~Species, scales="free") 
+
+
+```
+
+
+##Now calculate with DM / ha /day filter only Period between harvests (Days of growth)
+
+```{r, fig.height=10, fig.width=20}
+#NFDWorked<-NFD %>%
+  #mutate(GrowDays=as.numeric(MeasurementEndDate - MeasurementEndDate))
+       
+# The palette with black:
+cbbPalette <- c("#56B4E9", "#CC0033")
+  
+  ##DOG==Days of growth
+  
+NFD %>%
+filter(YieldPeriod != "Annual pasture yield")  %>%
+  mutate(DOG=MeasurementEndDate-MeasurementStartDate) %>%
+  
+ggplot(aes(x=DOG,  y=DMYield/1000))+
+   geom_point(size=4 ,alpha=0.4, stroke= 1.5,aes(colour=(RainfedIrrigated) )) +
+    scale_colour_manual(values=cbbPalette) +
+
+  # geom_boxplot(alpha=0.2)+
+   scale_shape_manual(values = c(0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20))+
+   labs(x="DOG", y="DM Yield t/ha")+
+   theme(axis.text.x=element_text(angle = 45, hjust = 1))+
+   theme(text=element_text(size= 12))+
+   facet_grid(Species~Region, scales="free") 
+
+
+
+
+```
+
+## Continue from here ...
+
+
+```{r}
+NFD 
+```
+
+
+
+```{r}
+library(ggplot2)
+df <- data.frame(
+  group = c("Male", "Female", "Child"),
+  value = c(25, 25, 50)
+  )
+head(df)
+
+bp<- ggplot(df, aes(x="", y=value, fill=group))+
+geom_bar(width = 1, stat = "identity")
+bp
+
+
+pie <- bp + coord_polar("y", start=0)
+pie
+
+```
+
+Save Dataframe as table 
+
+```{r}
+
+##Write as Txt 
+
+write.table(your_data_frame, "1_NFDataBase.txt")
+
+
+
+
+fwrite(your_data_frame, file="1_NFDataBaseCsv.csv")
+
+
+```
+
+```{r}
+
+df_SubCloverMono<-your_data_frame %>%
+  
+filter(Species =="Sub clover") %>%
+filter (PastureType== "Monoculture")
+
+```
+
+
+```{r}
+
+
+Database_df<-your_data_frame %>%
+group_by_(Region)  %>%
+  select(Region, ID)
+  #filter(RainfedIrrigated==)
+  
+
+```
+
+
+
+

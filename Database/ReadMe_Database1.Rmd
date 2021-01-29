@@ -1,0 +1,119 @@
+---
+title: "ReadMe_Database1 : compilation  Test Database"
+author: "Teixeira C.& TEixeira E.I. "
+date: "19 sept 2020"
+
+output: html_document. This script was created to read the  CSV files within the NFD workflow. It is a draft script in progress. 
+
+---
+
+```{r setup, include=FALSE, loadlibraires}
+library (dplyr)
+library(data.table)
+```
+
+Read csv file in main Folder Data and sub folders of each publication (YearAuthor)
+
+
+```{r readData}
+
+##Need to change the directory path if folder shifts computer _location 
+filePath <- (".\\Data")
+#filePath <- (".\\DataBaseComp")
+#WorkDataPath <- (".\\DataBaseWorkData")
+
+
+# Test if there are not scraps of .csv files in folder
+all_files <- list.files(filePath,
+                        pattern = '*7.6', full.names=TRUE, 
+                        recursive = TRUE, include.dirs = T) # if true gets path
+
+paste0("Found ",length(all_files)," files. Staring from these here:")
+head(all_files)
+
+```
+
+
+
+```{r}
+
+your_data_frame <- do.call(rbind, lapply(all_files, read.csv, skip = 1, header = TRUE))
+summary(your_data_frame)
+
+```
+
+Filter only Smetham and Dear data 
+
+```{r}
+
+
+
+SmethamDear<-your_data_frame %>%
+filter(Author  =="Smetham S.L and Dear B.S")
+
+##Write as Txt 
+
+write.table(SmethamDear, "1_SmethamDear.txt")
+
+
+
+
+
+```
+
+
+
+
+
+
+Save Dataframe as table 
+
+```{r}
+
+##Write as Txt 
+
+write.table(your_data_frame, "1_AllNFDataBase.txt")
+
+
+
+
+fwrite(your_data_frame, file="1_AllNFDataBaseCsv.csv")
+
+
+```
+
+
+
+
+
+```{r}
+
+df_SubCloverMono<-your_data_frame %>%
+  
+filter(Species =="Sub clover") %>%
+filter (PastureType== "Monoculture")
+
+df_Yang<-your_data_frame %>%
+  
+filter(Author =="Yang Shuo") 
+
+
+
+
+```
+
+
+```{r}
+
+
+Database_df<-your_data_frame %>%
+group_by_(Region)  %>%
+  select(Region, ID)
+  #filter(RainfedIrrigated==)
+  
+
+```
+
+
+
+

@@ -26,6 +26,7 @@ library(lubridate)
 #library(mosaic)
 library(lattice)
 #library(gridExtra)
+library (lemon)
 ```
 
 
@@ -533,7 +534,7 @@ make a larger graph
 
 
 
-```{r, fig.height=5, fig.width=10}
+```{r, fig.height=10, fig.width=6}
 
 #select the variable and find mean and sd 
 df_Rate_MeanD <-df_RateEmerg%>%
@@ -578,8 +579,8 @@ df_Rate_MeanD %>%
   facet_wrap (~Cultivar,ncol=1)+
   ylim(0,20 ) +
   #labs(y="Time to 50% final germination",x="Temperature")+
-  #ylab(expression(Time~to~T~"%"~final~Germination~"(days)"))+
-  ylab(expression(Time~to~T50~"(days)"))+
+ #ylab(expression(Time~to~T50~"(days)"))+
+  labs(y=expression(Days~to~T["50"]))+
   xlab(expression(Temperature~"("^"o"*"C)"))+
   theme_grey(base_size = 22) +
   theme_bw()+
@@ -590,7 +591,7 @@ theme(axis.text.x=element_text(angle = 0, hjust = 0.5))+
   
   #remove grid lines 
    theme(
-     panel.border = element_rect(colour = "black", size = 3), 
+     panel.border = element_rect(colour = "black", size = 3),
      panel.grid.major = element_blank(),
      panel.grid.minor = element_blank(),
      axis.line = element_line(colour = "black"))+
@@ -605,8 +606,8 @@ theme(axis.text.x=element_text(angle = 0, hjust = 0.5))+
   theme(axis.title.y = element_text(face="bold", size=24))
 
 
- ggsave("plot_GerminationLab_Clc2_T50Perc_Germ.tiff", width=14, height=18, dpi=600)
-
+ #ggsave("plot_GerminationLab_Clc2_T50Perc_Germ.tiff", width=14, height=18, dpi=600)
+ #ggsave("plot_GerminationLab_Clc2_T50Perc_GermV2.tiff", width=14, height=18, dpi=600)
 
 ```
 
@@ -771,6 +772,94 @@ ggsave("plot_GermLabCalc2_RatePerc_Germ.tiff", width=12, height=16, dpi=600)
 
 
 ```
+
+Need to include markers as per reviewer 
+
+make the same graph with rate 
+
+```{r , fig.height=5, fig.width=10}
+
+#select the variable and find mean and sd 
+df_Rate_MeanR <-df_RateEmerg%>%
+  group_by(Cultivar, Temp, ActTemp  ) %>%
+    dplyr::select(Rate)%>%
+  summarise_all(funs(mean,sd))
+
+#then create the error bar position
+#Here how to create the end error bar with max Sd 
+# find size of bar per cultivar and temp
+# find single position of x y to put the bar
+
+#extraPos<- 1.10 # extra position for single error bar
+extraPos<- 1.1 # extra position for single error bar
+x_max<-max(df_Rate_MeanR$ActTemp)
+y_max<-max(df_Rate_MeanR$mean)
+
+# find largest standard error
+sd_df1 <- df_Rate_MeanR %>% 
+  group_by(Cultivar) %>%
+  dplyr:: select(sd)%>%
+  summarise_all(funs(max))%>%
+  ungroup() %>%
+  rowwise() %>%
+  mutate(ActTemp = x_max*extraPos, mean = y_max*extraPos, max_sd=sd)
+
+summary(sd_df1)
+
+#make a graph 
+#then graph and remember to divide the sd /2 because of the 4 replicates 
+
+
+df_Rate_MeanR %>% 
+  #select( Variable, Cultivar, Temp, mean,sd) %>%
+  ggplot(aes(x=ActTemp, y=mean)) + 
+#  geom_point(data=sd_df,aes(x=DAS,y=NumberRun_mean)) +
+  geom_point(aes(shape=Cultivar), size=6) +
+  scale_shape_manual(values = c(1,2,0,7)) +
+  geom_errorbar(data=sd_df1, aes(ymin=mean-max_sd/2,
+                    ymax=mean+max_sd/2), width=4,size=1.5)+
+  facet_wrap (~Cultivar,ncol=1)+
+  ylim(0,1.4) +
+  xlim(0,45)+
+  ylab(expression(Germination~Rate~"(1/Days)"))+
+  xlab(expression(Temperature~"("^"o"*"C)"))+
+  #labs(y="Germination rate (1/days)",x="Temperature")+
+  theme_grey(base_size = 22) +
+  theme_bw()+
+  # geom_abline(intercept = 1, slope = 0, linetype=2)+
+   geom_abline(intercept = 5,  slope = 0, linetype=2)+
+   #geom_abline(intercept = 9,  slope = 0, linetype=2)+
+   theme(axis.text.x=element_text(angle = 0, hjust = 0.5))+
+  #remove grid lines 
+    theme(
+     panel.border = element_rect(colour = "black", size = 3), 
+     panel.grid.major = element_blank(),
+     panel.grid.minor = element_blank(),
+     axis.line = element_line(colour = "black"))+
+   #scale_fill_manual("legend", values = c("Antas" = "#660066", "Denmark" = "lightgrey","Leura" = "darkgrey", "Monti" = "#FF9933","Narrikup" = "blue",  "Woogenellup" = "#033333"))+
+   
+   #make sowing dates white  
+   theme(strip.background = element_rect(colour = "black", fill = "white",size=1))+
+ 
+   ##ticks length
+  theme(axis.ticks.length=unit(.3, "cm"))+
+  
+theme(text = element_text(size = 24))
+
+
+ggsave("plot_GermLabCalc2_RatePerc_Germ.tiff", width=12, height=16, dpi=600)
+
+
+```
+
+
+Repeat graph for each cultivar then 
+
+
+
+
+
+
 
 
 This chunck is not in use graph (GRID ) and save a dataframe as txt .Here data shows SE as sd/2/2

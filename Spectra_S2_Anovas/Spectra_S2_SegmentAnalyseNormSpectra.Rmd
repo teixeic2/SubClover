@@ -18,7 +18,7 @@ library(ggplot2)
 library(agricolae)
 library(knitr)
 library(lubridate)
-library(mosaic) 
+#library(mosaic) 
 library(lattice)
 library (gridExtra)
 ```

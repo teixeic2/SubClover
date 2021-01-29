@@ -1,0 +1,212 @@
+---
+title: " Bar Graph example _panels  "
+author: "CT"
+date: "Mo, 15 June , 2020"
+output:
+  word_document: default
+  pdf_document: default
+  html_document: default 
+  
+---
+
+```{r loadLibraries}
+library(tidyr)
+library (dplyr)
+library (ggplot2)
+library(agricolae)
+library(knitr)
+library (lubridate)
+library(markdown)
+#install.packages(markdown)
+
+```
+
+##This script was created to exemplify a panel graph for Shuo 
+
+```{r loadFile}
+
+##You will need to adjust the directory path 
+
+setwd("C:\\GitHubRepos\\SubCloverPhD\\SubClover\\PastureMixes")
+getwd()
+
+#create file and check
+
+df_demo <- read.table("Demo_Botanic.txt",header=TRUE)
+head(df_demo)
+
+
+
+
+
+
+# change column formats 
+df_demo <- df_demo %>%
+  mutate(Year = as.factor(Year),
+        percentage = as.numeric(percentage))
+
+##cheeck again  
+head(df_demo)
+
+
+
+```
+
+```{r}
+
+
+#double Check
+summary(df_demo) # explore values
+
+str(df_demo) # check formats
+
+
+```
+
+
+
+
+## Basic Graph as a stack bar 
+
+
+```{r,fig.height=6, fig.width=12}
+
+##Organize data Labels
+
+df_demo%>%
+  ungroup(status)%>%
+mutate(status = factor(status, levels = c("Weed_perc",
+                                          "Dead_perc",
+                                  "Legume_perc",
+                                 "Brassica_perc",
+                                 "Grass_perc"),
+                                 
+                                 
+                          labels = c("Weed",
+                                 "Dead",
+                                 "Legume",
+                                 "Brassica",
+                                 "Grass")
+                          )) %>%
+
+  ##Assemble basic graph
+  
+  ggplot(aes(x=Mixture, y=percentage, fill=factor(status))) +
+  geom_bar(stat="identity") +
+  facet_grid(Year~HarvestTime) +
+  theme_bw()+
+  ylab("Botanic Composition Percentage (%)") +
+  xlab("Mixture Type") +
+  theme(axis.text.x = element_text(angle = 45, hjust=1)) + theme(legend.title=element_blank()) +
+  theme(text = element_text(size=16))
+ 
+##visualize 
+
+```
+
+###### HERE!  Define graph colours or texture  ###########
+##Colour palletes source  http://www.sthda.com/english/wiki/ggplot2-colors-how-to-change-colors-automatically-and-manually
+
+```{r,fig.height=6, fig.width=12}
+
+## Graph improvements create fill texture or different colours  for botanic  status. 
+
+df_demo%>%
+  ungroup(status)%>%
+mutate(status = factor(status, levels = c("Weed_perc",
+                                          "Dead_perc",
+                                  "Legume_perc",
+                                 "Brassica_perc",
+                                 "Grass_perc"),
+                                 
+                                 
+                          labels = c("Weed",
+                                 "Dead",
+                                 "Legume",
+                                 "Brassica",
+                                 "Grass")
+                          )) %>%
+
+ ggplot(aes(x=Mixture, y=percentage, fill=factor(status))) +
+  
+ 
+  geom_bar(aes(fill=status), colour="black",stat="identity")+
+ 
+  scale_fill_manual("legend", values = c("Grass" = "olivedrab", "Brassica" = "blue","Weed" = "grey", "Dead" = "black","Legume" = "coral4"))+
+  
+  facet_grid(Year~HarvestTime) +
+  theme_bw()+
+  ylab("Percentage (%)") +
+  xlab("Mixture Type") +
+  theme(axis.text.x = element_text(angle = 0, hjust=0.5)) + theme(legend.title=element_blank()) +
+  theme(text = element_text(size=18))+
+  #remove grid lines 
+   theme(
+     panel.border = element_rect(colour = "black", size = 2), 
+     panel.grid.major = element_blank(),
+     panel.grid.minor = element_blank(),
+     axis.line = element_line(colour = "black"))+
+   
+   theme(strip.background = element_rect(colour = "black", fill = "white",size=2))
+  
+  
+## Save graph as tiff 600 dpi 
+
+  ggsave("plot_PanelBotanicalComposition.tiff", width=16, height=8, dpi=600)
+# 
+
+```
+
+##Another stype of the same graph; no panel borders! 
+
+
+```{r,fig.height=6, fig.width=12}
+
+## Graph improvements create fill texture or different colours  for botanic  status. 
+
+df_demo%>%
+  ungroup(status)%>%
+mutate(status = factor(status, levels = c("Weed_perc",
+                                          "Dead_perc",
+                                  "Legume_perc",
+                                 "Brassica_perc",
+                                 "Grass_perc"),
+                                 
+                                 
+                          labels = c("Weed",
+                                 "Dead",
+                                 "Legume",
+                                 "Brassica",
+                                 "Grass")
+                          )) %>%
+
+ ggplot(aes(x=Mixture, y=percentage, fill=factor(status))) +
+  
+ 
+  geom_bar(aes(fill=status), colour="black",stat="identity")+
+ 
+  scale_fill_manual("legend", values = c("Grass" = "white", "Brassica" = "blue","Weed" = "grey", "Dead" = "black","Legume" = "red"))+
+  
+  facet_grid(Year~HarvestTime) +
+  theme_bw()+
+  ylab("Percentage (%)") +
+  xlab("Mixture Type") +
+ theme(axis.text.x = element_text(angle = 0, hjust=0.5)) + theme(legend.title=element_blank()) +
+  theme(text = element_text(size=12))+
+  #remove grid lines 
+   theme(panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(),
+        strip.background = element_blank(),
+        panel.border = element_rect(colour = "black"))
+  
+  
+## Save another version of the graph as tiff 300 dpi 
+
+ ggsave("plot_PanelBotanicalComposition_version2.tiff", width=8, height=4, dpi=300)
+# 
+
+```
+
+
+
+

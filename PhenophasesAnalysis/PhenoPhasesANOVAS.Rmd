@@ -43,7 +43,7 @@ Get means and SE to write in text
 ```{r}
 
 MeanSE<-workDataANOVA %>%
-  #filter(Stage=="R1-R3")%>%
+  filter(Stage=="R1-R3")%>%
  group_by(SowTreat,Cultivar)%>%
   #dplyr::select(DAS)%>%
   dplyr::select(TTAS)%>%

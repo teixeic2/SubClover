@@ -184,6 +184,150 @@ ggsave("plots_HardSeedsProjectLiveSeeds1_MaxHardSeeds.tiff", width=16, height=16
 
 ```
 
+Version 2 withouth borders 
+
+
+
+```{r, fig.height=16, fig.width=16}
+
+#Graph the maximum percentage of Live hardseeds!!! Here graph already show SE sd/3,.46 n = 3.
+
+  df_hard_live_max %>%
+  mutate(SowingD = dmy(SowingD)) %>%
+  filter(Round == 14) %>%
+  group_by(Cultivar,SowingD, Depth) %>%
+  dplyr::select(Hard_perc) %>%
+  summarise_all(funs(mean,sd)) %>%
+  ggplot(aes(x=SowingD, y=mean, colour=Depth,linetype=Depth, shape=Depth)) +
+  scale_color_manual(values = c("Above" = "black", "Below" = "grey"))+
+  #scale_shape(solid = FALSE)+
+  geom_point(size=8) +
+  geom_line() +
+ facet_wrap(~Cultivar,ncol=2) +
+  labs(x="Sowing date",y="HSmax (%)") +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1))+
+                  geom_errorbar(aes(ymin=mean-sd/3.46,
+                    ymax=mean+sd/3.46))+
+  theme_bw()+
+  ylim(0,100)+
+  theme(axis.text.x=element_text(angle = 0, hjust = 0.5, size= 22))+
+  theme(axis.text.y=element_text(angle = 0, hjust = 0, size= 22))+
+  theme(panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(),
+        strip.background = element_blank(),
+        panel.border = element_rect(colour = "black"))+
+   theme(text = element_text(size=28))
+  
+   
+   
+   #make TT target labels  white  
+  # theme(strip.background = element_rect(colour = "black", fill = "white",size=2))
+  
+#ggsave("plots_MaxHardSeeds.tiff", width=15, height=8, dpi=500)
+ggsave("plots_HardSeedsProjectLiveSeeds1_MaxHardSeeds_Version2.tiff", width=16, height=16, dpi=500)
+
+```
+
+Version 3 : reviewer suggested to desconsider below/above
+
+```{r, fig.height=16, fig.width=16}
+
+#Graph the maximum percentage of Live hardseeds!!! Here graph already show SE sd/3,.46 n = 3.
+
+  df_hard_live_max %>%
+  mutate(SowingD = dmy(SowingD)) %>%
+  filter(Round == 14) %>%
+  group_by(Cultivar,SowingD) %>%
+  dplyr::select(Hard_perc) %>%
+  summarise_all(funs(mean,sd)) %>%
+  #ggplot(aes(x=SowingD, y=mean, colour=Depth,linetype=Depth, shape=Depth)) +
+  ggplot(aes(x=SowingD, y=mean, shape=Cultivar)) +
+  scale_color_manual(values = c("Above" = "black", "Below" = "grey"))+
+  #scale_shape(solid = FALSE)+
+  geom_point(size=8) +
+  geom_line() +
+ facet_wrap(~Cultivar,ncol=2) +
+  labs(x="Sowing date",y="HSmax (%)") +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1))+
+                  geom_errorbar(aes(ymin=mean-sd/3.46,
+                    ymax=mean+sd/3.46))+
+  theme_bw()+
+  ylim(0,100)+
+  theme(axis.text.x=element_text(angle = 0, hjust = 0.5, size= 22))+
+  theme(axis.text.y=element_text(angle = 0, hjust = 0, size= 22))+
+  theme(panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(),
+        strip.background = element_blank(),
+        panel.border = element_rect(colour = "black"))+
+   theme(text = element_text(size=28))
+  
+   
+   
+   #make TT target labels  white  
+  # theme(strip.background = element_rect(colour = "black", fill = "white",size=2))
+  
+#ggsave("plots_MaxHardSeeds.tiff", width=15, height=8, dpi=500)
+ggsave("plots_HardSeedsProjectLiveSeeds1_MaxHardSeeds_Version3.tiff", width=16, height=16, dpi=500)
+
+```
+
+now make it a bar chart as per reviewer vesrion 4
+
+
+
+```{r, fig.height=8, fig.width=8}
+
+#Graph the maximum percentage of Live hardseeds!!! Here graph already show SE sd/3,.46 n = 3.
+
+# define position of bar and errorbar
+dodge_x <- position_dodge(width = 0.9)
+
+  df_hard_live_max %>%
+  mutate(SowingD = dmy(SowingD)) %>%
+  filter(Round == 14) %>%
+  group_by(Cultivar,SowingD) %>%
+  dplyr::select(Hard_perc) %>%
+  summarise_all(funs(mean,sd)) %>%
+  mutate(DateMMM = month(SowingD, label = TRUE) ) %>%
+  mutate(DateMMM=as.character(DateMMM) ) %>%
+  mutate(DateMMM=factor(DateMMM, levels=c("Jun","Jul","Sep","Nov", "Feb","Mar")) ) %>%
+  #ggplot(aes(x=SowingD, y=mean, colour=Depth,linetype=Depth, shape=Depth)) +
+  #ggplot(aes(x=SowingD, y=mean, shape=Cultivar)) +
+  ggplot(aes(x=DateMMM, y=mean)) +
+  #scale_color_manual(values = c("Above" = "black", "Below" = "grey"))+
+  #scale_shape(solid = FALSE)+
+  #geom_point(size=8) +
+  #geom_line() +
+  geom_bar(stat="identity",position = dodge_x) +
+     #scale_x_date(date_breaks = "1 month", 
+                # labels = date_format("%m"))+
+                 
+ facet_wrap(~Cultivar,ncol=2) +
+  labs(x="Sowing date",y="HSmax (%)") +
+   
+  theme(axis.text.x = element_text(angle = 90, hjust = 1))+
+                  geom_errorbar(aes(ymin=mean-sd/3.46,
+                    ymax=mean+sd/3.46))+
+  theme_bw()+
+  ylim(0,100)+
+  theme(axis.text.x=element_text(angle = 0, hjust = 0.5, size= 22))+
+  theme(axis.text.y=element_text(angle = 0, hjust = 0, size= 22))+
+  theme(panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(),
+        strip.background = element_blank(),
+        panel.border = element_rect(colour = "black"))+
+   theme(text = element_text(size=28))
+  
+   
+   
+   #make TT target labels  white  
+  # theme(strip.background = element_rect(colour = "black", fill = "white",size=2))
+  
+#ggsave("plots_MaxHardSeeds.tiff", width=15, height=8, dpi=500)
+#ggsave("plots_HardSeedsProjectLiveSeeds1_MaxHardSeeds_Version4_a.tiff", width=12, height=12, dpi=500)
+ggsave("plots_HardSeedsProjectLiveSeeds1_MaxHardSeeds_Version300dpiNZJAR_a.tiff", width=8, height=8, dpi=300)
+
+```
 
 
 ```{r, fig.height=7, fig.width=15}

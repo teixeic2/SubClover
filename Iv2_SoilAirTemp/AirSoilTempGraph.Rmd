@@ -154,13 +154,14 @@ df_gather2%>%
   xlab(expression(Date~"(Month/Year)"))+
   
   ylab(expression(Soil~Temperature~"("^"o"*"C)"))+
-  scale_x_date(date_breaks = "3 month", 
-                 date_labels = "%B%Y",
-                 limits = as.Date(c('2015-06-01','2017-07-07')))+
+  scale_x_date(date_breaks = "1 month", 
+                 date_labels = "%B",
+                 limits = as.Date(c('2015-06-01','2017-02-01')))+
   theme(axis.text.y = element_text(size=14))+
+  theme(axis.text.x = element_text(size=12))+
   theme(axis.title.y = element_text(size=14))+
   theme(legend.text = element_text(size=14))+
-  theme(axis.title.x = element_text(size=18))+
+  theme(axis.title.x = element_text(size=14))+
   ylim(0,40)+
   
    #remove grid lines 
@@ -178,6 +179,7 @@ df_gather2%>%
 theme(text = element_text(size = 22))
     
  #ggsave("plot_AirSoilTemp_SoilIv2_BlackWhite.png", width=12, height=6, dpi=400)
+ ggsave("plot_AirSoilTemp_SoilIv2_BlackWhite_HARDSEED.png", width=12, height=6, dpi=300)
 
 ```
 

@@ -1,0 +1,349 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+##Aim:
+
+- Reads raw data weather all trials
+- Check the data
+- Graph temperature and Pp
+- Calculates TT accumulation
+- Saves technically consistent data
+
+
+```{r, warning=FALSE}
+library(here)
+library(tidyr)
+library (dplyr)
+library (ggplot2)
+library(agricolae)
+library(knitr)
+library (lubridate)
+library(scales)
+```
+
+
+```{r}
+
+setwd("C:\\GitHubRepos\\SubCloverPhD\\SubClover\\PasturePlan_BayPlenty_")
+getwd()
+
+#create file
+#df_We <- read.table("PasturePlanGR.txt",header=TRUE)
+
+
+#df_DM <- read.table("AccDM.txt",header=TRUE)
+df_We<- read.table("RawWeatherBOP.txt",header=TRUE)
+
+
+
+```
+
+
+
+```{r}
+summary(df_We)
+
+```
+
+
+##Graph it
+
+```{r,fig.height=5, fig.width=6}
+df_We %>%
+  mutate(Date=dmy(df_We$Date)) %>%
+  #filter(LocationYear != "Mininera2005") %>%
+  tidyr::gather("Variable", "Value",Tx:Tm) %>%
+ #mutate(Month=format(as.Date(dmy(as.character(Date))),"%b")) %>%
+  ggplot(aes(x=Date,y=Value))+
+  geom_line(aes(colour=Variable)) +
+  facet_wrap(~Location,scale="free") +
+  labs(x=" Date")+
+  ylab(expression(Air~temperature~~"("^"o"*"C)")) +
+  theme_bw()+
+  scale_color_manual(values=c("#333333", "#9999CC", "#CC3300"))+
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
+  scale_x_date(labels = date_format("%b-%Y")) +
+
+
+
+  #theme(axis.title.x = element_text( size=24)) + 
+  #scale_x_continuous(breaks = c(-1:6))+
+  #scale_y_continuous(breaks= c(0, 3000,6000,12000))+
+  theme(axis.text.x=element_text(size=12))+
+  theme(axis.title.x=element_text(size=16))+
+   theme(axis.text.y = element_text( size = 12,face="bold"))+
+  theme(axis.title.y = element_text( size = 16,face="bold"))+
+  #theme(title=element_text(size=12, ,face="bold"))+
+  # theme(text=element_text(size=30,  family="serif",face="bold"))+
+  # theme(title=element_text(size=22,  family="serif",face="bold"))+
+  # theme(title=element_text(size=22,  family="serif",face="bold"))+
+  # #remove grid lines 
+   theme(
+      panel.border = element_rect(colour = "black", size = 3), 
+      panel.grid.major = element_blank(),
+      panel.grid.minor = element_blank(),
+      axis.line = element_line(colour = "black"))+
+   
+
+
+  # and strip gridlines
+   #make sowing dates white  
+   theme(strip.background = element_rect(colour = "black", fill = "white",size=2))+
+   
+   theme(strip.text.x = element_text(size = 16, colour = "black", angle = 0))
+  
+ 
+
+#ggsave(paste0(workDPath,"ch03_01_ReanTempPp.tiff"),width=10, height=10,dpi = 300)
+
+
+```
+
+##Split Graph in Australia and New Zealand 
+
+```{r,fig.height=14, fig.width=14}
+
+
+
+
+```
+
+
+
+
+
+
+
+## Define Tt cardinal temperatures
+
+Considered an overall average the following Mills et al reference:
+Tb: 3
+Top range:25
+Tmax: 40
+							
+
+```{r}
+s<-18
+tt_card <- data.frame(temp=c(3,25,25.5,40),TT=c(0,22,22,0))
+tt_card %>%
+  ggplot(aes(x=temp, y=TT))+
+  #labs(x="Temperature (degree Celsius)")+
+  #labs(y="Thermal Time (oCd)") +
+  geom_line()+
+  theme_bw()+
+  ylim(0,30)+
+xlab(expression(Temperature~"("^"o"*"C)"))+
+  ylab(expression(Thermal~Time~"("^"o"*"Cd)"))+
+  theme(axis.text.x=element_text( size= s))+
+  theme(axis.title.x=element_text( size= s))+
+  theme(axis.text.y=element_text( size= s))+
+  theme(axis.title.y=element_text(size= s))+
+   theme(panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(),
+        strip.background = element_blank(),
+        panel.border = element_rect(colour = "black")) 
+
+##ggsave(paste0(workDPath,"ch03_02_TtCalcModel.tiff"),width=12, height=8,dpi = 300)
+
+```
+
+
+
+#Create and test interpolation function - Test if works 
+
+```{r}
+
+temp_ref  <- 25 # x-axes reference
+temp <- tt_card$temp # x-axes
+TT <- tt_card$TT # y-axes
+
+
+int_func <- function(temp,TT,temp_ref){
+
+  # if temp is too low or too high give extreme TT values
+ if(temp_ref>temp[length(temp)]) {
+   
+   out <- TT[length(TT)] 
+   # FIXME: approx functions seems to do that - need param
+   
+ } else if (temp_ref<temp[1]) {
+   
+   out <- TT[1]
+   
+ } else {
+   
+   # else interpolate
+   
+   tryCatch(  
+   
+  out <- approx(temp, TT, xout = temp_ref, 
+         method="linear", 
+         rule = 2)$y,
+  error = function(e) 
+  {
+  out <- NA
+  }
+) 
+  
+} # end if check
+
+  return(out)  
+  
+ }
+  
+int_func(temp,TT,temp_ref)
+
+
+
+```
+
+#create REF Jones CA, Ritchie JT, Kiniry JR, Godwin DC (1986) Subroutine structure.In 'CERES-Maize: A simulation model of maize growth anddevelopment'. (Eds CA Jones, JR Kiniry) pp. 49-194. (Texas A&M University Press: Texas, USA
+
+```{r}
+
+TTfunc <- function(Tmin ,Tmax){         
+ 
+  if (Tmin>Tmax){
+   print("Tmin>Tmax")
+   break
+ } 
+  
+  TTav  <- 0
+  TTsum <- 0
+  
+  for(n in 1:8){ 
+    
+    tn <- 0
+    
+    TT_tn <- 0
+    
+    tn <- ((0.931 +  0.114*n - 0.0703 * n^2 + 0.0053 * n^3) * (Tmax-Tmin)) + Tmin # 8-h temperature
+    
+    TT_tn <- int_func(tt_card$temp, tt_card$T,tn) 
+    
+    TTsum <- TT_tn + TTsum
+    
+   # print(TT_tn)
+    
+    }
+ 
+   TTav <- TTsum/8
+  
+  return(TTav)
+  }
+
+TTfunc(10,24)
+
+```
+Calculate TT 
+
+- Compares with simple method to calculate Tt with base temperature of 0oC
+
+```{r}
+df_We_tt <- df_We %>%
+  mutate(Date=dmy(Date)) %>%
+  rowwise() %>%
+  mutate(TTday=TTfunc(Tm,Tx), TTday_s=(Tm+Tx)/2, diff=(TTday_s-TTday))
+
+summary(df_We_tt)
+
+
+```
+
+
+```{r}
+#Check TT  two methods : TTday_s = simple method (Tmean - Tbzero)
+df_We_tt  %>% 
+ggplot(aes(x=TTday_s, y= TTday)) +
+  geom_point(shape=21,alpha=0.2,colour='red')+
+  geom_abline(intercept = 0, slope = 1)
+
+```
+
+
+```{r}
+str(df_We_tt)
+```
+
+
+
+
+
+
+
+
+
+
+
+
+```{r}
+
+ly<-unique(df_We_tt$Location)
+df_CumTT<-data.frame()
+for(i in 1:length(ly)) {
+  
+  dfsub<-df_We_tt%>%filter(Location==ly[i])%>%
+    arrange(Date)%>%
+    mutate(SumTTday = cumsum(TTday)) %>%  
+    mutate(MinDate=min(Date))%>%
+    mutate(DayCount=as.numeric(Date-MinDate))
+
+  df_CumTT<-rbind(df_CumTT,dfsub)
+  dfsub<-NULL
+}
+
+summary( df_CumTT)
+```
+
+# #Calculate accumulated Themal time 
+
+```{r}
+
+head(df_CumTT)
+```
+Stopped here
+#Graph the accumulate TT 
+```{r}
+
+df_CumTT %>%
+  ggplot(aes(x=DayCount,y=SumTTday))+
+  geom_line(aes(colour=Location, linetype=Country)) +
+  #facet_wrap(~LocationYear,scale="free") +
+  xlim(0,max(df_CumTT$DayCount))+
+  ylim(0,max(df_CumTT$SumTTday))+
+  facet_grid(.~Country)
+
+
+```
+
+
+
+```{r}
+#write.table(df_CumTT,paste0(workDPath, "df_CumTT.txt"))
+
+write.table(df_CumTT, "df_CumTTPP.txt")
+
+
+```
+
+
+
+Then find the Growth rate DM/kg/ha per oCd
+
+
+```{r}
+
+df_We<- read.table("PasturePlanGR.txt",header=TRUE)
+
+
+
+```
+
+Build Graph using the new dataframe with kgperTT
+file is: KgDMPerTTPasturePlan
+Get Data with kgDMperTT in the next script
+
+
+

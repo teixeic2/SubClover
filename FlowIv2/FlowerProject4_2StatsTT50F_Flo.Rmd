@@ -85,6 +85,35 @@ summary(my.anova)
 ```
 
 
+try to isolate seasons to see if the environment has less influence in time to bud 
+
+Perform anova general using the TT50F 
+
+```{r}
+
+
+ file <- df_Bud %>%
+ filter(SowTreat=="S6"|SowTreat=="S7")
+ 
+file.subs <- file 
+
+head(file.subs)
+summary(file.subs)
+
+#ANOVA
+
+my.anova <- aov(TT50F ~ SowTreat + Block, data = file.subs)
+my.anova <- aov(TT50F ~ SowTreat*Cultivar + Block, data = file.subs)
+#my.anova <- aov(DAS50F ~ Cultivar + Block, data = file.subs)
+
+summary(my.anova)
+
+
+
+```
+
+
+
 ## Create index to filter for loop ANOVA
 
 ```{r}

@@ -1,0 +1,146 @@
+---
+title: "R Notebook"
+output: 
+  word_document: default
+  pdf_document: default
+  html_document: default
+---
+
+## Script created 21.12.2020 Germ Prairie ASA 2021
+
+```{r loadLibraries}
+library(tidyr)
+library (dplyr)
+library (ggplot2)
+library(agricolae)
+library(knitr)
+library (lubridate)
+
+```
+
+
+```{r}
+setwd("C:\\GitHubRepos\\SubCloverPhD\\SubClover\\PraireGerm")
+#C:\GitHubRepos\SubcloverPhD\SubClover\PraireGerm
+getwd()
+```
+
+
+
+```{r}
+
+#df_raw <- read.table("df_slopesBreak.txt",header=TRUE)
+#df_raw <- read.table("C:/GitHubRepos/SubcloverPhD/SubClover/PraireGerm/Germ.txt",header=TRUE)
+df_raw <- read.table("GermCopy.txt",header=TRUE)
+
+head(df_raw)
+```
+
+
+
+This script reads the df_slopesBreak originated in previous script and attempt to cluster the cultivars in soft, medium and hard accroding to slope 
+
+```{r loadFile}
+#create file
+
+
+df_work<-df_raw %>% 
+  #filter(slopeType=="perTt")%>%
+  mutate(mean=as.numeric(GermPerc*1)) 
+  
+
+
+```
+
+
+
+
+```{r}
+clusNo <- 3 # selected from sensitivity cluster analysis below
+
+myClus <- kmeans(df_work[,c("mean")], centers = clusNo)
+
+myClus_res.within.ss <- sum(myClus$withinss)
+
+clusterClass <- myClus$cluster
+
+dftemp1 <- cbind(df_work, clusterNo = factor(clusterClass))
+
+summary(dftemp1)
+
+```
+
+cluster considers the distance between points !
+
+```{r, fig.width=12}
+theme_set(theme_gray(base_size = 22))
+
+dftemp1 %>%
+  #mutate (TreatCombo= factor(TreatCombo , levels=c("CMS12C ", "CMS8C", "Control12C", "Control8C"),labels=c("CMS12C ", "CMS8C", #"Control12C", "Control8C")))%>%
+  mutate(Cluster = factor(clusterNo,levels=c(3,2,1),labels=c("Mix1","Mix2", "Mix3")))  %>%
+  ggplot(aes(x=TreatCombo,y=mean)) +
+  geom_errorbar(aes(ymin=mean-SE_2,ymax=mean+SE_2,colour=Cluster),alpha=0.8, width=0.5, linetype=2)+
+  geom_point(aes(shape=Species, colour=Cluster), size =4, stroke=1.5) +
+  scale_shape_manual(values=c(1,2,3,4,5,6,7,8,9))+
+  theme_bw()+
+  theme_set(theme_bw(base_size =22))+
+
+  ylab("Germination(%)") +
+  xlab("Treatment")
+  #theme(axis.text.x=element_text(angle = 0, hjust = 0.5, size= 18))+
+  #theme(axis.title.x=element_text(angle = 0, hjust = 0.5, size= 18))+
+  #theme(axis.text.y=element_text(angle = 0, hjust = 0, size= 18))+
+  #theme(axis.title.y=element_text(angle = 90, hjust = 0.5, size= 18))
+```
+
+
+
+
+```{r, fig.width=12}
+t#heme_set(theme_gray(base_size = 20))
+dftemp1 %>%
+  mutate (sow= factor(sow, levels=c("S1", "S2", "S3", "S4", "S6","S7"),
+                      labels=c("June", "July", "September", "November", "February","March")))%>%
+  mutate(Cluster = factor(clusterNo,levels=c(3,2,1),labels=c("Hard","Medium", "Soft")))  %>%
+  ggplot(aes(x=reorder(cv, mean),y=mean)) +
+ # geom_errorbar(aes(ymin=mean-sd/2.45,ymax=mean+sd/2.45,colour=Cluster),alpha=0.8, width=0.5, linetype=2)+
+ # geom_point(aes(shape=Cluster , colour=sow), size =5) +
+
+  geom_boxplot(alpha=0.2) +
+  #geom_point(aes( colour=sow), size =5) +
+  geom_point(aes(shape= sow), size=5)+
+ # geom_line()+
+  scale_shape_manual(values = c(0,1,2,3,4,5,6,7,8))+
+  theme_bw()+
+  ylab("Hardseedbreakdown (%/Tt)") +
+  xlab("Cultivar")+
+  theme(axis.text.x=element_text(angle = 0, hjust = 0.5, size= 18))+
+  theme(axis.title.x=element_text(angle = 0, hjust = 0.5, size= 18))+
+  theme(axis.text.y=element_text(angle = 0, hjust = 0, size= 22))+
+  theme(axis.title.y=element_text(angle = 90, hjust = 0.5, size= 22))+
+
+#remove grid lines 
+   theme(
+     panel.border = element_rect(colour = "black", size = 3), 
+     panel.grid.major = element_blank(),
+     panel.grid.minor = element_blank(),
+     axis.line = element_line(colour = "black"))
+
+ ##thicks in axis
+  theme(axis.ticks.length=unit(.3, "cm"))+
+   #scale_fill_manual("legend", values = c("Antas" = "#660066", "Denmark" = "lightgrey","Leura" = "darkgrey", "Monti" = "#FF9933","Narrikup" = "blue",  "Woogenellup" = "#033333"))+
+   
+   #make sowing dates white  
+   theme(strip.background = element_rect(colour = "black", fill = "white",size=2))+
+   
+  #label sizes 
+theme(text = element_text(size = 24))
+
+
+
+#ggsave("plot_ClusterHardseedBreakdown.tiff", width=12, height=6, dpi=5)
+
+
+```
+
+

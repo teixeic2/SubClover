@@ -546,6 +546,57 @@ ggsave("plot_Proj8a_Days_ThermalTimeFlo_vs_MeanPp_AllCvs_Colour.tiff", width=14,
 
 ```
 
+
+
+```{r, fig.width= 12,fig.height=10, warning=FALSE}
+
+df_Panelwork %>%
+  dplyr::rename(Pp_direction=Pp_dir) %>%
+      ggplot(aes(x=meanPp50F_mean, y= VariableValue_mean, 
+             colour=interaction(Group, Pp_direction),
+             linetype= Pp_direction,
+             fill=interaction(Group, Pp_direction))) +
+    geom_point(size=5, aes(shape = Cultivar,)) +
+    theme_bw(base_size = 22) +
+    geom_smooth(method='lm',se=TRUE)+
+    labs(x="Mean photoperiod (hours)", y="Time to 50% flowering ") +
+    facet_grid(VariableName~.,scales ="free") +
+    
+    #scale_shape_manual(values = c(0,1,2,3,4,5,6,7,8,9,10,11)) +
+    scale_shape_manual(values = c(1,2,0,4,7,8)) + 
+    scale_fill_manual(name="Interactions",
+        values=c(Early.Decreasing="red", 
+                 Late.Decreasing="blue", 
+                 Late.Increase= "blue",
+                 Early.Increase="red")) +
+    scale_color_manual(name="Interactions",
+        values=c(Early.Decreasing="red", 
+                 Late.Decreasing="blue", 
+                 Late.Increase= "blue",
+                 Early.Increase="red")) +
+  ylim(0,NA)+
+  
+  
+  theme(panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(),
+        strip.background = element_blank(),
+        panel.border = element_rect(colour = "black"))
+
+
+  #make sowing dates white  
+ # theme(strip.background = element_rect(colour = "black", fill = "white",size=1.5))
+
+
+
+#ggsave("plot_Proj8a_Days_ThermalTimeFlo_vs_MeanPp_AllCvs.tiff", width=14, height=8, dpi=600)
+ggsave("plot_Proj8a_Days_ThermalTimeFlo_vs_MeanPp_AllCvs_Colour_Version2.tiff", width=14, height=12, dpi=600)
+
+```
+
+
+
+
+
 ##Re graph as per re analyis use Sowing Month in x axis; Do same graph per sowing month 
 
 
@@ -753,8 +804,65 @@ ggsave("plot_Prj8a_SowMonth_vs_FlowMonth_seedyield_AllCvs.tiff", width=14, heigh
   
 ```
 
+do a new one now 
 
 
+#do graph with sowing month in X, flowering month in Y and seed yield as point size  
 
+```{r, fig.width= 12,fig.height=6, warning=FALSE}
+
+str(FlowerSeedYield)
+
+FlowerSeedYieldWork<-FlowerSeedYield%>%
+  dplyr::select(Plot,SowTreat, Cultivar,SowingD,DAS50F,Seedskg_ha)%>%
+  group_by(Cultivar,SowTreat,SowingD)%>%
+  dplyr::select(DAS50F,Seedskg_ha)%>%
+  summarise_each(funs(mean,sd))%>%
+  mutate(FlowerD=round(SowingD+DAS50F_mean,0))
+  
+
+
+##Graph it 
+FlowerSeedYieldWork %>%
+      ggplot(aes(x=SowingD, y= FlowerD 
+             )) +
+    #geom_point(aes(shape=Cultivar))+
+    geom_jitter(aes(size = (Seedskg_ha_mean), shape=Cultivar),stroke=1.1)+
+  
+    theme_bw() +
+    #geom_smooth(method='lm',se=TRUE)+
+    #geom_line(aes())  +
+    labs(x="Sowing Month", y="Flowering Month ") +
+    scale_x_date(date_breaks = "months" , date_labels = "%b")+
+    scale_y_date(date_breaks = "months" , date_labels = "%b")+
+    scale_shape_manual(values = c(1,2,0,4,7,8)) + 
+#remove grid lines 
+  #  theme(
+  #    panel.border = element_rect(colour = "black", size = 3), 
+  #  #  panel.grid.major = element_blank(),
+  #  #  panel.grid.minor = element_blank(),
+  #    axis.line = element_line(colour = "black"))+
+  # ##Ablines
+  # geom_hline(yintercept=10, linetype="dashed", color = "black")+
+
+
+ ##thicks in axis
+  theme(axis.ticks.length=unit(.3, "cm"))+
+   
+   #make sowing dates white  
+   #theme(strip.background = element_rect(colour = "black", fill = "white",size=2)) +
+
+   
+  #label sizes 
+theme(text = element_text(size = 26))+
+  
+  theme(panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(),
+        strip.background = element_blank(),
+        panel.border = element_rect(colour = "black"))
+
+ggsave("plot_Prj8a_SowMonth_vs_FlowMonth_seedyield_AllCvs_BlackWhite.tiff", width=14, height=8, dpi=600)
+  
+```
 
 

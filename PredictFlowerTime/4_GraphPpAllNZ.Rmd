@@ -1,7 +1,7 @@
  ---
-title: "ReanalysisTT"
+title: "Photoperiod range for all NZ Lat "
 author: "CT"
-date: "27 December 2016"
+date: " 2 December 2020"
 output:
   word_document: default
   html_document: default
@@ -9,45 +9,91 @@ output:
 
 ##Aim:
 
-- Reads raw data weather all trials
+- Reads raw data Pp for latitudes 34 -47 
 - Check the data
-- Graph temperature and Pp
-- Calculates TT accumulation
-- Saves technically consistent data
+- Graph Pp
+
+C:\GitHubRepos\SubcloverPhD\SubClover\PredictFlowerTime
+
+
+
+```{r setup, include=FALSE, loadlibraires}
+
+library(data.table)
+
+library(tidyr)
+library (dplyr)
+library (ggplot2)
+library(agricolae)
+library(knitr)
+library (lubridate)
+
+
+
+```
 
 
 
 ```{r readData}
-setwd("C:\\GitHubRepos\\SubCloverPhD\\SubClover\\ReAnalysis")
+
+
+setwd("C:\\GitHubRepos\\SubCloverPhD\\SubClover\\PredictFlowerTime")
 getwd()
 
 #create file
-df_We <- read.table("RawWeather.txt",header=TRUE)
-
+#df_We <- read.table("RawWeather.txt",header=TRUE)
+df_We <- read.table("AllNZPp.txt",header=TRUE)
 #head(df_We)
 
 summary(df_We)
 ```
 
+
+
+
 ## Graph it 
 
 ```{r, fig.height=10, fig.width=10}
-
 df_We %>%
-  mutate(Date=dmy(df_We$Date)) %>%
-  filter(LocationYear != "Mininera2005") %>%
-  tidyr::gather("Variable", "Value",Tx:Pp) %>%
- #mutate(Month=format(as.Date(dmy(as.character(Date))),"%b")) %>%
-  ggplot(aes(x=Date,y=Value))+
-  geom_line(aes(colour=factor(Variable))) +
-  facet_wrap(~LocationYear,scale="free") +
-  labs(x=" Date", y=" degree Celsius/hours  ")+
-  scale_color_manual(values=c("#333333", "#9999CC", "#CC3300"))+
+  mutate(Date=dmy(df_We$Date))%>%
+  
+  ggplot(aes(x=Date,y=Pphs))+
+  geom_line(aes(colour=factor(Latitude))) +
+  theme_bw()+
+ # facet_wrap(~LocationYear,scale="free") +
+  labs(x=" Date", y=" Pphours  ")+
+  #scale_color_manual(values=c("#333333", "#9999CC", "#CC3300"))+
   theme(axis.text.x = element_text(angle = 90, hjust = 1)) +
   scale_x_date(labels = date_format("%b-%Y"))
 
 
+ #ggsave("plot_4_GraphPpAllNZ_.tiff", width=12, height=6, dpi=300)
+  
+  
 ```
+
+
+```{r, fig.height=10, fig.width=10}
+
+Selection<-df_We %>%
+  #mutate(Date=dmy(df_We$Date)) %>%
+  filter(DOY>60)
+
+
+
+
+```
+
+
+
+DOI 61 = 1 march
+DOI 121 = 30 April 
+
+
+
+
+
+
 
 ## Define Tt cardinal temperatures
 

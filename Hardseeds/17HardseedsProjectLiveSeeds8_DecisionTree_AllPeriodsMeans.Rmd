@@ -39,8 +39,28 @@ head(df_All)
 
 ```
 
+Filter only weather variables for the Crop and Pasture paper  (Table 2) 
+
+```{r}
+
+df_Paper<-df_All%>%
+  #select("Cultivar", "SowTeat", "Period", "PET",  "RainIrrig", "RH", "SoilTemp")
+
+select(SowTreat, Period, PET, RainIrrig, RH, SoilTemp)
 
 
+
+
+
+write.table(df_Paper, "Prj17_Table1_WeatherVariablesSowT.txt") 
+
+
+
+
+
+
+
+```
 
 
 

@@ -1,0 +1,180 @@
+---
+title: "Coleoptile measurements oats"
+author: "CT"
+date: " 18.11.2020"
+output: 
+  word_document: default
+  pdf_document: default
+  html_document: default
+---
+Purpose of this script : 
+calculate the coleoptile length of oat cvs 
+
+```{r loadLibraries}
+library(tidyr)
+library (dplyr)
+library (ggplot2)
+library(agricolae)
+library(knitr)
+library (lubridate)
+
+```
+
+Read the file and check formats 
+
+```{r loadFile}
+setwd("C:\\GitHubRepos\\SubCloverPhD\\SubClover\\Coleoptile")
+getwd()
+
+#create file
+#df_Hvst <- read.table("DAStoSenescence.txt",header=TRUE)
+##df_Hvst <- read.table("ColeoLeng.txt",header=TRUE)
+##ReadData from 6cvs
+#df_Hvst <- read.table("ColeoLeng6CV.txt",header=TRUE)
+
+df_Hvst <- read.table("ColeoLeng6CVFin.txt",header=TRUE)
+
+
+
+# define formats 
+df_Hvst$ReadDate <- dmy(df_Hvst$ReadDate )
+df_Hvst$SowingD <- dmy(df_Hvst$SowingD)
+##df_Hvst$ColeoLeng <- as.character(df_Hvst$ColeoLeng)
+df_Hvst$Block <- as.factor(df_Hvst$Block)
+df_Hvst$Plot <- as.factor(df_Hvst$Plot)
+ head(df_Hvst)   
+
+#str(df_Hvst)
+# head(df_Hvst)
+# summary(df_Hvst)
+# tail(df_Hvst)
+
+
+  
+df_Hvst$ColeoLeng <- as.character(df_Hvst$ColeoLeng)
+
+
+
+str(df_Hvst)
+
+
+
+
+
+```
+Remove Nas
+
+```{r}
+
+df_Hvst1<-df_Hvst%>%
+  filter(ColeoLeng!="na")
+
+df_Hvst1$ColeoLeng <- as.numeric(df_Hvst1$ColeoLeng)
+df_Hvst1$SeedlingLeng <- as.numeric(df_Hvst1$SeedlingLeng)
+
+```
+
+
+
+
+Graph and check data 
+
+
+```{r , fig.height=5, fig.width= 10}
+
+df_Hvst2<-df_Hvst1 %>%
+  filter(ReadDate!=ymd("2020-11-27")) %>%
+group_by(Cultivar) %>%
+  dplyr::select(ColeoLeng) %>%
+  summarise_each(funs(mean,sd)) %>%
+  ggplot(aes(x=Cultivar, y=(mean))) +
+  geom_point(aes(colour=Cultivar), size=6) +
+  geom_line(aes(colour=Cultivar)) +
+  geom_errorbar(aes(ymin=mean-sd/2,
+                    ymax=mean+sd/2), width=0.2)   +
+  theme_grey(base_size = 20) +
+  theme_bw()+
+  theme(text = element_text(size = 24))+
+  #facet_grid(Cultivar~., scales="free") +
+    labs(y= "Coleoptile Lenght mm ")+
+  ylim(0,20)
+
+
+
+
+
+```
+
+
+```{r}
+
+
+write.table(df_Hvst2, "DataOatsFinal.txt")
+
+
+
+```
+
+
+
+
+
+
+
+Here overall anova for sowTreat and cultivar (overview here; individual SowTreat analysis in script 2 )
+```{r ANOVA}
+
+#REMOVE NA :df_Hvst1
+
+
+#my.anova <- aov(ColeoLeng ~ Cultivar + Block, data = df_Hvst1)
+my.anova <- aov(ColeoLeng ~ Cultivar + Block, data = df_Hvst2)
+summary(my.anova)
+TukeyHSD(my.anova)
+
+
+
+
+```
+
+```{r}
+#Means separation 
+#(LSD.test(my.anova, c("Cultivar","SowTreat"), alpha= 0.05, p.adj="none")) 
+(LSD.test(my.anova, c("Cultivar"), alpha= 0.05, p.adj="none")) 
+#(LSD.test(my.anova, c("SowTreat"), alpha= 0.05, p.adj="none")) 
+
+```
+
+
+```{r , fig.height=5, fig.width= 10}
+
+
+my.anova <- aov(SeedlingLeng ~ Cultivar + Block, data = df_Hvst2)
+summary(my.anova)
+TukeyHSD(my.anova)
+
+
+
+
+```
+
+
+
+```{r}
+#Means separation 
+#(LSD.test(my.anova, c("Cultivar","SowTreat"), alpha= 0.05, p.adj="none")) 
+(LSD.test(my.anova, c("Cultivar"), alpha= 0.05, p.adj="none")) 
+#(LSD.test(my.anova, c("SowTreat"), alpha= 0.05, p.adj="none")) 
+
+```
+
+
+
+
+
+End of this script. Continue in script Coleo_Project2 
+
+
+
+
+

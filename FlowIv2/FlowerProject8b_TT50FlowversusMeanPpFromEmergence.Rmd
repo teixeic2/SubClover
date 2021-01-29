@@ -1229,9 +1229,51 @@ df_Panelwork %>%
   #label sizes 
 theme(text = element_text(size = 24))
 
-ggsave("plot_8b_DaysANDThermalTimeFlo_VsSowingMonth_AllCvs.tiff", width=14, height=8, dpi=600)
+#ggsave("plot_8b_DaysANDThermalTimeFlo_VsSowingMonth_AllCvs.tiff", width=14, height=8, dpi=600)
   
 ```
+
+do without panels 
+
+```{r, fig.width= 12,fig.height=8, warning=FALSE}
+
+df_Panelwork %>%
+      ggplot(aes(x=SowingD, y= VariableValue_mean, 
+             colour=Group,
+             linetype=Cultivar,
+             fill=Group)) +
+    geom_point(aes(shape = Cultivar),size=8,stroke = 2) +
+    theme_bw(base_size = 18) +
+    #geom_smooth(method='lm',se=TRUE)+
+    geom_line(aes())  +
+    labs(x="Sowing Month", y="Time to 50% flowering") +
+  #ylim(0,300)+
+    scale_x_date(date_breaks = "months" , date_labels = "%b")+
+    facet_grid(VariableName~.,scales ="free") +
+  
+  theme(axis.text.x=element_text(angle = 0, hjust = 0.5, size= 22))+
+  theme(axis.title.x=element_text(angle = 0, hjust = 0.5, size= 22))+
+  theme(axis.text.y=element_text(angle = 0, hjust = 0, size= 22))+
+  theme(axis.title.y=element_text(angle = 90, hjust = 0.5, size= 22))+
+  
+    #scale_shape_manual(values = c(0,1,2,3,4,5,6,7,8,9,10,11)) +
+    scale_shape_manual(values = c(1,2,0,4,7,8)) + 
+#remove border lines 
+ theme(panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(),
+        strip.background = element_blank(),
+        panel.border = element_rect(colour = "black"))+
+   
+  #label sizes 
+theme(text = element_text(size = 24))
+
+ggsave("plot_8b_DaysANDThermalTimeFlo_VsSowingMonth_AllCvsVersion2.tiff", width=14, height=8, dpi=600)
+  
+```
+
+
+
+
 
 
 

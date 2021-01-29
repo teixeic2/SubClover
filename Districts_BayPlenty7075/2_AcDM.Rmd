@@ -1,0 +1,158 @@
+ ---
+title: "Districts Bay of Plenty data"
+author: "CT"
+date: "07 Dec 2020"
+output:
+  word_document: default
+  html_document: default
+---
+
+##Aim:
+
+- Reads Accumulated DM data  from all districts 
+- Check the data
+- Graph
+
+
+```{r load libraies}
+
+
+library(tidyr)
+library (dplyr)
+library (ggplot2)
+library(agricolae)
+library(knitr)
+library (lubridate)
+library(scales)
+
+
+
+```
+
+
+```{r}
+
+
+setwd("C:\\GitHubRepos\\SubCloverPhD\\SubClover\\Districts_BayPlenty7075")
+getwd()
+
+#create file
+#df_We <- read.table("RawWeather.txt",header=TRUE)
+df_DM <- read.table("AccDM.txt",header=TRUE)
+
+#head(df_We)
+
+summary(df_DM)
+str(df_DM)
+
+
+
+```
+
+
+Adjust Formats
+
+```{r}
+#df_We <-df_We %>%
+  #mutate(MeasurementEndDate=dmy(df_We$MeasurementEndDate))%>%
+  #filter(GRkgPerday  != "na")
+
+
+
+df_DM$Date <- dmy(df_DM$Date)
+#df_We$Location <- as.factor(df_We$Location)
+#df_We$GRkgPerday <- as.numeric(df_We$GRkgPerday)
+
+str(df_DM)
+summary(df_DM)
+
+```
+
+
+
+## Graph it 
+
+```{r, fig.height=15, fig.width=15}
+
+df_DM %>%
+  #mutate(MeasurementEndDate=dmy(df_We$MeasurementEndDate))%>%
+  filter(AccDM != 0) %>%
+  #tidyr::gather("Variable", "Value",Tx:Pp) %>%
+ #mutate(Month=format(as.Date(dmy(as.character(Date))),"%b")) %>%
+  ggplot(aes(x=Date,y=AccDM)) +
+    geom_point(aes(colour=Location), size=3) +
+  theme_bw(base_size = 20) +
+  #geom_line(aes(colour=factor(Location))) +
+  #facet_wrap(~Location,scale="free") +
+   facet_wrap(~Location) +
+  labs(x=" Date", y=" Accumulated DM yield kg/ha ")+
+  #scale_color_manual(values=c("#333333", "#9999CC", "#CC3300"))+
+  theme(axis.text.x = element_text(angle = 60, hjust = 1)) +
+ scale_x_date(labels = date_format("%b-%Y"))
+  
+  
+  
+
+
+```
+
+
+
+
+
+```{r}
+
+ ggsave("plot_2AcDM .tiff", width=15, height=15, dpi=300)
+
+#write.table(df_CumTT, "df_CumTT.txt")
+
+```
+
+
+
+
+## Graph it 
+
+```{r, fig.height=10, fig.width=15}
+
+# df_We %>%
+#   #mutate(MeasurementEndDate=dmy(df_We$MeasurementEndDate))%>%
+#   filter(GRkgPerday  != 0) %>%
+#   #tidyr::gather("Variable", "Value",Tx:Pp) %>%
+#  #mutate(Month=format(as.Date(dmy(as.character(Date))),"%b")) %>%
+#   ggplot(aes(x=MeasurementEndDate,y= DMkg.ha )) +
+#     #geom_point(aes(colour=Location), size=3) +
+# 
+#   geom_boxplot(alpha =0.2) +
+#   #geom_violin(alpha =0.2)+
+#   geom_jitter(aes(colour=Location), width=0.25)+
+#   
+#   
+#   
+#   theme_grey(base_size = 20) +
+#   #geom_line(aes(colour=factor(Location))) +
+#   #facet_wrap(~Location,scale="free") +
+#    facet_wrap(~Location) +
+#   labs(x=" Date", y=" DMkg/ha ")+
+#   #scale_color_manual(values=c("#333333", "#9999CC", "#CC3300"))+
+#   theme(axis.text.x = element_text(angle = 60, hjust = 1)) +
+#  scale_x_date(labels = date_format("%b-%Y"))
+#   
+#   
+#   
+
+
+```
+
+
+
+
+```{r}
+
+ ggsave("plot_1DM_ha_GrowthRate .tiff", width=15, height=10, dpi=300)
+
+#write.table(df_CumTT, "df_CumTT.txt")
+
+```
+
+

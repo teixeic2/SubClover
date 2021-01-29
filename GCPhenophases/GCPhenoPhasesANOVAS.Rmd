@@ -38,16 +38,18 @@ summary(workDataANOVA)
 ```
 
 Get means and SE to write in text 
+Get means to answer Sonya inquiry about V2 
 
 ```{r}
 
 MeanSE<-workDataANOVA %>%
-  filter(Stage=="VR-R1")%>%
+  filter(Stage=="V1-V3")%>%
+  #filter(Stage=="VR-R1")%>%
  group_by(Cultivar)%>%
   #dplyr::select(DAS)%>%
-  dplyr::select(TTAS)%>%
-  summarise_all(funs(mean,sd))%>%
-  mutate(SE=sd/1.73)
+  dplyr::select(TTAS,DAS)%>%
+  summarise_all(funs(mean,sd))
+  #mutate(SE=sd/1.73)
 
 
 

@@ -18,9 +18,11 @@ library (dplyr)
 library (ggplot2)
 library(agricolae)
 library (lubridate)
-library(mosaic)
+#library(mosaic)
 library(lattice)
 library(knitr)
+library(gridExtra)
+
 ```
 
 Read document generated in script "3" 5Trifo_rate
@@ -175,6 +177,61 @@ grid.arrange(g1)
 ggsave("plot_13TrifoIv2_Phyllochron_SowMonth.tiff", width=12, height=6, dpi=400)
 
 ```
+
+
+
+```{r, fig.height=8, fig.width=15}
+
+sm_n <- c(6,7,9,11,12,2,3,5)
+sm <- unique(MeanData$SowMonth)
+
+g1 <- MeanData %>%
+  ungroup() %>%
+  mutate(SowMonthNo = factor(SowMonth, levels = sm_n,labels = sm)) %>%
+  left_join(df_Photo_dir, by="SowTreat") %>%
+  ##For Ppemergence
+  # ggplot(aes(x=PpEmerg_mean, y= Phyllocron_mean))  +
+  ggplot(aes(x=SowMonth, y= Phyllocron_mean)) + 
+ # geom_point(colour= "black", alpha=0.5) +
+   geom_point(aes( shape=Cultivar),size=6, stroke=1.7) +
+scale_shape_manual(values = c(0,1,2,4,7,8)) +
+  ylim(0,100)+
+  theme_bw()+
+   #label sizes 
+theme(text = element_text(size = 24))+
+  xlab("Sowing Month")+
+ylab(expression(Mean~Phyllochron~"("^"o"*"Cd/leaf)"))+
+  #remove grid lines 
+   theme(
+     panel.border = element_rect(colour = "black", size = 3), 
+     panel.grid.major = element_blank(),
+     panel.grid.minor = element_blank(),
+     axis.line = element_line(colour = "black"))+
+  ##create ablines to indicate the average 51 (S2,S6) and +- LSD 7.65 to indicate no differences
+  geom_abline(intercept = 51, slope = 0, linetype=1, linecolour="black")+
+   geom_abline(intercept = 44,  slope = 0, linetype=2, linecolour="darkgrey")+
+   geom_abline(intercept = 59,  slope = 0, linetype=2, linecolour="darkgrey")+
+   
+   
+   #make sowing dates white  
+   theme(strip.background = element_rect(colour = "black", fill = "white",size=1))+
+   
+  #label sizes 
+theme(text = element_text(size = 26))
+  
+
+grid.arrange(g1)
+
+
+# Save
+
+ggsave("plot_13TrifoIv2_Phyllochron_SowMonth_BlackWhite.tiff", width=12, height=6, dpi=400)
+
+```
+
+
+
+
 ##Find the standard error for each sowing date 
 
 
